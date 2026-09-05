@@ -12,15 +12,21 @@ namespace Spd.Presentacion.ViewModels;
 public sealed partial class BuscadorPacientesViewModel : ViewModelBase
 {
     private readonly IServicioPacientes _servicio;
+    private readonly IServicioTratamientos _servicioTratamientos;
+    private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private string _fragmento = string.Empty;
     [ObservableProperty] private bool _mostrarSoloActivosYEvaluacion = true;
     [ObservableProperty] private ObservableCollection<Paciente> _resultados = [];
 
-    public BuscadorPacientesViewModel(IServicioPacientes servicio, int? usuarioActualId)
+    public BuscadorPacientesViewModel(
+        IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
+        int? usuarioActualId)
     {
         _servicio = servicio;
+        _servicioTratamientos = servicioTratamientos;
+        _servicioMedicamentos = servicioMedicamentos;
         _usuarioActualId = usuarioActualId;
         Buscar();
     }
@@ -36,11 +42,11 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirPaciente(Paciente paciente)
-        => new FichaPacienteWindow(_servicio, paciente, _usuarioActualId).Show();
+        => new FichaPacienteWindow(_servicio, _servicioTratamientos, _servicioMedicamentos, paciente, _usuarioActualId).Show();
 
     [RelayCommand]
     private void NuevoPaciente()
-        => new FichaPacienteWindow(_servicio, null, _usuarioActualId).Show();
+        => new FichaPacienteWindow(_servicio, _servicioTratamientos, _servicioMedicamentos, null, _usuarioActualId).Show();
 
     partial void OnFragmentoChanged(string value) => Buscar();
 

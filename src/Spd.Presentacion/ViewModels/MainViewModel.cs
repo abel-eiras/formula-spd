@@ -19,6 +19,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
     private readonly IServicioPacientes _servicioPacientes;
+    private readonly IServicioTratamientos _servicioTratamientos;
     private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly IServicioImportacionNomenclator _servicioImportacionNomenclator;
     private readonly IServicioConsultaCima _servicioConsultaCima;
@@ -43,6 +44,7 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
         IServicioPacientes servicioPacientes,
+        IServicioTratamientos servicioTratamientos,
         IServicioMedicamentos servicioMedicamentos,
         IServicioImportacionNomenclator servicioImportacionNomenclator,
         IServicioConsultaCima servicioConsultaCima,
@@ -58,6 +60,7 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
         _servicioPacientes = servicioPacientes;
+        _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
         _servicioImportacionNomenclator = servicioImportacionNomenclator;
         _servicioConsultaCima = servicioConsultaCima;
@@ -73,7 +76,7 @@ public sealed partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirPacientes()
     {
-        var ventana = new BuscadorPacientesWindow(_servicioPacientes, UsuarioActual.Id);
+        var ventana = new BuscadorPacientesWindow(_servicioPacientes, _servicioTratamientos, _servicioMedicamentos, UsuarioActual.Id);
         ventana.Show();
     }
 
