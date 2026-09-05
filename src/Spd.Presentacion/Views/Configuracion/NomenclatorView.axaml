@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Configuracion.NomenclatorView">
+  <StackPanel Spacing="12" Margin="24" Width="420">
+    <TextBlock Text="Nomenclátor" FontSize="18" FontWeight="Bold" />
+    <TextBlock Text="URL del nomenclátor" />
+    <TextBox Text="{Binding UrlNomenclator}" />
+    <Button Content="Guardar URL" Command="{Binding GuardarUrlCommand}" />
+    <Button Content="Descargar ahora" Command="{Binding DescargarCommand}"
+            IsEnabled="{Binding !Descargando}" />
+    <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+               IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+  </StackPanel>
+</UserControl>

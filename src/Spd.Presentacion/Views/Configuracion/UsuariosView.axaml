@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Configuracion.UsuariosView">
+  <Grid ColumnDefinitions="260,*" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="4">
+      <TextBlock Text="Usuarios activos" FontSize="18" FontWeight="Bold" />
+      <ListBox ItemsSource="{Binding Usuarios}">
+        <ListBox.ItemTemplate>
+          <!-- Sin x:DataType a propósito: bindings por reflexión, evita el patrón fragil de
+               $parent + cast de tipo con compiled bindings que provocó un cierre inesperado. -->
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding Nombre}" FontWeight="Bold" />
+              <TextBlock Text="{Binding Apellidos}" />
+              <TextBlock Text="{Binding Rol}" Foreground="Gray" FontSize="11" />
+              <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0">
+                <Button Content="Resetear contraseña" FontSize="11"
+                        Command="{Binding DataContext.ResetearPasswordCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+                <Button Content="Dar de baja" FontSize="11"
+                        Command="{Binding DataContext.DarDeBajaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+              </StackPanel>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Dar de alta un usuario" FontSize="18" FontWeight="Bold" />
+        <TextBlock Text="Nombre *" />
+        <TextBox Text="{Binding NombreNuevo}" />
+        <TextBlock Text="Apellidos *" />
+        <TextBox Text="{Binding ApellidosNuevo}" />
+        <TextBlock Text="Usuario (login) *" />
+        <TextBox Text="{Binding LoginNuevo}" />
+        <CheckBox Content="Dar de alta como Administrador" IsChecked="{Binding EsAdministradorNuevo}" />
+
+        <TextBlock Text="Contraseña (vacío = se genera una provisional)" />
+        <TextBox Text="{Binding PasswordNuevo}" PasswordChar="●" RevealPassword="{Binding MostrarPassword}" />
+        <TextBlock Text="Repetir contraseña" />
+        <TextBox Text="{Binding ConfirmarPasswordNuevo}" PasswordChar="●" RevealPassword="{Binding MostrarPassword}" />
+        <CheckBox Content="Mostrar contraseña" IsChecked="{Binding MostrarPassword}" />
+
+        <Button Content="Crear usuario" Command="{Binding CrearUsuarioCommand}" Margin="0,8,0,0" />
+        <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+                   IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

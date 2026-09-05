@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Configuracion.FarmaciaView">
+  <Grid RowDefinitions="*,Auto">
+  <ScrollViewer Grid.Row="0">
+    <StackPanel Spacing="8" Margin="24">
+      <TextBlock Text="Datos de la farmacia" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="Código sanitario *" />
+      <TextBox Text="{Binding CodigoSanitario}" />
+      <TextBlock Text="Nombre *" />
+      <TextBox Text="{Binding Nombre}" />
+      <TextBlock Text="Titular o comunidad de bienes *" />
+      <TextBox Text="{Binding TitularOComunidadBienes}" />
+      <TextBlock Text="CIF *" />
+      <TextBox Text="{Binding Cif}" />
+      <TextBlock Text="Dirección *" />
+      <TextBox Text="{Binding Direccion}" />
+      <TextBlock Text="Código postal *" />
+      <TextBox Text="{Binding Cp}" />
+      <TextBlock Text="Población *" />
+      <TextBox Text="{Binding Poblacion}" />
+      <TextBlock Text="Teléfono *" />
+      <TextBox Text="{Binding Telefono}" />
+      <TextBlock Text="Fax" />
+      <TextBox Text="{Binding Fax}" />
+      <TextBlock Text="Email" />
+      <TextBox Text="{Binding Email}" />
+      <TextBlock Text="WhatsApp" />
+      <TextBox Text="{Binding Whatsapp}" />
+
+      <Separator Margin="0,8" />
+      <TextBlock Text="Logo" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="{Binding Logo}" Foreground="Gray" />
+      <TextBlock Text="Ruta del nuevo logo" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBox Text="{Binding RutaNuevoLogo}" Width="320" />
+        <Button Content="Explorar…" Click="ExplorarLogo_Click" />
+      </StackPanel>
+      <Button Content="Aplicar nuevo logo" Command="{Binding AplicarNuevoLogoCommand}" />
+
+      <Separator Margin="0,8" />
+      <TextBlock Text="Prefijos de numeración" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="Prefijo de nº de ficha (pacientes)" />
+      <TextBox Text="{Binding PrefijoNumFicha}" />
+      <TextBlock Text="Prefijo de nº de SPD (blísteres)" />
+      <TextBox Text="{Binding PrefijoNumSpd}" />
+
+      <Separator Margin="0,8" />
+      <TextBlock Text="Rutas" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="Carpeta de copias de seguridad" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBox Text="{Binding RutaBackup}" Width="280" />
+        <Button Content="Explorar…" Click="ExplorarRutaBackup_Click" />
+        <Button Content="Validar" Command="{Binding ValidarRutaBackupCommand}" />
+      </StackPanel>
+      <TextBlock Text="Carpeta de documentos generados" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBox Text="{Binding RutaDocumentosGenerados}" Width="280" />
+        <Button Content="Explorar…" Click="ExplorarRutaDocumentos_Click" />
+        <Button Content="Validar" Command="{Binding ValidarRutaDocumentosCommand}" />
+      </StackPanel>
+
+      <Separator Margin="0,8" />
+      <TextBlock Text="Valores por defecto" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="Día de retirada por defecto" />
+      <ComboBox ItemsSource="{Binding DiasSemanaDisponibles}" SelectedItem="{Binding DiaRetiradaDefecto}" />
+      <TextBlock Text="Nº de blísteres por defecto (1 o 2)" />
+      <NumericUpDown Value="{Binding NBlisteresDefecto}" Minimum="1" Maximum="2" />
+      <TextBlock Text="Días de antelación en el listado de retirada" />
+      <NumericUpDown Value="{Binding DiasAntelacionListado}" Minimum="0" Maximum="14" />
+      <TextBlock Text="Rango de temperatura (°C)" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <NumericUpDown Value="{Binding TempMin}" />
+        <NumericUpDown Value="{Binding TempMax}" />
+      </StackPanel>
+      <TextBlock Text="Rango de humedad relativa (%)" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <NumericUpDown Value="{Binding HrMin}" />
+        <NumericUpDown Value="{Binding HrMax}" />
+      </StackPanel>
+      <TextBlock Text="Umbral de reutilización de lectura ambiental (horas)" />
+      <NumericUpDown Value="{Binding UmbralReutilizacionLecturaAmbientalHoras}" Minimum="0" Maximum="24" />
+      <Button Content="Guardar valores por defecto" Command="{Binding GuardarValoresDefectoCommand}" />
+
+      <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
+    </StackPanel>
+  </ScrollViewer>
+
+  <Border Grid.Row="1" Padding="16,8" Background="#22808080"
+          IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+    <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+  </Border>
+  </Grid>
+</UserControl>

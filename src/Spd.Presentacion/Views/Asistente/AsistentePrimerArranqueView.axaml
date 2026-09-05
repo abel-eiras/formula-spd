@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:asistente="using:Spd.Presentacion.Views.Asistente"
+             xmlns:conversores="using:Spd.Presentacion.Conversores"
+             x:Class="Spd.Presentacion.Views.Asistente.AsistentePrimerArranqueView">
+  <UserControl.Resources>
+    <conversores:EnumIgualConverter x:Key="EnumIgual" />
+  </UserControl.Resources>
+
+  <Grid RowDefinitions="*,Auto">
+    <Grid Grid.Row="0">
+      <asistente:PasoCifradoView IsVisible="{Binding PasoActual, Converter={StaticResource EnumIgual}, ConverterParameter=Cifrado}" />
+      <asistente:PasoFarmaciaView IsVisible="{Binding PasoActual, Converter={StaticResource EnumIgual}, ConverterParameter=Farmacia}" />
+      <asistente:PasoPrimerUsuarioView IsVisible="{Binding PasoActual, Converter={StaticResource EnumIgual}, ConverterParameter=PrimerUsuario}" />
+      <asistente:PasoValoresDefectoView IsVisible="{Binding PasoActual, Converter={StaticResource EnumIgual}, ConverterParameter=ValoresDefecto}" />
+      <asistente:PasoRutasView IsVisible="{Binding PasoActual, Converter={StaticResource EnumIgual}, ConverterParameter=Rutas}" />
+    </Grid>
+
+    <StackPanel Grid.Row="1" Margin="24,0,24,24" Spacing="8">
+      <TextBlock Text="{Binding MensajeError}" Foreground="Red" IsVisible="{Binding MensajeError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+        <Button Content="Atrás" Command="{Binding AtrasCommand}" />
+        <Button Content="Siguiente" Command="{Binding SiguienteCommand}" />
+      </StackPanel>
+    </StackPanel>
+  </Grid>
+</UserControl>

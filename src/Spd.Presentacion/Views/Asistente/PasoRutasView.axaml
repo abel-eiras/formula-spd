@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Asistente.PasoRutasView">
+  <StackPanel Spacing="8" Margin="24">
+    <TextBlock Text="Paso 5 de 5 — Rutas" FontSize="20" FontWeight="Bold" />
+    <TextBlock Text="Opcionales aquí; se pueden fijar más tarde desde Configuración (FR-030/031)." Foreground="Gray" TextWrapping="Wrap" />
+    <TextBlock Text="Carpeta de copias de seguridad" />
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <TextBox Text="{Binding RutaBackup}" Watermark="p. ej. D:\SPD-backups" Width="280" />
+      <Button Content="Explorar…" Click="ExplorarRutaBackup_Click" />
+    </StackPanel>
+    <TextBlock Text="Carpeta de documentos generados" />
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <TextBox Text="{Binding RutaDocumentosGenerados}" Watermark="p. ej. D:\SPD-documentos" Width="280" />
+      <Button Content="Explorar…" Click="ExplorarRutaDocumentos_Click" />
+    </StackPanel>
+  </StackPanel>
+</UserControl>

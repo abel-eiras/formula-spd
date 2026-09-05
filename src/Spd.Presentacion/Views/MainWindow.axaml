@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Spd.Presentacion.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Spd.Presentacion.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Spd.Presentacion">
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+        <TextBlock Text="{Binding Greeting}" FontSize="18" />
+        <Button Content="Configuración de usuarios" Command="{Binding AbrirUsuariosCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Configuración de la farmacia" Command="{Binding AbrirFarmaciaCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Actualizaciones" Command="{Binding AbrirActualizacionesCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Nomenclátor" Command="{Binding AbrirNomenclatorCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Cerrar sesión" Command="{Binding CerrarSesionCommand}" Margin="0,16,0,0" />
+    </StackPanel>
+
+</Window>

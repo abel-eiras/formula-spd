@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Asistente.PasoFarmaciaView">
+  <ScrollViewer>
+    <StackPanel Spacing="8" Margin="24">
+      <TextBlock Text="Paso 2 de 5 — Datos de la farmacia" FontSize="20" FontWeight="Bold" />
+      <TextBlock Text="Código sanitario *" />
+      <TextBox Text="{Binding CodigoSanitario}" />
+      <TextBlock Text="Nombre de la farmacia *" />
+      <TextBox Text="{Binding NombreFarmacia}" />
+      <TextBlock Text="Titular o comunidad de bienes *" />
+      <TextBox Text="{Binding TitularOComunidadBienes}" />
+      <TextBlock Text="CIF *" />
+      <TextBox Text="{Binding Cif}" />
+      <TextBlock Text="Dirección *" />
+      <TextBox Text="{Binding Direccion}" />
+      <TextBlock Text="Código postal *" />
+      <TextBox Text="{Binding Cp}" />
+      <TextBlock Text="Población *" />
+      <TextBox Text="{Binding Poblacion}" />
+      <TextBlock Text="Teléfono *" />
+      <TextBox Text="{Binding Telefono}" />
+      <TextBlock Text="Fax (opcional)" />
+      <TextBox Text="{Binding Fax}" />
+      <TextBlock Text="Email (opcional)" />
+      <TextBox Text="{Binding Email}" />
+      <TextBlock Text="WhatsApp (opcional)" />
+      <TextBox Text="{Binding Whatsapp}" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

@@ -1,0 +1,13 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Configuracion.ActualizacionesView">
+  <StackPanel Spacing="12" Margin="24" Width="360">
+    <TextBlock Text="Actualizaciones" FontSize="18" FontWeight="Bold" />
+    <TextBlock TextWrapping="Wrap"
+               Text="Comprueba si hay una versión nueva del software. Nunca se comprueba automáticamente." />
+    <Button Content="Comprobar actualizaciones" Command="{Binding ComprobarCommand}"
+            IsEnabled="{Binding !Comprobando}" />
+    <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+               IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+  </StackPanel>
+</UserControl>
