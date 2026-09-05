@@ -39,35 +39,22 @@ public sealed class InfraestructuraRegistrosCalidadFundamentosTests
     }
 
     [Fact]
-    public void Farmacia_tiene_la_columna_umbral_dias_aviso_calidad_con_valor_por_defecto_7()
-    {
-        var (conexion, _) = AbrirBaseDeDatosDePrueba();
-        new RepositorioFarmacia(conexion).Crear(new Farmacia
-        {
-            CodigoSanitario = "PO-001", Nombre = "Farmacia de Prueba", TitularOComunidadBienes = "Titular",
-            Cif = "B00000000", Direccion = "Calle Falsa 1", Cp = "36000", Poblacion = "Pontevedra",
-            Telefono = "986000000"
-        });
-
-        var umbral = conexion.ExecuteScalar<int>("SELECT umbral_dias_aviso_calidad FROM Farmacia");
-
-        Assert.Equal(7, umbral);
-    }
-
-    [Fact]
-    public void RepositorioRegistrosCalidad_crea_y_lista_ambiental_y_limpieza()
+    public void RepositorioRegistrosCalidad_crea_y_lista_formacion_y_residuos()
     {
         var (conexion, usuarioId) = AbrirBaseDeDatosDePrueba();
         var repositorio = new RepositorioRegistrosCalidad(conexion);
 
-        repositorio.Crear(new RegistroAmbiental
+        repositorio.Crear(new FormacionPersonal
         {
-            FechaHora = DateTime.UtcNow, Temperatura = 20, Humedad = 50, UsuarioId = usuarioId, FueraDeRango = false
+            UsuarioId = usuarioId, NombreCurso = "Curso de manipulación", Fecha = DateOnly.FromDateTime(DateTime.Today)
         });
-        repositorio.Crear(new RegistroLimpieza { Fecha = DateTime.UtcNow, UsuarioId = usuarioId, Tipo = TipoLimpieza.Rutinaria });
+        repositorio.Crear(new RecogidaResiduos
+        {
+            Fecha = DateOnly.FromDateTime(DateTime.Today), EmpresaGestora = "Gestora S.L.", UsuarioId = usuarioId
+        });
 
-        Assert.Single(repositorio.ListarAmbiental());
-        Assert.Single(repositorio.ListarLimpieza());
+        Assert.Single(repositorio.ListarFormacion(usuarioId));
+        Assert.Single(repositorio.ListarRecogidaResiduos());
     }
 
     [Fact]

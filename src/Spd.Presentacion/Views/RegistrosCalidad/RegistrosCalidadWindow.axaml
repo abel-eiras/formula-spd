@@ -5,12 +5,6 @@
         Title="SPD — Registros de calidad"
         Width="760" Height="600">
   <TabControl>
-    <TabItem Header="Ambiental">
-      <registros:RegistroAmbientalView x:Name="AmbientalView" />
-    </TabItem>
-    <TabItem Header="Limpieza">
-      <registros:RegistroLimpiezaView x:Name="LimpiezaView" />
-    </TabItem>
     <TabItem Header="Formación">
       <registros:FormacionPersonalView x:Name="FormacionView" />
     </TabItem>

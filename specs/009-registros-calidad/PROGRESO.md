@@ -125,3 +125,54 @@ fase de `/speckit-plan`.
   pendiente de la prueba manual real (`dotnet run`) del usuario** cuando pueda sentarse al
   ordenador, igual que Specs 001 y 003 — no se puede verificar una interfaz gráfica de escritorio
   sin ejecutarla de verdad.
+
+## Cambio de alcance tras prueba manual (2026-09-05)
+
+El usuario probó esta rama en su escritorio y reportó varios puntos. Registro completo de lo
+encontrado y de lo aplicado:
+
+**1. Bug real: cerrar con la X no apagaba la aplicación en la ventana de login/asistente.**
+Solo `MainWindow` tenía un manejador `Closed` que llamaba a `desktop.Shutdown()` al cerrar con la
+X nativa; ni la ventana de login ni la del asistente de primer arranque lo tenían, a pesar de
+`ShutdownMode.OnExplicitShutdown` — cerrarlas con la X podía dejar la aplicación como proceso en
+segundo plano sin ninguna ventana visible. Corregido aplicando el mismo patrón (bandera
+"cerrada por el usuario para continuar el flujo" + `Closed` → `Shutdown()` salvo que ese flujo
+esté en marcha) a las tres ventanas en `App.axaml.cs`.
+
+**2. Confusión de ramas (no era un bug)**: el usuario probó esta rama (`009-registros-calidad`,
+partida de `main`) y no encontraba Pacientes ni Catálogo de medicamentos ni la pantalla de
+revisión del nomenclátor. Esto es esperado: esas funcionalidades viven en las ramas
+`001-pacientes-y-medicos` y `003-catalogo-medicamentos`, que no se han fusionado ni entre sí ni
+con esta — se construyeron en paralelo mientras el usuario podía probar cada una por separado.
+Se le explicó y quedó aclarado en la conversación, no en el código.
+
+**3. Cambio de alcance real, decidido por el usuario**: los registros ambiental y de limpieza
+(FR-900/901/902/910/911, escenarios E1/E2, CA-900/901) **no son necesarios en absoluto** como
+pantallas independientes de esta spec. Los valores de temperatura/humedad se contemplarán, si
+acaso, al generar la hoja de elaboración del blíster (Spec 006/007) — pueden quedar en blanco y
+rellenarse a mano en papel sin problema, porque las hojas de un día se generan todas juntas pero
+los blísteres se preparan a lo largo de la jornada con condiciones distintas; un único registro
+ambiental "suelto" no reflejaría eso. Por depender de ambos, el aviso de registro atrasado
+(FR-950, escenario E5, CA-904, User Story 4 completa) también se retiró — avisar de que faltan
+registros que ya no existen en la aplicación no tendría sentido.
+
+**Código retirado** (build y tests verificados en verde tras la retirada, 7+4+41 = 52 tests):
+- `src/Spd.Dominio/RegistroAmbiental.cs`, `RegistroLimpieza.cs`, `TipoLimpieza.cs`
+- `src/Spd.Aplicacion/DatosRegistroAmbiental.cs`, `ResultadoAvisoRegistros.cs`
+- Métodos de ambiental/limpieza/avisos en `IServicioRegistrosCalidad`/`ServicioRegistrosCalidad`,
+  `IRepositorioRegistrosCalidad`/`RepositorioRegistrosCalidad` (se quedan solo Formación/Residuos)
+- `src/Spd.Presentacion/ViewModels/RegistroAmbientalViewModel.cs`, `RegistroLimpiezaViewModel.cs`
+  y sus vistas; pestañas correspondientes en `RegistrosCalidadWindow` (quedan Formación/Residuos)
+- `Farmacia.UmbralDiasAvisoCalidad` y la columna `umbral_dias_aviso_calidad` (migración editada
+  directamente porque el esquema no está desplegado en ningún sitio real todavía)
+- Aviso en el panel de inicio (`MainViewModel`/`MainWindow`)
+- Tests correspondientes en `ServicioRegistrosCalidadTests.cs`,
+  `InfraestructuraRegistrosCalidadFundamentosTests.cs`, `RegistrosCalidadViewTests.cs` (reescritos
+  para cubrir solo Formación/Residuos)
+
+**No afectado**: Formación del personal (US2), Recogida de residuos (US2), Control de cambios del
+PNT y control de copias (US3) — el usuario no reportó ningún problema con estos.
+
+`spec.md` actualizado con marcas `⚠️ RETIRADO` en los FR/CA/escenarios afectados (sin borrar el
+texto original, para conservar la numeración y la trazabilidad de la decisión) y una nueva entrada
+en "Clarifications". `tasks.md` anota igual las tareas T015-T023 (US1) y T039-T042 (US4).

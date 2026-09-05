@@ -22,6 +22,22 @@
 
 - Q: ¿7 días es razonable como umbral del aviso de FR-950 para ambos registros (ambiental y limpieza), o prefieres umbrales distintos? → A: 7 días para ambos, como un único valor configurable (no dos independientes) — resuelto de forma autónoma adoptando la propuesta por defecto de la spec original, porque el usuario pidió avanzar en desarrollo que no requiera su intervención.
 
+### Session 2026-09-05 (tras prueba manual)
+
+- Q: Tras probar la aplicación, el propietario del producto indicó que el registro ambiental y de
+  limpieza (E1/E2, FR-900/FR-901/FR-902/FR-910/FR-911) **no son necesarios en absoluto** como
+  pantallas independientes de esta spec. La temperatura y humedad se incluirán en la
+  documentación impresa (hoja de elaboración del blíster, Spec 006/007): esa hoja permitirá
+  rellenar esos valores en el momento de generarla, pero si quedan en blanco y se rellenan a mano
+  en papel no es un problema — especialmente porque las hojas de un día se generan todas juntas
+  pero los blísteres se preparan a lo largo de la jornada con temperatura/humedad distintas, así
+  que no tiene sentido un único registro ambiental "suelto" por día. → A: Se retiran de esta spec
+  las pantallas y los servicios de registro ambiental y de limpieza (FR-900/901/902/910/911) y,
+  por depender de ellos, el aviso de registro atrasado (FR-950, CA-904 y el propio Escenario E5).
+  FR-920..FR-942 (formación, residuos, control documental) no se ven afectados. La captura de
+  temperatura/humedad ligada a la hoja de elaboración queda pendiente de diseñarse en Spec 006/007,
+  no aquí. Ver PROGRESO.md para el detalle completo de la decisión y qué código se retiró.
+
 ---
 
 ## 1. Propósito
@@ -32,15 +48,15 @@ Cubrir los registros de calidad que exige el PNT al margen del circuito de cada 
 
 | Actor | Puede |
 |---|---|
-| Elaborador / Administrador | Registrar entradas de ambiental, limpieza, formación, residuos |
+| Elaborador / Administrador | Registrar entradas de ~~ambiental, limpieza~~ (retirados), formación, residuos |
 | Administrador | Control de cambios del PNT y control de copias |
 
 ## 3. Escenarios de usuario
 
-### E1 — Registro ambiental rutinario
+### E1 — Registro ambiental rutinario ⚠️ RETIRADO (ver Clarifications, sesión 2026-09-05 tras prueba manual)
 Como elaborador, al empezar el día en el obrador, quiero registrar la temperatura y humedad sin que tenga que estar ligado a ninguna preparación concreta.
 
-### E2 — Limpieza antes y después de preparar
+### E2 — Limpieza antes y después de preparar ⚠️ RETIRADO (ver Clarifications, sesión 2026-09-05 tras prueba manual)
 Como elaborador, quiero registrar que he limpiado la zona antes y después de una tanda de preparaciones, con un clic, sin rellenar un formulario largo.
 
 ### E3 — Formación del personal
@@ -49,18 +65,22 @@ Como administrador, quiero registrar los cursos o formaciones que ha recibido ca
 ### E4 — Residuos no SIGRE
 Como elaborador, quiero registrar cuándo se recoge el material de acondicionamiento sobrante y otros residuos no farmacéuticos, con la empresa gestora.
 
-### E5 — Ver de un vistazo si falta algún registro
+### E5 — Ver de un vistazo si falta algún registro ⚠️ RETIRADO (dependía de E1/E2, ver Clarifications)
 Como titular, quiero ver en el panel de inicio si llevamos más de X días sin registrar limpieza o ambiental, para no descubrirlo en la inspección.
 
 ## 4. Requisitos funcionales
 
-### 4.1 Registro ambiental
+### 4.1 Registro ambiental ⚠️ RETIRADO DE ESTA SPEC (ver Clarifications, sesión 2026-09-05 tras prueba manual)
+
+> No se implementan pantallas ni servicio de registro ambiental independiente. La temperatura y
+> humedad se capturarán, si acaso, al generar la hoja de elaboración del blíster (Spec 006/007);
+> ese diseño no está definido todavía y no es parte de esta spec.
 
 - **FR-900** Campos: fecha, hora, temperatura, humedad, usuario, observaciones, `spd_id` opcional (si se originó desde una preparación, Spec 006 FR-630) o nulo (si es una lectura rutinaria independiente).
 - **FR-901** `fuera_rango` se calcula y se guarda en el momento del registro comparando con `Farmacia.temp_min/max, hr_min/max` (Spec 000): si cambian los rangos de configuración después, las lecturas pasadas conservan el resultado con el que se registraron (Artículo IV: instantánea, no recálculo retroactivo).
 - **FR-902** Alta rápida desde el panel de inicio o desde cualquier pantalla, con fecha/hora prerrellenadas a "ahora", editables.
 
-### 4.2 Limpieza
+### 4.2 Limpieza ⚠️ RETIRADO DE ESTA SPEC (ver Clarifications, sesión 2026-09-05 tras prueba manual)
 
 - **FR-910** Campos: fecha, usuario, tipo (`PRE_PREPARACION`, `POST_PREPARACION`, `RUTINARIA`), observaciones opcionales.
 - **FR-911** Botones de un clic "Registrar limpieza pre-preparación" y "post-preparación" visibles desde la pantalla de preparación (Spec 006), además del acceso general desde el menú de registros.
@@ -80,7 +100,7 @@ Como titular, quiero ver en el panel de inicio si llevamos más de X días sin r
 - **FR-941** `ControlCopias`: documento, número de copia, usuario que la recibió, fecha. Cubre la trazabilidad de a quién se entregó cada copia controlada del PNT en papel.
 - **FR-942** Ambos registros son de solo Administrador, por ser control documental de alcance de farmacia, no del día a día de un paciente.
 
-### 4.6 Avisos
+### 4.6 Avisos ⚠️ RETIRADO DE ESTA SPEC (dependía del registro ambiental/limpieza, ver Clarifications)
 
 - **FR-950** Panel de inicio: días transcurridos desde el último registro ambiental rutinario y desde la última limpieza `RUTINARIA`, con umbral configurable (por defecto, aviso a partir de 7 días sin ambiental y 7 días sin limpieza rutinaria). El aviso no bloquea nada, es informativo.
 
@@ -88,14 +108,14 @@ Como titular, quiero ver en el panel de inicio si llevamos más de X días sin r
 
 | Entidad | Referencia |
 |---|---|
-| RegistroAmbiental, RegistroLimpieza, FormacionPersonal, RecogidaResiduos, ControlCambiosPNT, ControlCopias | data-model.md |
+| ~~RegistroAmbiental, RegistroLimpieza~~ (retiradas), FormacionPersonal, RecogidaResiduos, ControlCambiosPNT, ControlCopias | data-model.md |
 
 ## 6. Criterios de aceptación
 
-**CA-900 Ambiental fuera de rango se marca al registrar**
+**CA-900 Ambiental fuera de rango se marca al registrar** ⚠️ RETIRADO DE ESTA SPEC
 Dado un rango configurado 15–25 °C, cuando registro 27 °C, entonces la entrada queda marcada fuera de rango; si luego cambio el rango a 15–30 °C, esa entrada sigue marcada fuera de rango.
 
-**CA-901 Limpieza de un clic**
+**CA-901 Limpieza de un clic** ⚠️ RETIRADO DE ESTA SPEC
 Dado que estoy en la pantalla de preparación, cuando pulso "Registrar limpieza pre-preparación", entonces se crea el registro con fecha/hora actual y usuario actual sin más pasos.
 
 **CA-902 Formación acumulativa**
@@ -104,18 +124,18 @@ Dado un usuario con dos formaciones ya registradas, cuando añado una tercera, e
 **CA-903 Control de cambios solo administrador**
 Dado un usuario Elaborador, cuando intenta acceder a Control de cambios del PNT, entonces el sistema se lo impide.
 
-**CA-904 Aviso de registro atrasado**
+**CA-904 Aviso de registro atrasado** ⚠️ RETIRADO DE ESTA SPEC
 Dado que no hay ningún registro ambiental rutinario en los últimos 8 días y el umbral es 7, cuando abro el panel de inicio, entonces veo el aviso correspondiente.
 
 ## 7. Casos límite
 
-- Registro ambiental duplicado el mismo día por error: no se elimina (Artículo III); ambos quedan, no hay problema porque no es un dato único por día.
+- ~~Registro ambiental duplicado el mismo día por error: no se elimina (Artículo III); ambos quedan, no hay problema porque no es un dato único por día.~~ (no aplica: retirado)
 - Formación acreditada que luego se descubre incorrecta: se añade una entrada aclaratoria; no se edita ni se borra la original.
 
 ## 8. Fuera de alcance de esta spec
 
-- Generación de los documentos de estos registros (Spec 007, códigos `REG-AMB`, `REG-LIMP`, `REG-FORM`, `REG-RES`).
-- Registro ambiental ligado a una preparación concreta en detalle (Spec 006 FR-630, que reutiliza esta entidad).
+- Generación de los documentos de estos registros (Spec 007, códigos `REG-FORM`, `REG-RES`).
+- **Registro ambiental y de limpieza en cualquier forma** (FR-900/901/902/910/911/950, CA-900/901/904, Escenarios E1/E2/E5): retirados de esta spec tras prueba manual del usuario (Clarifications, sesión 2026-09-05). La captura de temperatura/humedad, si se hace, se diseñará como parte de la hoja de elaboración del blíster en Spec 006/007, no como un registro independiente.
 
 ## 9. Preguntas abiertas
 

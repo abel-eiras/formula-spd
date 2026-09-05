@@ -1,28 +1,14 @@
--- Registros de calidad (Spec 009): ambiental, limpieza, formación, residuos y control documental.
+-- Registros de calidad (Spec 009): formación, residuos y control documental.
 -- Numerada 0002 en esta rama porque parte de main (solo Spec 000); ver plan.md sobre la
 -- coordinación de numeración pendiente con las ramas 001/003 al mergear.
 -- Todas las tablas de esta spec son de solo alta (Art. III.1): ningún UPDATE/DELETE de negocio.
-
-CREATE TABLE RegistroAmbiental (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fecha_hora TEXT NOT NULL,
-    temperatura REAL NOT NULL,
-    humedad REAL NOT NULL,
-    usuario_id INTEGER NOT NULL REFERENCES Usuario(id),
-    observaciones TEXT,
-    spd_id INTEGER, -- Nullable: no nulo solo cuando exista Spec 006 (FR-900)
-    fuera_rango INTEGER NOT NULL, -- Congelado al registrar (Art. IV, CA-900), nunca recalculado
-    creado_en TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE TABLE RegistroLimpieza (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fecha TEXT NOT NULL,
-    usuario_id INTEGER NOT NULL REFERENCES Usuario(id),
-    tipo TEXT NOT NULL CHECK (tipo IN ('PRE_PREPARACION', 'POST_PREPARACION', 'RUTINARIA')),
-    observaciones TEXT,
-    creado_en TEXT NOT NULL DEFAULT (datetime('now'))
-);
+--
+-- Nota de alcance (2026-09-05, tras prueba manual del usuario): el registro ambiental y de
+-- limpieza como pantallas independientes de esta spec se retiraron. La temperatura/humedad se
+-- rellenará más adelante, opcionalmente, al generar la hoja de elaboración del blíster
+-- (Spec 006/007) — no tiene sentido un registro ambiental "suelto" cuando las hojas de un día se
+-- generan todas a la vez pero los blísteres se preparan a lo largo de la jornada con
+-- temperatura/humedad distintas. Ver PROGRESO.md para el detalle de la decisión.
 
 CREATE TABLE FormacionPersonal (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,6 +49,3 @@ CREATE TABLE ControlCopias (
     fecha TEXT NOT NULL,
     creado_en TEXT NOT NULL DEFAULT (datetime('now'))
 );
-
--- Adición aditiva (research.md Decisión 3, FR-950): umbral único configurable de aviso.
-ALTER TABLE Farmacia ADD COLUMN umbral_dias_aviso_calidad INTEGER NOT NULL DEFAULT 7;

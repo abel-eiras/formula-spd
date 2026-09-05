@@ -76,8 +76,7 @@ public partial class App : Application
             new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, auditoria);
         _servicioNomenclator = new ServicioNomenclator(
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
-        _servicioRegistrosCalidad = new ServicioRegistrosCalidad(
-            new RepositorioRegistrosCalidad(_conexion), repositorioFarmacia, auditoria);
+        _servicioRegistrosCalidad = new ServicioRegistrosCalidad(new RepositorioRegistrosCalidad(_conexion), auditoria);
         _servicioControlDocumental = new ServicioControlDocumental(
             new RepositorioControlDocumental(_conexion), repositorioUsuarios, auditoria);
     }
@@ -87,10 +86,19 @@ public partial class App : Application
         if (!_servicioAsistente!.HayConfiguracionInicial())
         {
             var ventanaAsistente = new AsistentePrimerArranqueWindow(_servicioAsistente);
+            var asistenteFinalizadoPorElUsuario = false;
             ventanaAsistente.AsistenteFinalizado += () =>
             {
+                asistenteFinalizadoPorElUsuario = true;
                 MostrarLogin(desktop);
                 ventanaAsistente.Close();
+            };
+            // Igual que en la ventana principal: cerrar con la X (sin completar el asistente) debe
+            // apagar la aplicación explícitamente, no dejarla como proceso en segundo plano sin
+            // ninguna ventana visible (Art. VI, mismo bug que ya se corrigió para MainWindow).
+            ventanaAsistente.Closed += (_, _) =>
+            {
+                if (!asistenteFinalizadoPorElUsuario) desktop.Shutdown();
             };
             desktop.MainWindow = ventanaAsistente;
             ventanaAsistente.Show();
@@ -106,7 +114,19 @@ public partial class App : Application
     private void MostrarLogin(IClassicDesktopStyleApplicationLifetime desktop)
     {
         var ventanaLogin = new LoginWindow(_servicioUsuarios!);
-        ventanaLogin.SesionIniciada += usuario => AbrirVentanaPrincipal(desktop, ventanaLogin, usuario);
+        var sesionIniciadaPorElUsuario = false;
+        ventanaLogin.SesionIniciada += usuario =>
+        {
+            sesionIniciadaPorElUsuario = true;
+            AbrirVentanaPrincipal(desktop, ventanaLogin, usuario);
+        };
+        // Cerrar el login con la X (sin llegar a iniciar sesión) debe apagar la aplicación
+        // explícitamente, igual que en MainWindow — si no, queda un proceso en segundo plano sin
+        // ninguna ventana visible.
+        ventanaLogin.Closed += (_, _) =>
+        {
+            if (!sesionIniciadaPorElUsuario) desktop.Shutdown();
+        };
         desktop.MainWindow = ventanaLogin;
         // Avalonia solo muestra la ventana inicial automáticamente al arrancar; al sustituir
         // MainWindow más tarde (p. ej. al terminar el asistente o al cerrar sesión) hay que

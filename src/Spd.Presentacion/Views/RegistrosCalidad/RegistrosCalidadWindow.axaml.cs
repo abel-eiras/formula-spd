@@ -9,8 +9,6 @@ public partial class RegistrosCalidadWindow : Window
     public RegistrosCalidadWindow(IServicioRegistrosCalidad servicio, int usuarioActualId)
     {
         InitializeComponent();
-        AmbientalView.DataContext = new RegistroAmbientalViewModel(servicio, usuarioActualId);
-        LimpiezaView.DataContext = new RegistroLimpiezaViewModel(servicio, usuarioActualId);
         FormacionView.DataContext = new FormacionPersonalViewModel(servicio, usuarioActualId);
         ResiduosView.DataContext = new RecogidaResiduosViewModel(servicio, usuarioActualId);
     }

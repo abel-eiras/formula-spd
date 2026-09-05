@@ -38,8 +38,7 @@ public sealed class MainWindowTests
         var gestorLogo = new GestorLogoFarmacia();
         var servicioActualizaciones = new ServicioActualizaciones(new HttpClient(), auditoria);
         var servicioNomenclator = new ServicioNomenclator(new HttpClient(), auditoria);
-        var servicioRegistrosCalidad = new ServicioRegistrosCalidad(
-            new RepositorioRegistrosCalidad(conexion), repositorioFarmacia, auditoria);
+        var servicioRegistrosCalidad = new ServicioRegistrosCalidad(new RepositorioRegistrosCalidad(conexion), auditoria);
         var servicioControlDocumental = new ServicioControlDocumental(
             new RepositorioControlDocumental(conexion), repositorioUsuarios, auditoria);
 

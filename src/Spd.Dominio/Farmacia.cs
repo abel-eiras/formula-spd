@@ -35,10 +35,6 @@ public sealed class Farmacia
     public int NBlisteresDefecto { get; set; } = 1;
     public int DiasAntelacionListado { get; set; } = 2;
 
-    /// <summary>Umbral único de días sin registro ambiental/limpieza rutinaria antes de avisar en
-    /// el panel de inicio (Spec 009 FR-950).</summary>
-    public int UmbralDiasAvisoCalidad { get; set; } = 7;
-
     /// <summary>Valor efectivo de responsable de datos para el consentimiento (Spec 002, FR-012): el titular si no se ha rellenado aparte.</summary>
     public string ResponsableDatosEfectivo() => ResponsableDatos ?? TitularOComunidadBienes;
 

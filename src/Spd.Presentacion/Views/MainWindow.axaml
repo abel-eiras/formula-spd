@@ -11,8 +11,6 @@
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
         <TextBlock Text="{Binding Greeting}" FontSize="18" />
-        <TextBlock Text="{Binding AvisoRegistrosCalidad}" Foreground="OrangeRed" TextWrapping="Wrap" MaxWidth="360"
-                   IsVisible="{Binding AvisoRegistrosCalidad, Converter={x:Static ObjectConverters.IsNotNull}}" />
         <Button Content="Registros de calidad" Command="{Binding AbrirRegistrosCalidadCommand}" />
         <Button Content="Configuración de usuarios" Command="{Binding AbrirUsuariosCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
