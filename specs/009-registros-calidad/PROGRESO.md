@@ -21,7 +21,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 resuelta de forma autónoma) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
+| 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (sin hallazgos) | *(pendiente de commit)* |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
@@ -76,3 +76,8 @@ fase de `/speckit-plan`.
   Ambiental+Limpieza P1/MVP (T015-T023), US2 Formación+Residuos P2 (T024-T030), US3 Control
   documental P2 (T031-T038), US4 Avisos P3 (T039-T042, depende de US1) — más Polish (T043-T045).
   45 tareas en total. Auditoría y test Avalonia.Headless de regresión incluidos desde el diseño.
+- **2026-09-05** — Fase 5 completada. Sin hallazgos: los 5 CA están cubiertos por tests
+  dedicados, la auditoría se verificó entidad por entidad (evitando el hueco de Spec 003), y el
+  diseño no expone ningún método de actualización/eliminación en los repositorios — todas las
+  entidades son de solo alta, lo que satisface el Art. III sin necesitar un test dedicado. 100 %
+  de cobertura FR→tarea.
