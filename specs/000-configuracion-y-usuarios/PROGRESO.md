@@ -12,7 +12,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | `86ee536` |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1-US4 hechas (48/59) | `984d025`, `769788a`, `a4415c2`, `b6a1132`, `5a3dc51` (+ pendiente) |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1-US5 hechas (55/59) | `984d025`, `769788a`, `a4415c2`, `b6a1132`, `5a3dc51`, `ed5466a` (+ pendiente) |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
@@ -33,7 +33,7 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
 | CA-002 | Único administrador protegido (no autobaja) | T028 | ✅ Validado (test) |
 | CA-003 | Baja de usuario conserva histórico | T029 | ✅ Validado (test) |
 | CA-004 | Bloqueo por intentos fallidos | T030, T031 | ✅ Validado (test) |
-| CA-005 | Descarga de nomenclátor no bloquea la app | T049, T050 | ⏳ Pendiente de implementar |
+| CA-005 | Descarga de nomenclátor no bloquea la app | T049, T050 | ✅ Validado (test) |
 | CA-006 | Cambio de valores por defecto no reescribe pacientes existentes | T046 | ✅ Validado (test) |
 
 ## Invariantes de constitución que aplican a esta spec
@@ -153,3 +153,15 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
     "Valores por defecto" añadida a `FarmaciaView` con botón de guardado independiente. 1 test nuevo
     en verde (23/23 en Aplicación). `dotnet build`/`dotnet test` en verde para toda la solución
     (7 Dominio + 23 Aplicación = 30 tests).
+  - **User Story 5 — Actualizaciones y nomenclátor (T049-T055)**: `ServicioActualizaciones`
+    (GitHub Releases, research.md Decisión 3) y `ServicioNomenclator` (`HttpClient` con timeout de
+    10 s, Decisión 5), cada uno con su `HttpClient` inyectado para poder simular fallos de red sin
+    depender de conexión real en los tests (`FakeHttpMessageHandler`). Ambos registran en auditoría
+    tanto el éxito como el fallo (remediación C1). `ActualizacionesView`/`Window` y
+    `NomenclatorView`/`Window`; dos botones nuevos en `MainWindow`. 7 tests nuevos en verde,
+    incluida la remediación E1 (`ArranqueSinRedTests.cs`): construir los dos servicios no dispara
+    ninguna petición por sí solo — **limitación explícita**: esto no sustituye a una revisión de que
+    `App.axaml.cs` nunca los invoca en el arranque, eso queda como verificación de código, no de
+    test automatizado. 37/37 tests en verde en toda la solución. Ejecución real de `dotnet run` sin
+    excepciones. **Con esto, 55 de 59 tareas de `tasks.md` completadas — quedan solo T056-T059
+    (Polish).**

@@ -1,0 +1,8 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:config="using:Spd.Presentacion.Views.Configuracion"
+        x:Class="Spd.Presentacion.Views.Configuracion.ActualizacionesWindow"
+        Title="SPD — Actualizaciones"
+        Width="420" Height="260">
+  <config:ActualizacionesView />
+</Window>

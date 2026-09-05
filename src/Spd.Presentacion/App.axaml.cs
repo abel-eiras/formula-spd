@@ -10,6 +10,7 @@ using Spd.Presentacion.Views;
 using Spd.Presentacion.Views.Asistente;
 using System;
 using System.IO;
+using System.Net.Http;
 
 namespace Spd.Presentacion;
 
@@ -23,6 +24,8 @@ public partial class App : Application
     private IServicioUsuarios? _servicioUsuarios;
     private IServicioConfiguracionFarmacia? _servicioFarmacia;
     private GestorLogoFarmacia? _gestorLogo;
+    private IServicioActualizaciones? _servicioActualizaciones;
+    private IServicioNomenclator? _servicioNomenclator;
 
     public override void Initialize()
     {
@@ -56,6 +59,13 @@ public partial class App : Application
         _servicioUsuarios = new ServicioUsuarios(repositorioUsuarios, hasheador, auditoria);
         _servicioFarmacia = new ServicioConfiguracionFarmacia(repositorioFarmacia, auditoria);
         _gestorLogo = new GestorLogoFarmacia();
+
+        // research.md Decisión 3/5: BaseAddress fija (GitHub) para actualizaciones; timeout corto
+        // para el nomenclátor, cuya URL es la que configure el Administrador.
+        _servicioActualizaciones = new ServicioActualizaciones(
+            new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, auditoria);
+        _servicioNomenclator = new ServicioNomenclator(
+            new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -84,7 +94,9 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(_servicioUsuarios!, _servicioFarmacia!, _gestorLogo!, usuario)
+                DataContext = new MainViewModel(
+                    _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
+                    _servicioActualizaciones!, _servicioNomenclator!, usuario)
             };
             desktop.MainWindow.Show();
             ventanaLogin.Close();

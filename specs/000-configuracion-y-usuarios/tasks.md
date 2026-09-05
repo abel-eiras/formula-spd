@@ -172,16 +172,16 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 ### Tests for User Story 5
 
-- [ ] T049 [P] [US5] Test de integración: `ComprobarActualizaciones` con GitHub Releases simulado que no responde no lanza excepción no controlada, en `tests/Spd.Aplicacion.Tests/ServicioActualizacionesTests.cs`
-- [ ] T050 [P] [US5] Test de integración: `DescargarNomenclator` con URL que no responde devuelve motivo de fallo, en `tests/Spd.Aplicacion.Tests/ServicioNomenclatorTests.cs` (CA-005)
-- [ ] T051 [P] [US5] Test: ni `ComprobarActualizaciones` ni `DescargarNomenclator` se invocan durante el arranque de la aplicación (Art. VI.3) — revisión automatizada de `App.axaml.cs`/`ServicioAsistentePrimerArranque` sin llamadas a ninguno de los dos servicios fuera de una acción explícita del usuario, en `tests/Spd.Aplicacion.Tests/ArranqueSinRedTests.cs` *(remediación E1)*
-- [ ] T052 [P] [US5] Test: `ComprobarActualizaciones` y `DescargarNomenclator` registran en `Auditoria` el resultado (éxito/fallo) de cada acción (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioActualizacionesTests.cs` y `ServicioNomenclatorTests.cs` *(remediación C1)*
+- [x] T049 [P] [US5] Test de integración: `ComprobarActualizaciones` con GitHub Releases simulado que no responde no lanza excepción no controlada, en `tests/Spd.Aplicacion.Tests/ServicioActualizacionesTests.cs`
+- [x] T050 [P] [US5] Test de integración: `DescargarNomenclator` con URL que no responde devuelve motivo de fallo, en `tests/Spd.Aplicacion.Tests/ServicioNomenclatorTests.cs` (CA-005)
+- [x] T051 [P] [US5] Test: ni `ComprobarActualizaciones` ni `DescargarNomenclator` se invocan durante el arranque de la aplicación (Art. VI.3) — revisión automatizada de `App.axaml.cs`/`ServicioAsistentePrimerArranque` sin llamadas a ninguno de los dos servicios fuera de una acción explícita del usuario, en `tests/Spd.Aplicacion.Tests/ArranqueSinRedTests.cs` *(remediación E1)*
+- [x] T052 [P] [US5] Test: `ComprobarActualizaciones` y `DescargarNomenclator` registran en `Auditoria` el resultado (éxito/fallo) de cada acción (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioActualizacionesTests.cs` y `ServicioNomenclatorTests.cs` *(remediación C1)*
 
 ### Implementation for User Story 5
 
-- [ ] T053 [US5] Implementar `IServicioActualizaciones` y `ServicioActualizaciones` (GitHub Releases API, research.md Decisión 3) en `src/Spd.Infraestructura/ServicioActualizaciones.cs`; registra en auditoría (Art. VII.6)
-- [ ] T054 [US5] Implementar `IServicioNomenclator` y `ServicioNomenclator` (`HttpClient`, research.md Decisión 5) en `src/Spd.Infraestructura/ServicioNomenclator.cs`; registra en auditoría (Art. VII.6)
-- [ ] T055 [US5] Implementar pantallas Configuración/Actualizaciones y Configuración/Nomenclátor en `src/Spd.Presentacion/Views/Configuracion/` (`ActualizacionesView.axaml`, `NomenclatorView.axaml`)
+- [x] T053 [US5] Implementar `IServicioActualizaciones` y `ServicioActualizaciones` (GitHub Releases API, research.md Decisión 3) en `src/Spd.Infraestructura/ServicioActualizaciones.cs`; registra en auditoría (Art. VII.6)
+- [x] T054 [US5] Implementar `IServicioNomenclator` y `ServicioNomenclator` (`HttpClient`, research.md Decisión 5) en `src/Spd.Infraestructura/ServicioNomenclator.cs`; registra en auditoría (Art. VII.6)
+- [x] T055 [US5] Implementar pantallas Configuración/Actualizaciones y Configuración/Nomenclátor en `src/Spd.Presentacion/Views/Configuracion/` (`ActualizacionesView.axaml`, `NomenclatorView.axaml`)
 
 **Checkpoint**: las 5 user stories funcionan de forma independiente.
 

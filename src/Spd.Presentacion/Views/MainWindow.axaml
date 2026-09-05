@@ -15,6 +15,10 @@
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
         <Button Content="Configuración de la farmacia" Command="{Binding AbrirFarmaciaCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Actualizaciones" Command="{Binding AbrirActualizacionesCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Nomenclátor" Command="{Binding AbrirNomenclatorCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
     </StackPanel>
 
 </Window>
