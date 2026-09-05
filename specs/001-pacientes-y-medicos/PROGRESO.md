@@ -11,7 +11,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `0b5aa16` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
+| 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (5 hallazgos remediados) | *(pendiente de commit)* |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
@@ -82,3 +82,21 @@ fase de `/speckit-plan`.
   (T035-T044), US3 Contactos P3 (T045-T051) — más Polish (T052-T054). A diferencia de la Spec 000,
   el test explícito de auditoría (Art. VII.6) se incluyó desde el diseño de cada user story
   (T029, T039, T049), no como remediación tardía de `/speckit-analyze`. 54 tareas en total.
+- **2026-09-05** — Fase 5 completada. `/speckit-analyze` cruzó spec/plan/tasks/constitución y
+  encontró 5 hallazgos, todos MEDIA/ALTA, ninguno crítico ni de violación de constitución.
+  Remediados directamente en `tasks.md` (renumerado 54→59, seguro porque aún no hay código):
+  - **F1** (MEDIA): CA-012 (Elaborador sin restricción de categoría) sin test automatizado →
+    nuevo T031.
+  - **F2** (MEDIA): FR-002b (sexo obligatorio si hay CIP) sin ninguna cobertura, ni test ni
+    quickstart → nuevo T030.
+  - **F3** (MEDIA-ALTA): CA-005 (nuevo médico en contexto, queda seleccionado sin cerrar la
+    ficha) es una aserción de UI sin test Avalonia.Headless → nuevo T048.
+  - **F4** (BAJA): FR-004 cubre duplicado por DNI *o* CIP pero solo se probaba DNI → T025
+    (antes T025) ampliado a ambos casos.
+  - **F5** (ALTA): `plan.md` fija Avalonia.Headless.XUnit como estrategia de test de
+    Presentación citando expresamente el incidente de `UsuariosWindow` de Spec 000, pero
+    `tasks.md` no programaba ningún test de ese tipo para las vistas nuevas con `ItemTemplate`
+    (`BuscadorPacientesView`, `CatalogoMedicosView`) — el mismo patrón de bug que ya causó un
+    cierre inesperado una vez. Nuevos T037 y T049.
+  Total tras remediación: 59 tareas. Informe completo del análisis conservado en el historial de
+  la conversación, no duplicado aquí.
