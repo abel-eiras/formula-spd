@@ -30,7 +30,8 @@ public sealed class BuscadorPacientesViewTests
             Telefono = "986000000", PrefijoNumFicha = "F-"
         });
         var auditoria = new RegistradorAuditoria(conexion);
-        var servicio = new ServicioPacientes(new RepositorioPacientes(conexion), repositorioFarmacia, auditoria);
+        var repositorioPacientes = new RepositorioPacientes(conexion);
+        var servicio = new ServicioPacientes(repositorioPacientes, repositorioFarmacia, auditoria);
         servicio.Crear(
             new DatosAltaPaciente(
                 "José", "Núñez", Sexo: null, Dni: "12345678Z", FechaNacimiento: null, NumSs: null, Cip: null,
@@ -39,7 +40,9 @@ public sealed class BuscadorPacientesViewTests
                 PictogramaComidas: false, IdentificadorVisual: null, DiaRetirada: null, NBlisteres: null),
             usuarioQueEjecutaId: null);
 
-        var ventana = new BuscadorPacientesWindow(servicio, usuarioActualId: null);
+        var servicioTratamientos = new ServicioTratamientos(new RepositorioTratamientos(conexion), repositorioPacientes, auditoria);
+        var servicioMedicamentos = new ServicioMedicamentos(new RepositorioMedicamentos(conexion), auditoria);
+        var ventana = new BuscadorPacientesWindow(servicio, servicioTratamientos, servicioMedicamentos, usuarioActualId: null);
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el paciente recién creado.
         ventana.Show();

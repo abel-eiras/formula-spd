@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
+using Spd.Presentacion.Views.Pacientes;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -12,6 +13,8 @@ namespace Spd.Presentacion.ViewModels;
 public sealed partial class FichaPacienteViewModel : ViewModelBase
 {
     private readonly IServicioPacientes _servicio;
+    private readonly IServicioTratamientos _servicioTratamientos;
+    private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly int? _usuarioActualId;
     private bool _pendienteConfirmarDuplicado;
 
@@ -53,9 +56,16 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
 
     public bool TieneAlergias => !string.IsNullOrWhiteSpace(Alergias);
 
-    public FichaPacienteViewModel(IServicioPacientes servicio, Paciente? pacienteExistente, int? usuarioActualId)
+    /// <summary>Los tratamientos exigen un paciente ya creado (FR-400 referencia `paciente_id`).</summary>
+    public bool PuedeAbrirTratamientos => Paciente is not null;
+
+    public FichaPacienteViewModel(
+        IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
+        Paciente? pacienteExistente, int? usuarioActualId)
     {
         _servicio = servicio;
+        _servicioTratamientos = servicioTratamientos;
+        _servicioMedicamentos = servicioMedicamentos;
         _usuarioActualId = usuarioActualId;
         Paciente = pacienteExistente;
         if (pacienteExistente is not null)
@@ -63,6 +73,10 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
             CargarDesdePaciente(pacienteExistente);
         }
     }
+
+    [RelayCommand]
+    private void AbrirTratamientos()
+        => new TratamientoWindow(_servicioTratamientos, _servicioMedicamentos, Paciente!.Id, _usuarioActualId).Show();
 
     [RelayCommand]
     private void Guardar()
@@ -84,6 +98,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
             _pendienteConfirmarDuplicado = false;
             OnPropertyChanged(nameof(NumFicha));
             OnPropertyChanged(nameof(Estado));
+            OnPropertyChanged(nameof(PuedeAbrirTratamientos));
         }
         catch (PacienteDuplicadoException ex)
         {

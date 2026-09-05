@@ -31,6 +31,7 @@ public partial class App : Application
     private IServicioActualizaciones? _servicioActualizaciones;
     private IServicioNomenclator? _servicioNomenclator;
     private IServicioPacientes? _servicioPacientes;
+    private IServicioTratamientos? _servicioTratamientos;
     private IServicioMedicamentos? _servicioMedicamentos;
     private IServicioImportacionNomenclator? _servicioImportacionNomenclator;
     private IServicioConsultaCima? _servicioConsultaCima;
@@ -127,7 +128,9 @@ public partial class App : Application
             new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, auditoria);
         _servicioNomenclator = new ServicioNomenclator(
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
-        _servicioPacientes = new ServicioPacientes(new RepositorioPacientes(_conexion!), repositorioFarmacia, auditoria);
+        var repositorioPacientes = new RepositorioPacientes(_conexion!);
+        _servicioPacientes = new ServicioPacientes(repositorioPacientes, repositorioFarmacia, auditoria);
+        _servicioTratamientos = new ServicioTratamientos(new RepositorioTratamientos(_conexion!), repositorioPacientes, auditoria);
         var repositorioMedicamentos = new RepositorioMedicamentos(_conexion!);
         _servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
         _servicioImportacionNomenclator = new ServicioImportacionNomenclator(
@@ -202,7 +205,7 @@ public partial class App : Application
     {
         var mainViewModel = new MainViewModel(
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-            _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!,
+            _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!, _servicioTratamientos!,
             _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
             _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };

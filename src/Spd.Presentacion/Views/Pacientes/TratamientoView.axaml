@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.TratamientoView">
+  <Grid ColumnDefinitions="280,*" RowDefinitions="*,Auto" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="8">
+      <TextBlock Text="Tratamientos vigentes" FontSize="16" FontWeight="Bold" />
+      <Button Content="Nuevo tratamiento" Command="{Binding NuevoTratamientoCommand}" />
+      <ListBox ItemsSource="{Binding Vigentes}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding NombreMedicamento}" FontWeight="Bold" />
+              <Button Content="Cambiar pauta" FontSize="11"
+                      Command="{Binding DataContext.PrepararCambioDePautaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                      CommandParameter="{Binding}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
+      <StackPanel Spacing="8">
+        <TextBlock Text="{Binding EsCambioDePauta, StringFormat='Cambio de pauta: {0}'}" FontWeight="Bold" />
+        <TextBlock Text="CN del medicamento *" />
+        <TextBox Text="{Binding Cn}" />
+        <CheckBox Content="En el blíster (SPD)" IsChecked="{Binding EnSpd}" />
+        <TextBlock Text="Problema de salud / indicación" />
+        <TextBox Text="{Binding ProblemaSalud}" />
+        <TextBlock Text="Médico prescriptor (id)" />
+        <NumericUpDown Value="{Binding MedicoId}" Minimum="0" />
+        <TextBlock Text="Pauta D / A / C / N" />
+        <StackPanel Orientation="Horizontal" Spacing="4">
+          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaD}" Width="80" />
+          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaA}" Width="80" />
+          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaC}" Width="80" />
+          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaN}" Width="80" />
+        </StackPanel>
+        <TextBlock Text="Pauta en texto libre (solo si no va en el blíster)" />
+        <TextBox Text="{Binding PautaTexto}" />
+        <TextBlock Text="Días de la semana (LMXJVSD, 1=sí)" />
+        <TextBox Text="{Binding DiasSemana}" />
+        <TextBlock Text="Vía" />
+        <TextBox Text="{Binding Via}" />
+        <TextBlock Text="Momento de administración" />
+        <TextBox Text="{Binding Momento}" />
+        <TextBlock Text="Tipo" />
+        <ComboBox ItemsSource="{Binding TiposDisponibles}" SelectedItem="{Binding Tipo}" />
+
+        <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

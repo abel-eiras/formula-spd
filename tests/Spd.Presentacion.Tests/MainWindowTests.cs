@@ -38,7 +38,9 @@ public sealed class MainWindowTests
         var gestorLogo = new GestorLogoFarmacia();
         var servicioActualizaciones = new ServicioActualizaciones(new HttpClient(), auditoria);
         var servicioNomenclator = new ServicioNomenclator(new HttpClient(), auditoria);
-        var servicioPacientes = new ServicioPacientes(new RepositorioPacientes(conexion), repositorioFarmacia, auditoria);
+        var repositorioPacientes = new RepositorioPacientes(conexion);
+        var servicioPacientes = new ServicioPacientes(repositorioPacientes, repositorioFarmacia, auditoria);
+        var servicioTratamientos = new ServicioTratamientos(new RepositorioTratamientos(conexion), repositorioPacientes, auditoria);
         var repositorioMedicamentos = new RepositorioMedicamentos(conexion);
         var servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
         var servicioImportacionNomenclator = new ServicioImportacionNomenclator(
@@ -53,7 +55,7 @@ public sealed class MainWindowTests
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
-            servicioPacientes, servicioMedicamentos, servicioImportacionNomenclator, servicioConsultaCima,
+            servicioPacientes, servicioTratamientos, servicioMedicamentos, servicioImportacionNomenclator, servicioConsultaCima,
             servicioRegistrosCalidad, servicioControlDocumental, servicioBackup, servicioCifrado, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
