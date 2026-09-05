@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Medicamentos.RevisionNomenclatorView">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <StackPanel Grid.Row="0" Spacing="8">
+      <TextBlock Text="Revisión del nomenclátor" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="{Binding SinCambios, StringFormat='Sin cambios: {0}'}" Foreground="Gray" />
+      <Button Content="Recargar" Command="{Binding RecargarCommand}" />
+    </StackPanel>
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" Margin="0,12,0,0">
+      <StackPanel Grid.Column="0" Spacing="4">
+        <TextBlock Text="Medicamentos nuevos" FontWeight="Bold" />
+        <ListBox ItemsSource="{Binding Nuevos}">
+          <!-- Sin x:DataType a propósito: bindings por reflexión (mismo patrón que en Spec 000/001,
+               evita el binding fragil de $parent + cast que provocó un cierre inesperado). -->
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Margin="0,4" Spacing="2">
+                <TextBlock Text="{Binding Cn}" FontWeight="Bold" />
+                <TextBlock Text="{Binding Nombre}" />
+                <Button Content="Crear" FontSize="11"
+                        Command="{Binding DataContext.AplicarAltaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Spacing="4" Margin="16,0,0,0">
+        <TextBlock Text="Con nombre distinto" FontWeight="Bold" />
+        <ListBox ItemsSource="{Binding ConNombreDistinto}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Margin="0,4" Spacing="2">
+                <TextBlock Text="{Binding Existente.Cn}" FontWeight="Bold" />
+                <TextBlock Text="{Binding Existente.Nombre}" Foreground="Gray" FontSize="11" />
+                <TextBlock Text="{Binding NombreNomenclator}" />
+                <Button Content="Aplicar nombre" FontSize="11"
+                        Command="{Binding DataContext.AplicarNombreCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

@@ -4,8 +4,9 @@ using System.Text;
 namespace Spd.Dominio;
 
 /// <summary>Normaliza texto para búsquedas sin distinguir mayúsculas ni tildes (FR-010, FR-032,
-/// CA-011). Sin extensión SQLite: la comparación siempre pasa por aquí, en ambos lados
-/// (research.md Decisión 1).</summary>
+/// CA-011 de Spec 001; FR-305 de Spec 003 — mismo helper compartido, sin duplicarlo por catálogo).
+/// Sin extensión SQLite: la comparación siempre pasa por aquí, en ambos lados (research.md
+/// Decisión 1 de Spec 001).</summary>
 public static class Normalizador
 {
     public static string QuitarTildesYMayusculas(string texto)

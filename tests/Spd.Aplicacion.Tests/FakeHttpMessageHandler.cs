@@ -8,6 +8,7 @@ internal sealed class FakeHttpMessageHandler : HttpMessageHandler
 {
     public bool LanzarFalloDeRed { get; set; }
     public string RespuestaJson { get; set; } = "{}";
+    public HttpStatusCode CodigoEstado { get; set; } = HttpStatusCode.OK;
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -16,7 +17,7 @@ internal sealed class FakeHttpMessageHandler : HttpMessageHandler
             throw new HttpRequestException("Simulación: la conexión no responde.");
         }
 
-        var respuesta = new HttpResponseMessage(HttpStatusCode.OK)
+        var respuesta = new HttpResponseMessage(CodigoEstado)
         {
             Content = new StringContent(RespuestaJson)
         };

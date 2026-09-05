@@ -28,7 +28,9 @@ public sealed class InfraestructuraFundamentosTests
         new AplicadorMigraciones(conexion).Aplicar();
 
         // No debe reaplicar ni cambiar la versión ya alcanzada (Art. VIII.3); el número exacto de
-        // migraciones embebidas lo cubre InfraestructuraPacientesFundamentosTests (Spec 001).
+        // migraciones embebidas lo cubren InfraestructuraPacientesFundamentosTests (Spec 001),
+        // InfraestructuraMedicamentosFundamentosTests (Spec 003) e
+        // InfraestructuraRegistrosCalidadFundamentosTests (Spec 009).
         var version = conexion.ExecuteScalar<int>("SELECT MAX(version) FROM schema_version");
         Assert.Equal(versionTrasLaPrimeraAplicacion, version);
     }

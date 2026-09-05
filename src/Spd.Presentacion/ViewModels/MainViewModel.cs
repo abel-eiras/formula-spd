@@ -6,6 +6,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Presentacion.Views.Configuracion;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.Views.Medicamentos;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -17,6 +18,9 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
     private readonly IServicioPacientes _servicioPacientes;
+    private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioImportacionNomenclator _servicioImportacionNomenclator;
+    private readonly IServicioConsultaCima _servicioConsultaCima;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -34,6 +38,9 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
         IServicioPacientes servicioPacientes,
+        IServicioMedicamentos servicioMedicamentos,
+        IServicioImportacionNomenclator servicioImportacionNomenclator,
+        IServicioConsultaCima servicioConsultaCima,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -42,6 +49,9 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
         _servicioPacientes = servicioPacientes;
+        _servicioMedicamentos = servicioMedicamentos;
+        _servicioImportacionNomenclator = servicioImportacionNomenclator;
+        _servicioConsultaCima = servicioConsultaCima;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -51,6 +61,15 @@ public sealed partial class MainViewModel : ViewModelBase
     private void AbrirPacientes()
     {
         var ventana = new BuscadorPacientesWindow(_servicioPacientes, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    /// <summary>Cualquier Elaborador o Administrador accede al catálogo, sin restricción.</summary>
+    [RelayCommand]
+    private void AbrirCatalogoMedicamentos()
+    {
+        var ventana = new CatalogoMedicamentosWindow(
+            _servicioMedicamentos, _servicioImportacionNomenclator, _servicioConsultaCima, UsuarioActual.Id);
         ventana.Show();
     }
 

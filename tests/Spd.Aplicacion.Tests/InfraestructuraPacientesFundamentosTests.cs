@@ -35,11 +35,16 @@ public sealed class InfraestructuraPacientesFundamentosTests
     public void AplicadorMigraciones_aplica_0002_de_forma_idempotente()
     {
         using var conexion = AbrirBaseDeDatosDePrueba();
+        var versionTrasLaPrimeraAplicacion = conexion.ExecuteScalar<int>("SELECT MAX(version) FROM schema_version");
 
         new AplicadorMigraciones(conexion).Aplicar();
 
+        // No debe reaplicar ni cambiar la versión ya alcanzada (Art. VIII.3). El número exacto no
+        // se fija aquí: al fusionar con otras specs se añaden más migraciones después de la 0002
+        // de esta (0003 de Spec 003, 0004 de Spec 009, ...), así que solo importa que sea estable.
         var version = conexion.ExecuteScalar<int>("SELECT MAX(version) FROM schema_version");
-        Assert.Equal(2, version);
+        Assert.Equal(versionTrasLaPrimeraAplicacion, version);
+        Assert.True(version >= 2);
     }
 
     [Fact]

@@ -39,10 +39,15 @@ public sealed class MainWindowTests
         var servicioActualizaciones = new ServicioActualizaciones(new HttpClient(), auditoria);
         var servicioNomenclator = new ServicioNomenclator(new HttpClient(), auditoria);
         var servicioPacientes = new ServicioPacientes(new RepositorioPacientes(conexion), repositorioFarmacia, auditoria);
+        var repositorioMedicamentos = new RepositorioMedicamentos(conexion);
+        var servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
+        var servicioImportacionNomenclator = new ServicioImportacionNomenclator(
+            new LectorNomenclatorCsv(), repositorioMedicamentos, auditoria);
+        var servicioConsultaCima = new ServicioConsultaCima(new HttpClient(), auditoria);
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
-            servicioPacientes, administrador);
+            servicioPacientes, servicioMedicamentos, servicioImportacionNomenclator, servicioConsultaCima, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

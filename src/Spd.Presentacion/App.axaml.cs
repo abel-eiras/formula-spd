@@ -30,6 +30,9 @@ public partial class App : Application
     private IServicioActualizaciones? _servicioActualizaciones;
     private IServicioNomenclator? _servicioNomenclator;
     private IServicioPacientes? _servicioPacientes;
+    private IServicioMedicamentos? _servicioMedicamentos;
+    private IServicioImportacionNomenclator? _servicioImportacionNomenclator;
+    private IServicioConsultaCima? _servicioConsultaCima;
 
     public override void Initialize()
     {
@@ -76,6 +79,15 @@ public partial class App : Application
         _servicioNomenclator = new ServicioNomenclator(
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
         _servicioPacientes = new ServicioPacientes(new RepositorioPacientes(_conexion), repositorioFarmacia, auditoria);
+        var repositorioMedicamentos = new RepositorioMedicamentos(_conexion);
+        _servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
+        _servicioImportacionNomenclator = new ServicioImportacionNomenclator(
+            new LectorNomenclatorCsv(), repositorioMedicamentos, auditoria);
+        // Consulta puntual por CN al alta, alternativa al nomenclátor CSV para forma farmacéutica
+        // (research.md Decisión 5, corrección 2026-09-05): CIMA REST API pública de la AEMPS.
+        _servicioConsultaCima = new ServicioConsultaCima(
+            new HttpClient { BaseAddress = new Uri("https://cima.aemps.es/cima/rest/"), Timeout = TimeSpan.FromSeconds(10) },
+            auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -116,7 +128,8 @@ public partial class App : Application
     {
         var mainViewModel = new MainViewModel(
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-            _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!, usuario);
+            _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!,
+            _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
