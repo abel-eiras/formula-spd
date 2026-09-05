@@ -40,13 +40,15 @@ public sealed class ServicioImportacionNomenclator(
         return new ResultadoComparacionNomenclator(true, null, nuevos, conNombreDistinto, sinCambios);
     }
 
-    public Medicamento AplicarAltaDesdeNomenclator(string cn, string nombre, int? usuarioQueEjecutaId)
+    public Medicamento AplicarAltaDesdeNomenclator(FilaNomenclator fila, int? usuarioQueEjecutaId)
     {
         var medicamento = new Medicamento
         {
-            Cn = cn,
-            Nombre = nombre,
-            NombreNormalizado = Normalizador.QuitarTildesYMayusculas(nombre)
+            Cn = fila.Cn,
+            Nombre = fila.Nombre,
+            NombreNormalizado = Normalizador.QuitarTildesYMayusculas(fila.Nombre),
+            PrincipioActivo = fila.PrincipioActivo,
+            Laboratorio = fila.Laboratorio
         };
         medicamento.Id = repositorio.Crear(medicamento);
 

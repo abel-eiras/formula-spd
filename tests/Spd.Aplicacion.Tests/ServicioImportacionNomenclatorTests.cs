@@ -49,6 +49,19 @@ public sealed class ServicioImportacionNomenclatorTests
     }
 
     [Fact]
+    public void AplicarAltaDesdeNomenclator_guarda_principio_activo_y_laboratorio_cuando_vienen_en_la_fila()
+    {
+        var (servicio, medicamentos, _) = CrearServicio();
+
+        var creado = servicio.AplicarAltaDesdeNomenclator(
+            new FilaNomenclator("650004", "Depakine 500 mg", "VALPROATO SODIO", "SANOFI AVENTIS, S.A"), null);
+
+        var actual = medicamentos.ObtenerPorId(creado.Id)!;
+        Assert.Equal("VALPROATO SODIO", actual.PrincipioActivo);
+        Assert.Equal("SANOFI AVENTIS, S.A", actual.Laboratorio);
+    }
+
+    [Fact]
     public void AplicarNombreDesdeNomenclator_cambia_solo_el_nombre_CA_304()
     {
         var (servicio, medicamentos, conexion) = CrearServicio();
@@ -73,7 +86,7 @@ public sealed class ServicioImportacionNomenclatorTests
         var (servicio, medicamentos, conexion) = CrearServicio();
         var existente = medicamentos.Crear(new DatosAltaMedicamento("111111", "Nombre antiguo"), null);
 
-        servicio.AplicarAltaDesdeNomenclator("333333", "Paracetamol 1g", null);
+        servicio.AplicarAltaDesdeNomenclator(new FilaNomenclator("333333", "Paracetamol 1g"), null);
         servicio.AplicarNombreDesdeNomenclator(existente.Id, "Nombre nuevo", null);
 
         var acciones = conexion.Query<string>("SELECT accion FROM Auditoria WHERE entidad = 'Medicamento' ORDER BY id").ToList();

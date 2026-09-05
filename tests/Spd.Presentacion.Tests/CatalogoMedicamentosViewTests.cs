@@ -25,8 +25,9 @@ public sealed class CatalogoMedicamentosViewTests
         var servicio = new ServicioMedicamentos(repositorio, auditoria);
         servicio.Crear(new DatosAltaMedicamento("654321", "Paracetamol 1g"), usuarioQueEjecutaId: null);
         var servicioImportacion = new ServicioImportacionNomenclator(new LectorNomenclatorCsv(), repositorio, auditoria);
+        var servicioConsultaCima = new ServicioConsultaCima(new HttpClient(), auditoria);
 
-        var ventana = new CatalogoMedicamentosWindow(servicio, servicioImportacion, usuarioActualId: null);
+        var ventana = new CatalogoMedicamentosWindow(servicio, servicioImportacion, servicioConsultaCima, usuarioActualId: null);
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el medicamento recién creado.
         ventana.Show();

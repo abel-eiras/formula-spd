@@ -35,7 +35,11 @@
     <ScrollViewer Grid.Column="1" Grid.Row="0" Margin="24,0,0,0">
       <StackPanel Spacing="8">
         <TextBlock Text="CN *" />
-        <TextBox Text="{Binding Cn}" IsEnabled="{Binding EsAltaNueva}" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBox Text="{Binding Cn}" IsEnabled="{Binding EsAltaNueva}" Width="140" />
+          <Button Content="Consultar CIMA" Command="{Binding ConsultarCimaCommand}"
+                  IsEnabled="{Binding !ConsultandoCima}" />
+        </StackPanel>
         <TextBlock Text="Nombre *" />
         <TextBox Text="{Binding Nombre}" />
         <TextBlock Text="Principio activo" />

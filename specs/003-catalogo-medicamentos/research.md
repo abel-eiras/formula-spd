@@ -100,3 +100,31 @@ Pontevedra; se prefiere fallar con un mensaje claro a asumir un formato no confi
 **Output**: todas las incógnitas técnicas de esta feature quedan resueltas; ninguna arrastra
 `NEEDS CLARIFICATION` a `tasks.md`. La simplificación de Decisión 5 queda documentada para
 revisarla explícitamente cuando se implemente Spec 011.
+
+### Corrección 2026-09-05 (prueba manual con el nomenclátor oficial real)
+
+La premisa de la Decisión 5 — "suficiente para que FR-320 funcione de extremo a extremo con un
+nomenclátor real de esas dos columnas" — era incorrecta: el fichero oficial de facturación real
+(descargado y probado en producción de pruebas) no tiene columnas llamadas `CN`/`Nombre`, sino
+`Código Nacional`/`Nombre del producto farmacéutico` (entre otras 18 columnas), y cita entre
+comillas los campos que contienen comas (nombres de producto con la presentación tras una coma,
+razón social de laboratorios como "SANOFI AVENTIS, S.A"). Con la cabecera y el `Split(',')`
+ingeniosos originales, el fichero real siempre fallaba con "no tiene las columnas esperadas" o,
+si hubiera coincidido por casualidad, habría desalineado columnas en cualquier fila con una coma
+citada.
+
+`LectorNomenclatorCsv` (`src/Spd.Infraestructura/LectorNomenclatorCsv.cs`) se corrige para: (1)
+reconocer ambas cabeceras, la mínima de pruebas y la real oficial, y (2) parsear la línea CSV
+respetando comillas (RFC 4180) en vez de partir por comas a ciegas. Se añade además una lectura
+opcional, cuando la columna existe, de `Principio activo o asociación de principios activos` y
+`Nombre del laboratorio ofertante` — campos ya modelados en `Medicamento` (FR-300) y sin ninguna
+de las restricciones de FR-321 (que solo protege descripción física y aptitud SPD) — para que el
+alta desde nomenclátor (FR-322) los rellene si están disponibles, en vez de dejarlos vacíos
+pudiendo obtenerse gratis del propio fichero. `FilaNomenclator` gana esos dos campos opcionales;
+el contrato de `ILectorNomenclator`/`CompararConNomenclator` no cambia.
+
+Sigue sin implementarse (Spec 011, sin cambios): extraer `unidades_envase` por regex del texto
+tras la coma en el nombre del producto (p. ej. "20 comprimidos"). Confirmado explícitamente al
+detectar este error: no sirve para inferir descripción física (forma/color/ranura/serigrafía) ni
+si el envase es emblistable a nivel oficial — solo el número de unidades y una forma farmacéutica
+en texto libre que habría que normalizar contra el catálogo cerrado de FR-300.

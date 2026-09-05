@@ -7,6 +7,6 @@ namespace Spd.Aplicacion;
 public interface IServicioImportacionNomenclator
 {
     ResultadoComparacionNomenclator CompararConNomenclator(string rutaFicheroDescargado);
-    Medicamento AplicarAltaDesdeNomenclator(string cn, string nombre, int? usuarioQueEjecutaId);
+    Medicamento AplicarAltaDesdeNomenclator(FilaNomenclator fila, int? usuarioQueEjecutaId);
     void AplicarNombreDesdeNomenclator(int medicamentoId, string nombreNuevo, int? usuarioQueEjecutaId);
 }

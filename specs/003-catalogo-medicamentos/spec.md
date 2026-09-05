@@ -21,6 +21,7 @@
 ### Session 2026-09-05
 
 - Q: ¿Necesitas ampliar la lista cerrada de formas farmacéuticas de FR-300, o basta con la lista ya propuesta? → A: Se mantiene la lista tal cual (comprimido, comprimido de liberación prolongada, cápsula, cápsula de liberación prolongada, gragea, pastilla, píldora, otra no apta para SPD), sin añadir valores ahora.
+- Q: Tras probar que `LectorNomenclatorCsv` no reconocía el nomenclátor oficial real (corregido, ver research.md), ¿cómo debe encajar la consulta al CIMA REST API (probada en vivo, forma farmacéutica en vocabulario cerrado vía `formaFarmaceuticaSimplificada`, ~100ms por CN) en el flujo de alta? → A: Reemplaza el catálogo precargado para este caso de uso — al escanear/teclear un CN nuevo se consulta CIMA en el momento (FR-323/FR-324); no se necesita tener el nomenclátor completo cargado para conocer la forma farmacéutica. El nomenclátor CSV (FR-320..322) se mantiene para la revisión por lotes de nombres ya registrados, un caso de uso distinto (reconciliación masiva, no alta puntual).
 
 ---
 
@@ -71,6 +72,11 @@ Como administrador, quiero descargar el nomenclátor desde la URL configurada (S
 - **FR-321** La importación **nunca sobrescribe automáticamente** la descripción física ni la aptitud SPD de un medicamento existente — esos campos son exclusivamente de responsabilidad manual del profesional (Artículo I.2 y I.3: aptitud SPD y descripción son decisiones clínicas, no datos de nomenclátor). Solo puede rellenar `unidades_envase` cuando está vacío, o actualizarlo si el usuario lo confirma explícitamente fila a fila.
 - **FR-322** El usuario decide, medicamento a medicamento, si acepta la creación o el dato propuesto; no hay una importación masiva sin revisión para los campos sensibles.
 
+### 4.4 Consulta puntual a CIMA (alternativa al nomenclátor para forma farmacéutica)
+
+- **FR-323** Al dar de alta un medicamento por CN (tecleado o escaneado), se puede consultar el CIMA REST API público de la AEMPS (https://cima.aemps.es/cima/rest/) para proponer nombre, principio activo, laboratorio y forma farmacéutica sin necesidad de tener el nomenclátor completo precargado. Es una acción explícita del usuario (un botón), nunca automática al escribir. Todos los campos propuestos quedan editables antes de guardar (mismo principio que FR-321/FR-322).
+- **FR-324** Un CN sin resultado en CIMA (p. ej. una fórmula magistral normalizada, que CIMA no indexa) no es un error: se informa y el alta continúa manual, exactamente igual que hoy.
+
 ## 5. Entidades clave
 
 | Entidad | Descripción | Referencia |
@@ -98,6 +104,12 @@ Dado un medicamento con descripción física ya completa, cuando se importa un n
 **CA-305 Reactivación de CN dado de baja**
 Dado un medicamento con CN 111111 dado de baja, cuando se vuelve a necesitar, entonces se reactiva el registro existente en vez de crear uno duplicado.
 
+**CA-306 Consulta a CIMA rellena forma farmacéutica**
+Dado un CN de un medicamento registrado en CIMA, cuando pulso "Consultar CIMA" en el alta, entonces se rellenan nombre, principio activo, laboratorio y forma farmacéutica (si CIMA tiene un equivalente en el catálogo cerrado de FR-300), todos editables antes de guardar.
+
+**CA-307 CN no encontrado en CIMA no bloquea el alta**
+Dado un CN de una fórmula magistral (sin registro en CIMA), cuando pulso "Consultar CIMA", entonces se informa de que no hay datos y puedo seguir rellenando el alta a mano.
+
 ## 7. Casos límite
 
 - Medicamento con varias presentaciones (20 mg y 40 mg) del mismo principio activo: son CN distintos, catálogos independientes; no hay relación automática entre ellos salvo el campo opcional `principio_activo` para búsquedas.
@@ -108,6 +120,8 @@ Dado un medicamento con CN 111111 dado de baja, cuando se vuelve a necesitar, en
 
 - Descarga del fichero en sí y perfiles de mapeo columna a columna (Spec 011).
 - Lectura de GTIN por escáner (Spec 012); aquí el campo `gtin` solo se almacena.
+- Consulta masiva/por lotes a CIMA (FR-323 es siempre una consulta puntual por CN, iniciada por el usuario); no se usa CIMA para poblar el catálogo completo de una vez.
+- `unidades_envase` desde CIMA: la API no tiene un campo estructurado para ello (solo aparece como texto dentro del nombre de la presentación); sigue siendo manual o, si se construye, extracción por regex del nomenclátor (Spec 011).
 
 ## 9. Preguntas abiertas
 

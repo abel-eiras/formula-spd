@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
@@ -15,6 +16,7 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
 {
     private readonly IServicioMedicamentos _servicio;
     private readonly IServicioImportacionNomenclator _servicioImportacion;
+    private readonly IServicioConsultaCima _servicioConsultaCima;
     private readonly int? _usuarioActualId;
     private int? _medicamentoIdEnEdicion;
 
@@ -38,15 +40,18 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     [ObservableProperty] private string? _descSerigrafia;
     [ObservableProperty] private string? _descTamano;
     [ObservableProperty] private string? _descTexto;
+    [ObservableProperty] private bool _consultandoCima;
 
     public string[] FormasDisponibles { get; } = Enum.GetNames<FormaFarmaceutica>();
     public bool EsAltaNueva => _medicamentoIdEnEdicion is null;
 
     public CatalogoMedicamentosViewModel(
-        IServicioMedicamentos servicio, IServicioImportacionNomenclator servicioImportacion, int? usuarioActualId)
+        IServicioMedicamentos servicio, IServicioImportacionNomenclator servicioImportacion,
+        IServicioConsultaCima servicioConsultaCima, int? usuarioActualId)
     {
         _servicio = servicio;
         _servicioImportacion = servicioImportacion;
+        _servicioConsultaCima = servicioConsultaCima;
         _usuarioActualId = usuarioActualId;
         Buscar();
     }
@@ -57,6 +62,48 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     [RelayCommand]
     private void RevisarNomenclator()
         => new RevisionNomenclatorWindow(_servicioImportacion, _usuarioActualId).Show();
+
+    // Alternativa a cargar el catálogo completo del nomenclátor: consulta puntual por CN al
+    // CIMA REST API público de la AEMPS, en el momento del alta (escaneado o tecleado). Nunca
+    // rellena aptitud SPD ni descripción física (Art. I.2/I.3): eso sigue siendo manual.
+    [RelayCommand]
+    private async Task ConsultarCimaAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Cn))
+        {
+            Mensaje = "Introduzca el CN antes de consultar CIMA.";
+            return;
+        }
+
+        ConsultandoCima = true;
+        try
+        {
+            var resultado = await _servicioConsultaCima.ConsultarPorCnAsync(Cn);
+            if (resultado.Error is not null)
+            {
+                Mensaje = $"No se pudo consultar CIMA: {resultado.Error}";
+                return;
+            }
+
+            if (!resultado.Encontrado)
+            {
+                Mensaje = "Ese CN no está en CIMA (puede ser una fórmula magistral). Rellene los datos a mano.";
+                return;
+            }
+
+            Nombre = resultado.Nombre!;
+            PrincipioActivo = resultado.PrincipioActivo;
+            Laboratorio = resultado.Laboratorio;
+            FormaFarmaceutica = resultado.FormaFarmaceutica?.ToString();
+            Mensaje = resultado.EnvaseIndicado is not null
+                ? $"Datos rellenados desde CIMA. Envase indicado por CIMA: {resultado.EnvaseIndicado}."
+                : "Datos rellenados desde CIMA. Revíselos antes de guardar.";
+        }
+        finally
+        {
+            ConsultandoCima = false;
+        }
+    }
 
     [RelayCommand]
     private void NuevoMedicamento() => LimpiarFormulario();

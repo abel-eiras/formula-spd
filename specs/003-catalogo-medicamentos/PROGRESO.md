@@ -125,3 +125,52 @@ fase de `/speckit-plan`.
   (Art. XI.7). **Spec 003 queda completa en código y tests, pendiente de la prueba manual real
   (`dotnet run`) del usuario** cuando pueda sentarse al ordenador, igual que Spec 001 — no se puede
   verificar una interfaz gráfica de escritorio sin ejecutarla de verdad.
+- **2026-09-05 (prueba manual)** — Dos fallos reales encontrados al probar con el nomenclátor
+  oficial real descargado por el usuario:
+  1. Crash de la aplicación entera (SIGABRT nativo) al pulsar "Catálogo de medicamentos": el
+     `spd.db` de pruebas venía de un `dotnet run` anterior en la rama `009-registros-calidad`
+     (mismo fichero físico, mismas carpetas `bin/`), cuya migración `0002` también quedó
+     registrada como versión 2 en `schema_version` sin ser la de esta rama — la tabla
+     `Medicamento` nunca se creó. No es un bug de código; ya se advirtió como riesgo de
+     numeración de migraciones al bifurcar las tres ramas desde `main`. Se añadió además
+     `AppDomain.CurrentDomain.UnhandledException`/`TaskScheduler.UnobservedTaskException` en
+     `Program.cs`, con `Log.Fatal`/`Log.Error` a Serilog — antes, una excepción no controlada
+     abortaba el proceso sin dejar ningún rastro en `logs/`, lo que hizo indetectable la causa
+     real hasta añadir este log.
+  2. `LectorNomenclatorCsv` nunca reconocía el nomenclátor oficial real (research.md Decisión 5
+     asumía cabeceras `CN`/`Nombre` que el fichero real no tiene, y usaba `Split(',')` ingenuo
+     que desalinea columnas en cualquier campo citado con una coma dentro, como los nombres de
+     producto o las razones sociales de laboratorio). Corregido para reconocer también la
+     cabecera real (`Código Nacional`, `Nombre del producto farmacéutico`) y parsear CSV con
+     comillas (RFC 4180). De paso, `FilaNomenclator` incorpora `PrincipioActivo`/`Laboratorio`
+     opcionales (ya modelados en `Medicamento`, sin ninguna restricción de FR-321) que
+     `AplicarAltaDesdeNomenclator` ahora guarda si el fichero los trae. Ver research.md,
+     "Corrección 2026-09-05" para el detalle completo. La extracción de `unidades_envase` por
+     regex a partir del nombre (lo que el usuario pidió a continuación) sigue fuera de alcance:
+     ya estaba explícitamente asignada a Spec 011 (`OrigenUnidadesEnvase.ImportadoRegex`, FR-320)
+     antes de esta sesión.
+  `dotnet build` sin errores; 15+4+50 = 69 tests en verde tras el arreglo.
+- **2026-09-05 (FR-323/FR-324)** — Probada en vivo (curl, varios CN reales del nomenclátor
+  descargado) la CIMA REST API pública de la AEMPS como alternativa al nomenclátor CSV para
+  forma farmacéutica: `formaFarmaceuticaSimplificada` da un vocabulario mucho más cerrado que el
+  texto libre del nombre (p. ej. "COMPRIMIDO", "CAPSULA"), ~100ms por consulta, sin autenticación.
+  Confirmado también que CIMA solo indexa medicamentos registrados, no fórmulas magistrales
+  normalizadas (varios CN de esas devuelven HTTP 204). El usuario decidió que esta consulta
+  puntual por CN sustituye, para el alta de un medicamento nuevo, la necesidad de tener el
+  catálogo/nomenclátor completo precargado (FR-320..322 se mantiene aparte, para la revisión por
+  lotes de nombres ya registrados — un caso de uso distinto). Añadido `IServicioConsultaCima`
+  (`Spd.Aplicacion`) + `ServicioConsultaCima` (`Spd.Infraestructura`, `HttpClient` con
+  `BaseAddress` fija a `https://cima.aemps.es/cima/rest/`, mismo patrón que
+  `ServicioActualizaciones`/`ServicioNomenclator`), con una tabla de mapeo mínima y verificada
+  contra la API real (`maestra=13`): solo COMPRIMIDO/COMPRIMIDO LIBERACION MODIFICADA/
+  CAPSULA/CAPSULA LIBERACION MODIFICADA tienen equivalente exacto en el catálogo cerrado de
+  FR-300 — el resto (formas líquidas, efervescentes, bucodispersables…) caen a `null` (el
+  formulario deja la forma sin seleccionar, igual que hoy), consistente con el criterio de
+  aptitud por defecto de FR-301. Gragea/Pastilla/Píldora no existen en el vocabulario de CIMA:
+  siguen siendo de selección manual. Bonus no pedido explícitamente pero útil: cuando CIMA indica
+  el tipo de envase entre paréntesis en el nombre de la presentación ("...(Blister)" vs
+  "...(Frasco)"), se muestra como pista informativa en el mensaje — nunca se guarda como dato del
+  medicamento, sigue sin haber forma de saber "emblistable a nivel oficial" de forma fiable al
+  100%. Botón "Consultar CIMA" añadido junto al campo CN en `CatalogoMedicamentosView`; nunca
+  rellena aptitud SPD ni descripción física (FR-321 aplica igual aquí). `dotnet build` sin
+  errores; 15+4+54 = 73 tests en verde.

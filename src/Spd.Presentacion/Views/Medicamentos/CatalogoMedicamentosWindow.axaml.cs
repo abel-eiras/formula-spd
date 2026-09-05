@@ -7,10 +7,11 @@ namespace Spd.Presentacion.Views.Medicamentos;
 public partial class CatalogoMedicamentosWindow : Window
 {
     public CatalogoMedicamentosWindow(
-        IServicioMedicamentos servicio, IServicioImportacionNomenclator servicioImportacion, int? usuarioActualId)
+        IServicioMedicamentos servicio, IServicioImportacionNomenclator servicioImportacion,
+        IServicioConsultaCima servicioConsultaCima, int? usuarioActualId)
     {
         InitializeComponent();
-        DataContext = new CatalogoMedicamentosViewModel(servicio, servicioImportacion, usuarioActualId);
+        DataContext = new CatalogoMedicamentosViewModel(servicio, servicioImportacion, servicioConsultaCima, usuarioActualId);
     }
 
     // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.

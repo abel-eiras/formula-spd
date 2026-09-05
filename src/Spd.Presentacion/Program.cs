@@ -3,6 +3,7 @@ using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Spd.Presentacion;
 
@@ -19,6 +20,15 @@ sealed class Program
     public static void Main(string[] args)
     {
         ConfigurarLogging();
+        // Sin esto, una excepción no controlada termina el proceso (abort nativo) sin dejar
+        // rastro alguno en logs/ — solo un core de systemd sin símbolos gestionados legible.
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+            Log.Fatal(e.ExceptionObject as Exception, "Excepción no controlada, terminando={EsTerminando}", e.IsTerminating);
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            Log.Error(e.Exception, "Excepción no observada en una Task");
+            e.SetObserved();
+        };
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

@@ -59,7 +59,7 @@ public sealed partial class RevisionNomenclatorViewModel : ViewModelBase
     [RelayCommand]
     private void AplicarAlta(FilaNomenclator fila)
     {
-        _servicio.AplicarAltaDesdeNomenclator(fila.Cn, fila.Nombre, _usuarioActualId);
+        _servicio.AplicarAltaDesdeNomenclator(fila, _usuarioActualId);
         Mensaje = $"Medicamento {fila.Cn} creado desde el nomenclátor.";
         Recargar();
     }
