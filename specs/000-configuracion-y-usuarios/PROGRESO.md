@@ -10,8 +10,8 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | `bff6a93` |
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | `b1422cb` |
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
-| 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | *(pendiente de commit)* |
-| 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
+| 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
+| 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | *(pendiente de commit)* |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
@@ -26,15 +26,15 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 Formato Dado/Cuando/Entonces (Constitución Art. IX.2). Cada uno se implementa como test antes de
 darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fase de `/speckit-plan`.
 
-| CA | Descripción | Test previsto (tasks.md) | Estado |
+| CA | Descripción | Test previsto (tasks.md, renumerado tras `/speckit-analyze`) | Estado |
 |---|---|---|---|
-| CA-000 | Asistente obligatorio en primer arranque | T021, T022 | ⏳ Pendiente de implementar |
-| CA-001 | Cambio de prefijo no afecta a numeración pasada | T035 | ⏳ Pendiente de implementar |
-| CA-002 | Único administrador protegido (no autobaja) | T027 | ⏳ Pendiente de implementar |
-| CA-003 | Baja de usuario conserva histórico | T028 | ⏳ Pendiente de implementar |
-| CA-004 | Bloqueo por intentos fallidos | T029, T030 | ⏳ Pendiente de implementar |
-| CA-005 | Descarga de nomenclátor no bloquea la app | T044, T045 | ⏳ Pendiente de implementar |
-| CA-006 | Cambio de valores por defecto no reescribe pacientes existentes | T041 | ⏳ Pendiente de implementar |
+| CA-000 | Asistente obligatorio en primer arranque | T021, T022, T023 | ⏳ Pendiente de implementar |
+| CA-001 | Cambio de prefijo no afecta a numeración pasada | T038 | ⏳ Pendiente de implementar |
+| CA-002 | Único administrador protegido (no autobaja) | T028 | ⏳ Pendiente de implementar |
+| CA-003 | Baja de usuario conserva histórico | T029 | ⏳ Pendiente de implementar |
+| CA-004 | Bloqueo por intentos fallidos | T030, T031 | ⏳ Pendiente de implementar |
+| CA-005 | Descarga de nomenclátor no bloquea la app | T049, T050 | ⏳ Pendiente de implementar |
+| CA-006 | Cambio de valores por defecto no reescribe pacientes existentes | T046 | ⏳ Pendiente de implementar |
 
 ## Invariantes de constitución que aplican a esta spec
 
@@ -72,3 +72,13 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
   5 user stories por prioridad P1-P5, Polish). Cada user story mapeada a su escenario de la spec y
   a sus CA-xxx (tabla al inicio de `tasks.md`). Tests incluidos por decisión explícita (Art. IX.1
   exige test de Dominio antes de dar una regla por implementada). US1 (asistente) marcado como MVP.
+- **2026-09-05** — Fase 5 completada. `/speckit-analyze` cruzó spec.md/plan.md/tasks.md contra la
+  constitución: 1 hallazgo **CRITICAL** (C1 — Art. VII.6, traza de auditoría no cubierta
+  explícitamente en la mayoría de escrituras) y 4 mejoras (E1 test de "nunca automático al
+  arrancar" Art. VI.3; U1 comportamiento del paso de cifrado sin Spec 010; U2 test de valor por
+  defecto FR-012; U3 test de FR-041/FR-044). Cobertura previa: 21/21 FR y 7/7 CA con ≥1 tarea, pero
+  solo 18/21 FR con test dedicado. Remediación aplicada directamente en `tasks.md`: 8 tareas nuevas
+  (T023, T032, T033, T041, T042, T051, T052, y notas de auditoría añadidas a T024, T035, T043,
+  T047, T053, T054) — `tasks.md` pasa de 52 a 59 tareas, renumerado íntegramente porque ninguna
+  tenía código escrito todavía. Tabla CA→tarea de este documento actualizada con la nueva
+  numeración.

@@ -11,6 +11,11 @@ CA-006 de la spec son en sí mismos casos de test.
 **Organización**: user stories mapeadas desde §3 (escenarios E1-E4) y §4.6 (actualizaciones/
 nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA-005).
 
+**Actualizado tras `/speckit-analyze`**: se añaden 8 tareas de remediación (auditoría Art. VII.6,
+comportamiento del paso de cifrado, valor por defecto FR-012, y test de "nunca automático al
+arrancar" Art. VI.3) — ver hallazgos C1, E1, U1, U2, U3 en `PROGRESO.md`. La numeración de tareas
+se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
+
 | Story | Prioridad | Escenario spec | FR cubiertos | CA cubiertos |
 |---|---|---|---|---|
 | US1 | P1 (MVP) | E1 — Primer arranque | FR-000, FR-001 | CA-000 |
@@ -60,7 +65,7 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 - [ ] T016 [P] Definir interfaz `IRepositorioUsuarios` en `src/Spd.Dominio/IRepositorioUsuarios.cs`
 - [ ] T017 Implementar `RepositorioFarmacia` (Dapper/SQLite) en `src/Spd.Infraestructura/RepositorioFarmacia.cs` (depende de T009, T011, T015)
 - [ ] T018 Implementar `RepositorioUsuarios` (Dapper/SQLite) en `src/Spd.Infraestructura/RepositorioUsuarios.cs` (depende de T009, T012, T016)
-- [ ] T019 Implementar `RegistradorAuditoria` (solo `INSERT`, Art. III.3) en `src/Spd.Infraestructura/RegistradorAuditoria.cs`
+- [ ] T019 Implementar `RegistradorAuditoria` (solo `INSERT`, Art. III.3) en `src/Spd.Infraestructura/RegistradorAuditoria.cs`. **Todo servicio de Aplicación de esta feature que escriba datos debe invocarlo** (Art. VII.6) — ver la tarea de auditoría dedicada en cada user story
 - [ ] T020 Configurar Serilog (log a fichero dentro de la carpeta de instalación) en `src/Spd.Presentacion/Program.cs`
 
 **Checkpoint**: esquema y entidades listas — las user stories pueden empezar.
@@ -77,13 +82,14 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 
 - [ ] T021 [P] [US1] Test unitario: `HayConfiguracionInicial()` devuelve `false` sin fila `Farmacia` y `true` tras crearla, en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs` (CA-000)
 - [ ] T022 [P] [US1] Test unitario: `EjecutarPaso` lanza `ErrorValidacionException` si falta un campo obligatorio del paso (FR-001), en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs`
+- [ ] T023 [P] [US1] Test unitario: `FinalizarAsistente` registra en `Auditoria` la creación de `Farmacia` y del primer `Usuario` (Art. VII.6), en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs` *(remediación C1)*
 
 ### Implementation for User Story 1
 
-- [ ] T023 [US1] Implementar `IServicioAsistentePrimerArranque` y `ServicioAsistentePrimerArranque` en `src/Spd.Aplicacion/ServicioAsistentePrimerArranque.cs` (depende de T011, T012, T017, T018)
-- [ ] T024 [US1] Implementar `AsistentePrimerArranqueViewModel` en `src/Spd.Presentacion/ViewModels/AsistentePrimerArranqueViewModel.cs` (5 pasos, navegación adelante/atrás — FR-001)
-- [ ] T025 [US1] Implementar las vistas Avalonia de los 5 pasos en `src/Spd.Presentacion/Views/Asistente/` (`PasoCifradoView`, `PasoFarmaciaView`, `PasoPrimerUsuarioView`, `PasoValoresDefectoView`, `PasoRutasView`)
-- [ ] T026 [US1] Cablear `src/Spd.Presentacion/App.axaml.cs` para mostrar el asistente cuando `HayConfiguracionInicial()` es `false` y bloquear el resto de la navegación hasta `FinalizarAsistente()` (CA-000)
+- [ ] T024 [US1] Implementar `IServicioAsistentePrimerArranque` y `ServicioAsistentePrimerArranque` en `src/Spd.Aplicacion/ServicioAsistentePrimerArranque.cs` (depende de T011, T012, T017, T018); `FinalizarAsistente` registra en auditoría la creación de `Farmacia` y del primer `Usuario` (Art. VII.6, depende también de T019)
+- [ ] T025 [US1] Implementar `AsistentePrimerArranqueViewModel` en `src/Spd.Presentacion/ViewModels/AsistentePrimerArranqueViewModel.cs` (5 pasos, navegación adelante/atrás — FR-001)
+- [ ] T026 [US1] Implementar las vistas Avalonia de los 5 pasos en `src/Spd.Presentacion/Views/Asistente/` (`PasoCifradoView`, `PasoFarmaciaView`, `PasoPrimerUsuarioView`, `PasoValoresDefectoView`, `PasoRutasView`). **`PasoCifradoView`** (remediación U1): al no existir todavía Spec 010, elegir "sí" solo guarda la preferencia (`Farmacia.cifrado_deseado`, campo interno de esta vista, no de `docs/data-model.md`) y muestra el aviso "el cifrado se activará cuando esté disponible"; no bloquea el asistente ni activa cifrado real
+- [ ] T027 [US1] Cablear `src/Spd.Presentacion/App.axaml.cs` para mostrar el asistente cuando `HayConfiguracionInicial()` es `false` y bloquear el resto de la navegación hasta `FinalizarAsistente()` (CA-000)
 
 **Checkpoint**: US1 funcional de forma independiente — MVP entregable.
 
@@ -97,17 +103,19 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 
 ### Tests for User Story 2
 
-- [ ] T027 [P] [US2] Test unitario: `DarDeBaja` lanza `UltimoAdministradorException` si es el único Administrador activo, en `tests/Spd.Dominio.Tests/UsuarioReglasTests.cs` (CA-002, FR-042)
-- [ ] T028 [P] [US2] Test unitario: `DarDeBaja` no elimina la fila, solo `activo=0`/`fecha_baja` (Art. III), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-003)
-- [ ] T029 [P] [US2] Test unitario: `RegistrarIntentoLogin` bloquea al 5º intento fallido consecutivo y un 6º intento sigue rechazado, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-004, FR-045)
-- [ ] T030 [P] [US2] Test unitario: `DesbloquearUsuario` solo permitido a un usuario con rol `ADMINISTRADOR`, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (FR-045)
+- [ ] T028 [P] [US2] Test unitario: `DarDeBaja` lanza `UltimoAdministradorException` si es el único Administrador activo, en `tests/Spd.Dominio.Tests/UsuarioReglasTests.cs` (CA-002, FR-042)
+- [ ] T029 [P] [US2] Test unitario: `DarDeBaja` no elimina la fila, solo `activo=0`/`fecha_baja` (Art. III), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-003)
+- [ ] T030 [P] [US2] Test unitario: `RegistrarIntentoLogin` bloquea al 5º intento fallido consecutivo y un 6º intento sigue rechazado, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-004, FR-045)
+- [ ] T031 [P] [US2] Test unitario: `DesbloquearUsuario` solo permitido a un usuario con rol `ADMINISTRADOR`, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (FR-045)
+- [ ] T032 [P] [US2] Test unitario: `CrearUsuario`, `DarDeBaja`, `ResetearPassword` y `DesbloquearUsuario` registran cada uno una entrada en `Auditoria` con usuario, fecha-hora, entidad y detalle (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` *(remediación C1)*
+- [ ] T033 [P] [US2] Test unitario: `CrearUsuario` genera una contraseña provisional si no se indica una y marca `debe_cambiar_password=1` en ambos casos (FR-041); `ResetearPassword` también marca `debe_cambiar_password=1` (FR-044), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` *(remediación U3)*
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Implementar la regla "único administrador protegido" en `src/Spd.Dominio/Usuario.cs` (FR-042; depende de T012)
-- [ ] T032 [US2] Implementar `IServicioUsuarios` y `ServicioUsuarios` en `src/Spd.Aplicacion/ServicioUsuarios.cs`: `CrearUsuario`, `DarDeBaja`, `CambiarPassword`, `ResetearPassword`, `RegistrarIntentoLogin`, `DesbloquearUsuario` (depende de T014, T016, T018, T031)
-- [ ] T033 [US2] Implementar pantalla Configuración/Usuarios (listado, alta, baja, reseteo de contraseña) en `src/Spd.Presentacion/Views/Configuracion/UsuariosView.axaml` + `UsuariosViewModel.cs`
-- [ ] T034 [US2] Implementar pantalla de login con mensaje de bloqueo ("usuario bloqueado, contacte con un Administrador") en `src/Spd.Presentacion/Views/LoginView.axaml` + `LoginViewModel.cs`
+- [ ] T034 [US2] Implementar la regla "único administrador protegido" en `src/Spd.Dominio/Usuario.cs` (FR-042; depende de T012)
+- [ ] T035 [US2] Implementar `IServicioUsuarios` y `ServicioUsuarios` en `src/Spd.Aplicacion/ServicioUsuarios.cs`: `CrearUsuario`, `DarDeBaja`, `CambiarPassword`, `ResetearPassword`, `RegistrarIntentoLogin`, `DesbloquearUsuario` (depende de T014, T016, T018, T034); cada método de escritura registra en auditoría (Art. VII.6, depende también de T019)
+- [ ] T036 [US2] Implementar pantalla Configuración/Usuarios (listado, alta, baja, reseteo de contraseña) en `src/Spd.Presentacion/Views/Configuracion/UsuariosView.axaml` + `UsuariosViewModel.cs`
+- [ ] T037 [US2] Implementar pantalla de login con mensaje de bloqueo ("usuario bloqueado, contacte con un Administrador") en `src/Spd.Presentacion/Views/LoginView.axaml` + `LoginViewModel.cs`
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 
@@ -121,15 +129,17 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 
 ### Tests for User Story 3
 
-- [ ] T035 [P] [US3] Test unitario: cambiar `prefijo_num_ficha`/`prefijo_num_spd` no reescribe un número ya asignado (simulado), en `tests/Spd.Dominio.Tests/PrefijoNumeracionTests.cs` (CA-001, FR-013)
-- [ ] T036 [P] [US3] Test unitario: `ValidarRuta` detecta una ruta no escribible y no bloquea el guardado, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-030/031)
-- [ ] T037 [P] [US3] Test unitario: `ValidarRuta` avisa (no bloquea) si la ruta coincide con la carpeta de instalación, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-032)
+- [ ] T038 [P] [US3] Test unitario: cambiar `prefijo_num_ficha`/`prefijo_num_spd` no reescribe un número ya asignado (simulado), en `tests/Spd.Dominio.Tests/PrefijoNumeracionTests.cs` (CA-001, FR-013)
+- [ ] T039 [P] [US3] Test unitario: `ValidarRuta` detecta una ruta no escribible y no bloquea el guardado, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-030/031)
+- [ ] T040 [P] [US3] Test unitario: `ValidarRuta` avisa (no bloquea) si la ruta coincide con la carpeta de instalación, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-032)
+- [ ] T041 [P] [US3] Test unitario: `ActualizarDatosFarmacia` resuelve `responsable_datos`/`direccion_derechos`/`email_derechos` al valor de `titular_o_comunidad_bienes`/dirección cuando no se han rellenado, sin escribirlo físicamente en esos campos (FR-012), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` *(remediación U2)*
+- [ ] T042 [P] [US3] Test unitario: `ActualizarDatosFarmacia` y `ActualizarPrefijos` registran en `Auditoria` (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` *(remediación C1)*
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Implementar `IServicioConfiguracionFarmacia` (datos, prefijos, rutas) y `ServicioConfiguracionFarmacia` en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (depende de T011, T015, T017)
-- [ ] T039 [US3] Implementar histórico de logo (copia a `logos_historico/<fecha>.<ext>`) en `src/Spd.Infraestructura/GestorLogoFarmacia.cs` (FR-011)
-- [ ] T040 [US3] Implementar pantalla Configuración/Farmacia (datos, logo, prefijos, rutas) en `src/Spd.Presentacion/Views/Configuracion/FarmaciaView.axaml` + `FarmaciaViewModel.cs`
+- [ ] T043 [US3] Implementar `IServicioConfiguracionFarmacia` (datos, prefijos, rutas) y `ServicioConfiguracionFarmacia` en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (depende de T011, T015, T017); cada método de escritura registra en auditoría (Art. VII.6, depende también de T019)
+- [ ] T044 [US3] Implementar histórico de logo (copia a `logos_historico/<fecha>.<ext>`) en `src/Spd.Infraestructura/GestorLogoFarmacia.cs` (FR-011)
+- [ ] T045 [US3] Implementar pantalla Configuración/Farmacia (datos, logo, prefijos, rutas) en `src/Spd.Presentacion/Views/Configuracion/FarmaciaView.axaml` + `FarmaciaViewModel.cs`
 
 **Checkpoint**: US1 + US2 + US3 funcionales de forma independiente.
 
@@ -143,12 +153,12 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 
 ### Tests for User Story 4
 
-- [ ] T041 [P] [US4] Test unitario: `ActualizarValoresDefecto` no modifica entidades ya personalizadas (simulado con stub), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (CA-006, FR-020)
+- [ ] T046 [P] [US4] Test unitario: `ActualizarValoresDefecto` no modifica entidades ya personalizadas (simulado con stub), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (CA-006, FR-020)
 
 ### Implementation for User Story 4
 
-- [ ] T042 [US4] Extender `ServicioConfiguracionFarmacia` con `ActualizarValoresDefecto` (`dia_retirada_defecto`, `n_blisteres_defecto`, `dias_antelacion_listado`, rangos ambientales, `umbral_reutilizacion_lectura_ambiental_horas`) en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (FR-020/021/022; depende de T038)
-- [ ] T043 [US4] Añadir la pestaña "Valores por defecto" a la pantalla de Configuración en `src/Spd.Presentacion/Views/Configuracion/ValoresDefectoView.axaml` + `ValoresDefectoViewModel.cs`
+- [ ] T047 [US4] Extender `ServicioConfiguracionFarmacia` con `ActualizarValoresDefecto` (`dia_retirada_defecto`, `n_blisteres_defecto`, `dias_antelacion_listado`, rangos ambientales, `umbral_reutilizacion_lectura_ambiental_horas`) en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (FR-020/021/022; depende de T043); registra en auditoría (Art. VII.6)
+- [ ] T048 [US4] Añadir la pestaña "Valores por defecto" a la pantalla de Configuración en `src/Spd.Presentacion/Views/Configuracion/ValoresDefectoView.axaml` + `ValoresDefectoViewModel.cs`
 
 **Checkpoint**: US1 a US4 funcionales de forma independiente.
 
@@ -162,14 +172,16 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 
 ### Tests for User Story 5
 
-- [ ] T044 [P] [US5] Test de integración: `ComprobarActualizaciones` con GitHub Releases simulado que no responde no lanza excepción no controlada, en `tests/Spd.Aplicacion.Tests/ServicioActualizacionesTests.cs`
-- [ ] T045 [P] [US5] Test de integración: `DescargarNomenclator` con URL que no responde devuelve motivo de fallo, en `tests/Spd.Aplicacion.Tests/ServicioNomenclatorTests.cs` (CA-005)
+- [ ] T049 [P] [US5] Test de integración: `ComprobarActualizaciones` con GitHub Releases simulado que no responde no lanza excepción no controlada, en `tests/Spd.Aplicacion.Tests/ServicioActualizacionesTests.cs`
+- [ ] T050 [P] [US5] Test de integración: `DescargarNomenclator` con URL que no responde devuelve motivo de fallo, en `tests/Spd.Aplicacion.Tests/ServicioNomenclatorTests.cs` (CA-005)
+- [ ] T051 [P] [US5] Test: ni `ComprobarActualizaciones` ni `DescargarNomenclator` se invocan durante el arranque de la aplicación (Art. VI.3) — revisión automatizada de `App.axaml.cs`/`ServicioAsistentePrimerArranque` sin llamadas a ninguno de los dos servicios fuera de una acción explícita del usuario, en `tests/Spd.Aplicacion.Tests/ArranqueSinRedTests.cs` *(remediación E1)*
+- [ ] T052 [P] [US5] Test: `ComprobarActualizaciones` y `DescargarNomenclator` registran en `Auditoria` el resultado (éxito/fallo) de cada acción (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioActualizacionesTests.cs` y `ServicioNomenclatorTests.cs` *(remediación C1)*
 
 ### Implementation for User Story 5
 
-- [ ] T046 [US5] Implementar `IServicioActualizaciones` y `ServicioActualizaciones` (GitHub Releases API, research.md Decisión 3) en `src/Spd.Infraestructura/ServicioActualizaciones.cs`
-- [ ] T047 [US5] Implementar `IServicioNomenclator` y `ServicioNomenclator` (`HttpClient`, research.md Decisión 5) en `src/Spd.Infraestructura/ServicioNomenclator.cs`
-- [ ] T048 [US5] Implementar pantallas Configuración/Actualizaciones y Configuración/Nomenclátor en `src/Spd.Presentacion/Views/Configuracion/` (`ActualizacionesView.axaml`, `NomenclatorView.axaml`)
+- [ ] T053 [US5] Implementar `IServicioActualizaciones` y `ServicioActualizaciones` (GitHub Releases API, research.md Decisión 3) en `src/Spd.Infraestructura/ServicioActualizaciones.cs`; registra en auditoría (Art. VII.6)
+- [ ] T054 [US5] Implementar `IServicioNomenclator` y `ServicioNomenclator` (`HttpClient`, research.md Decisión 5) en `src/Spd.Infraestructura/ServicioNomenclator.cs`; registra en auditoría (Art. VII.6)
+- [ ] T055 [US5] Implementar pantallas Configuración/Actualizaciones y Configuración/Nomenclátor en `src/Spd.Presentacion/Views/Configuracion/` (`ActualizacionesView.axaml`, `NomenclatorView.axaml`)
 
 **Checkpoint**: las 5 user stories funcionan de forma independiente.
 
@@ -177,10 +189,10 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T049 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
-- [ ] T050 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
-- [ ] T051 Medir el arranque completo hasta la pantalla de login/asistente en un PC de gama media y confirmar < 2 s (Art. IX.4)
-- [ ] T052 [P] Actualizar `PROGRESO.md` marcando cada CA-000..CA-006 como validado, con el test o prueba manual que lo confirma
+- [ ] T056 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
+- [ ] T057 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
+- [ ] T058 Medir el arranque completo hasta la pantalla de login/asistente en un PC de gama media y confirmar < 2 s (Art. IX.4)
+- [ ] T059 [P] Actualizar `PROGRESO.md` marcando cada CA-000..CA-006 como validado, con el test o prueba manual que lo confirma
 
 ---
 
@@ -191,14 +203,14 @@ nomenclátor, sin escenario E propio pero con criterio de aceptación propio, CA
 - **Setup (Fase 1)**: sin dependencias
 - **Foundational (Fase 2)**: depende de Setup — bloquea las 5 user stories
 - **US1..US5 (Fases 3-7)**: dependen de Foundational; independientes entre sí salvo:
-  - US3 y US4 comparten `ServicioConfiguracionFarmacia` (US4 lo extiende) — US4 depende de T038
+  - US3 y US4 comparten `ServicioConfiguracionFarmacia` (US4 lo extiende) — US4 depende de T043
 - **Polish (Fase 8)**: depende de las user stories que se quieran dar por completas
 
 ### Parallel Opportunities
 
 - Todas las tareas `[P]` de Setup (T002-T008) en paralelo
 - T011-T013, T015-T016 (Foundational) en paralelo entre sí
-- Una vez completada Foundational, US1, US2, US3+US4 (secuencial por T038) y US5 pueden avanzar en paralelo si hay más de una persona
+- Una vez completada Foundational, US1, US2, US3+US4 (secuencial por T043) y US5 pueden avanzar en paralelo si hay más de una persona
 - Todos los tests `[P]` de una misma user story, en paralelo
 
 ## Implementation Strategy
