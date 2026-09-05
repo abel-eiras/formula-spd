@@ -19,6 +19,8 @@
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
         <Button Content="Nomenclátor" Command="{Binding AbrirNomenclatorCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Seguridad" Command="{Binding AbrirSeguridadCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
         <Button Content="Cerrar sesión" Command="{Binding CerrarSesionCommand}" Margin="0,16,0,0" />
     </StackPanel>
 

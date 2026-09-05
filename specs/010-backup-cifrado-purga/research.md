@@ -54,6 +54,30 @@ afectada (nunca se cierra y reabre en el uso normal), pero los flujos de activar
 cifrado (FR-1010/1011, que exportan a un fichero nuevo y luego intercambian cuál es el activo) sí
 abren varias conexiones en secuencia y deben llevar `Pooling=False`.
 
+**Hallazgo crítico #2 — regresión real en `Microsoft.Data.Sqlite` 10.0.11**: al escribir los tests
+de `ServicioCifradoTests`, `ATTACH DATABASE ... KEY ...` + `SELECT sqlcipher_export(...)` fallaban
+con `'no such function: sqlcipher_export'` a pesar de registrar el proveedor correctamente.
+Investigado con un proyecto de consola aislado variando solo la versión de `Microsoft.Data.Sqlite`
+(mismo `SQLitePCLRaw.bundle_e_sqlcipher` 2.1.11 en todos los casos):
+
+| `Microsoft.Data.Sqlite` | `PRAGMA cipher_version` | `compile_options` tiene `HAS_CODEC` |
+|---|---|---|
+| 8.0.10 | `4.5.2 community` | Sí |
+| 9.0.0 / 9.0.9 | `4.5.2 community` | Sí |
+| 10.0.0 .. 10.0.10 | `4.5.2 community` | Sí |
+| **10.0.11** (la que estaba fijada en `Spd.Infraestructura.csproj`) | **vacío** | **No** |
+
+Solo la versión `10.0.11` — la más reciente disponible en NuGet en el momento de esta prueba —
+ignora silenciosamente `SQLitePCL.raw.SetProvider(new SQLite3Provider_e_sqlcipher())` y arranca con
+el SQLite normal. No hay ningún error, excepción ni aviso: la base de datos simplemente deja de
+cifrarse de verdad aunque el código parezca hacerlo todo bien — el peor tipo de fallo posible para
+una funcionalidad de seguridad (Art. VII). Se fija la versión a **10.0.10** en
+`Spd.Infraestructura.csproj` — la más reciente que sí respeta el proveedor registrado — hasta que
+una versión posterior confirme el arreglo (no hay ninguna más nueva que 10.0.11 en NuGet a fecha de
+esta prueba). Cualquier futura actualización de `Microsoft.Data.Sqlite` en este proyecto debe
+repetir esta misma comprobación (`PRAGMA cipher_version` no vacío tras `ActivarCifrado`) antes de
+subir la versión, no dar por hecho que sigue funcionando.
+
 **Alternativas consideradas**: un binding de SQLCipher de otro autor (hay varios paquetes menos
 mantenidos en NuGet) — descartada, `SQLitePCLRaw.bundle_e_sqlcipher` es del mismo autor que
 `SQLitePCLRaw` (la capa que ya usa `Microsoft.Data.Sqlite` por debajo) y es la que la propia
@@ -61,6 +85,15 @@ constitución ya nombra. Mantener dos proveedores distintos según si el cifrado
 descartada: el registro de proveedor de `SQLitePCLRaw` es un único valor estático por proceso: no
 se puede cambiar a mitad de ejecución sin reiniciar la app, y no hace falta, porque el binario
 e_sqlcipher abre bases sin cifrar exactamente igual (punto 5 de la prueba).
+
+**Corolario del hallazgo anterior**: la conexión única y persistente de `App.axaml.cs` también debe
+llevar `Pooling=False`, no solo las conexiones de comprobación puntuales. Razón: `ActivarCifrado`/
+`DesactivarCifrado` cierran esa conexión, sustituyen el fichero `spd.db` por el resultado de
+`sqlcipher_export`, y la vuelven a abrir con la misma cadena de conexión — con pooling activado,
+esa reapertura podría reutilizar el descriptor nativo anterior (que en POSIX seguiría apuntando al
+inodo antiguo tras un `rename` sobre la ruta, ya des-enlazado pero todavía abierto), sirviendo
+contenido obsoleto en vez del fichero recién intercambiado. Con una única conexión de por vida, el
+pooling no aporta ningún beneficio de rendimiento real, así que desactivarlo no tiene coste.
 
 ## Decisión 2 — Detección de si el cifrado está activo: en tiempo de arranque, no un flag guardado
 
@@ -101,12 +134,12 @@ clave de recuperación de BitLocker/LUKS/age):
    desenvolver la MEK, usarla en `PRAGMA key`. Si el administrador ha perdido la contraseña, una
    opción "usar clave de recuperación" pide la frase de 24 palabras en su lugar y repite el
    proceso con KEK-recuperación.
-6. Cambiar la contraseña maestra (FR-1012) no cambia la MEK ni exige `PRAGMA rekey`: solo
-   re-deriva KEK-contraseña con la contraseña nueva y re-envuelve la MEK existente. `PRAGMA rekey`
-   se reserva para cuando de verdad se quiere cambiar la clave de cifrado de la base de datos en
-   sí (que la propia FR-1012 sí pide expresamente) — en ese caso se genera una MEK nueva, se hace
-   `PRAGMA rekey`, y se generan y envuelven una contraseña y clave de recuperación nuevas a la vez
-   (FR-1012 exige "genera una nueva clave de recuperación").
+6. Cambiar la contraseña maestra (FR-1012) genera una MEK **nueva** y hace `PRAGMA rekey` sobre la
+   conexión ya abierta y autenticada — operación nativa de SQLCipher, in situ, sin exportar ni
+   reimportar nada (a diferencia de FR-1010/1011, que sí cambian de "sin cifrar" a "cifrado" o
+   viceversa y por eso necesitan `sqlcipher_export`). Se genera también una frase de recuperación
+   nueva (FR-1012 lo exige explícitamente) y se envuelven ambos secretos (contraseña nueva, frase
+   nueva) sobre la MEK nueva, sustituyendo los dos sobres de `config.json`.
 
 **Alternativas consideradas**: pedir la contraseña maestra Y la frase de recuperación concatenadas
 como si fueran una sola clave — descartada, no cumple FR-1010 ("clave de recuperación" debe

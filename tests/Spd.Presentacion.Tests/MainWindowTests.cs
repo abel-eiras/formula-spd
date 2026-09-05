@@ -39,10 +39,12 @@ public sealed class MainWindowTests
         var servicioActualizaciones = new ServicioActualizaciones(new HttpClient(), auditoria);
         var servicioNomenclator = new ServicioNomenclator(new HttpClient(), auditoria);
         var servicioBackup = new ServicioBackup(conexion, repositorioFarmacia, auditoria);
+        var servicioCifrado = new ServicioCifrado(
+            conexion, ":memory:", Path.GetTempPath(), auditoria, new GeneradorFraseRecuperacion());
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
-            servicioBackup, administrador);
+            servicioBackup, servicioCifrado, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

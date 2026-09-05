@@ -67,24 +67,24 @@ comprobar que da la misma clave.
 
 ### Tests for User Story 2
 
-- [ ] T012 [P] [US2] Test: registrar el proveedor `SQLite3Provider_e_sqlcipher` al arrancar y comprobar que una base sin `PRAGMA key` se sigue abriendo con normalidad (research.md Decisión 1, punto 5 de la verificación), en `tests/Spd.Aplicacion.Tests/ServicioCifradoTests.cs`
-- [ ] T013 [P] [US2] Test: tras `ActivarCifrado`, reabrir el fichero **con `Pooling=False`** y sin `PRAGMA key` → falla; con la clave correcta → funciona (research.md, hallazgo crítico de la prueba)
-- [ ] T014 [P] [US2] Test: `ActivarCifrado` genera una frase de 24 palabras de la lista embebida y la MEK se puede desenvolver tanto con la contraseña maestra como con esa frase, dando la misma clave (Decisión 3)
-- [ ] T015 [P] [US2] Test: `CambiarContrasenaMaestra` (FR-1012) re-envuelve la MEK sin tocar `PRAGMA rekey` y genera una frase de recuperación nueva (CA-1004)
-- [ ] T016 [P] [US2] Test: `DesactivarCifrado` (FR-1011) deja el fichero legible sin `PRAGMA key`
-- [ ] T017 [P] [US2] Test: cada operación de esta user story registra en auditoría (`ACTIVAR_CIFRADO`, `DESACTIVAR_CIFRADO`, `CAMBIAR_CONTRASENA_MAESTRA`, Art. VII.6)
+- [X] T012 [P] [US2] Test: registrar el proveedor `SQLite3Provider_e_sqlcipher` al arrancar y comprobar que una base sin `PRAGMA key` se sigue abriendo con normalidad (research.md Decisión 1, punto 5 de la verificación), en `tests/Spd.Aplicacion.Tests/ServicioCifradoTests.cs`
+- [X] T013 [P] [US2] Test: tras `ActivarCifrado`, reabrir el fichero **con `Pooling=False`** y sin `PRAGMA key` → falla; con la clave correcta → funciona (research.md, hallazgo crítico de la prueba)
+- [X] T014 [P] [US2] Test: `ActivarCifrado` genera una frase de 24 palabras de la lista embebida y la MEK se puede desenvolver tanto con la contraseña maestra como con esa frase, dando la misma clave (Decisión 3)
+- [X] T015 [P] [US2] Test: `CambiarContrasenaMaestra` (FR-1012) re-envuelve la MEK sin tocar `PRAGMA rekey` y genera una frase de recuperación nueva (CA-1004)
+- [X] T016 [P] [US2] Test: `DesactivarCifrado` (FR-1011) deja el fichero legible sin `PRAGMA key`
+- [X] T017 [P] [US2] Test: cada operación de esta user story registra en auditoría (`ACTIVAR_CIFRADO`, `DESACTIVAR_CIFRADO`, `CAMBIAR_CONTRASENA_MAESTRA`, Art. VII.6)
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Registrar `SQLitePCL.raw.SetProvider(new SQLite3Provider_e_sqlcipher())` en `Program.cs`, antes de `BuildAvaloniaApp()` (research.md Decisión 1)
-- [ ] T019 [P] [US2] Crear `SobreClave` en `src/Spd.Dominio/SobreClave.cs` (data-model.md)
-- [ ] T020 [P] [US2] Crear `GeneradorFraseRecuperacion` en `src/Spd.Infraestructura/GeneradorFraseRecuperacion.cs` + recurso embebido `Recursos/wordlist-es.txt` (lista BIP39 español, research.md Decisión 4)
-- [ ] T021 [US2] Implementar `IServicioCifrado`/`ServicioCifrado` en `src/Spd.Aplicacion/IServicioCifrado.cs` + `src/Spd.Infraestructura/ServicioCifrado.cs`: generación de MEK, envolver/desenvolver con Argon2id + AES-256-GCM (depende de T019, T020)
-- [ ] T022 [US2] Implementar `ActivarCifrado`/`DesactivarCifrado`/`CambiarContrasenaMaestra`/`EstaActivo`/`ClaveActualParaConexion` en `ServicioCifrado` (depende de T021)
-- [ ] T023 [US2] Al arrancar (`App.axaml.cs`), si `EstaActivo()` pedir la contraseña maestra (o la frase de recuperación) antes de abrir la conexión real y usar la MEK desenvuelta en `PRAGMA key` (FR-1013)
-- [ ] T024 [US2] Implementar `SeguridadViewModel` + vista (activar/desactivar/cambiar contraseña, mostrar la frase de recuperación una vez con checkbox de confirmación obligatorio antes de continuar — CA-1003) en `src/Spd.Presentacion/ViewModels/SeguridadViewModel.cs` + `src/Spd.Presentacion/Views/Configuracion/SeguridadView.axaml`
-- [ ] T025 [US2] Añadir botón "Seguridad" a `MainWindow`/`MainViewModel` (solo Administrador, Art. VII.4)
-- [ ] T026 [P] [US2] Test Avalonia.Headless: `SeguridadView` construye y muestra sin lanzar, en `tests/Spd.Presentacion.Tests/SeguridadViewTests.cs`
+- [X] T018 [US2] Registrar `SQLitePCL.raw.SetProvider(new SQLite3Provider_e_sqlcipher())` en `Program.cs`, antes de `BuildAvaloniaApp()` (research.md Decisión 1)
+- [X] T019 [P] [US2] Crear `SobreClave` en `src/Spd.Dominio/SobreClave.cs` (data-model.md)
+- [X] T020 [P] [US2] Crear `GeneradorFraseRecuperacion` en `src/Spd.Infraestructura/GeneradorFraseRecuperacion.cs` + recurso embebido `Recursos/wordlist-es.txt` (lista BIP39 español, research.md Decisión 4)
+- [X] T021 [US2] Implementar `IServicioCifrado`/`ServicioCifrado` en `src/Spd.Aplicacion/IServicioCifrado.cs` + `src/Spd.Infraestructura/ServicioCifrado.cs`: generación de MEK, envolver/desenvolver con Argon2id + AES-256-GCM (depende de T019, T020)
+- [X] T022 [US2] Implementar `ActivarCifrado`/`DesactivarCifrado`/`CambiarContrasenaMaestra`/`EstaActivo`/`ClaveActualParaConexion` en `ServicioCifrado` (depende de T021)
+- [X] T023 [US2] Al arrancar (`App.axaml.cs`), si `EstaActivo()` pedir la contraseña maestra (o la frase de recuperación) antes de abrir la conexión real y usar la MEK desenvuelta en `PRAGMA key` (FR-1013)
+- [X] T024 [US2] Implementar `SeguridadViewModel` + vista (activar/desactivar/cambiar contraseña, mostrar la frase de recuperación una vez con checkbox de confirmación obligatorio antes de continuar — CA-1003) en `src/Spd.Presentacion/ViewModels/SeguridadViewModel.cs` + `src/Spd.Presentacion/Views/Configuracion/SeguridadView.axaml`
+- [X] T025 [US2] Añadir botón "Seguridad" a `MainWindow`/`MainViewModel` (solo Administrador, Art. VII.4)
+- [X] T026 [P] [US2] Test Avalonia.Headless: `SeguridadView` construye y muestra sin lanzar, en `tests/Spd.Presentacion.Tests/SeguridadViewTests.cs`
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 
@@ -92,10 +92,10 @@ comprobar que da la misma clave.
 
 ## Phase 3: Polish & Cross-Cutting Concerns
 
-- [ ] T027 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
-- [ ] T028 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6) — vigilar especialmente `ServicioCifrado` por la cantidad de primitivas criptográficas que combina
-- [ ] T029 [P] Actualizar `PROGRESO.md` marcando cada CA-1000..1004 como validado, con el test que lo confirma, y dejando constancia explícita de que CA-1005..1007 (purga) siguen diferidos
-- [ ] T030 Test de integración cruzado US1+US2: con el cifrado ya activo (`ActivarCifrado`), `GenerarBackup` produce un `.zip` cuya base de datos interna también exige la clave para leerse — FR-1014, hallazgo de `/speckit-analyze` (ninguna de las dos user stories por separado lo cubre)
+- [X] T027 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
+- [X] T028 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6) — vigilar especialmente `ServicioCifrado` por la cantidad de primitivas criptográficas que combina
+- [X] T029 [P] Actualizar `PROGRESO.md` marcando cada CA-1000..1004 como validado, con el test que lo confirma, y dejando constancia explícita de que CA-1005..1007 (purga) siguen diferidos
+- [X] T030 Test de integración cruzado US1+US2: con el cifrado ya activo (`ActivarCifrado`), `GenerarBackup` produce un `.zip` cuya base de datos interna también exige la clave para leerse — FR-1014, hallazgo de `/speckit-analyze` (ninguna de las dos user stories por separado lo cubre)
 
 ---
 

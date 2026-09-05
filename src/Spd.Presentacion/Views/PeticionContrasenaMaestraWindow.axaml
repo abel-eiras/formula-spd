@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Spd.Presentacion.Views.PeticionContrasenaMaestraWindow"
+        Title="SPD — Base de datos cifrada"
+        Width="420" SizeToContent="Height"
+        CanResize="False">
+  <StackPanel Margin="16" Spacing="12">
+    <TextBlock Text="Esta base de datos está cifrada. Introduzca la contraseña maestra o, si la ha olvidado, la frase de recuperación de 24 palabras."
+               TextWrapping="Wrap" />
+    <TextBox Name="CampoSecreto" Watermark="Contraseña maestra o frase de recuperación" PasswordChar="*" />
+    <TextBlock Name="TextoError" Foreground="Red" TextWrapping="Wrap" IsVisible="False" />
+    <Button Name="BotonContinuar" Content="Continuar" HorizontalAlignment="Right" />
+  </StackPanel>
+</Window>

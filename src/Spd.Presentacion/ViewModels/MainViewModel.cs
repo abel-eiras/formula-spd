@@ -16,6 +16,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
     private readonly IServicioBackup _servicioBackup;
+    private readonly IServicioCifrado _servicioCifrado;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -33,6 +34,7 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
         IServicioBackup servicioBackup,
+        IServicioCifrado servicioCifrado,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -41,6 +43,7 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
         _servicioBackup = servicioBackup;
+        _servicioCifrado = servicioCifrado;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -70,6 +73,13 @@ public sealed partial class MainViewModel : ViewModelBase
     private void AbrirNomenclator()
     {
         var ventana = new NomenclatorWindow(_servicioFarmacia, _servicioNomenclator, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    [RelayCommand]
+    private void AbrirSeguridad()
+    {
+        var ventana = new SeguridadWindow(_servicioCifrado, UsuarioActual.Id);
         ventana.Show();
     }
 
