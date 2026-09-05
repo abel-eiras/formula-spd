@@ -12,6 +12,7 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
 {
     private readonly IServicioConfiguracionFarmacia _servicio;
     private readonly GestorLogoFarmacia _gestorLogo;
+    private readonly IServicioBackup _servicioBackup;
     private readonly int? _administradorActualId;
     private readonly Farmacia _farmacia;
 
@@ -47,10 +48,13 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
 
     [ObservableProperty] private string? _mensaje;
 
-    public FarmaciaViewModel(IServicioConfiguracionFarmacia servicio, GestorLogoFarmacia gestorLogo, int? administradorActualId)
+    public FarmaciaViewModel(
+        IServicioConfiguracionFarmacia servicio, GestorLogoFarmacia gestorLogo, IServicioBackup servicioBackup,
+        int? administradorActualId)
     {
         _servicio = servicio;
         _gestorLogo = gestorLogo;
+        _servicioBackup = servicioBackup;
         _administradorActualId = administradorActualId;
         _farmacia = servicio.ObtenerConfiguracion();
 
@@ -101,6 +105,16 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
 
     [RelayCommand]
     private void ValidarRutaBackup() => Mensaje = DescribirValidacion("Copias de seguridad", RutaBackup);
+
+    // FR-1003: backup manual bajo demanda, mismo procedimiento que el automático al cerrar.
+    [RelayCommand]
+    private void GenerarBackupAhora()
+    {
+        var resultado = _servicioBackup.GenerarBackup(_administradorActualId, esAutomatico: false);
+        Mensaje = resultado.Exito
+            ? $"Backup generado: {resultado.RutaZip}."
+            : $"No se pudo generar el backup: {resultado.Motivo}";
+    }
 
     [RelayCommand]
     private void ValidarRutaDocumentos() => Mensaje = DescribirValidacion("Documentos generados", RutaDocumentosGenerados);

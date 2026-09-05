@@ -20,6 +20,12 @@ sealed class Program
     public static void Main(string[] args)
     {
         ConfigurarLogging();
+        // Art. VIII.2/VII.2: el proveedor SQLCipher se registra ANTES de que cualquier
+        // SqliteConnection se abra (research.md Decisión 1 de Spec 010) — sustituye por completo
+        // la inicialización implícita de Microsoft.Data.Sqlite (Batteries_V2.Init(), que
+        // registraría el SQLite normal en vez del compilado con SQLCipher). Una base sin cifrar
+        // se sigue abriendo con total normalidad bajo este mismo proveedor.
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlcipher());
         // Sin esto, una excepción no controlada termina el proceso (abort nativo) sin dejar
         // rastro alguno en logs/ — solo un core de systemd sin símbolos gestionados legible.
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>

@@ -24,6 +24,8 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioConsultaCima _servicioConsultaCima;
     private readonly IServicioRegistrosCalidad _servicioRegistrosCalidad;
     private readonly IServicioControlDocumental _servicioControlDocumental;
+    private readonly IServicioBackup _servicioBackup;
+    private readonly IServicioCifrado _servicioCifrado;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -46,6 +48,8 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioConsultaCima servicioConsultaCima,
         IServicioRegistrosCalidad servicioRegistrosCalidad,
         IServicioControlDocumental servicioControlDocumental,
+        IServicioBackup servicioBackup,
+        IServicioCifrado servicioCifrado,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -59,6 +63,8 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioConsultaCima = servicioConsultaCima;
         _servicioRegistrosCalidad = servicioRegistrosCalidad;
         _servicioControlDocumental = servicioControlDocumental;
+        _servicioBackup = servicioBackup;
+        _servicioCifrado = servicioCifrado;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -107,7 +113,7 @@ public sealed partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirFarmacia()
     {
-        var ventana = new FarmaciaWindow(_servicioFarmacia, _gestorLogo, UsuarioActual.Id);
+        var ventana = new FarmaciaWindow(_servicioFarmacia, _gestorLogo, _servicioBackup, UsuarioActual.Id);
         ventana.Show();
     }
 
@@ -122,6 +128,13 @@ public sealed partial class MainViewModel : ViewModelBase
     private void AbrirNomenclator()
     {
         var ventana = new NomenclatorWindow(_servicioFarmacia, _servicioNomenclator, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    [RelayCommand]
+    private void AbrirSeguridad()
+    {
+        var ventana = new SeguridadWindow(_servicioCifrado, UsuarioActual.Id);
         ventana.Show();
     }
 

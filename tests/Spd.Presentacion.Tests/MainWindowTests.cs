@@ -47,11 +47,14 @@ public sealed class MainWindowTests
         var servicioRegistrosCalidad = new ServicioRegistrosCalidad(new RepositorioRegistrosCalidad(conexion), auditoria);
         var servicioControlDocumental = new ServicioControlDocumental(
             new RepositorioControlDocumental(conexion), repositorioUsuarios, auditoria);
+        var servicioBackup = new ServicioBackup(conexion, repositorioFarmacia, auditoria);
+        var servicioCifrado = new ServicioCifrado(
+            conexion, ":memory:", Path.GetTempPath(), auditoria, new GeneradorFraseRecuperacion());
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
             servicioPacientes, servicioMedicamentos, servicioImportacionNomenclator, servicioConsultaCima,
-            servicioRegistrosCalidad, servicioControlDocumental, administrador);
+            servicioRegistrosCalidad, servicioControlDocumental, servicioBackup, servicioCifrado, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

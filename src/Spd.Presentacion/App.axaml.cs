@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using Serilog;
 using Spd.Aplicacion;
@@ -35,6 +36,8 @@ public partial class App : Application
     private IServicioConsultaCima? _servicioConsultaCima;
     private IServicioRegistrosCalidad? _servicioRegistrosCalidad;
     private IServicioControlDocumental? _servicioControlDocumental;
+    private IServicioBackup? _servicioBackup;
+    private IServicioCifrado? _servicioCifrado;
 
     public override void Initialize()
     {
@@ -50,23 +53,67 @@ public partial class App : Application
             // cerrándose "de golpe" en vez de pasar al login era este bug). Con apagado explícito,
             // solo la ventana principal real (tras iniciar sesión) cierra la aplicación al cerrarse.
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            InicializarInfraestructura();
-            MostrarAsistenteOLogin(desktop);
+
+            // Pooling=False (research.md Decisión 1 de Spec 010): la app abre una única conexión
+            // de por vida, el pooling no aporta nada aquí y sí puede reutilizar un descriptor
+            // nativo obsoleto tras el intercambio de fichero de activar/desactivar cifrado
+            // (FR-1010/1011). Se crea sin abrir todavía: si la base está cifrada, hace falta el
+            // secreto del administrador antes de poder abrirla de verdad (FR-1013).
+            _conexion = new SqliteConnection($"Data Source={RutaBaseDeDatos};Pooling=False");
+            var auditoriaPrevia = new RegistradorAuditoria(_conexion);
+            _servicioCifrado = new ServicioCifrado(
+                _conexion, RutaBaseDeDatos, AppContext.BaseDirectory, auditoriaPrevia, new GeneradorFraseRecuperacion());
+
+            if (_servicioCifrado.EstaActivo())
+            {
+                MostrarPeticionContrasenaMaestra(desktop);
+            }
+            else
+            {
+                _conexion.Open();
+                InicializarInfraestructura();
+                MostrarAsistenteOLogin(desktop);
+            }
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
+    // FR-1013: se pide una vez por sesión; acepta indistintamente la contraseña maestra o la
+    // frase de recuperación de 24 palabras, sin necesidad de que el administrador indique cuál de
+    // las dos está tecleando.
+    private void MostrarPeticionContrasenaMaestra(IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        var ventana = new PeticionContrasenaMaestraWindow();
+        ventana.SecretoIntroducido += secreto =>
+        {
+            var mek = _servicioCifrado!.DesenvolverMek(secreto, esFraseDeRecuperacion: false)
+                ?? _servicioCifrado.DesenvolverMek(secreto, esFraseDeRecuperacion: true);
+            if (mek is null)
+            {
+                ventana.MostrarError("Contraseña o frase de recuperación incorrecta.");
+                return;
+            }
+
+            _conexion!.Open();
+            _conexion.Execute($"PRAGMA key = \"x'{Convert.ToHexString(mek)}'\";");
+            InicializarInfraestructura();
+            MostrarAsistenteOLogin(desktop);
+            ventana.Close();
+        };
+        desktop.MainWindow = ventana;
+        ventana.Show();
+        RegistrarTiempoDeArranque("peticion-contrasena-maestra");
+    }
+
     private void InicializarInfraestructura()
     {
-        _conexion = new SqliteConnection($"Data Source={RutaBaseDeDatos}");
-        _conexion.Open();
-        new AplicadorMigraciones(_conexion).Aplicar();
+        new AplicadorMigraciones(_conexion!).Aplicar();
 
-        var repositorioUsuarios = new RepositorioUsuarios(_conexion);
-        var repositorioFarmacia = new RepositorioFarmacia(_conexion);
+        var repositorioUsuarios = new RepositorioUsuarios(_conexion!);
+        var repositorioFarmacia = new RepositorioFarmacia(_conexion!);
         var hasheador = new HasheadorArgon2id();
-        var auditoria = new RegistradorAuditoria(_conexion);
+        var auditoria = new RegistradorAuditoria(_conexion!);
 
         _servicioAsistente = new ServicioAsistentePrimerArranque(
             repositorioFarmacia, repositorioUsuarios, hasheador, auditoria);
@@ -80,8 +127,8 @@ public partial class App : Application
             new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, auditoria);
         _servicioNomenclator = new ServicioNomenclator(
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
-        _servicioPacientes = new ServicioPacientes(new RepositorioPacientes(_conexion), repositorioFarmacia, auditoria);
-        var repositorioMedicamentos = new RepositorioMedicamentos(_conexion);
+        _servicioPacientes = new ServicioPacientes(new RepositorioPacientes(_conexion!), repositorioFarmacia, auditoria);
+        var repositorioMedicamentos = new RepositorioMedicamentos(_conexion!);
         _servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
         _servicioImportacionNomenclator = new ServicioImportacionNomenclator(
             new LectorNomenclatorCsv(), repositorioMedicamentos, auditoria);
@@ -90,9 +137,10 @@ public partial class App : Application
         _servicioConsultaCima = new ServicioConsultaCima(
             new HttpClient { BaseAddress = new Uri("https://cima.aemps.es/cima/rest/"), Timeout = TimeSpan.FromSeconds(10) },
             auditoria);
-        _servicioRegistrosCalidad = new ServicioRegistrosCalidad(new RepositorioRegistrosCalidad(_conexion), auditoria);
+        _servicioRegistrosCalidad = new ServicioRegistrosCalidad(new RepositorioRegistrosCalidad(_conexion!), auditoria);
         _servicioControlDocumental = new ServicioControlDocumental(
-            new RepositorioControlDocumental(_conexion), repositorioUsuarios, auditoria);
+            new RepositorioControlDocumental(_conexion!), repositorioUsuarios, auditoria);
+        _servicioBackup = new ServicioBackup(_conexion!, repositorioFarmacia, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -156,7 +204,7 @@ public partial class App : Application
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
             _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!,
             _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
-            _servicioRegistrosCalidad!, _servicioControlDocumental!, usuario);
+            _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
@@ -166,6 +214,27 @@ public partial class App : Application
         {
             sesionCerradaPorElUsuario = true;
             MostrarLogin(desktop);
+            ventanaPrincipal.Close();
+        };
+
+        // Art. VI.6/FR-1000: al cerrar la aplicación (no al cerrar sesión) se genera un backup
+        // antes de que la app termine de cerrarse de verdad; si falla, un aviso visible detiene
+        // el cierre hasta que el usuario lo vea (FR-1001/CA-1001) — nunca solo un log.
+        var backupDeCierreHecho = false;
+        ventanaPrincipal.Closing += async (_, e) =>
+        {
+            if (sesionCerradaPorElUsuario || backupDeCierreHecho)
+            {
+                return;
+            }
+            e.Cancel = true;
+            var resultado = _servicioBackup!.GenerarBackup(usuario.Id, esAutomatico: true);
+            if (!resultado.Exito)
+            {
+                await AvisoWindow.MostrarAsync(
+                    ventanaPrincipal, $"No se pudo generar el backup de cierre: {resultado.Motivo}");
+            }
+            backupDeCierreHecho = true;
             ventanaPrincipal.Close();
         };
         ventanaPrincipal.Closed += (_, _) =>
