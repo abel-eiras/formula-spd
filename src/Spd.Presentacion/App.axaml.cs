@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Data.Sqlite;
+using Serilog;
 using Spd.Aplicacion;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
@@ -79,6 +80,7 @@ public partial class App : Application
                 ventanaAsistente.Close();
             };
             desktop.MainWindow = ventanaAsistente;
+            RegistrarTiempoDeArranque("asistente");
         }
         else
         {
@@ -102,5 +104,12 @@ public partial class App : Application
             ventanaLogin.Close();
         };
         desktop.MainWindow = ventanaLogin;
+        RegistrarTiempoDeArranque("login");
     }
+
+    // Art. IX.4: arranque completo hasta pantalla de login/asistente < 2 s en PC de gama media.
+    private static void RegistrarTiempoDeArranque(string pantalla)
+        => Log.Information(
+            "Arranque hasta pantalla de {Pantalla} en {Milisegundos} ms",
+            pantalla, Program.CronometroArranque.ElapsedMilliseconds);
 }

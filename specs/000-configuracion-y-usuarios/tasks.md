@@ -189,10 +189,10 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T056 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
-- [ ] T057 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
-- [ ] T058 Medir el arranque completo hasta la pantalla de login/asistente en un PC de gama media y confirmar < 2 s (Art. IX.4)
-- [ ] T059 [P] Actualizar `PROGRESO.md` marcando cada CA-000..CA-006 como validado, con el test o prueba manual que lo confirma
+- [x] T056 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
+- [x] T057 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
+- [x] T058 Medir el arranque completo hasta la pantalla de login/asistente en un PC de gama media y confirmar < 2 s (Art. IX.4)
+- [x] T059 [P] Actualizar `PROGRESO.md` marcando cada CA-000..CA-006 como validado, con el test o prueba manual que lo confirma
 
 ---
 

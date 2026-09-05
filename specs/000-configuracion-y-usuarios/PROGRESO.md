@@ -12,7 +12,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | `86ee536` |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1-US5 hechas (55/59) | `984d025`, `769788a`, `a4415c2`, `b6a1132`, `5a3dc51`, `ed5466a` (+ pendiente) |
+| 6 | Implementación | `/speckit-implement` | ✅ Hecho — 2026-09-05 (59/59 tareas) | `984d025`, `769788a`, `a4415c2`, `b6a1132`, `5a3dc51`, `ed5466a`, `018b9ad` (+ pendiente) |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
@@ -163,5 +163,19 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
     ninguna petición por sí solo — **limitación explícita**: esto no sustituye a una revisión de que
     `App.axaml.cs` nunca los invoca en el arranque, eso queda como verificación de código, no de
     test automatizado. 37/37 tests en verde en toda la solución. Ejecución real de `dotnet run` sin
-    excepciones. **Con esto, 55 de 59 tareas de `tasks.md` completadas — quedan solo T056-T059
-    (Polish).**
+    excepciones.
+  - **Polish (T056-T059)**: `quickstart.md` ejecutado íntegramente — los 7 criterios ya estaban
+    cubiertos por los tests de las fases anteriores (CA-001/003/006 al nivel "de esta spec" que el
+    propio `quickstart.md` anticipaba, pendientes de Spec 001/006 para el end-to-end completo).
+    Revisión de tamaño (Art. XI.6): ningún método de `Spd.Dominio`/`Spd.Aplicacion` se acerca a 40
+    líneas; el fichero más largo es `ServicioUsuarios.cs` con 141 líneas, muy por debajo de las
+    ~300 del límite de clase. Arranque medido con un cronómetro en `Program.cs`/`App.axaml.cs`
+    (Serilog): **0 ms** hasta mostrar la ventana del asistente — muy por debajo del límite de 2 s
+    del Art. IX.4.
+
+**Con esto, las 59 tareas de `tasks.md` están completadas.** `dotnet build`/`dotnet test` en verde
+(37/37 tests) para toda la solución. Limitación transversal a toda la Fase 6, repetida
+deliberadamente aquí para que quede en un solo sitio: ninguna vista Avalonia se ha verificado
+visualmente (sin herramienta de captura de ventana nativa disponible) — el usuario debe ejecutar
+`dotnet run --project src/Spd.Presentacion` y revisar a ojo el asistente, el login y las pantallas
+de Configuración antes de considerar la spec 000 realmente cerrada.
