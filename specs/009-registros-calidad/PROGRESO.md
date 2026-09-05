@@ -22,7 +22,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (sin hallazgos) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Foundational hecha (2026-09-05) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -81,3 +81,14 @@ fase de `/speckit-plan`.
   diseño no expone ningún método de actualización/eliminación en los repositorios — todas las
   entidades son de solo alta, lo que satisface el Art. III sin necesitar un test dedicado. 100 %
   de cobertura FR→tarea.
+- **2026-09-05** — Fase 6 (Implementación) iniciada. Foundational (T001-T014) completada: migración
+  `0002_registros_calidad.sql` (6 tablas + `ALTER TABLE Farmacia`), 6 entidades y enum
+  `TipoLimpieza`, 2 repositorios con `Fila` explícita. **Hallazgo relevante**: se descubrió un
+  comportamiento real de Dapper 2.1.79 — la materialización automática de un `record` con un
+  parámetro `long?` desde una columna snake_case puede fallar aunque
+  `MatchNamesWithUnderscores` esté activo, dependiendo de la forma exacta del record (reproducido
+  en aislamiento; no es simplemente "toda columna nula falla"). Corregido en
+  `RepositorioRegistrosCalidad.ListarAmbiental()` con alias explícitos `SELECT col AS
+  PascalCaseName`. Se ha dejado una tarea en segundo plano para revisar si `PacienteFila.MedicoId`
+  (Spec 001, mismo patrón `long?`) tiene el mismo riesgo latente, aunque sus tests actuales pasan.
+  `dotnet build` sin errores; 7+2+34 = 43 tests en verde.

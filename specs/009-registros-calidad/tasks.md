@@ -28,20 +28,20 @@ de Setup: no se crea ningún proyecto nuevo, se reutilizan los 6 de Spec 000.
 
 **⚠️ CRITICAL**: ninguna user story empieza antes de completar esta fase
 
-- [ ] T001 Crear script `src/Spd.Infraestructura/Migraciones/0002_registros_calidad.sql` con tablas `RegistroAmbiental`, `RegistroLimpieza`, `FormacionPersonal`, `RecogidaResiduos`, `ControlCambiosPNT`, `ControlCopias` (columnas de [data-model.md](./data-model.md)) y un `ALTER TABLE Farmacia ADD COLUMN umbral_dias_aviso_calidad INTEGER NOT NULL DEFAULT 7` (research.md Decisión 3). **Nota**: se numera `0002` en esta rama, igual que Specs 001/003; ver plan.md sobre la coordinación pendiente al mergear.
-- [ ] T002 [P] Crear enum `TipoLimpieza` en `src/Spd.Dominio/TipoLimpieza.cs` (FR-910)
-- [ ] T003 [P] Crear entidad `RegistroAmbiental` en `src/Spd.Dominio/RegistroAmbiental.cs` (FR-900/FR-901)
-- [ ] T004 [P] Crear entidad `RegistroLimpieza` en `src/Spd.Dominio/RegistroLimpieza.cs` (FR-910)
-- [ ] T005 [P] Crear entidad `FormacionPersonal` en `src/Spd.Dominio/FormacionPersonal.cs` (FR-920, research.md Decisión 1: sin `tipo`/`formador_id`)
-- [ ] T006 [P] Crear entidad `RecogidaResiduos` en `src/Spd.Dominio/RecogidaResiduos.cs` (FR-930)
-- [ ] T007 [P] Crear entidad `ControlCambiosPNT` en `src/Spd.Dominio/ControlCambiosPNT.cs` (FR-940)
-- [ ] T008 [P] Crear entidad `ControlCopias` en `src/Spd.Dominio/ControlCopias.cs` (FR-941)
-- [ ] T009 [P] Definir `IRepositorioRegistrosCalidad` (Ambiental/Limpieza/Formación/Residuos) en `src/Spd.Dominio/IRepositorioRegistrosCalidad.cs`
-- [ ] T010 [P] Definir `IRepositorioControlDocumental` (CambiosPNT/Copias) en `src/Spd.Dominio/IRepositorioControlDocumental.cs`
-- [ ] T011 Implementar `RepositorioRegistrosCalidad` en `src/Spd.Infraestructura/RepositorioRegistrosCalidad.cs` (depende de T001, T003-T006, T009)
-- [ ] T012 Implementar `RepositorioControlDocumental` en `src/Spd.Infraestructura/RepositorioControlDocumental.cs` (depende de T001, T007-T008, T010)
-- [ ] T013 [P] Test de humo: la migración 0002 (de esta rama) se aplica de forma idempotente sobre el esquema de Spec 000, `schema_version` pasa a 2, en `tests/Spd.Aplicacion.Tests/InfraestructuraRegistrosCalidadFundamentosTests.cs`
-- [ ] T014 [P] Test de humo: alta y lectura básica de las 6 entidades vía repositorios, en el mismo fichero
+- [X] T001 Crear script `src/Spd.Infraestructura/Migraciones/0002_registros_calidad.sql` con tablas `RegistroAmbiental`, `RegistroLimpieza`, `FormacionPersonal`, `RecogidaResiduos`, `ControlCambiosPNT`, `ControlCopias` (columnas de [data-model.md](./data-model.md)) y un `ALTER TABLE Farmacia ADD COLUMN umbral_dias_aviso_calidad INTEGER NOT NULL DEFAULT 7` (research.md Decisión 3). **Nota**: se numera `0002` en esta rama, igual que Specs 001/003; ver plan.md sobre la coordinación pendiente al mergear.
+- [X] T002 [P] Crear enum `TipoLimpieza` en `src/Spd.Dominio/TipoLimpieza.cs` (FR-910)
+- [X] T003 [P] Crear entidad `RegistroAmbiental` en `src/Spd.Dominio/RegistroAmbiental.cs` (FR-900/FR-901)
+- [X] T004 [P] Crear entidad `RegistroLimpieza` en `src/Spd.Dominio/RegistroLimpieza.cs` (FR-910)
+- [X] T005 [P] Crear entidad `FormacionPersonal` en `src/Spd.Dominio/FormacionPersonal.cs` (FR-920, research.md Decisión 1: sin `tipo`/`formador_id`)
+- [X] T006 [P] Crear entidad `RecogidaResiduos` en `src/Spd.Dominio/RecogidaResiduos.cs` (FR-930)
+- [X] T007 [P] Crear entidad `ControlCambiosPNT` en `src/Spd.Dominio/ControlCambiosPNT.cs` (FR-940)
+- [X] T008 [P] Crear entidad `ControlCopias` en `src/Spd.Dominio/ControlCopias.cs` (FR-941)
+- [X] T009 [P] Definir `IRepositorioRegistrosCalidad` (Ambiental/Limpieza/Formación/Residuos) en `src/Spd.Dominio/IRepositorioRegistrosCalidad.cs`
+- [X] T010 [P] Definir `IRepositorioControlDocumental` (CambiosPNT/Copias) en `src/Spd.Dominio/IRepositorioControlDocumental.cs`
+- [X] T011 Implementar `RepositorioRegistrosCalidad` en `src/Spd.Infraestructura/RepositorioRegistrosCalidad.cs` (depende de T001, T003-T006, T009)
+- [X] T012 Implementar `RepositorioControlDocumental` en `src/Spd.Infraestructura/RepositorioControlDocumental.cs` (depende de T001, T007-T008, T010)
+- [X] T013 [P] Test de humo: la migración 0002 (de esta rama) se aplica de forma idempotente sobre el esquema de Spec 000, `schema_version` pasa a 2, en `tests/Spd.Aplicacion.Tests/InfraestructuraRegistrosCalidadFundamentosTests.cs`
+- [X] T014 [P] Test de humo: alta y lectura básica de las 6 entidades vía repositorios, en el mismo fichero
 
 **Checkpoint**: esquema y entidades listos — las user stories pueden empezar.
 
