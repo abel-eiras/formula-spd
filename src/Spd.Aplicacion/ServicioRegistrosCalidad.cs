@@ -103,6 +103,10 @@ public sealed class ServicioRegistrosCalidad(
     private static int DiasDesdeElUltimo(IEnumerable<DateTime> fechas, DateTime ahora)
     {
         var ultima = fechas.OrderByDescending(f => f).Cast<DateTime?>().FirstOrDefault();
-        return ultima is null ? int.MaxValue : (int)(ahora - ultima.Value).TotalDays;
+        if (ultima is null) return int.MaxValue;
+
+        // Redondeo al alza: un truncamiento simple convertiría "7,92 días" en 7, y con umbral 7 no
+        // avisaría de un hueco que en la práctica ya lleva 8 días naturales (CA-904).
+        return (int)Math.Ceiling((ahora - ultima.Value).TotalDays);
     }
 }

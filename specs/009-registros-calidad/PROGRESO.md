@@ -22,7 +22,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (sin hallazgos) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1+US2+US3 hechas (2026-09-05) | *(pendiente de commit)* |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1..US4 hechas (2026-09-05) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -110,3 +110,10 @@ fase de `/speckit-plan`.
   separada visible solo para Administrador (mismo criterio que los botones de Configuración de
   Spec 000). Test Avalonia.Headless de regresión para ambos listados. `dotnet build` sin errores;
   7+4+46 = 57 tests en verde.
+- **2026-09-05** — User Story 4 (P3) completada: T039-T042. `ComprobarAvisos` (FR-950, CA-904) ya
+  estaba en `ServicioRegistrosCalidad` desde US1; al escribir su test se descubrió un **bug real**
+  de redondeo: `(int)(ahora - ultima).TotalDays` trunca 7,92 días a 7, así que con umbral 7 no
+  avisaba de un hueco de "8 días naturales" tal y como pide CA-904 literalmente. Corregido con
+  `Math.Ceiling` (redondeo al alza: pasado el día 7 ya se considera atrasado). Aviso mostrado en el
+  panel de inicio (`MainWindow`), informativo, nunca bloquea nada. `dotnet build` sin errores;
+  7+4+48 = 59 tests en verde. **Todas las user stories de esta spec están completas.**

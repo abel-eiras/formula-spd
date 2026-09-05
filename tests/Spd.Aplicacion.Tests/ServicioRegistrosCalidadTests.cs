@@ -129,4 +129,31 @@ public sealed class ServicioRegistrosCalidadTests
         Assert.Contains("FormacionPersonal", acciones);
         Assert.Contains("RecogidaResiduos", acciones);
     }
+
+    [Fact]
+    public void ComprobarAvisos_detecta_atraso_cuando_no_hay_registro_dentro_del_umbral_CA_904()
+    {
+        var (servicio, _, usuarioId) = CrearServicio();
+        servicio.RegistrarAmbiental(new DatosRegistroAmbiental(20, 50, null, DateTime.UtcNow.AddDays(-8)), usuarioId);
+        // Sin ningún registro de limpieza rutinaria en absoluto.
+
+        var aviso = servicio.ComprobarAvisos();
+
+        Assert.True(aviso.AvisoAmbiental);
+        Assert.True(aviso.AvisoLimpieza);
+        Assert.True(aviso.DiasSinAmbiental > 7);
+    }
+
+    [Fact]
+    public void ComprobarAvisos_no_avisa_con_un_registro_dentro_del_umbral()
+    {
+        var (servicio, _, usuarioId) = CrearServicio();
+        servicio.RegistrarAmbiental(new DatosRegistroAmbiental(20, 50, null), usuarioId);
+        servicio.RegistrarLimpieza(TipoLimpieza.Rutinaria, null, usuarioId);
+
+        var aviso = servicio.ComprobarAvisos();
+
+        Assert.False(aviso.AvisoAmbiental);
+        Assert.False(aviso.AvisoLimpieza);
+    }
 }

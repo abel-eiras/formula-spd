@@ -21,6 +21,7 @@ public sealed partial class MainViewModel : ViewModelBase
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
+    [ObservableProperty] private string? _avisoRegistrosCalidad;
 
     /// <summary>Elaborador no accede a Configuración (spec 000, actor "Elaborador").</summary>
     public bool PuedeAccederAConfiguracion => UsuarioActual.Rol == Rol.Administrador;
@@ -47,6 +48,13 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioControlDocumental = servicioControlDocumental;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
+
+        // FR-950: aviso informativo en el panel de inicio, nunca bloquea nada.
+        var aviso = servicioRegistrosCalidad.ComprobarAvisos();
+        var mensaje = string.Empty;
+        if (aviso.AvisoAmbiental) mensaje += $"Sin registro ambiental hace {aviso.DiasSinAmbiental} días. ";
+        if (aviso.AvisoLimpieza) mensaje += $"Sin limpieza rutinaria hace {aviso.DiasSinLimpiezaRutinaria} días.";
+        _avisoRegistrosCalidad = string.IsNullOrEmpty(mensaje) ? null : mensaje.Trim();
     }
 
     /// <summary>Solo Administrador (FR-942); el propio servicio también comprueba el rol.</summary>

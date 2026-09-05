@@ -135,13 +135,13 @@ registro de hoy, desaparece (CA-904).
 
 ### Tests for User Story 4
 
-- [ ] T039 [P] [US4] Test: `ComprobarAvisos` detecta atraso cuando no hay ambiental ni limpieza rutinaria en más días que `Farmacia.umbral_dias_aviso_calidad` (CA-904), en `tests/Spd.Aplicacion.Tests/ServicioRegistrosCalidadTests.cs`
-- [ ] T040 [P] [US4] Test: `ComprobarAvisos` no avisa si hay un registro dentro del umbral
+- [X] T039 [P] [US4] Test: `ComprobarAvisos` detecta atraso cuando no hay ambiental ni limpieza rutinaria en más días que `Farmacia.umbral_dias_aviso_calidad` (CA-904), en `tests/Spd.Aplicacion.Tests/ServicioRegistrosCalidadTests.cs`
+- [X] T040 [P] [US4] Test: `ComprobarAvisos` no avisa si hay un registro dentro del umbral
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Implementar `ComprobarAvisos` en `ServicioRegistrosCalidad` (depende de T019, T027)
-- [ ] T042 [US4] Mostrar el aviso en `MainViewModel`/`MainWindow` (panel de inicio, FR-950)
+- [X] T041 [US4] Implementar `ComprobarAvisos` en `ServicioRegistrosCalidad` (depende de T019, T027)
+- [X] T042 [US4] Mostrar el aviso en `MainViewModel`/`MainWindow` (panel de inicio, FR-950)
 
 **Checkpoint**: las 4 user stories funcionan de forma independiente.
 
