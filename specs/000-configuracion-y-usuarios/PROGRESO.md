@@ -307,3 +307,23 @@ solo con "no lanza excepción en `dotnet run`".
 38/38 tests en verde (7 Dominio + 30 Aplicación + 1 Presentación). Ejecución real de `dotnet run`
 sin excepciones. **Pendiente de que el usuario confirme** que Configuración/Usuarios ya abre sin
 cerrarse, y que el resto de pantallas (Farmacia, Actualizaciones, Nomenclátor) siguen funcionando.
+
+## Confirmación del usuario y pequeña mejora añadida (2026-09-05)
+
+El usuario confirmó que todo funciona sin errores tras la corrección anterior, incluido iniciar
+sesión con un usuario Elaborador recién creado (sin acceso a Configuración, como corresponde). Pidió
+un botón para cerrar sesión y volver al login sin tener que cerrar y reabrir la aplicación.
+
+**Añadido**: `MainViewModel.CerrarSesionCommand` (evento `CerrarSesionSolicitado`) y botón "Cerrar
+sesión" en `MainWindow`. En `App.axaml.cs` se extrae `AbrirVentanaPrincipal` (antes en línea dentro
+de `MostrarLogin`) para poder distinguir dos motivos de cierre de la ventana principal: cerrar
+sesión (vuelve al login, no sale de la app) frente a cerrar la ventana por cualquier otro medio
+(X, Alt+F4 — sí sale, sigue siendo la única ventana de la sesión). Se usa una bandera local
+(`sesionCerradaPorElUsuario`) para que el mismo `Closed` no dispare `desktop.Shutdown()` cuando el
+cierre lo provocó el propio botón.
+
+Añadido también `MainWindowTests` (mismo patrón headless que `UsuariosWindowTests`) para verificar
+que `MainWindow` se construye y muestra sin lanzar, dado el precedente de bugs que solo aparecían al
+mostrar una ventana real. 39/39 tests en verde. Ejecución real de `dotnet run` sin excepciones —
+**pendiente de que el usuario confirme** que "Cerrar sesión" funciona y vuelve al login sin cerrar
+la aplicación.

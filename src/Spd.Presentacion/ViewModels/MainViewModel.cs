@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
@@ -20,6 +21,9 @@ public sealed partial class MainViewModel : ViewModelBase
 
     /// <summary>Elaborador no accede a Configuración (spec 000, actor "Elaborador").</summary>
     public bool PuedeAccederAConfiguracion => UsuarioActual.Rol == Rol.Administrador;
+
+    /// <summary>Se dispara al pulsar "Cerrar sesión", para volver al login sin cerrar la aplicación.</summary>
+    public event Action? CerrarSesionSolicitado;
 
     public MainViewModel(
         IServicioUsuarios servicioUsuarios,
@@ -65,4 +69,7 @@ public sealed partial class MainViewModel : ViewModelBase
         var ventana = new NomenclatorWindow(_servicioFarmacia, _servicioNomenclator, UsuarioActual.Id);
         ventana.Show();
     }
+
+    [RelayCommand]
+    private void CerrarSesion() => CerrarSesionSolicitado?.Invoke();
 }

@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Data.Sqlite;
 using Serilog;
 using Spd.Aplicacion;
+using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.ViewModels;
@@ -99,26 +100,43 @@ public partial class App : Application
     private void MostrarLogin(IClassicDesktopStyleApplicationLifetime desktop)
     {
         var ventanaLogin = new LoginWindow(_servicioUsuarios!);
-        ventanaLogin.SesionIniciada += usuario =>
-        {
-            var ventanaPrincipal = new MainWindow
-            {
-                DataContext = new MainViewModel(
-                    _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-                    _servicioActualizaciones!, _servicioNomenclator!, usuario)
-            };
-            // Esta es la ventana principal real de la sesión: cerrarla sí debe salir de la app.
-            ventanaPrincipal.Closed += (_, _) => desktop.Shutdown();
-            desktop.MainWindow = ventanaPrincipal;
-            ventanaPrincipal.Show();
-            ventanaLogin.Close();
-        };
+        ventanaLogin.SesionIniciada += usuario => AbrirVentanaPrincipal(desktop, ventanaLogin, usuario);
         desktop.MainWindow = ventanaLogin;
         // Avalonia solo muestra la ventana inicial automáticamente al arrancar; al sustituir
-        // MainWindow más tarde (p. ej. al terminar el asistente) hay que mostrarla explícitamente,
-        // si no la app se queda sin ninguna ventana visible (el bug "no aparece el login").
+        // MainWindow más tarde (p. ej. al terminar el asistente o al cerrar sesión) hay que
+        // mostrarla explícitamente, si no la app se queda sin ninguna ventana visible.
         ventanaLogin.Show();
         RegistrarTiempoDeArranque("login");
+    }
+
+    private void AbrirVentanaPrincipal(
+        IClassicDesktopStyleApplicationLifetime desktop, Window ventanaAnterior, Usuario usuario)
+    {
+        var mainViewModel = new MainViewModel(
+            _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
+            _servicioActualizaciones!, _servicioNomenclator!, usuario);
+        var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
+
+        // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
+        // cerrarla de cualquier otra forma (X, Alt+F4) sí debe salir (única ventana de la sesión).
+        var sesionCerradaPorElUsuario = false;
+        mainViewModel.CerrarSesionSolicitado += () =>
+        {
+            sesionCerradaPorElUsuario = true;
+            MostrarLogin(desktop);
+            ventanaPrincipal.Close();
+        };
+        ventanaPrincipal.Closed += (_, _) =>
+        {
+            if (!sesionCerradaPorElUsuario)
+            {
+                desktop.Shutdown();
+            }
+        };
+
+        desktop.MainWindow = ventanaPrincipal;
+        ventanaPrincipal.Show();
+        ventanaAnterior.Close();
     }
 
     // Art. IX.4: arranque completo hasta pantalla de login/asistente < 2 s en PC de gama media.
