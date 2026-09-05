@@ -18,7 +18,9 @@
 
 ## Clarifications
 
-*(Pendiente — ver sección 9, Q1, marcada `[NEEDS CLARIFICATION]`)*
+### Session 2026-09-05
+
+- Q: ¿Necesitas ampliar la lista cerrada de formas farmacéuticas de FR-300, o basta con la lista ya propuesta? → A: Se mantiene la lista tal cual (comprimido, comprimido de liberación prolongada, cápsula, cápsula de liberación prolongada, gragea, pastilla, píldora, otra no apta para SPD), sin añadir valores ahora.
 
 ---
 
@@ -109,9 +111,7 @@ Dado un medicamento con CN 111111 dado de baja, cuando se vuelve a necesitar, en
 
 ## 9. Preguntas abiertas
 
-| # | Pregunta | Bloquea |
-|---|---|---|
-| Q1 | [NEEDS CLARIFICATION: ¿La lista cerrada de formas farmacéuticas (FR-300) necesita más valores de los listados (p. ej. "sobre", "parche")?] | Nada; propuesta: ampliable sin romper nada, se define la lista completa al implementar con el propietario |
+Ninguna pendiente — Q1 resuelta, ver sección "Clarifications" al inicio del documento.
 
 ## Assumptions
 

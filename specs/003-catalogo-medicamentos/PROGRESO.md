@@ -14,7 +14,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 | # | Fase | Comando | Estado | Commit |
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 2 | Aclaración | `/speckit-clarify` | ⏳ Pendiente | — |
+| 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 resuelta) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ⏳ Pendiente | — |
 | 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
@@ -56,3 +56,7 @@ fase de `/speckit-plan`.
   `spec-003-catalogo-medicamentos.md`, con Q1 (lista de formas farmacéuticas) marcada
   `[NEEDS CLARIFICATION]`. Checklist de calidad generado; todo pasa salvo "sin NEEDS
   CLARIFICATION", bloqueado a propósito hasta la fase 2.
+- **2026-09-05** — Fase 2 completada. Q1 planteada; el propietario del producto eligió la opción
+  recomendada: mantener la lista de formas farmacéuticas de FR-300 tal cual, sin añadir valores.
+  `spec.md` actualizado con sección "Clarifications" y §9 sin marcadores pendientes. Checklist de
+  calidad al 100 %.
