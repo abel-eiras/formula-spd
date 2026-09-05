@@ -18,7 +18,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (2 hallazgos remediados) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1+US2 hechas (2026-09-05) | *(pendiente de commit)* |
+| 6 | Implementación | `/speckit-implement` | ✅ Hecho — 2026-09-05 (pendiente prueba manual del usuario) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -27,12 +27,12 @@ fase de `/speckit-plan`.
 
 | CA | Descripción | Capa / tipo de test previsto |
 |---|---|---|
-| CA-300 | Alta mínima (solo CN + nombre), marcado "descripción física pendiente" | Aplicación — test unitario |
-| CA-301 | Editar descripción física no reescribe instantáneas de SPD ya entregados | Aplicación — test de integración (Art. IV.3) |
-| CA-302 | Marcar no apto SPD exige motivo | Dominio/Aplicación — test unitario |
-| CA-303 | CN duplicado bloqueado | Aplicación — test unitario |
-| CA-304 | Importación no sobrescribe descripción física sin confirmación | Aplicación — test de integración |
-| CA-305 | Reactivación de CN dado de baja en vez de duplicar | Aplicación — test unitario |
+| CA-300 | Alta mínima (solo CN + nombre), marcado "descripción física pendiente" | ✅ `Crear_guarda_con_solo_cn_y_nombre_CA_300` |
+| CA-301 | Editar descripción física no reescribe instantáneas de SPD ya entregados | ✅ `ActualizarDescripcionFisica_versiona_la_anterior_en_dos_cambios_sucesivos_CA_301` |
+| CA-302 | Marcar no apto SPD exige motivo | ✅ `ActualizarDatos_exige_motivo_solo_si_apto_spd_difiere_del_derivado_CA_302` |
+| CA-303 | CN duplicado bloqueado | ✅ `Crear_bloquea_un_cn_ya_activo_CA_303` |
+| CA-304 | Importación no sobrescribe descripción física sin confirmación | ✅ `AplicarNombreDesdeNomenclator_cambia_solo_el_nombre_CA_304` |
+| CA-305 | Reactivación de CN dado de baja en vez de duplicar | ✅ `Crear_reactiva_un_cn_dado_de_baja_en_vez_de_duplicar_CA_305` |
 
 ## Invariantes de constitución que aplican a esta spec
 
@@ -115,3 +115,13 @@ fase de `/speckit-plan`.
   incorrecto de una referencia desactualizada de `Medicamento` en el propio test (no en el
   servicio) — corregido recargando tras cada escritura, mismo matiz ya documentado en Spec 001.
   `dotnet build` sin errores; 15+4+47 = 66 tests en verde.
+- **2026-09-05** — Fase Polish completada (T035-T037). Los 6 escenarios de `quickstart.md`
+  (CA-300..CA-305) están cubiertos 1:1 por tests automatizados — ver tabla de criterios de
+  aceptación arriba, actualizada con el nombre exacto del test que confirma cada uno. Revisión de
+  tamaño (Art. XI.6): todas las clases muy por debajo de ~300 líneas
+  (`RepositorioMedicamentos.cs` es la mayor, 186); un único método (`CatalogoMedicamentosViewModel.
+  Guardar`) ronda ~40 líneas por componer tres llamadas de servicio en un solo flujo de guardado
+  cohesivo — no se ha dividido porque fragmentarlo en partes arbitrarias no aportaría legibilidad
+  (Art. XI.7). **Spec 003 queda completa en código y tests, pendiente de la prueba manual real
+  (`dotnet run`) del usuario** cuando pueda sentarse al ordenador, igual que Spec 001 — no se puede
+  verificar una interfaz gráfica de escritorio sin ejecutarla de verdad.

@@ -105,9 +105,9 @@ confirmar no cambia la descripción física de ningún medicamento existente (CA
 
 ## Phase 4: Polish & Cross-Cutting Concerns
 
-- [ ] T035 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
-- [ ] T036 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
-- [ ] T037 [P] Actualizar `PROGRESO.md` marcando cada CA-300..CA-305 como validado, con el test que lo confirma
+- [X] T035 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
+- [X] T036 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
+- [X] T037 [P] Actualizar `PROGRESO.md` marcando cada CA-300..CA-305 como validado, con el test que lo confirma
 
 ---
 
