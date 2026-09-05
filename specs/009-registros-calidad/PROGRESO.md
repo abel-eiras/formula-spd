@@ -20,7 +20,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 resuelta de forma autónoma) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
+| 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
@@ -71,3 +71,8 @@ fase de `/speckit-plan`.
   Farmacia), `contracts/servicios-aplicacion.md` (2 interfaces separadas por permisos),
   `quickstart.md`. Misma nota de coordinación de numeración de migración ya dejada en Specs 001 y
   003 (las tres ramas parten de `main` y numeran su propia migración `0002`).
+- **2026-09-05** — Fase 4 completada. `tasks.md` generado: Foundational (T001-T014: migración
+  0002 + ALTER TABLE Farmacia, 6 entidades, 2 repositorios, tests de humo) y 4 user stories — US1
+  Ambiental+Limpieza P1/MVP (T015-T023), US2 Formación+Residuos P2 (T024-T030), US3 Control
+  documental P2 (T031-T038), US4 Avisos P3 (T039-T042, depende de US1) — más Polish (T043-T045).
+  45 tareas en total. Auditoría y test Avalonia.Headless de regresión incluidos desde el diseño.
