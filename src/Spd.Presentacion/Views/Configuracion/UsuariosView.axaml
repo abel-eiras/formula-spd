@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Spd.Presentacion.ViewModels"
+             x:Class="Spd.Presentacion.Views.Configuracion.UsuariosView">
+  <Grid ColumnDefinitions="2*,1*" Margin="24">
+    <StackPanel Grid.Column="0" Spacing="4">
+      <TextBlock Text="Usuarios activos" FontSize="18" FontWeight="Bold" />
+      <ListBox ItemsSource="{Binding Usuarios}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:UsuariosViewModel">
+            <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,4">
+              <TextBlock Grid.Column="0" Text="{Binding Nombre}" />
+              <Button Grid.Column="1" Content="Resetear contraseña"
+                      Command="{Binding $parent[ListBox].((vm:UsuariosViewModel)DataContext).ResetearPasswordCommand}"
+                      CommandParameter="{Binding}" Margin="4,0" />
+              <Button Grid.Column="2" Content="Dar de baja"
+                      Command="{Binding $parent[ListBox].((vm:UsuariosViewModel)DataContext).DarDeBajaCommand}"
+                      CommandParameter="{Binding}" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <StackPanel Grid.Column="1" Spacing="8" Margin="24,0,0,0">
+      <TextBlock Text="Dar de alta un usuario" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="Nombre *" />
+      <TextBox Text="{Binding NombreNuevo}" />
+      <TextBlock Text="Apellidos *" />
+      <TextBox Text="{Binding ApellidosNuevo}" />
+      <TextBlock Text="Usuario (login) *" />
+      <TextBox Text="{Binding LoginNuevo}" />
+      <CheckBox Content="Dar de alta como Administrador" IsChecked="{Binding EsAdministradorNuevo}" />
+      <Button Content="Crear usuario" Command="{Binding CrearUsuarioCommand}" />
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+                 IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

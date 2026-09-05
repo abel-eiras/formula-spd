@@ -12,7 +12,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | `86ee536` |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1(MVP) hechas | `984d025`, `769788a` (+ pendiente) |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1+US2 hechas (37/59) | `984d025`, `769788a`, `a4415c2` (+ pendiente) |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
@@ -30,9 +30,9 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
 |---|---|---|---|
 | CA-000 | Asistente obligatorio en primer arranque | T021, T022, T023 | ✅ Validado (tests + arranque real) |
 | CA-001 | Cambio de prefijo no afecta a numeración pasada | T038 | ⏳ Pendiente de implementar |
-| CA-002 | Único administrador protegido (no autobaja) | T028 | ⏳ Pendiente de implementar |
-| CA-003 | Baja de usuario conserva histórico | T029 | ⏳ Pendiente de implementar |
-| CA-004 | Bloqueo por intentos fallidos | T030, T031 | ⏳ Pendiente de implementar |
+| CA-002 | Único administrador protegido (no autobaja) | T028 | ✅ Validado (test) |
+| CA-003 | Baja de usuario conserva histórico | T029 | ✅ Validado (test) |
+| CA-004 | Bloqueo por intentos fallidos | T030, T031 | ✅ Validado (test) |
 | CA-005 | Descarga de nomenclátor no bloquea la app | T049, T050 | ⏳ Pendiente de implementar |
 | CA-006 | Cambio de valores por defecto no reescribe pacientes existentes | T046 | ⏳ Pendiente de implementar |
 
@@ -112,3 +112,23 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
     asistente. **Limitación de esta verificación**: no hay captura de pantalla de la ventana nativa
     de Avalonia — el aspecto visual de los 5 pasos no se ha comprobado ojo a ojo, solo que la app
     arranca, no lanza excepciones y persiste correctamente al completar el flujo por código.
+  - **User Story 2 — Gestión de usuarios y acceso (T028-T037)**: regla "único administrador
+    protegido" (`ReglaUnicoAdministrador`/`UltimoAdministradorException`, en ficheros propios de
+    Dominio en vez de dentro de `Usuario.cs`, más acorde con Art. XI.6). `ServicioUsuarios`:
+    `CrearUsuario` (contraseña provisional generada o dada, siempre `debe_cambiar_password=1`,
+    remediación U3), `DarDeBaja` (lógica, Art. III.1), `CambiarPassword`/`ResetearPassword`,
+    `IntentarLogin` (verifica bloqueo antes que la contraseña, y solo entonces llama a
+    `RegistrarIntentoLogin`), `DesbloquearUsuario` (solo rol Administrador). Los 6 métodos de
+    escritura registran en auditoría, incluido login y login fallido (remediación C1). Pantallas
+    `LoginView`/`LoginWindow` (con mensaje de bloqueo) y `Configuracion/UsuariosView`/`UsuariosWindow`
+    (listado, alta, baja, reseteo); `MainWindow` gana un botón "Configuración de usuarios" visible
+    solo para `ADMINISTRADOR` (Elaborador no accede a Configuración, spec §2). `App.axaml.cs`
+    encadena asistente → login → ventana principal.
+    5 tests de Dominio (`UsuarioReglasTests.cs`) + 7 tests de Aplicación
+    (`ServicioUsuariosTests.cs`) en verde: CA-002, CA-003, CA-004, auditoría y contraseña
+    provisional. Corregido en el camino: `new { entidad.Id }` (nombre de propiedad inferido) hacía
+    fallar el binding de parámetros de Dapper con Microsoft.Data.Sqlite ("Must add values for the
+    following parameters: @id"); se resolvió nombrando el parámetro explícitamente
+    (`new { id = entidad.Id }`). Verificado con dos ejecuciones reales de `dotnet run`: con BD
+    vacía (repite el asistente) y con una fila `Farmacia` insertada a mano (salta directo al
+    login) — ninguna lanza excepción en 6 s. Misma limitación que en US1: sin verificación visual.

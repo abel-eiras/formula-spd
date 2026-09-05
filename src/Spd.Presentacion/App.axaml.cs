@@ -20,6 +20,7 @@ public partial class App : Application
 
     private SqliteConnection? _conexion;
     private IServicioAsistentePrimerArranque? _servicioAsistente;
+    private IServicioUsuarios? _servicioUsuarios;
 
     public override void Initialize()
     {
@@ -31,7 +32,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             InicializarInfraestructura();
-            MostrarAsistenteOVentanaPrincipal(desktop);
+            MostrarAsistenteOLogin(desktop);
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -43,33 +44,46 @@ public partial class App : Application
         _conexion.Open();
         new AplicadorMigraciones(_conexion).Aplicar();
 
+        var repositorioUsuarios = new RepositorioUsuarios(_conexion);
+        var hasheador = new HasheadorArgon2id();
+        var auditoria = new RegistradorAuditoria(_conexion);
+
         _servicioAsistente = new ServicioAsistentePrimerArranque(
-            new RepositorioFarmacia(_conexion),
-            new RepositorioUsuarios(_conexion),
-            new HasheadorArgon2id(),
-            new RegistradorAuditoria(_conexion));
+            new RepositorioFarmacia(_conexion), repositorioUsuarios, hasheador, auditoria);
+        _servicioUsuarios = new ServicioUsuarios(repositorioUsuarios, hasheador, auditoria);
     }
 
-    private void MostrarAsistenteOVentanaPrincipal(IClassicDesktopStyleApplicationLifetime desktop)
+    private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
     {
         if (!_servicioAsistente!.HayConfiguracionInicial())
         {
             var ventanaAsistente = new AsistentePrimerArranqueWindow(_servicioAsistente);
             ventanaAsistente.AsistenteFinalizado += () =>
             {
-                desktop.MainWindow = CrearVentanaPrincipal();
-                desktop.MainWindow.Show();
+                MostrarLogin(desktop);
                 ventanaAsistente.Close();
             };
             desktop.MainWindow = ventanaAsistente;
         }
         else
         {
-            desktop.MainWindow = CrearVentanaPrincipal();
+            MostrarLogin(desktop);
         }
     }
 
-    // CA-000: hasta que el asistente termina, esta es la única ventana de la aplicación (FR-000).
-    // A partir de aquí, la pantalla de login (Fase 4, User Story 2) sustituirá a este placeholder.
-    private static MainWindow CrearVentanaPrincipal() => new() { DataContext = new MainViewModel() };
+    // CA-000/FR-045: hasta iniciar sesión, la única ventana visible es el asistente o el login.
+    private void MostrarLogin(IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        var ventanaLogin = new LoginWindow(_servicioUsuarios!);
+        ventanaLogin.SesionIniciada += usuario =>
+        {
+            desktop.MainWindow = new MainWindow
+            {
+                DataContext = new MainViewModel(_servicioUsuarios!, usuario)
+            };
+            desktop.MainWindow.Show();
+            ventanaLogin.Close();
+        };
+        desktop.MainWindow = ventanaLogin;
+    }
 }

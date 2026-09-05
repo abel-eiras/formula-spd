@@ -1,0 +1,8 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:config="using:Spd.Presentacion.Views.Configuracion"
+        x:Class="Spd.Presentacion.Views.Configuracion.UsuariosWindow"
+        Title="SPD — Configuración de usuarios"
+        Width="720" Height="480">
+  <config:UsuariosView />
+</Window>

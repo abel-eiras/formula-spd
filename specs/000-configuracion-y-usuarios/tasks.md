@@ -103,19 +103,19 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 ### Tests for User Story 2
 
-- [ ] T028 [P] [US2] Test unitario: `DarDeBaja` lanza `UltimoAdministradorException` si es el único Administrador activo, en `tests/Spd.Dominio.Tests/UsuarioReglasTests.cs` (CA-002, FR-042)
-- [ ] T029 [P] [US2] Test unitario: `DarDeBaja` no elimina la fila, solo `activo=0`/`fecha_baja` (Art. III), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-003)
-- [ ] T030 [P] [US2] Test unitario: `RegistrarIntentoLogin` bloquea al 5º intento fallido consecutivo y un 6º intento sigue rechazado, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-004, FR-045)
-- [ ] T031 [P] [US2] Test unitario: `DesbloquearUsuario` solo permitido a un usuario con rol `ADMINISTRADOR`, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (FR-045)
-- [ ] T032 [P] [US2] Test unitario: `CrearUsuario`, `DarDeBaja`, `ResetearPassword` y `DesbloquearUsuario` registran cada uno una entrada en `Auditoria` con usuario, fecha-hora, entidad y detalle (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` *(remediación C1)*
-- [ ] T033 [P] [US2] Test unitario: `CrearUsuario` genera una contraseña provisional si no se indica una y marca `debe_cambiar_password=1` en ambos casos (FR-041); `ResetearPassword` también marca `debe_cambiar_password=1` (FR-044), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` *(remediación U3)*
+- [x] T028 [P] [US2] Test unitario: `DarDeBaja` lanza `UltimoAdministradorException` si es el único Administrador activo, en `tests/Spd.Dominio.Tests/UsuarioReglasTests.cs` (CA-002, FR-042)
+- [x] T029 [P] [US2] Test unitario: `DarDeBaja` no elimina la fila, solo `activo=0`/`fecha_baja` (Art. III), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-003)
+- [x] T030 [P] [US2] Test unitario: `RegistrarIntentoLogin` bloquea al 5º intento fallido consecutivo y un 6º intento sigue rechazado, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (CA-004, FR-045)
+- [x] T031 [P] [US2] Test unitario: `DesbloquearUsuario` solo permitido a un usuario con rol `ADMINISTRADOR`, en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` (FR-045)
+- [x] T032 [P] [US2] Test unitario: `CrearUsuario`, `DarDeBaja`, `ResetearPassword` y `DesbloquearUsuario` registran cada uno una entrada en `Auditoria` con usuario, fecha-hora, entidad y detalle (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` *(remediación C1)*
+- [x] T033 [P] [US2] Test unitario: `CrearUsuario` genera una contraseña provisional si no se indica una y marca `debe_cambiar_password=1` en ambos casos (FR-041); `ResetearPassword` también marca `debe_cambiar_password=1` (FR-044), en `tests/Spd.Aplicacion.Tests/ServicioUsuariosTests.cs` *(remediación U3)*
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Implementar la regla "único administrador protegido" en `src/Spd.Dominio/Usuario.cs` (FR-042; depende de T012)
-- [ ] T035 [US2] Implementar `IServicioUsuarios` y `ServicioUsuarios` en `src/Spd.Aplicacion/ServicioUsuarios.cs`: `CrearUsuario`, `DarDeBaja`, `CambiarPassword`, `ResetearPassword`, `RegistrarIntentoLogin`, `DesbloquearUsuario` (depende de T014, T016, T018, T034); cada método de escritura registra en auditoría (Art. VII.6, depende también de T019)
-- [ ] T036 [US2] Implementar pantalla Configuración/Usuarios (listado, alta, baja, reseteo de contraseña) en `src/Spd.Presentacion/Views/Configuracion/UsuariosView.axaml` + `UsuariosViewModel.cs`
-- [ ] T037 [US2] Implementar pantalla de login con mensaje de bloqueo ("usuario bloqueado, contacte con un Administrador") en `src/Spd.Presentacion/Views/LoginView.axaml` + `LoginViewModel.cs`
+- [x] T034 [US2] Implementar la regla "único administrador protegido" en `src/Spd.Dominio/Usuario.cs` (FR-042; depende de T012)
+- [x] T035 [US2] Implementar `IServicioUsuarios` y `ServicioUsuarios` en `src/Spd.Aplicacion/ServicioUsuarios.cs`: `CrearUsuario`, `DarDeBaja`, `CambiarPassword`, `ResetearPassword`, `RegistrarIntentoLogin`, `DesbloquearUsuario` (depende de T014, T016, T018, T034); cada método de escritura registra en auditoría (Art. VII.6, depende también de T019)
+- [x] T036 [US2] Implementar pantalla Configuración/Usuarios (listado, alta, baja, reseteo de contraseña) en `src/Spd.Presentacion/Views/Configuracion/UsuariosView.axaml` + `UsuariosViewModel.cs`
+- [x] T037 [US2] Implementar pantalla de login con mensaje de bloqueo ("usuario bloqueado, contacte con un Administrador") en `src/Spd.Presentacion/Views/LoginView.axaml` + `LoginViewModel.cs`
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 

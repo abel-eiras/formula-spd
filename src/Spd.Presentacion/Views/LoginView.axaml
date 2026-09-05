@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.LoginView">
+  <StackPanel Spacing="12" Margin="32" VerticalAlignment="Center" Width="320">
+    <TextBlock Text="Iniciar sesión" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
+    <TextBlock Text="Usuario" />
+    <TextBox Text="{Binding Login}" />
+    <TextBlock Text="Contraseña" />
+    <TextBox Text="{Binding Password}" PasswordChar="•" />
+    <Button Content="Entrar" Command="{Binding EntrarCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+    <TextBlock Text="{Binding MensajeError}" Foreground="Red" TextWrapping="Wrap"
+               IsVisible="{Binding MensajeError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+  </StackPanel>
+</UserControl>
