@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — quedan 2 (Q1 en FR-050, Q2 en FR-045), pendientes de `/speckit-clarify`.
+- [x] No [NEEDS CLARIFICATION] markers remain — Q1 (FR-050) y Q2 (FR-045) resueltas en `/speckit-clarify` (sesión 2026-09-05).
 - [x] Requirements are testable and unambiguous — cada FR-xxx es una regla concreta y verificable.
 - [x] Success criteria are measurable — los criterios de aceptación (§6, CA-000..CA-006) están en formato Dado/Cuando/Entonces, verificables sin ambigüedad.
 - [x] Success criteria are technology-agnostic (no implementation details).
@@ -32,4 +32,4 @@
 ## Notes
 
 - Esta spec es una entrada literal aportada por el propietario del producto (no generada desde una descripción libre); por eso no sigue el formato genérico de "User Story P1/P2/P3" ni "SC-001" del template — se conserva su propia numeración FR-xxx / CA-xxx tal como exige la instrucción del usuario ("no reinterpretes, no cambies la numeración").
-- Los dos `[NEEDS CLARIFICATION]` (Q1, Q2) ya estaban marcados como preguntas abiertas en el documento original, con una propuesta por defecto explícita. Bloquean el avance a `/speckit-plan` hasta resolverse en `/speckit-clarify` (Constitución Artículo X.3: un NEEDS CLARIFICATION no se resuelve por suposición del implementador).
+- Los dos `[NEEDS CLARIFICATION]` (Q1, Q2) quedaron resueltos en la sesión de `/speckit-clarify` del 2026-09-05, ambos siguiendo la propuesta por defecto del documento original (GitHub Releases; bloqueo manual sin expiración automática). Ver sección "Clarifications" en `spec.md`. Checklist 100% pasado — listo para `/speckit-plan`.

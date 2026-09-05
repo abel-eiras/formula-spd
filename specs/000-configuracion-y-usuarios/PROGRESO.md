@@ -8,18 +8,18 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | # | Fase | Comando | Estado | Commit |
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | `bff6a93` |
-| 2 | Aclaración | `/speckit-clarify` | ⏳ Pendiente (bloqueada por Q1/Q2, ver abajo) | — |
+| 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ⏳ Pendiente | — |
 | 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
-## Preguntas abiertas que bloquean la fase 2 (Constitución Art. X.3)
+## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
 | # | Pregunta | Respuesta |
 |---|---|---|
-| Q1 | FR-050: ¿URL de actualizaciones = GitHub Releases del proyecto, o servidor propio? | Pendiente de decidir con el propietario del producto |
-| Q2 | FR-045: ¿bloqueo manual por Administrador, o bloqueo temporal automático (p. ej. 15 min)? | Pendiente de decidir con el propietario del producto |
+| Q1 | FR-050: ¿URL de actualizaciones = GitHub Releases del proyecto, o servidor propio? | GitHub Releases del repositorio `abel-eiras/spd` |
+| Q2 | FR-045: ¿bloqueo manual por Administrador, o bloqueo temporal automático (p. ej. 15 min)? | Solo desbloqueo manual por un Administrador, sin expiración automática |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -52,3 +52,11 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
   `spec-000-configuracion-y-usuarios.md`, con Q1/Q2 marcadas `[NEEDS CLARIFICATION]`. Checklist de
   calidad de la especificación (`checklists/requirements.md`) generado; todo pasa salvo el punto de
   "sin NEEDS CLARIFICATION", bloqueado a propósito hasta la fase 2. Commit `bff6a93`.
+- **2026-09-05** — Fase 2 completada. Dos preguntas planteadas una a una; el propietario del
+  producto confirmó en ambas la opción recomendada (la propuesta por defecto ya apuntada en la spec
+  original): Q1 → GitHub Releases del repositorio del proyecto; Q2 → solo desbloqueo manual por un
+  Administrador, sin expiración automática. `spec.md` actualizado con sección "Clarifications" y
+  FR-045/FR-050 resueltos sin marcadores pendientes. Checklist de calidad al 100 %. Detectada y
+  corregida sobre la marcha una desviación propia: al trasladar la spec en la fase 1 se había
+  eliminado sin avisar la mención "Anthropic/" de FR-050 (texto original ambiguo) — se restauró
+  antes de resolver Q1, en vez de dejarla editada en silencio.

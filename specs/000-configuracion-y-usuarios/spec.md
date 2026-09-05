@@ -16,6 +16,15 @@
 
 ---
 
+## Clarifications
+
+### Session 2026-09-05
+
+- Q: ¿A qué URL debe apuntar la comprobación de actualizaciones del software (FR-050): a las GitHub Releases del propio repositorio del proyecto, o a un servidor de distribución propio? → A: GitHub Releases del repositorio del proyecto (`abel-eiras/spd`).
+- Q: Para el bloqueo tras intentos fallidos de login (FR-045), ¿desbloqueo solo manual por un Administrador, o además desbloqueo automático transcurrido un tiempo? → A: Solo desbloqueo manual por un Administrador, sin expiración automática.
+
+---
+
 ## 1. Propósito
 
 Primer arranque de la aplicación: datos de la farmacia, primer usuario administrador, valores por defecto que el resto de specs reutilizan (día de retirada, nº de blísteres, antelación del listado, rutas de backup y de documentos generados, rangos ambientales), y gestión continuada de usuarios.
@@ -81,11 +90,11 @@ Como administrador, quiero cambiar el día de retirada por defecto o el número 
 - **FR-042** Un usuario no puede autodesactivarse ni autodegradarse de Administrador si es el único Administrador activo del sistema — la aplicación no puede quedarse sin ningún administrador.
 - **FR-043** Baja de usuario: se marca `activo = 0`, nunca se elimina (Artículo III); conserva su histórico de acciones en auditoría y sigue apareciendo como autor de preparaciones, verificaciones y entregas pasadas.
 - **FR-044** Cambio de contraseña propio, y reseteo por un Administrador (genera contraseña provisional, marca `debe_cambiar_password`).
-- **FR-045** Bloqueo tras N intentos fallidos de inicio de sesión consecutivos (por defecto 5), desbloqueable solo por un Administrador. Registrado en auditoría (`LOGIN_FALLIDO`). [NEEDS CLARIFICATION: Q2 — ¿5 intentos y bloqueo manual por un Administrador son razonables, o se prefiere un bloqueo temporal automático (p. ej. 15 minutos) en vez de exigir intervención del administrador? Propuesta si no hay respuesta: bloqueo manual, por ser farmacia pequeña con administrador siempre localizable.]
+- **FR-045** Bloqueo tras N intentos fallidos de inicio de sesión consecutivos (por defecto 5), desbloqueable solo por un Administrador (sin expiración automática por tiempo). Registrado en auditoría (`LOGIN_FALLIDO`).
 
 ### 4.6 Actualizaciones y nomenclátor (excepciones de red)
 
-- **FR-050** Pantalla "Actualizaciones" en Configuración: botón "Comprobar actualizaciones" que consulta una URL fija del proveedor del software (no configurable por el usuario) y, si hay una versión nueva, ofrece descargarla. Nunca automático al arrancar sin que el usuario lo pida (Constitución Artículo VI.3). [NEEDS CLARIFICATION: Q1 — ¿la URL de actualizaciones apunta a un repositorio propio (GitHub Releases del proyecto GPLv3) o a un servidor propio de distribución? Propuesta si no hay respuesta: GitHub Releases del repositorio del proyecto, coherente con la licencia GPLv3.]
+- **FR-050** Pantalla "Actualizaciones" en Configuración: botón "Comprobar actualizaciones" que consulta la URL fija de las GitHub Releases del repositorio del proyecto (`abel-eiras/spd`), no configurable por el usuario, y, si hay una versión nueva, ofrece descargarla. Nunca automático al arrancar sin que el usuario lo pida (Constitución Artículo VI.3).
 - **FR-051** Pantalla "Nomenclátor" en Configuración: campo `url_nomenclator` editable, y botón "Descargar ahora" que obtiene el fichero Excel/CSV de esa URL para alimentar Spec 003/011. Si la URL cambia de formato o desaparece, el campo sigue siendo editable manualmente sin necesitar una nueva versión de la aplicación.
 - **FR-052** Ambas acciones muestran el resultado (éxito, fecha de la última comprobación/descarga, o el motivo del fallo) y no impiden el uso del resto de la aplicación si fallan.
 
@@ -127,12 +136,9 @@ Dado un paciente con `dia_retirada = MARTES` fijado individualmente, cuando camb
 
 ## 8. Preguntas abiertas
 
-| # | Pregunta | Propuesta si no hay respuesta |
-|---|---|---|
-| Q1 | FR-050: ¿la URL de actualizaciones apunta a un repositorio propio (GitHub Releases del proyecto GPLv3) o a un servidor propio de distribución? | GitHub Releases del repositorio del proyecto, coherente con la licencia GPLv3 |
-| Q2 | FR-045: ¿5 intentos y bloqueo manual son razonables, o prefieres un bloqueo temporal automático (p. ej. 15 minutos) en vez de exigir intervención del administrador? | Bloqueo manual — es una farmacia pequeña, un administrador siempre está localizable |
+Ninguna pendiente — Q1 y Q2 resueltas, ver sección "Clarifications" al inicio del documento.
 
 ## Assumptions
 
-- El resto de campos y reglas no marcados `[NEEDS CLARIFICATION]` se toman literalmente de la especificación original del propietario del producto, sin inferencias adicionales.
+- Todos los campos y reglas se toman literalmente de la especificación original del propietario del producto, sin inferencias adicionales, salvo las dos preguntas abiertas (Q1, Q2) resueltas en la sesión de Clarifications del 2026-09-05.
 - Los criterios de aceptación (§6, formato Dado/Cuando/Entonces) son los que exige el Artículo IX.2 de la constitución y se usan tal cual como base de los tests de aceptación de `/speckit-tasks`.
