@@ -54,6 +54,28 @@
         <Button Content="Validar" Command="{Binding ValidarRutaDocumentosCommand}" />
       </StackPanel>
 
+      <Separator Margin="0,8" />
+      <TextBlock Text="Valores por defecto" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="Día de retirada por defecto (LU/MA/MI/JU/VI/SA/DO)" />
+      <TextBox Text="{Binding DiaRetiradaDefecto}" />
+      <TextBlock Text="Nº de blísteres por defecto (1 o 2)" />
+      <NumericUpDown Value="{Binding NBlisteresDefecto}" Minimum="1" Maximum="2" />
+      <TextBlock Text="Días de antelación en el listado de retirada" />
+      <NumericUpDown Value="{Binding DiasAntelacionListado}" Minimum="0" Maximum="14" />
+      <TextBlock Text="Rango de temperatura (°C)" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <NumericUpDown Value="{Binding TempMin}" />
+        <NumericUpDown Value="{Binding TempMax}" />
+      </StackPanel>
+      <TextBlock Text="Rango de humedad relativa (%)" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <NumericUpDown Value="{Binding HrMin}" />
+        <NumericUpDown Value="{Binding HrMax}" />
+      </StackPanel>
+      <TextBlock Text="Umbral de reutilización de lectura ambiental (horas)" />
+      <NumericUpDown Value="{Binding UmbralReutilizacionLecturaAmbientalHoras}" Minimum="0" Maximum="24" />
+      <Button Content="Guardar valores por defecto" Command="{Binding GuardarValoresDefectoCommand}" />
+
       <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
                  IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />

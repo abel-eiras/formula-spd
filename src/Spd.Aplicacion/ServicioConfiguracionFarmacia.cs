@@ -28,6 +28,23 @@ public sealed class ServicioConfiguracionFarmacia(
         auditoria.Registrar(administradorQueEjecutaId, "MODIFICACION", "Farmacia", farmacia.Id, "prefijos");
     }
 
+    public void ActualizarValoresDefecto(DatosValoresDefecto valores, int? administradorQueEjecutaId)
+    {
+        // Solo escribe en Farmacia (CA-006): las entidades ya personalizadas (p. ej. un Paciente
+        // con su propio dia_retirada, cuando exista Spec 001) no se leen ni se tocan desde aquí.
+        var farmacia = ObtenerConfiguracion();
+        farmacia.DiaRetiradaDefecto = valores.DiaRetiradaDefecto;
+        farmacia.NBlisteresDefecto = valores.NBlisteresDefecto;
+        farmacia.DiasAntelacionListado = valores.DiasAntelacionListado;
+        farmacia.TempMin = valores.TempMin;
+        farmacia.TempMax = valores.TempMax;
+        farmacia.HrMin = valores.HrMin;
+        farmacia.HrMax = valores.HrMax;
+        farmacia.UmbralReutilizacionLecturaAmbientalHoras = valores.UmbralReutilizacionLecturaAmbientalHoras;
+        repositorio.Actualizar(farmacia);
+        auditoria.Registrar(administradorQueEjecutaId, "MODIFICACION", "Farmacia", farmacia.Id, "valores_defecto");
+    }
+
     public ResultadoValidacionRuta ValidarRuta(string ruta)
     {
         var existe = Directory.Exists(ruta);

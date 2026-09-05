@@ -8,5 +8,6 @@ public interface IServicioConfiguracionFarmacia
     Farmacia ObtenerConfiguracion();
     void ActualizarDatosFarmacia(Farmacia datos, int? administradorQueEjecutaId);
     void ActualizarPrefijos(string prefijoNumFicha, string prefijoNumSpd, int? administradorQueEjecutaId);
+    void ActualizarValoresDefecto(DatosValoresDefecto valores, int? administradorQueEjecutaId);
     ResultadoValidacionRuta ValidarRuta(string ruta);
 }

@@ -82,6 +82,26 @@ public sealed class ServicioConfiguracionFarmaciaTests
     }
 
     [Fact]
+    public void ActualizarValoresDefecto_solo_escribe_en_Farmacia_no_en_otras_entidades()
+    {
+        var (servicio, conexion) = CrearServicio();
+        var valores = new DatosValoresDefecto(
+            DiaRetiradaDefecto: "JU", NBlisteresDefecto: 2, DiasAntelacionListado: 3,
+            TempMin: 16, TempMax: 24, HrMin: 45, HrMax: 55, UmbralReutilizacionLecturaAmbientalHoras: 3);
+
+        servicio.ActualizarValoresDefecto(valores, administradorQueEjecutaId: 1);
+
+        var farmaciaActualizada = servicio.ObtenerConfiguracion();
+        Assert.Equal("JU", farmaciaActualizada.DiaRetiradaDefecto);
+        Assert.Equal(2, farmaciaActualizada.NBlisteresDefecto);
+        // CA-006: esta spec no tiene entidad Paciente todavía (Spec 001); la garantía de que un
+        // paciente ya personalizado no cambia se valida en Spec 001 leyendo estos valores solo
+        // como valor por defecto de un alta nueva, nunca sobrescribiendo uno existente.
+        var totalTablasAjenas = conexion.ExecuteScalar<int>("SELECT COUNT(*) FROM Usuario");
+        Assert.Equal(0, totalTablasAjenas);
+    }
+
+    [Fact]
     public void ActualizarDatosFarmacia_y_ActualizarPrefijos_registran_en_auditoria()
     {
         var (servicio, conexion) = CrearServicio();

@@ -153,12 +153,12 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 ### Tests for User Story 4
 
-- [ ] T046 [P] [US4] Test unitario: `ActualizarValoresDefecto` no modifica entidades ya personalizadas (simulado con stub), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (CA-006, FR-020)
+- [x] T046 [P] [US4] Test unitario: `ActualizarValoresDefecto` no modifica entidades ya personalizadas (simulado con stub), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (CA-006, FR-020)
 
 ### Implementation for User Story 4
 
-- [ ] T047 [US4] Extender `ServicioConfiguracionFarmacia` con `ActualizarValoresDefecto` (`dia_retirada_defecto`, `n_blisteres_defecto`, `dias_antelacion_listado`, rangos ambientales, `umbral_reutilizacion_lectura_ambiental_horas`) en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (FR-020/021/022; depende de T043); registra en auditoría (Art. VII.6)
-- [ ] T048 [US4] Añadir la pestaña "Valores por defecto" a la pantalla de Configuración en `src/Spd.Presentacion/Views/Configuracion/ValoresDefectoView.axaml` + `ValoresDefectoViewModel.cs`
+- [x] T047 [US4] Extender `ServicioConfiguracionFarmacia` con `ActualizarValoresDefecto` (`dia_retirada_defecto`, `n_blisteres_defecto`, `dias_antelacion_listado`, rangos ambientales, `umbral_reutilizacion_lectura_ambiental_horas`) en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (FR-020/021/022; depende de T043); registra en auditoría (Art. VII.6)
+- [x] T048 [US4] Añadir la pestaña "Valores por defecto" a la pantalla de Configuración en `src/Spd.Presentacion/Views/Configuracion/ValoresDefectoView.axaml` + `ValoresDefectoViewModel.cs`
 
 **Checkpoint**: US1 a US4 funcionales de forma independiente.
 

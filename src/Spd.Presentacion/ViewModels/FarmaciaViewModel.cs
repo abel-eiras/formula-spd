@@ -35,6 +35,15 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
     [ObservableProperty] private string? _rutaBackup;
     [ObservableProperty] private string? _rutaDocumentosGenerados;
 
+    [ObservableProperty] private string _diaRetiradaDefecto;
+    [ObservableProperty] private int _nBlisteresDefecto;
+    [ObservableProperty] private int _diasAntelacionListado;
+    [ObservableProperty] private double _tempMin;
+    [ObservableProperty] private double _tempMax;
+    [ObservableProperty] private double _hrMin;
+    [ObservableProperty] private double _hrMax;
+    [ObservableProperty] private int _umbralReutilizacionLecturaAmbientalHoras;
+
     [ObservableProperty] private string? _mensaje;
 
     public FarmaciaViewModel(IServicioConfiguracionFarmacia servicio, GestorLogoFarmacia gestorLogo, int? administradorActualId)
@@ -60,6 +69,14 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
         _prefijoNumSpd = _farmacia.PrefijoNumSpd;
         _rutaBackup = _farmacia.RutaBackup;
         _rutaDocumentosGenerados = _farmacia.RutaDocumentosGenerados;
+        _diaRetiradaDefecto = _farmacia.DiaRetiradaDefecto;
+        _nBlisteresDefecto = _farmacia.NBlisteresDefecto;
+        _diasAntelacionListado = _farmacia.DiasAntelacionListado;
+        _tempMin = _farmacia.TempMin;
+        _tempMax = _farmacia.TempMax;
+        _hrMin = _farmacia.HrMin;
+        _hrMax = _farmacia.HrMax;
+        _umbralReutilizacionLecturaAmbientalHoras = _farmacia.UmbralReutilizacionLecturaAmbientalHoras;
     }
 
     [RelayCommand]
@@ -69,6 +86,16 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
         _servicio.ActualizarDatosFarmacia(_farmacia, _administradorActualId);
         _servicio.ActualizarPrefijos(PrefijoNumFicha, PrefijoNumSpd, _administradorActualId);
         Mensaje = "Datos guardados.";
+    }
+
+    [RelayCommand]
+    private void GuardarValoresDefecto()
+    {
+        var valores = new DatosValoresDefecto(
+            DiaRetiradaDefecto, NBlisteresDefecto, DiasAntelacionListado,
+            TempMin, TempMax, HrMin, HrMax, UmbralReutilizacionLecturaAmbientalHoras);
+        _servicio.ActualizarValoresDefecto(valores, _administradorActualId);
+        Mensaje = "Valores por defecto guardados.";
     }
 
     [RelayCommand]
