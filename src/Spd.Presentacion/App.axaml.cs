@@ -21,6 +21,8 @@ public partial class App : Application
     private SqliteConnection? _conexion;
     private IServicioAsistentePrimerArranque? _servicioAsistente;
     private IServicioUsuarios? _servicioUsuarios;
+    private IServicioConfiguracionFarmacia? _servicioFarmacia;
+    private GestorLogoFarmacia? _gestorLogo;
 
     public override void Initialize()
     {
@@ -45,12 +47,15 @@ public partial class App : Application
         new AplicadorMigraciones(_conexion).Aplicar();
 
         var repositorioUsuarios = new RepositorioUsuarios(_conexion);
+        var repositorioFarmacia = new RepositorioFarmacia(_conexion);
         var hasheador = new HasheadorArgon2id();
         var auditoria = new RegistradorAuditoria(_conexion);
 
         _servicioAsistente = new ServicioAsistentePrimerArranque(
-            new RepositorioFarmacia(_conexion), repositorioUsuarios, hasheador, auditoria);
+            repositorioFarmacia, repositorioUsuarios, hasheador, auditoria);
         _servicioUsuarios = new ServicioUsuarios(repositorioUsuarios, hasheador, auditoria);
+        _servicioFarmacia = new ServicioConfiguracionFarmacia(repositorioFarmacia, auditoria);
+        _gestorLogo = new GestorLogoFarmacia();
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -79,7 +84,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(_servicioUsuarios!, usuario)
+                DataContext = new MainViewModel(_servicioUsuarios!, _servicioFarmacia!, _gestorLogo!, usuario)
             };
             desktop.MainWindow.Show();
             ventanaLogin.Close();

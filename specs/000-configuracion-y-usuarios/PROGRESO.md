@@ -12,7 +12,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | `86ee536` |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1+US2 hechas (37/59) | `984d025`, `769788a`, `a4415c2` (+ pendiente) |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1+US2+US3 hechas (45/59) | `984d025`, `769788a`, `a4415c2`, `b6a1132` (+ pendiente) |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
@@ -29,7 +29,7 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
 | CA | Descripción | Test previsto (tasks.md, renumerado tras `/speckit-analyze`) | Estado |
 |---|---|---|---|
 | CA-000 | Asistente obligatorio en primer arranque | T021, T022, T023 | ✅ Validado (tests + arranque real) |
-| CA-001 | Cambio de prefijo no afecta a numeración pasada | T038 | ⏳ Pendiente de implementar |
+| CA-001 | Cambio de prefijo no afecta a numeración pasada | T038 | ✅ Validado (parcial — completo con Spec 001) |
 | CA-002 | Único administrador protegido (no autobaja) | T028 | ✅ Validado (test) |
 | CA-003 | Baja de usuario conserva histórico | T029 | ✅ Validado (test) |
 | CA-004 | Bloqueo por intentos fallidos | T030, T031 | ✅ Validado (test) |
@@ -132,3 +132,16 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
     (`new { id = entidad.Id }`). Verificado con dos ejecuciones reales de `dotnet run`: con BD
     vacía (repite el asistente) y con una fila `Farmacia` insertada a mano (salta directo al
     login) — ninguna lanza excepción en 6 s. Misma limitación que en US1: sin verificación visual.
+  - **User Story 3 — Datos de la farmacia y rutas (T038-T045)**: `ServicioConfiguracionFarmacia`
+    (`ObtenerConfiguracion`, `ActualizarDatosFarmacia`, `ActualizarPrefijos`, `ValidarRuta` — existe/
+    escribible/coincide con la carpeta de instalación, FR-030..FR-032). `GestorLogoFarmacia`
+    (Infraestructura) archiva el logo anterior con fecha antes de sustituirlo (FR-011).
+    `FarmaciaView`/`FarmaciaWindow` con los 3 bloques (datos, logo, prefijos, rutas con botón
+    "Validar" independiente por ruta). `MainWindow` gana un segundo botón "Configuración de la
+    farmacia". 9 tests nuevos en verde: 2 en Dominio (`PrefijoNumeracionTests.cs` — CA-001, con la
+    limitación ya documentada en `quickstart.md` de que la garantía completa depende de Spec 001,
+    que no existe todavía) y 7 en Aplicación (`ServicioConfiguracionFarmaciaTests.cs` +
+    `GestorLogoFarmaciaTests.cs` — rutas, FR-012 remediación U2, auditoría remediación C1, histórico
+    de logo). Verificado con una ejecución real de `dotnet run` (6 s, sin excepciones) tras cablear
+    los dos servicios nuevos en `App.axaml.cs`/`MainViewModel`. Misma limitación de siempre: sin
+    verificación visual de las vistas Avalonia.

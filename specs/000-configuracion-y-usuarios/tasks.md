@@ -129,17 +129,17 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 ### Tests for User Story 3
 
-- [ ] T038 [P] [US3] Test unitario: cambiar `prefijo_num_ficha`/`prefijo_num_spd` no reescribe un número ya asignado (simulado), en `tests/Spd.Dominio.Tests/PrefijoNumeracionTests.cs` (CA-001, FR-013)
-- [ ] T039 [P] [US3] Test unitario: `ValidarRuta` detecta una ruta no escribible y no bloquea el guardado, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-030/031)
-- [ ] T040 [P] [US3] Test unitario: `ValidarRuta` avisa (no bloquea) si la ruta coincide con la carpeta de instalación, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-032)
-- [ ] T041 [P] [US3] Test unitario: `ActualizarDatosFarmacia` resuelve `responsable_datos`/`direccion_derechos`/`email_derechos` al valor de `titular_o_comunidad_bienes`/dirección cuando no se han rellenado, sin escribirlo físicamente en esos campos (FR-012), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` *(remediación U2)*
-- [ ] T042 [P] [US3] Test unitario: `ActualizarDatosFarmacia` y `ActualizarPrefijos` registran en `Auditoria` (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` *(remediación C1)*
+- [x] T038 [P] [US3] Test unitario: cambiar `prefijo_num_ficha`/`prefijo_num_spd` no reescribe un número ya asignado (simulado), en `tests/Spd.Dominio.Tests/PrefijoNumeracionTests.cs` (CA-001, FR-013)
+- [x] T039 [P] [US3] Test unitario: `ValidarRuta` detecta una ruta no escribible y no bloquea el guardado, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-030/031)
+- [x] T040 [P] [US3] Test unitario: `ValidarRuta` avisa (no bloquea) si la ruta coincide con la carpeta de instalación, en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` (FR-032)
+- [x] T041 [P] [US3] Test unitario: `ActualizarDatosFarmacia` resuelve `responsable_datos`/`direccion_derechos`/`email_derechos` al valor de `titular_o_comunidad_bienes`/dirección cuando no se han rellenado, sin escribirlo físicamente en esos campos (FR-012), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` *(remediación U2)*
+- [x] T042 [P] [US3] Test unitario: `ActualizarDatosFarmacia` y `ActualizarPrefijos` registran en `Auditoria` (Art. VII.6), en `tests/Spd.Aplicacion.Tests/ServicioConfiguracionFarmaciaTests.cs` *(remediación C1)*
 
 ### Implementation for User Story 3
 
-- [ ] T043 [US3] Implementar `IServicioConfiguracionFarmacia` (datos, prefijos, rutas) y `ServicioConfiguracionFarmacia` en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (depende de T011, T015, T017); cada método de escritura registra en auditoría (Art. VII.6, depende también de T019)
-- [ ] T044 [US3] Implementar histórico de logo (copia a `logos_historico/<fecha>.<ext>`) en `src/Spd.Infraestructura/GestorLogoFarmacia.cs` (FR-011)
-- [ ] T045 [US3] Implementar pantalla Configuración/Farmacia (datos, logo, prefijos, rutas) en `src/Spd.Presentacion/Views/Configuracion/FarmaciaView.axaml` + `FarmaciaViewModel.cs`
+- [x] T043 [US3] Implementar `IServicioConfiguracionFarmacia` (datos, prefijos, rutas) y `ServicioConfiguracionFarmacia` en `src/Spd.Aplicacion/ServicioConfiguracionFarmacia.cs` (depende de T011, T015, T017); cada método de escritura registra en auditoría (Art. VII.6, depende también de T019)
+- [x] T044 [US3] Implementar histórico de logo (copia a `logos_historico/<fecha>.<ext>`) en `src/Spd.Infraestructura/GestorLogoFarmacia.cs` (FR-011)
+- [x] T045 [US3] Implementar pantalla Configuración/Farmacia (datos, logo, prefijos, rutas) en `src/Spd.Presentacion/Views/Configuracion/FarmaciaView.axaml` + `FarmaciaViewModel.cs`
 
 **Checkpoint**: US1 + US2 + US3 funcionales de forma independiente.
 

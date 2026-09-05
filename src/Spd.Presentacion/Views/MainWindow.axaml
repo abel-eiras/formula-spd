@@ -13,6 +13,8 @@
         <TextBlock Text="{Binding Greeting}" FontSize="18" />
         <Button Content="Configuración de usuarios" Command="{Binding AbrirUsuariosCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Configuración de la farmacia" Command="{Binding AbrirFarmaciaCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
     </StackPanel>
 
 </Window>
