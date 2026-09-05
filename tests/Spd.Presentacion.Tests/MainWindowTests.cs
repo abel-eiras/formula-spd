@@ -38,11 +38,14 @@ public sealed class MainWindowTests
         var gestorLogo = new GestorLogoFarmacia();
         var servicioActualizaciones = new ServicioActualizaciones(new HttpClient(), auditoria);
         var servicioNomenclator = new ServicioNomenclator(new HttpClient(), auditoria);
-        var servicioMedicamentos = new ServicioMedicamentos(new RepositorioMedicamentos(conexion), auditoria);
+        var repositorioMedicamentos = new RepositorioMedicamentos(conexion);
+        var servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
+        var servicioImportacionNomenclator = new ServicioImportacionNomenclator(
+            new LectorNomenclatorCsv(), repositorioMedicamentos, auditoria);
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
-            servicioMedicamentos, administrador);
+            servicioMedicamentos, servicioImportacionNomenclator, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

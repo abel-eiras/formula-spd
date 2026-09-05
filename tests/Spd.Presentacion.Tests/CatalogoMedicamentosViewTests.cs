@@ -21,10 +21,12 @@ public sealed class CatalogoMedicamentosViewTests
         new AplicadorMigraciones(conexion).Aplicar();
 
         var auditoria = new RegistradorAuditoria(conexion);
-        var servicio = new ServicioMedicamentos(new RepositorioMedicamentos(conexion), auditoria);
+        var repositorio = new RepositorioMedicamentos(conexion);
+        var servicio = new ServicioMedicamentos(repositorio, auditoria);
         servicio.Crear(new DatosAltaMedicamento("654321", "Paracetamol 1g"), usuarioQueEjecutaId: null);
+        var servicioImportacion = new ServicioImportacionNomenclator(new LectorNomenclatorCsv(), repositorio, auditoria);
 
-        var ventana = new CatalogoMedicamentosWindow(servicio, usuarioActualId: null);
+        var ventana = new CatalogoMedicamentosWindow(servicio, servicioImportacion, usuarioActualId: null);
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el medicamento recién creado.
         ventana.Show();

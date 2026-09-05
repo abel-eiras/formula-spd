@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
+using Spd.Presentacion.Views.Medicamentos;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -13,6 +14,7 @@ namespace Spd.Presentacion.ViewModels;
 public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
 {
     private readonly IServicioMedicamentos _servicio;
+    private readonly IServicioImportacionNomenclator _servicioImportacion;
     private readonly int? _usuarioActualId;
     private int? _medicamentoIdEnEdicion;
 
@@ -40,15 +42,21 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     public string[] FormasDisponibles { get; } = Enum.GetNames<FormaFarmaceutica>();
     public bool EsAltaNueva => _medicamentoIdEnEdicion is null;
 
-    public CatalogoMedicamentosViewModel(IServicioMedicamentos servicio, int? usuarioActualId)
+    public CatalogoMedicamentosViewModel(
+        IServicioMedicamentos servicio, IServicioImportacionNomenclator servicioImportacion, int? usuarioActualId)
     {
         _servicio = servicio;
+        _servicioImportacion = servicioImportacion;
         _usuarioActualId = usuarioActualId;
         Buscar();
     }
 
     [RelayCommand]
     private void Buscar() => Resultados = new ObservableCollection<Medicamento>(_servicio.Buscar(Fragmento));
+
+    [RelayCommand]
+    private void RevisarNomenclator()
+        => new RevisionNomenclatorWindow(_servicioImportacion, _usuarioActualId).Show();
 
     [RelayCommand]
     private void NuevoMedicamento() => LimpiarFormulario();

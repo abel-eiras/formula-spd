@@ -30,6 +30,7 @@ public partial class App : Application
     private IServicioActualizaciones? _servicioActualizaciones;
     private IServicioNomenclator? _servicioNomenclator;
     private IServicioMedicamentos? _servicioMedicamentos;
+    private IServicioImportacionNomenclator? _servicioImportacionNomenclator;
 
     public override void Initialize()
     {
@@ -75,7 +76,10 @@ public partial class App : Application
             new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, auditoria);
         _servicioNomenclator = new ServicioNomenclator(
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
-        _servicioMedicamentos = new ServicioMedicamentos(new RepositorioMedicamentos(_conexion), auditoria);
+        var repositorioMedicamentos = new RepositorioMedicamentos(_conexion);
+        _servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
+        _servicioImportacionNomenclator = new ServicioImportacionNomenclator(
+            new LectorNomenclatorCsv(), repositorioMedicamentos, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -116,7 +120,8 @@ public partial class App : Application
     {
         var mainViewModel = new MainViewModel(
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-            _servicioActualizaciones!, _servicioNomenclator!, _servicioMedicamentos!, usuario);
+            _servicioActualizaciones!, _servicioNomenclator!, _servicioMedicamentos!,
+            _servicioImportacionNomenclator!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;

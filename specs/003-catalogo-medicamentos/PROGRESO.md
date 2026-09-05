@@ -18,7 +18,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (2 hallazgos remediados) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1 (MVP) hecha (2026-09-05) | *(pendiente de commit)* |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1+US2 hechas (2026-09-05) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -105,3 +105,13 @@ fase de `/speckit-plan`.
   histórico, no una) que corrigió la expectativa del test, no el código — el comportamiento es el
   correcto según FR-304 literal. `dotnet build` sin errores; 15+3+42 = 60 tests en verde. Pendiente
   de prueba manual real por el usuario, igual que en Spec 001.
+- **2026-09-05** — User Story 2 (P2) completada: T026-T034. `LectorNomenclatorCsv` (simplificación
+  deliberada de research.md Decisión 5) extrae filas `(CN, Nombre)` de un CSV con cabecera exacta;
+  `ServicioImportacionNomenclator.CompararConNomenclator` distingue nuevos/con nombre distinto/sin
+  cambios; `AplicarNombreDesdeNomenclator` cambia solo el nombre, nunca descripción física ni
+  aptitud SPD (CA-304). En Presentación: `RevisionNomenclatorView` (dos listados con confirmación
+  fila a fila) accesible desde un botón en `CatalogoMedicamentosView`, leyendo del mismo fichero
+  fijo que ya usa `NomenclatorViewModel` de Spec 000 al descargar. Un test propio reveló un uso
+  incorrecto de una referencia desactualizada de `Medicamento` en el propio test (no en el
+  servicio) — corregido recargando tras cada escritura, mismo matiz ya documentado en Spec 001.
+  `dotnet build` sin errores; 15+4+47 = 66 tests en verde.

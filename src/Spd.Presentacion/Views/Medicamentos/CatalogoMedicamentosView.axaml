@@ -8,6 +8,7 @@
         <TextBox Text="{Binding Fragmento}" Watermark="CN o nombre…" Width="200" />
         <Button Content="Nuevo" Command="{Binding NuevoMedicamentoCommand}" />
       </StackPanel>
+      <Button Content="Revisar nomenclátor" Command="{Binding RevisarNomenclatorCommand}" />
       <ListBox ItemsSource="{Binding Resultados}">
         <ListBox.ItemTemplate>
           <!-- Sin x:DataType a propósito: bindings por reflexión, evita el patrón fragil de

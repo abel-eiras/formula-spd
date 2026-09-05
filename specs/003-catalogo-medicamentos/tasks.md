@@ -86,18 +86,18 @@ confirmar no cambia la descripción física de ningún medicamento existente (CA
 
 ### Tests for User Story 2
 
-- [ ] T026 [P] [US2] Test: `LectorNomenclatorCsv` extrae filas `(Cn, Nombre)` de un CSV con cabecera `CN,Nombre` y devuelve error explícito si faltan esas columnas (research.md Decisión 5), en `tests/Spd.Aplicacion.Tests/LectorNomenclatorCsvTests.cs`
-- [ ] T027 [P] [US2] Test: `CompararConNomenclator` distingue medicamentos nuevos, con nombre distinto y sin cambios, en `tests/Spd.Aplicacion.Tests/ServicioImportacionNomenclatorTests.cs`
-- [ ] T028 [P] [US2] Test: `AplicarNombreDesdeNomenclator` cambia solo el nombre y nunca toca `desc_*` ni `apto_spd` (CA-304)
-- [ ] T029 [P] [US2] Test: `AplicarAltaDesdeNomenclator` y `AplicarNombreDesdeNomenclator` registran en auditoría (Art. VII.6)
+- [X] T026 [P] [US2] Test: `LectorNomenclatorCsv` extrae filas `(Cn, Nombre)` de un CSV con cabecera `CN,Nombre` y devuelve error explícito si faltan esas columnas (research.md Decisión 5), en `tests/Spd.Aplicacion.Tests/LectorNomenclatorCsvTests.cs`
+- [X] T027 [P] [US2] Test: `CompararConNomenclator` distingue medicamentos nuevos, con nombre distinto y sin cambios, en `tests/Spd.Aplicacion.Tests/ServicioImportacionNomenclatorTests.cs`
+- [X] T028 [P] [US2] Test: `AplicarNombreDesdeNomenclator` cambia solo el nombre y nunca toca `desc_*` ni `apto_spd` (CA-304)
+- [X] T029 [P] [US2] Test: `AplicarAltaDesdeNomenclator` y `AplicarNombreDesdeNomenclator` registran en auditoría (Art. VII.6)
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implementar `LectorNomenclatorCsv` en `src/Spd.Infraestructura/LectorNomenclatorCsv.cs` (research.md Decisión 5, simplificación deliberada a sustituir por Spec 011)
-- [ ] T031 [US2] Implementar `IServicioImportacionNomenclator` y `ServicioImportacionNomenclator` en `src/Spd.Aplicacion/ServicioImportacionNomenclator.cs` (depende de T021, T030)
-- [ ] T032 [US2] Implementar `RevisionNomenclatorViewModel` + vista (tabla de comparación con acción "Aplicar" fila a fila, FR-322) en `src/Spd.Presentacion/ViewModels/RevisionNomenclatorViewModel.cs` + `src/Spd.Presentacion/Views/Medicamentos/RevisionNomenclatorView.axaml`
-- [ ] T033 [US2] Añadir botón "Revisar nomenclátor" a `CatalogoMedicamentosView` (depende de T023, T032)
-- [ ] T034 [P] [US2] Test Avalonia.Headless: `RevisionNomenclatorView` renderiza su listado de comparación con una fila real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/RevisionNomenclatorViewTests.cs`
+- [X] T030 [US2] Implementar `LectorNomenclatorCsv` en `src/Spd.Infraestructura/LectorNomenclatorCsv.cs` (research.md Decisión 5, simplificación deliberada a sustituir por Spec 011)
+- [X] T031 [US2] Implementar `IServicioImportacionNomenclator` y `ServicioImportacionNomenclator` en `src/Spd.Aplicacion/ServicioImportacionNomenclator.cs` (depende de T021, T030)
+- [X] T032 [US2] Implementar `RevisionNomenclatorViewModel` + vista (tabla de comparación con acción "Aplicar" fila a fila, FR-322) en `src/Spd.Presentacion/ViewModels/RevisionNomenclatorViewModel.cs` + `src/Spd.Presentacion/Views/Medicamentos/RevisionNomenclatorView.axaml`
+- [X] T033 [US2] Añadir botón "Revisar nomenclátor" a `CatalogoMedicamentosView` (depende de T023, T032)
+- [X] T034 [P] [US2] Test Avalonia.Headless: `RevisionNomenclatorView` renderiza su listado de comparación con una fila real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/RevisionNomenclatorViewTests.cs`
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 

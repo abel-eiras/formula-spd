@@ -17,6 +17,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
     private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioImportacionNomenclator _servicioImportacionNomenclator;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -34,6 +35,7 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
         IServicioMedicamentos servicioMedicamentos,
+        IServicioImportacionNomenclator servicioImportacionNomenclator,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -42,6 +44,7 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
         _servicioMedicamentos = servicioMedicamentos;
+        _servicioImportacionNomenclator = servicioImportacionNomenclator;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -50,7 +53,7 @@ public sealed partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirCatalogoMedicamentos()
     {
-        var ventana = new CatalogoMedicamentosWindow(_servicioMedicamentos, UsuarioActual.Id);
+        var ventana = new CatalogoMedicamentosWindow(_servicioMedicamentos, _servicioImportacionNomenclator, UsuarioActual.Id);
         ventana.Show();
     }
 
