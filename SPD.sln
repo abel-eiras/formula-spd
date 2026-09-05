@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spd.Dominio.Tests", "tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spd.Aplicacion.Tests", "tests\Spd.Aplicacion.Tests\Spd.Aplicacion.Tests.csproj", "{3AC5788E-AB6F-4C39-AE01-92679CB018FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spd.Presentacion.Tests", "tests\Spd.Presentacion.Tests\Spd.Presentacion.Tests.csproj", "{FB7BF420-0F01-49C2-A678-2047D4F747FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{3AC5788E-AB6F-4C39-AE01-92679CB018FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AC5788E-AB6F-4C39-AE01-92679CB018FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AC5788E-AB6F-4C39-AE01-92679CB018FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB7BF420-0F01-49C2-A678-2047D4F747FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB7BF420-0F01-49C2-A678-2047D4F747FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB7BF420-0F01-49C2-A678-2047D4F747FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB7BF420-0F01-49C2-A678-2047D4F747FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9438FDA9-EA78-4519-8C9D-BF9F14B22EC1} = {0C2CD775-F35F-4C95-9D5F-2264EDD4FA47}
@@ -60,5 +66,6 @@ Global
 		{734865AF-D88A-4445-97D2-E5169093B316} = {0C2CD775-F35F-4C95-9D5F-2264EDD4FA47}
 		{1174B509-C011-4638-B814-3469756775D9} = {534B8F15-51C7-4F8D-9ED7-172ED5733772}
 		{3AC5788E-AB6F-4C39-AE01-92679CB018FA} = {534B8F15-51C7-4F8D-9ED7-172ED5733772}
+		{FB7BF420-0F01-49C2-A678-2047D4F747FB} = {534B8F15-51C7-4F8D-9ED7-172ED5733772}
 	EndGlobalSection
 EndGlobal

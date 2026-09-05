@@ -270,3 +270,40 @@ navegación integrada.
 Verificación: `dotnet build`/`dotnet test` en verde (37/37 tests) y una ejecución real de
 `dotnet run` sin excepciones. El punto 2 (el más grave) sigue sin poder confirmarse visualmente por
 mi parte — pendiente de que el usuario lo vuelva a probar.
+
+## Cierre inesperado real al abrir Configuración/Usuarios (2026-09-05)
+
+El usuario confirmó que el asistente ya pasa al login sin problema (punto 2 de la ronda anterior,
+resuelto). Pero al pulsar "Configuración de usuarios" la aplicación se cerró de golpe (`SIGABRT`,
+coredump de systemd) — el terminal no mostró la excepción .NET porque el proceso abortó a nivel
+nativo antes de que se imprimiera.
+
+**Causa real**: la `DataTemplate` del `ListBox` de usuarios (introducida en la ronda anterior para
+arreglar el bug de "Spd.Dominio.Usuario") usaba `x:DataType="dominio:Usuario"` junto con
+`Command="{Binding $parent[ListBox].((vm:UsuariosViewModel)DataContext).ResetearPasswordCommand}"`.
+Fijar `x:DataType` activa *compiled bindings* para ese ámbito en Avalonia; el patrón
+`$parent[Tipo].((Cast)DataContext)` no se resuelve de forma fiable bajo compiled bindings y lanzaba
+`System.ArgumentException: Unable to resolve type vm:UsuariosViewModel...` al realizar la plantilla
+con un usuario real (durante el layout de `Window.Show()`) — excepción no controlada en el hilo de
+UI, que aborta el proceso en vez de imprimir un stack trace legible.
+
+**Corrección**: se quita `x:DataType` de esa `DataTemplate` (vuelve a bindings por reflexión, que sí
+resuelven `Nombre`/`Apellidos`/`Rol` correctamente sobre el `Usuario` real sin necesidad de
+declarar el tipo) y los dos `Command` pasan al patrón clásico
+`{Binding DataContext.XxxCommand, RelativeSource={RelativeSource AncestorType=ListBox}}`, sin casts
+frágiles.
+
+**Verificación reforzada**: dado que ya es la segunda vez que un problema de esta pantalla concreta
+solo se detecta con la app real (no con los tests de Aplicación/Dominio, que no tocan XAML), se
+añade un proyecto nuevo `tests/Spd.Presentacion.Tests` con `Avalonia.Headless`/
+`Avalonia.Headless.XUnit` (v11.3.20, misma que el resto de paquetes Avalonia). Un test
+(`UsuariosWindowTests`) construye `UsuariosWindow` con un Administrador real dado de alta y llama a
+`Show()`, forzando la realización de la plantilla del `ListBox` — el mismo paso exacto que fallaba.
+**Se confirmó que el test reproduce el fallo real**: aplicando temporalmente el patrón antiguo
+(`$parent` + cast) el test falla con la misma `ArgumentException`; con la corrección, pasa. Esta es
+la primera vez en esta spec que un fix de UI queda demostrado con un test automatizado en vez de
+solo con "no lanza excepción en `dotnet run`".
+
+38/38 tests en verde (7 Dominio + 30 Aplicación + 1 Presentación). Ejecución real de `dotnet run`
+sin excepciones. **Pendiente de que el usuario confirme** que Configuración/Usuarios ya abre sin
+cerrarse, y que el resto de pantallas (Farmacia, Actualizaciones, Nomenclátor) siguen funcionando.
