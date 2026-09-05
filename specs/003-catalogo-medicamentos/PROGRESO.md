@@ -17,7 +17,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 resuelta) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
+| 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (2 hallazgos remediados) | *(pendiente de commit)* |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
@@ -78,3 +78,7 @@ fase de `/speckit-plan`.
   Avalonia.Headless de regresión (mismo patrón que `UsuariosWindowTests`/`BuscadorPacientesViewTests`)
   se incluyeron desde el diseño, aplicando la misma lección ya aprendida en la remediación de
   `/speckit-analyze` de Spec 001.
+- **2026-09-05** — Fase 5 completada. 2 hallazgos, ambos MEDIA, ninguno crítico: **F1** —
+  ningún test verificaba que `DarDeBaja` conserva la fila (Art. III.1), a diferencia de Spec 001 →
+  nuevo T020. **F2** — `ActualizarUnidadesEnvase` no estaba en la lista de escrituras auditadas de
+  T019 → ampliado. Renumerado de 36 a 37 tareas (seguro, sin código aún).

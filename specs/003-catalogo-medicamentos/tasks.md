@@ -59,15 +59,16 @@ comprobar que no guarda (CA-302), intentar duplicar su CN (CA-303), reactivar un
 - [ ] T016 [P] [US1] Test: `ServicioMedicamentos.ProponerDescripcionTexto` construye el texto a partir de los campos `desc_*` sin persistir nada (FR-303, research.md Decisión 3)
 - [ ] T017 [P] [US1] Test: `Buscar` encuentra por CN exacto y por fragmento de nombre sin tildes (FR-305)
 - [ ] T018 [P] [US1] Test: `ActualizarUnidadesEnvase` fija `unidades_envase_origen = MANUAL` (FR-310/FR-311)
-- [ ] T019 [P] [US1] Test: `Crear`, `ActualizarDatos`, `ActualizarDescripcionFisica` y `DarDeBaja` registran en auditoría (Art. VII.6)
+- [ ] T019 [P] [US1] Test: `Crear`, `ActualizarDatos`, `ActualizarDescripcionFisica`, `ActualizarUnidadesEnvase` y `DarDeBaja` registran en auditoría (Art. VII.6 — remediación F2: `ActualizarUnidadesEnvase` faltaba en la lista pese a ser una escritura)
+- [ ] T020 [P] [US1] Test: `DarDeBaja` no elimina la fila, solo marca `activo = 0` (Art. III.1 — remediación F1: invariante crítico sin test dedicado, a diferencia de Spec 001)
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Implementar `IServicioMedicamentos` y `ServicioMedicamentos` en `src/Spd.Aplicacion/ServicioMedicamentos.cs` (depende de T004, T003, T006, T007); cada escritura registra en auditoría
-- [ ] T021 [US1] Implementar `CatalogoMedicamentosViewModel` en `src/Spd.Presentacion/ViewModels/CatalogoMedicamentosViewModel.cs` (listado con búsqueda a la izquierda, formulario de alta/edición a la derecha — mismo patrón que `UsuariosViewModel` de Spec 000)
-- [ ] T022 [US1] Implementar `CatalogoMedicamentosView`/`Window` en `src/Spd.Presentacion/Views/Medicamentos/`
-- [ ] T023 [US1] Añadir botón "Catálogo de medicamentos" a `MainWindow`/`MainViewModel` (visible para Elaborador y Administrador, mismo criterio que "Pacientes" en Spec 001)
-- [ ] T024 [P] [US1] Test Avalonia.Headless: `CatalogoMedicamentosView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/CatalogoMedicamentosViewTests.cs` (mismo patrón de regresión que `BuscadorPacientesViewTests` de Spec 001, por el incidente de `UsuariosWindow` en Spec 000)
+- [ ] T021 [US1] Implementar `IServicioMedicamentos` y `ServicioMedicamentos` en `src/Spd.Aplicacion/ServicioMedicamentos.cs` (depende de T004, T003, T006, T007); cada escritura registra en auditoría
+- [ ] T022 [US1] Implementar `CatalogoMedicamentosViewModel` en `src/Spd.Presentacion/ViewModels/CatalogoMedicamentosViewModel.cs` (listado con búsqueda a la izquierda, formulario de alta/edición a la derecha — mismo patrón que `UsuariosViewModel` de Spec 000)
+- [ ] T023 [US1] Implementar `CatalogoMedicamentosView`/`Window` en `src/Spd.Presentacion/Views/Medicamentos/`
+- [ ] T024 [US1] Añadir botón "Catálogo de medicamentos" a `MainWindow`/`MainViewModel` (visible para Elaborador y Administrador, mismo criterio que "Pacientes" en Spec 001)
+- [ ] T025 [P] [US1] Test Avalonia.Headless: `CatalogoMedicamentosView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/CatalogoMedicamentosViewTests.cs` (mismo patrón de regresión que `BuscadorPacientesViewTests` de Spec 001, por el incidente de `UsuariosWindow` en Spec 000)
 
 **Checkpoint**: US1 funcional de forma independiente — MVP entregable.
 
@@ -85,18 +86,18 @@ confirmar no cambia la descripción física de ningún medicamento existente (CA
 
 ### Tests for User Story 2
 
-- [ ] T025 [P] [US2] Test: `LectorNomenclatorCsv` extrae filas `(Cn, Nombre)` de un CSV con cabecera `CN,Nombre` y devuelve error explícito si faltan esas columnas (research.md Decisión 5), en `tests/Spd.Aplicacion.Tests/LectorNomenclatorCsvTests.cs`
-- [ ] T026 [P] [US2] Test: `CompararConNomenclator` distingue medicamentos nuevos, con nombre distinto y sin cambios, en `tests/Spd.Aplicacion.Tests/ServicioImportacionNomenclatorTests.cs`
-- [ ] T027 [P] [US2] Test: `AplicarNombreDesdeNomenclator` cambia solo el nombre y nunca toca `desc_*` ni `apto_spd` (CA-304)
-- [ ] T028 [P] [US2] Test: `AplicarAltaDesdeNomenclator` y `AplicarNombreDesdeNomenclator` registran en auditoría (Art. VII.6)
+- [ ] T026 [P] [US2] Test: `LectorNomenclatorCsv` extrae filas `(Cn, Nombre)` de un CSV con cabecera `CN,Nombre` y devuelve error explícito si faltan esas columnas (research.md Decisión 5), en `tests/Spd.Aplicacion.Tests/LectorNomenclatorCsvTests.cs`
+- [ ] T027 [P] [US2] Test: `CompararConNomenclator` distingue medicamentos nuevos, con nombre distinto y sin cambios, en `tests/Spd.Aplicacion.Tests/ServicioImportacionNomenclatorTests.cs`
+- [ ] T028 [P] [US2] Test: `AplicarNombreDesdeNomenclator` cambia solo el nombre y nunca toca `desc_*` ni `apto_spd` (CA-304)
+- [ ] T029 [P] [US2] Test: `AplicarAltaDesdeNomenclator` y `AplicarNombreDesdeNomenclator` registran en auditoría (Art. VII.6)
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Implementar `LectorNomenclatorCsv` en `src/Spd.Infraestructura/LectorNomenclatorCsv.cs` (research.md Decisión 5, simplificación deliberada a sustituir por Spec 011)
-- [ ] T030 [US2] Implementar `IServicioImportacionNomenclator` y `ServicioImportacionNomenclator` en `src/Spd.Aplicacion/ServicioImportacionNomenclator.cs` (depende de T020, T029)
-- [ ] T031 [US2] Implementar `RevisionNomenclatorViewModel` + vista (tabla de comparación con acción "Aplicar" fila a fila, FR-322) en `src/Spd.Presentacion/ViewModels/RevisionNomenclatorViewModel.cs` + `src/Spd.Presentacion/Views/Medicamentos/RevisionNomenclatorView.axaml`
-- [ ] T032 [US2] Añadir botón "Revisar nomenclátor" a `CatalogoMedicamentosView` (depende de T022, T031)
-- [ ] T033 [P] [US2] Test Avalonia.Headless: `RevisionNomenclatorView` renderiza su listado de comparación con una fila real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/RevisionNomenclatorViewTests.cs`
+- [ ] T030 [US2] Implementar `LectorNomenclatorCsv` en `src/Spd.Infraestructura/LectorNomenclatorCsv.cs` (research.md Decisión 5, simplificación deliberada a sustituir por Spec 011)
+- [ ] T031 [US2] Implementar `IServicioImportacionNomenclator` y `ServicioImportacionNomenclator` en `src/Spd.Aplicacion/ServicioImportacionNomenclator.cs` (depende de T021, T030)
+- [ ] T032 [US2] Implementar `RevisionNomenclatorViewModel` + vista (tabla de comparación con acción "Aplicar" fila a fila, FR-322) en `src/Spd.Presentacion/ViewModels/RevisionNomenclatorViewModel.cs` + `src/Spd.Presentacion/Views/Medicamentos/RevisionNomenclatorView.axaml`
+- [ ] T033 [US2] Añadir botón "Revisar nomenclátor" a `CatalogoMedicamentosView` (depende de T023, T032)
+- [ ] T034 [P] [US2] Test Avalonia.Headless: `RevisionNomenclatorView` renderiza su listado de comparación con una fila real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/RevisionNomenclatorViewTests.cs`
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 
@@ -104,9 +105,9 @@ confirmar no cambia la descripción física de ningún medicamento existente (CA
 
 ## Phase 4: Polish & Cross-Cutting Concerns
 
-- [ ] T034 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
-- [ ] T035 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
-- [ ] T036 [P] Actualizar `PROGRESO.md` marcando cada CA-300..CA-305 como validado, con el test que lo confirma
+- [ ] T035 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
+- [ ] T036 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
+- [ ] T037 [P] Actualizar `PROGRESO.md` marcando cada CA-300..CA-305 como validado, con el test que lo confirma
 
 ---
 
@@ -116,14 +117,14 @@ confirmar no cambia la descripción física de ningún medicamento existente (CA
 
 - **Foundational (Fase 1)**: sin dependencias — bloquea las 2 user stories
 - **US1 (Fase 2)**: depende de Foundational; sin dependencias de otra user story
-- **US2 (Fase 3)**: depende de Foundational y de T020 (US1) para reutilizar `ServicioMedicamentos`; T032 depende también de T022 (US1)
+- **US2 (Fase 3)**: depende de Foundational y de T021 (US1) para reutilizar `ServicioMedicamentos`; T033 depende también de T023 (US1)
 - **Polish (Fase 4)**: depende de las user stories que se quieran dar por completas
 
 ### Parallel Opportunities
 
 - T002-T006 (Foundational) en paralelo entre sí
 - Todos los tests `[P]` de una misma user story, en paralelo
-- Los tests Avalonia.Headless (T024, T033) dependen de que su vista ya esté implementada (tests de
+- Los tests Avalonia.Headless (T025, T034) dependen de que su vista ya esté implementada (tests de
   regresión, no TDD-first, igual que en Spec 000/001)
 
 ## Implementation Strategy
