@@ -19,6 +19,9 @@ public sealed partial class UsuariosViewModel : ViewModelBase
     [ObservableProperty] private string _apellidosNuevo = string.Empty;
     [ObservableProperty] private string _loginNuevo = string.Empty;
     [ObservableProperty] private bool _esAdministradorNuevo;
+    [ObservableProperty] private string _passwordNuevo = string.Empty;
+    [ObservableProperty] private string _confirmarPasswordNuevo = string.Empty;
+    [ObservableProperty] private bool _mostrarPassword;
 
     public UsuariosViewModel(IServicioUsuarios servicio, int administradorActualId)
     {
@@ -30,13 +33,25 @@ public sealed partial class UsuariosViewModel : ViewModelBase
     [RelayCommand]
     private void CrearUsuario()
     {
+        if (PasswordNuevo != ConfirmarPasswordNuevo)
+        {
+            Mensaje = "Las dos contraseñas no coinciden.";
+            return;
+        }
+
         try
         {
             var rol = EsAdministradorNuevo ? Rol.Administrador : Rol.Elaborador;
-            _servicio.CrearUsuario(
-                new DatosAltaUsuario(NombreNuevo, ApellidosNuevo, LoginNuevo, null, rol, null, null),
+            var passwordElegida = string.IsNullOrWhiteSpace(PasswordNuevo) ? null : PasswordNuevo;
+            var resultado = _servicio.CrearUsuario(
+                new DatosAltaUsuario(NombreNuevo, ApellidosNuevo, LoginNuevo, passwordElegida, rol, null, null),
                 _administradorActualId);
-            Mensaje = null;
+
+            // La contraseña solo se puede leer en claro en este momento (Art. VII.1): si no la ha
+            // elegido el propio Administrador, hay que mostrársela para que se la dé al usuario.
+            Mensaje = passwordElegida is null
+                ? $"Usuario '{resultado.Usuario.Login}' creado. Contraseña provisional: {resultado.PasswordProvisional} (debe cambiarla en su primer acceso)."
+                : $"Usuario '{resultado.Usuario.Login}' creado.";
             LimpiarFormularioAlta();
             Recargar();
         }
@@ -64,8 +79,8 @@ public sealed partial class UsuariosViewModel : ViewModelBase
     [RelayCommand]
     private void ResetearPassword(Usuario usuario)
     {
-        _servicio.ResetearPassword(usuario.Id, _administradorActualId);
-        Mensaje = $"Contraseña reseteada para {usuario.Login}. Debe cambiarla en su próximo acceso.";
+        var passwordProvisional = _servicio.ResetearPassword(usuario.Id, _administradorActualId);
+        Mensaje = $"Contraseña reseteada para {usuario.Login}: {passwordProvisional} (debe cambiarla en su próximo acceso).";
     }
 
     private void Recargar() => Usuarios = new ObservableCollection<Usuario>(_servicio.ListarActivos());
@@ -76,5 +91,8 @@ public sealed partial class UsuariosViewModel : ViewModelBase
         ApellidosNuevo = string.Empty;
         LoginNuevo = string.Empty;
         EsAdministradorNuevo = false;
+        PasswordNuevo = string.Empty;
+        ConfirmarPasswordNuevo = string.Empty;
+        MostrarPassword = false;
     }
 }

@@ -11,6 +11,9 @@
     <TextBlock Text="Usuario (login) *" />
     <TextBox Text="{Binding Login}" />
     <TextBlock Text="Contraseña *" />
-    <TextBox Text="{Binding Password}" PasswordChar="•" />
+    <TextBox Text="{Binding Password}" PasswordChar="●" RevealPassword="{Binding MostrarPassword}" />
+    <TextBlock Text="Repetir contraseña *" />
+    <TextBox Text="{Binding ConfirmarPassword}" PasswordChar="●" RevealPassword="{Binding MostrarPassword}" />
+    <CheckBox Content="Mostrar contraseña" IsChecked="{Binding MostrarPassword}" />
   </StackPanel>
 </UserControl>

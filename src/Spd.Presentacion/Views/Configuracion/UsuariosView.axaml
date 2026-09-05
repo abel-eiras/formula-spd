@@ -31,6 +31,13 @@
       <TextBlock Text="Usuario (login) *" />
       <TextBox Text="{Binding LoginNuevo}" />
       <CheckBox Content="Dar de alta como Administrador" IsChecked="{Binding EsAdministradorNuevo}" />
+
+      <TextBlock Text="Contraseña (vacío = se genera una provisional)" />
+      <TextBox Text="{Binding PasswordNuevo}" PasswordChar="●" RevealPassword="{Binding MostrarPassword}" />
+      <TextBlock Text="Repetir contraseña" />
+      <TextBox Text="{Binding ConfirmarPasswordNuevo}" PasswordChar="●" RevealPassword="{Binding MostrarPassword}" />
+      <CheckBox Content="Mostrar contraseña" IsChecked="{Binding MostrarPassword}" />
+
       <Button Content="Crear usuario" Command="{Binding CrearUsuarioCommand}" />
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
                  IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />

@@ -6,10 +6,12 @@ namespace Spd.Aplicacion;
 public interface IServicioUsuarios
 {
     IReadOnlyList<Usuario> ListarActivos();
-    Usuario CrearUsuario(DatosAltaUsuario datos, int? administradorQueEjecutaId);
+    ResultadoAltaUsuario CrearUsuario(DatosAltaUsuario datos, int? administradorQueEjecutaId);
     void DarDeBaja(int usuarioId, int? usuarioQueEjecutaId);
     void CambiarPassword(int usuarioId, string passwordNueva);
-    void ResetearPassword(int usuarioId, int administradorId);
+
+    /// <returns>La nueva contraseña provisional en claro, para comunicársela al usuario (FR-044).</returns>
+    string ResetearPassword(int usuarioId, int administradorId);
     ResultadoLogin IntentarLogin(string login, string password);
     void DesbloquearUsuario(int usuarioId, int administradorId);
 }

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Data.Sqlite;
@@ -37,6 +38,11 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // Por defecto, Avalonia cierra toda la app cuando se cierra la ventana que en su
+            // momento se asignó a MainWindow, aunque ya se haya sustituido por otra (el asistente
+            // cerrándose "de golpe" en vez de pasar al login era este bug). Con apagado explícito,
+            // solo la ventana principal real (tras iniciar sesión) cierra la aplicación al cerrarse.
+            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             InicializarInfraestructura();
             MostrarAsistenteOLogin(desktop);
         }
@@ -94,13 +100,16 @@ public partial class App : Application
         var ventanaLogin = new LoginWindow(_servicioUsuarios!);
         ventanaLogin.SesionIniciada += usuario =>
         {
-            desktop.MainWindow = new MainWindow
+            var ventanaPrincipal = new MainWindow
             {
                 DataContext = new MainViewModel(
                     _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
                     _servicioActualizaciones!, _servicioNomenclator!, usuario)
             };
-            desktop.MainWindow.Show();
+            // Esta es la ventana principal real de la sesión: cerrarla sí debe salir de la app.
+            ventanaPrincipal.Closed += (_, _) => desktop.Shutdown();
+            desktop.MainWindow = ventanaPrincipal;
+            ventanaPrincipal.Show();
             ventanaLogin.Close();
         };
         desktop.MainWindow = ventanaLogin;

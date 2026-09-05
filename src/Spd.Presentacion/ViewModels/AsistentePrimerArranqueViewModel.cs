@@ -41,6 +41,8 @@ public sealed partial class AsistentePrimerArranqueViewModel : ViewModelBase
     [ObservableProperty] private string _apellidosUsuario = string.Empty;
     [ObservableProperty] private string _login = string.Empty;
     [ObservableProperty] private string _password = string.Empty;
+    [ObservableProperty] private string _confirmarPassword = string.Empty;
+    [ObservableProperty] private bool _mostrarPassword;
 
     // Paso 4 — Valores por defecto (FR-020)
     [ObservableProperty] private string _diaRetiradaDefecto = "LU";
@@ -85,6 +87,10 @@ public sealed partial class AsistentePrimerArranqueViewModel : ViewModelBase
                 PasoActual = PasoAsistente.PrimerUsuario;
                 break;
             case PasoAsistente.PrimerUsuario:
+                if (Password != ConfirmarPassword)
+                {
+                    throw new ErrorValidacionException("Las dos contraseñas no coinciden.");
+                }
                 _servicio.EjecutarPasoPrimerUsuario(NombreUsuario, ApellidosUsuario, Login, Password);
                 PasoActual = PasoAsistente.ValoresDefecto;
                 break;

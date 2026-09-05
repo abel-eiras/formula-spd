@@ -179,3 +179,44 @@ deliberadamente aquí para que quede en un solo sitio: ninguna vista Avalonia se
 visualmente (sin herramienta de captura de ventana nativa disponible) — el usuario debe ejecutar
 `dotnet run --project src/Spd.Presentacion` y revisar a ojo el asistente, el login y las pantallas
 de Configuración antes de considerar la spec 000 realmente cerrada.
+
+## Correcciones tras la primera prueba manual del usuario (2026-09-05)
+
+El usuario ejecutó la app de verdad y reportó 5 problemas. Correcciones aplicadas:
+
+1. **La app se cerraba al terminar el asistente en vez de pasar al login.** Bug real de Avalonia:
+   con el `ShutdownMode` por defecto (`OnMainWindowClose`), cerrar la ventana que en su momento se
+   asignó a `MainWindow` cierra toda la app aunque ya se haya sustituido por otra ventana antes de
+   cerrarla. Corregido con `desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown` y un
+   `Shutdown()` explícito solo al cerrar la ventana principal real (tras iniciar sesión) —
+   `App.axaml.cs`.
+2. **Alta de usuario con una sola contraseña, sin poder verla ni confirmarla.** Añadido un segundo
+   campo "Repetir contraseña" con validación de coincidencia, y una casilla "Mostrar contraseña"
+   que usa `TextBox.RevealPassword` (confirmado disponible en Avalonia 11.3.20). Aplicado tanto en
+   `UsuariosView` (alta de usuario) como en `PasoPrimerUsuarioView` (asistente), que tenía el mismo
+   problema.
+3. **Los usuarios creados no tenían forma de conocer su contraseña.** Bug real: si el administrador
+   dejaba el campo en blanco, `ServicioUsuarios.CrearUsuario`/`ResetearPassword` generaban una
+   contraseña provisional pero nunca la devolvían a nadie — el usuario creado no podía entrar.
+   `CrearUsuario` ahora devuelve `ResultadoAltaUsuario(Usuario, PasswordProvisional)` y
+   `ResetearPassword` devuelve la nueva contraseña en claro; `UsuariosViewModel` la muestra en el
+   mensaje cuando no la ha escrito el propio Administrador (Art. VII.1: solo se puede leer en claro
+   en este momento, después solo se guarda el hash).
+4. **Rutas y logo solo se podían escribir o pegar a mano.** Añadidos botones "Explorar…" en
+   `FarmaciaView` que usan `TopLevel.StorageProvider` (selector nativo de carpetas para
+   backup/documentos, selector de fichero de imagen para el logo) — `FarmaciaView.axaml.cs`.
+5. **La fecha de descarga del nomenclátor se mostraba en UTC en vez de hora local.** `FechaUtc` se
+   sigue guardando en UTC (correcto para auditoría), pero `NomenclatorViewModel` la convierte con
+   `.ToLocalTime()` antes de mostrarla — usa la zona horaria del sistema, así que ya tiene en cuenta
+   el horario de verano sin necesidad de fijar un desfase a mano.
+
+**Pendiente, marcado explícitamente como no prioritario por el usuario**: las ventanas emergentes
+de Configuración (Usuarios, Farmacia, Actualizaciones, Nomenclátor) obligan a cerrarlas para volver;
+el usuario preferiría una navegación integrada con un botón "Volver" en vez de ventanas nuevas, pero
+pidió dejarlo para más adelante — es un cambio de arquitectura de navegación, no una corrección
+puntual.
+
+Verificación: `dotnet build`/`dotnet test` en verde (37/37 tests, algunos actualizados para la nueva
+firma de `CrearUsuario`/`ResetearPassword`) y una ejecución real de `dotnet run` sin excepciones.
+**Sigue pendiente que el usuario confirme a ojo** que el asistente ya pasa al login sin cerrarse —
+es el único de los 5 puntos que no se puede demostrar con un test automatizado sin un driver de UI.

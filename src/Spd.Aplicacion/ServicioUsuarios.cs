@@ -14,7 +14,7 @@ public sealed class ServicioUsuarios(
 
     public IReadOnlyList<Usuario> ListarActivos() => repositorio.ListarActivos();
 
-    public Usuario CrearUsuario(DatosAltaUsuario datos, int? administradorQueEjecutaId)
+    public ResultadoAltaUsuario CrearUsuario(DatosAltaUsuario datos, int? administradorQueEjecutaId)
     {
         if (string.IsNullOrWhiteSpace(datos.Nombre) || string.IsNullOrWhiteSpace(datos.Apellidos)
             || string.IsNullOrWhiteSpace(datos.Login))
@@ -40,7 +40,7 @@ public sealed class ServicioUsuarios(
         usuario.Id = repositorio.Crear(usuario);
 
         auditoria.Registrar(administradorQueEjecutaId, "ALTA", "Usuario", usuario.Id, null);
-        return usuario;
+        return new ResultadoAltaUsuario(usuario, passwordProvisional);
     }
 
     public void DarDeBaja(int usuarioId, int? usuarioQueEjecutaId)
@@ -65,14 +65,16 @@ public sealed class ServicioUsuarios(
         auditoria.Registrar(usuarioId, "CAMBIO_PASSWORD", "Usuario", usuarioId, null);
     }
 
-    public void ResetearPassword(int usuarioId, int administradorId)
+    public string ResetearPassword(int usuarioId, int administradorId)
     {
         var usuario = ObtenerOLanzar(usuarioId);
-        usuario.HashPassword = hasheador.Hashear(GenerarPasswordProvisional());
+        var passwordProvisional = GenerarPasswordProvisional();
+        usuario.HashPassword = hasheador.Hashear(passwordProvisional);
         usuario.DebeCambiarPassword = true;
         repositorio.Actualizar(usuario);
 
         auditoria.Registrar(administradorId, "RESETEO_PASSWORD", "Usuario", usuarioId, null);
+        return passwordProvisional;
     }
 
     public ResultadoLogin IntentarLogin(string login, string password)

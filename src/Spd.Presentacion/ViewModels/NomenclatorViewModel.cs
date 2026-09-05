@@ -52,8 +52,10 @@ public sealed partial class NomenclatorViewModel : ViewModelBase
             Directory.CreateDirectory(Path.GetDirectoryName(rutaDestino)!);
             var resultado = await _servicioNomenclator.DescargarNomenclatorAsync(
                 UrlNomenclator, rutaDestino, _administradorActualId);
+            // FechaUtc se guarda en UTC (correcto para la auditoría); para mostrarla al usuario se
+            // convierte a la hora local del sistema, que ya tiene en cuenta el horario de verano.
             Mensaje = resultado.Exito
-                ? $"Descargado correctamente el {resultado.FechaUtc:g}."
+                ? $"Descargado correctamente el {resultado.FechaUtc.ToLocalTime():g}."
                 : $"No se pudo descargar: {resultado.Motivo}";
         }
         finally

@@ -32,7 +32,7 @@ public sealed class ServicioUsuariosTests
     {
         var (servicio, conexion) = CrearServicio();
         servicio.CrearUsuario(DatosAdministrador("admin1"), administradorQueEjecutaId: null);
-        var otroAdmin = servicio.CrearUsuario(DatosAdministrador("admin2"), administradorQueEjecutaId: null);
+        var otroAdmin = servicio.CrearUsuario(DatosAdministrador("admin2"), administradorQueEjecutaId: null).Usuario;
 
         servicio.DarDeBaja(otroAdmin.Id, usuarioQueEjecutaId: null);
 
@@ -48,7 +48,7 @@ public sealed class ServicioUsuariosTests
     public void DarDeBaja_lanza_si_es_el_unico_administrador_activo()
     {
         var (servicio, _) = CrearServicio();
-        var unico = servicio.CrearUsuario(DatosAdministrador("unico.admin"), administradorQueEjecutaId: null);
+        var unico = servicio.CrearUsuario(DatosAdministrador("unico.admin"), administradorQueEjecutaId: null).Usuario;
 
         Assert.Throws<UltimoAdministradorException>(() => servicio.DarDeBaja(unico.Id, usuarioQueEjecutaId: null));
     }
@@ -73,8 +73,8 @@ public sealed class ServicioUsuariosTests
     public void DesbloquearUsuario_solo_permitido_a_un_Administrador()
     {
         var (servicio, _) = CrearServicio();
-        var elaborador = servicio.CrearUsuario(DatosElaborador(), null);
-        var administrador = servicio.CrearUsuario(DatosAdministrador("admin.desbloquea"), null);
+        var elaborador = servicio.CrearUsuario(DatosElaborador(), null).Usuario;
+        var administrador = servicio.CrearUsuario(DatosAdministrador("admin.desbloquea"), null).Usuario;
 
         Assert.Throws<ErrorValidacionException>(
             () => servicio.DesbloquearUsuario(elaborador.Id, administradorId: elaborador.Id));
@@ -87,22 +87,24 @@ public sealed class ServicioUsuariosTests
     {
         var (servicio, _) = CrearServicio();
 
-        var usuario = servicio.CrearUsuario(DatosElaborador(), administradorQueEjecutaId: null);
+        var resultado = servicio.CrearUsuario(DatosElaborador(), administradorQueEjecutaId: null);
 
-        Assert.True(usuario.DebeCambiarPassword);
-        Assert.NotEmpty(usuario.HashPassword);
+        Assert.True(resultado.Usuario.DebeCambiarPassword);
+        Assert.NotEmpty(resultado.Usuario.HashPassword);
+        Assert.NotEmpty(resultado.PasswordProvisional); // se devuelve en claro una sola vez
     }
 
     [Fact]
-    public void ResetearPassword_tambien_marca_debe_cambiar_password()
+    public void ResetearPassword_tambien_marca_debe_cambiar_password_y_devuelve_la_nueva_en_claro()
     {
         var (servicio, conexion) = CrearServicio();
-        var administrador = servicio.CrearUsuario(DatosAdministrador("admin.resetea"), null);
-        var elaborador = servicio.CrearUsuario(DatosElaborador(), null);
+        var administrador = servicio.CrearUsuario(DatosAdministrador("admin.resetea"), null).Usuario;
+        var elaborador = servicio.CrearUsuario(DatosElaborador(), null).Usuario;
         servicio.CambiarPassword(elaborador.Id, "ya-la-cambie");
 
-        servicio.ResetearPassword(elaborador.Id, administrador.Id);
+        var passwordProvisional = servicio.ResetearPassword(elaborador.Id, administrador.Id);
 
+        Assert.NotEmpty(passwordProvisional);
         var debeCambiar = conexion.ExecuteScalar<long>(
             "SELECT debe_cambiar_password FROM Usuario WHERE id = @id", new { id = elaborador.Id });
         Assert.Equal(1L, debeCambiar);
@@ -112,8 +114,8 @@ public sealed class ServicioUsuariosTests
     public void CrearUsuario_DarDeBaja_ResetearPassword_y_DesbloquearUsuario_registran_en_auditoria()
     {
         var (servicio, conexion) = CrearServicio();
-        var administrador = servicio.CrearUsuario(DatosAdministrador("admin.audita"), null);
-        var elaborador = servicio.CrearUsuario(DatosElaborador(), administrador.Id);
+        var administrador = servicio.CrearUsuario(DatosAdministrador("admin.audita"), null).Usuario;
+        var elaborador = servicio.CrearUsuario(DatosElaborador(), administrador.Id).Usuario;
 
         servicio.ResetearPassword(elaborador.Id, administrador.Id);
         servicio.DesbloquearUsuario(elaborador.Id, administrador.Id);
