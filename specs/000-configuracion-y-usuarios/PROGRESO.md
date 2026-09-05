@@ -12,7 +12,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | `86ee536` |
-| 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Fases 1-2 (Setup+Foundational) hechas | `984d025` (+ pendiente) |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
@@ -82,3 +82,20 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
   T047, T053, T054) — `tasks.md` pasa de 52 a 59 tareas, renumerado íntegramente porque ninguna
   tenía código escrito todavía. Tabla CA→tarea de este documento actualizada con la nueva
   numeración.
+- **2026-09-05** — Fase 6 (implementación) en curso. Instalado `dotnet-sdk-8.0` vía dnf (el usuario
+  ejecutó el comando, versión verificada 8.0.130 = la LTS fijada por la constitución).
+  - **Setup (T001-T008)**: creados `SPD.sln` y los 6 proyectos .NET. Desviación del template
+    corregida: `dotnet new avalonia.mvvm` instala Avalonia 12.x por defecto; se han pinnado los 4
+    paquetes `Avalonia.*` a `11.3.20` (Art. VIII.2 fija Avalonia UI 11) y se ha quitado
+    `WithDeveloperTools()` de `Program.cs` (API solo de v12). `dotnet build`/`dotnet test` en verde.
+    Commit `984d025`.
+  - **Foundational (T009-T020)**: esquema SQL (`Farmacia`, `Usuario`, `Auditoria`,
+    `schema_version`), `AplicadorMigraciones` (embebido, idempotente), entidades `Farmacia`/
+    `Usuario`/`Rol`, `HasheadorArgon2id`, `RepositorioFarmacia`/`RepositorioUsuarios`,
+    `RegistradorAuditoria`, Serilog en `Program.cs`. 5 tests de humo en
+    `InfraestructuraFundamentosTests.cs` (migración idempotente, alta/lectura de Farmacia, alta/
+    lectura de Usuario con `Rol` correcto, hash/verificación Argon2id, inserción en auditoría) — los
+    5 en verde. Corregido en el camino: `RepositorioUsuarios` no podía depender del mapeo de enums
+    de Dapper para la columna `rol` (fallaba el CHECK de la tabla); se resolvió con una fila DTO
+    explícita en vez de un `TypeHandler`, más acorde con Art. XI.2 (explícito antes que una
+    abstracción que oculte el mapeo real).

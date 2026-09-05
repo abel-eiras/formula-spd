@@ -55,18 +55,18 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 **⚠️ CRITICAL**: ninguna user story empieza antes de completar esta fase
 
-- [ ] T009 Crear script `src/Spd.Infraestructura/Migraciones/0001_esquema_inicial.sql` con tablas `Farmacia`, `Usuario`, `Auditoria` y `schema_version` (columnas de [data-model.md](./data-model.md), Art. VIII.3)
-- [ ] T010 Implementar `AplicadorMigraciones` en `src/Spd.Infraestructura/Migraciones/AplicadorMigraciones.cs`: lee `schema_version`, aplica scripts pendientes al arrancar, idempotente, nunca destructivo (Art. VIII.3)
-- [ ] T011 [P] Crear entidad `Farmacia` en `src/Spd.Dominio/Farmacia.cs` (campos de [data-model.md](./data-model.md) §Farmacia)
-- [ ] T012 [P] Crear entidad `Usuario` y enum `Rol` en `src/Spd.Dominio/Usuario.cs` y `src/Spd.Dominio/Rol.cs` (Art. VII.4: solo `ADMINISTRADOR`/`ELABORADOR`)
-- [ ] T013 [P] Definir interfaz `IHasheadorPassword` en `src/Spd.Dominio/IHasheadorPassword.cs`
-- [ ] T014 Implementar `HasheadorArgon2id` en `src/Spd.Infraestructura/HasheadorArgon2id.cs` (research.md Decisión 2; depende de T013)
-- [ ] T015 [P] Definir interfaz `IRepositorioFarmacia` en `src/Spd.Dominio/IRepositorioFarmacia.cs`
-- [ ] T016 [P] Definir interfaz `IRepositorioUsuarios` en `src/Spd.Dominio/IRepositorioUsuarios.cs`
-- [ ] T017 Implementar `RepositorioFarmacia` (Dapper/SQLite) en `src/Spd.Infraestructura/RepositorioFarmacia.cs` (depende de T009, T011, T015)
-- [ ] T018 Implementar `RepositorioUsuarios` (Dapper/SQLite) en `src/Spd.Infraestructura/RepositorioUsuarios.cs` (depende de T009, T012, T016)
-- [ ] T019 Implementar `RegistradorAuditoria` (solo `INSERT`, Art. III.3) en `src/Spd.Infraestructura/RegistradorAuditoria.cs`. **Todo servicio de Aplicación de esta feature que escriba datos debe invocarlo** (Art. VII.6) — ver la tarea de auditoría dedicada en cada user story
-- [ ] T020 Configurar Serilog (log a fichero dentro de la carpeta de instalación) en `src/Spd.Presentacion/Program.cs`
+- [x] T009 Crear script `src/Spd.Infraestructura/Migraciones/0001_esquema_inicial.sql` con tablas `Farmacia`, `Usuario`, `Auditoria` y `schema_version` (columnas de [data-model.md](./data-model.md), Art. VIII.3)
+- [x] T010 Implementar `AplicadorMigraciones` en `src/Spd.Infraestructura/Migraciones/AplicadorMigraciones.cs`: lee `schema_version`, aplica scripts pendientes al arrancar, idempotente, nunca destructivo (Art. VIII.3)
+- [x] T011 [P] Crear entidad `Farmacia` en `src/Spd.Dominio/Farmacia.cs` (campos de [data-model.md](./data-model.md) §Farmacia)
+- [x] T012 [P] Crear entidad `Usuario` y enum `Rol` en `src/Spd.Dominio/Usuario.cs` y `src/Spd.Dominio/Rol.cs` (Art. VII.4: solo `ADMINISTRADOR`/`ELABORADOR`)
+- [x] T013 [P] Definir interfaz `IHasheadorPassword` en `src/Spd.Dominio/IHasheadorPassword.cs`
+- [x] T014 Implementar `HasheadorArgon2id` en `src/Spd.Infraestructura/HasheadorArgon2id.cs` (research.md Decisión 2; depende de T013)
+- [x] T015 [P] Definir interfaz `IRepositorioFarmacia` en `src/Spd.Dominio/IRepositorioFarmacia.cs`
+- [x] T016 [P] Definir interfaz `IRepositorioUsuarios` en `src/Spd.Dominio/IRepositorioUsuarios.cs`
+- [x] T017 Implementar `RepositorioFarmacia` (Dapper/SQLite) en `src/Spd.Infraestructura/RepositorioFarmacia.cs` (depende de T009, T011, T015)
+- [x] T018 Implementar `RepositorioUsuarios` (Dapper/SQLite) en `src/Spd.Infraestructura/RepositorioUsuarios.cs` (depende de T009, T012, T016)
+- [x] T019 Implementar `RegistradorAuditoria` (solo `INSERT`, Art. III.3) en `src/Spd.Infraestructura/RegistradorAuditoria.cs`. **Todo servicio de Aplicación de esta feature que escriba datos debe invocarlo** (Art. VII.6) — ver la tarea de auditoría dedicada en cada user story
+- [x] T020 Configurar Serilog (log a fichero dentro de la carpeta de instalación) en `src/Spd.Presentacion/Program.cs`
 
 **Checkpoint**: esquema y entidades listas — las user stories pueden empezar.
 

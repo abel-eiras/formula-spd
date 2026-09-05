@@ -20,4 +20,8 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <ProjectReference Include="..\Spd.Aplicacion\Spd.Aplicacion.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Spd.Infraestructura\Spd.Infraestructura.csproj" />
+  </ItemGroup>
 </Project>
