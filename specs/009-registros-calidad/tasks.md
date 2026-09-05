@@ -149,9 +149,9 @@ registro de hoy, desaparece (CA-904).
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T043 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
-- [ ] T044 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
-- [ ] T045 [P] Actualizar `PROGRESO.md` marcando cada CA-900..CA-904 como validado, con el test que lo confirma
+- [X] T043 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
+- [X] T044 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6)
+- [X] T045 [P] Actualizar `PROGRESO.md` marcando cada CA-900..CA-904 como validado, con el test que lo confirma
 
 ---
 

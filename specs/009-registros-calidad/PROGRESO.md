@@ -22,7 +22,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (sin hallazgos) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1..US4 hechas (2026-09-05) | *(pendiente de commit)* |
+| 6 | Implementación | `/speckit-implement` | ✅ Hecho — 2026-09-05 (pendiente prueba manual del usuario) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -31,11 +31,11 @@ fase de `/speckit-plan`.
 
 | CA | Descripción | Capa / tipo de test previsto |
 |---|---|---|
-| CA-900 | Ambiental fuera de rango se marca al registrar, no se recalcula si cambia la configuración | Aplicación — test unitario (Art. IV, instantánea) |
-| CA-901 | Limpieza de un clic con fecha/hora y usuario actual | Aplicación — test unitario |
-| CA-902 | Formación acumulativa, ninguna sustituye a otra | Aplicación — test unitario (Art. III) |
-| CA-903 | Control de cambios del PNT solo Administrador | Aplicación — test unitario (permisos, Art. VII.4) |
-| CA-904 | Aviso de registro atrasado en el panel de inicio | Aplicación — test unitario |
+| CA-900 | Ambiental fuera de rango se marca al registrar, no se recalcula si cambia la configuración | ✅ `RegistrarAmbiental_marca_fuera_de_rango_...CA_900` + `..._conserva_fuera_de_rango_...CA_900` |
+| CA-901 | Limpieza de un clic con fecha/hora y usuario actual | ✅ `RegistrarLimpieza_guarda_con_fecha_y_usuario_actuales_...CA_901` |
+| CA-902 | Formación acumulativa, ninguna sustituye a otra | ✅ `RegistrarFormacion_tres_veces_deja_las_tres_consultables_CA_902` |
+| CA-903 | Control de cambios del PNT solo Administrador | ✅ `RegistrarCambioPnt_lanza_...CA_903`, `ListarCambiosPnt_lanza_...CA_903`, `RegistrarCopia_y_ListarCopias_...CA_903` |
+| CA-904 | Aviso de registro atrasado en el panel de inicio | ✅ `ComprobarAvisos_detecta_atraso_...CA_904` + `..._no_avisa_...` |
 
 ## Invariantes de constitución que aplican a esta spec
 
@@ -117,3 +117,11 @@ fase de `/speckit-plan`.
   `Math.Ceiling` (redondeo al alza: pasado el día 7 ya se considera atrasado). Aviso mostrado en el
   panel de inicio (`MainWindow`), informativo, nunca bloquea nada. `dotnet build` sin errores;
   7+4+48 = 59 tests en verde. **Todas las user stories de esta spec están completas.**
+- **2026-09-05** — Fase Polish completada (T043-T045). Los 5 escenarios de `quickstart.md`
+  (CA-900..CA-904) están cubiertos 1:1 por tests automatizados — ver tabla de criterios de
+  aceptación arriba, actualizada con el nombre exacto de cada test. Revisión de tamaño (Art.
+  XI.6): todas las clases muy por debajo de ~300 líneas (`RepositorioRegistrosCalidad.cs` es la
+  mayor, 159); ningún método supera ~40 líneas. **Spec 009 queda completa en código y tests,
+  pendiente de la prueba manual real (`dotnet run`) del usuario** cuando pueda sentarse al
+  ordenador, igual que Specs 001 y 003 — no se puede verificar una interfaz gráfica de escritorio
+  sin ejecutarla de verdad.
