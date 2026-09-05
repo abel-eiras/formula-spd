@@ -109,17 +109,17 @@ sistema lo impide; con un Administrador, funciona con normalidad.
 
 ### Tests for User Story 3
 
-- [ ] T031 [P] [US3] Test: `RegistrarCambioPnt` lanza `ErrorValidacionException` si el usuario no es Administrador (CA-903), en `tests/Spd.Aplicacion.Tests/ServicioControlDocumentalTests.cs`
-- [ ] T032 [P] [US3] Test: `ListarCambiosPnt` también lanza para un Elaborador (CA-903 habla de "acceder", no solo de escribir)
-- [ ] T033 [P] [US3] Test: `RegistrarCopia` y `ListarCopias` tienen la misma restricción
-- [ ] T034 [P] [US3] Test: `RegistrarCambioPnt` y `RegistrarCopia` registran en auditoría (Art. VII.6)
+- [X] T031 [P] [US3] Test: `RegistrarCambioPnt` lanza `ErrorValidacionException` si el usuario no es Administrador (CA-903), en `tests/Spd.Aplicacion.Tests/ServicioControlDocumentalTests.cs`
+- [X] T032 [P] [US3] Test: `ListarCambiosPnt` también lanza para un Elaborador (CA-903 habla de "acceder", no solo de escribir)
+- [X] T033 [P] [US3] Test: `RegistrarCopia` y `ListarCopias` tienen la misma restricción
+- [X] T034 [P] [US3] Test: `RegistrarCambioPnt` y `RegistrarCopia` registran en auditoría (Art. VII.6)
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Implementar `IServicioControlDocumental` y `ServicioControlDocumental` en `src/Spd.Aplicacion/ServicioControlDocumental.cs` (depende de T007, T008, T010, T012); comprueba el rol vía `IRepositorioUsuarios` (research.md Decisión 4)
-- [ ] T036 [US3] Implementar `ControlDocumentalViewModel` + vista en `src/Spd.Presentacion/ViewModels/ControlDocumentalViewModel.cs` + `src/Spd.Presentacion/Views/RegistrosCalidad/ControlDocumentalWindow.axaml`
-- [ ] T037 [US3] Añadir botón "Control documental" a `MainWindow`/`MainViewModel`, visible solo para Administrador (`PuedeAccederAConfiguracion`, mismo criterio que los botones de Configuración de Spec 000)
-- [ ] T038 [P] [US3] Test Avalonia.Headless: `ControlDocumentalWindow` construye y muestra su listado con una entrada real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/ControlDocumentalViewTests.cs`
+- [X] T035 [US3] Implementar `IServicioControlDocumental` y `ServicioControlDocumental` en `src/Spd.Aplicacion/ServicioControlDocumental.cs` (depende de T007, T008, T010, T012); comprueba el rol vía `IRepositorioUsuarios` (research.md Decisión 4)
+- [X] T036 [US3] Implementar `ControlDocumentalViewModel` + vista en `src/Spd.Presentacion/ViewModels/ControlDocumentalViewModel.cs` + `src/Spd.Presentacion/Views/RegistrosCalidad/ControlDocumentalWindow.axaml`
+- [X] T037 [US3] Añadir botón "Control documental" a `MainWindow`/`MainViewModel`, visible solo para Administrador (`PuedeAccederAConfiguracion`, mismo criterio que los botones de Configuración de Spec 000)
+- [X] T038 [P] [US3] Test Avalonia.Headless: `ControlDocumentalWindow` construye y muestra su listado con una entrada real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/ControlDocumentalViewTests.cs`
 
 **Checkpoint**: US1 + US2 + US3 funcionales de forma independiente.
 

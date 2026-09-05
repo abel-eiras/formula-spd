@@ -17,6 +17,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
     private readonly IServicioRegistrosCalidad _servicioRegistrosCalidad;
+    private readonly IServicioControlDocumental _servicioControlDocumental;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -34,6 +35,7 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
         IServicioRegistrosCalidad servicioRegistrosCalidad,
+        IServicioControlDocumental servicioControlDocumental,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -42,8 +44,17 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
         _servicioRegistrosCalidad = servicioRegistrosCalidad;
+        _servicioControlDocumental = servicioControlDocumental;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
+    }
+
+    /// <summary>Solo Administrador (FR-942); el propio servicio también comprueba el rol.</summary>
+    [RelayCommand]
+    private void AbrirControlDocumental()
+    {
+        var ventana = new ControlDocumentalWindow(_servicioControlDocumental, UsuarioActual.Id);
+        ventana.Show();
     }
 
     /// <summary>Cualquier Elaborador o Administrador accede a los registros de calidad, sin

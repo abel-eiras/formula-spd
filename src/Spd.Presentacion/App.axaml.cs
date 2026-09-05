@@ -30,6 +30,7 @@ public partial class App : Application
     private IServicioActualizaciones? _servicioActualizaciones;
     private IServicioNomenclator? _servicioNomenclator;
     private IServicioRegistrosCalidad? _servicioRegistrosCalidad;
+    private IServicioControlDocumental? _servicioControlDocumental;
 
     public override void Initialize()
     {
@@ -77,6 +78,8 @@ public partial class App : Application
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
         _servicioRegistrosCalidad = new ServicioRegistrosCalidad(
             new RepositorioRegistrosCalidad(_conexion), repositorioFarmacia, auditoria);
+        _servicioControlDocumental = new ServicioControlDocumental(
+            new RepositorioControlDocumental(_conexion), repositorioUsuarios, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -117,7 +120,8 @@ public partial class App : Application
     {
         var mainViewModel = new MainViewModel(
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-            _servicioActualizaciones!, _servicioNomenclator!, _servicioRegistrosCalidad!, usuario);
+            _servicioActualizaciones!, _servicioNomenclator!, _servicioRegistrosCalidad!,
+            _servicioControlDocumental!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
