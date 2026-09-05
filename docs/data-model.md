@@ -1,6 +1,6 @@
 # data-model.md — Modelo de datos consolidado
 
-**Versión 0.4 — 4 de septiembre de 2026**
+**Versión 0.5 — 5 de septiembre de 2026**
 Sustituye al §3.3 del documento de Fase 1 en los puntos donde las specs 001/005/006 lo han corregido. Es la referencia que citan las specs; cuando una spec y este documento difieran, gana este documento y se corrige la spec.
 
 Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEGER 0/1; toda tabla de negocio tiene además `creado_en`, `creado_por`, `modificado_en`, `modificado_por` (omitidos abajo).
@@ -24,6 +24,8 @@ Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEG
 13. **SPD**: añadido `version` (entero, empieza en 1, se incrementa en cada reelaboración antes de entregar).
 14. Nueva tabla **SPD_Modificacion**: historial de reelaboraciones de un SPD no entregado (Constitución Artículo III.4).
 15. Regla de consumo de fraccionables corregida (Spec 005 FR-522 v2): "entero más uno", no ceil() de la suma semanal.
+16. **Farmacia**: añadidos `ruta_documentos_generados` (Spec 000 FR-031), `url_nomenclator` (Spec 000 FR-051) y `umbral_reutilizacion_lectura_ambiental_horas` (Spec 000 FR-022, por defecto 2).
+17. **Usuario**: añadidos `intentos_fallidos_consecutivos` y `bloqueado` (Spec 000 FR-045).
 
 ---
 
@@ -43,6 +45,9 @@ Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEG
 | responsable_datos, direccion_derechos, email_derechos | TEXT | Para el consentimiento |
 | prefijo_num_ficha, prefijo_num_spd | TEXT | |
 | ruta_backup | TEXT | |
+| **ruta_documentos_generados** | TEXT | Carpeta de salida de todo documento generado (Spec 000 FR-031, Spec 007). Misma validación de escritura que `ruta_backup` |
+| **url_nomenclator** | TEXT | URL editable desde donde se descarga el fichero Excel/CSV del nomenclátor (Spec 000 FR-051, Spec 003/011) |
+| **umbral_reutilizacion_lectura_ambiental_horas** | INTEGER | Por defecto 2 (Spec 000 FR-022, Spec 006 FR-630) |
 | temp_min, temp_max, hr_min, hr_max | REAL | Por defecto 15/25/40/60 |
 | **dia_retirada_defecto** | TEXT | LU/MA/MI/JU/VI/SA/DO — valor por defecto para pacientes nuevos |
 | **n_blisteres_defecto** | INTEGER | 1 o 2 |
@@ -59,6 +64,8 @@ Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEG
 | rol | TEXT | ADMINISTRADOR / ELABORADOR |
 | cargo_pnt, colegiado, firma_abreviada | | Texto libre para lo que se imprime en registros de calidad (Anexo III firmas reconocidas); no condiciona permisos |
 | activo, fecha_baja, debe_cambiar_password | | |
+| **intentos_fallidos_consecutivos** | INTEGER | Por defecto 0; se resetea a 0 en login correcto (Spec 000 FR-045) |
+| **bloqueado** | INTEGER | 0/1; se pone a 1 al llegar al umbral de intentos fallidos (por defecto 5); solo un Administrador lo pone a 0 (Spec 000 FR-045, sin expiración automática) |
 
 ## Medico (catálogo)
 

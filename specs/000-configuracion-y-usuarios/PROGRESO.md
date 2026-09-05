@@ -8,8 +8,8 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | # | Fase | Comando | Estado | Commit |
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | `bff6a93` |
-| 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | *(pendiente de commit)* |
-| 3 | Plan de implementación | `/speckit-plan` | ⏳ Pendiente | — |
+| 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | `b1422cb` |
+| 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
@@ -60,3 +60,11 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
   corregida sobre la marcha una desviación propia: al trasladar la spec en la fase 1 se había
   eliminado sin avisar la mención "Anthropic/" de FR-050 (texto original ambiguo) — se restauró
   antes de resolver Q1, en vez de dejarla editada en silencio.
+- **2026-09-05** — Fase 3 completada. `plan.md` (Technical Context + Constitution Check con los 9
+  artículos aplicables), `research.md` (5 decisiones técnicas, ninguna deja NEEDS CLARIFICATION),
+  `data-model.md` (recorte Farmacia/Usuario de esta feature), `contracts/servicios-aplicacion.md`
+  (5 interfaces de Aplicación) y `quickstart.md` (guía de validación por CA). Efecto colateral
+  documentado: `docs/data-model.md` sube a v0.5 (añade `ruta_documentos_generados`,
+  `url_nomenclator`, `umbral_reutilizacion_lectura_ambiental_horas` a Farmacia;
+  `intentos_fallidos_consecutivos`, `bloqueado` a Usuario) porque esos campos los exige esta spec y
+  no estaban en el documento consolidado.
