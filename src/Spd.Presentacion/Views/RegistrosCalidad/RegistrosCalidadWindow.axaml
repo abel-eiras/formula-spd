@@ -11,5 +11,11 @@
     <TabItem Header="Limpieza">
       <registros:RegistroLimpiezaView x:Name="LimpiezaView" />
     </TabItem>
+    <TabItem Header="Formación">
+      <registros:FormacionPersonalView x:Name="FormacionView" />
+    </TabItem>
+    <TabItem Header="Residuos">
+      <registros:RecogidaResiduosView x:Name="ResiduosView" />
+    </TabItem>
   </TabControl>
 </Window>

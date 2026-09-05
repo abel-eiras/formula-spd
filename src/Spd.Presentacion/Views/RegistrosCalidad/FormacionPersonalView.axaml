@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.RegistrosCalidad.FormacionPersonalView">
+  <Grid ColumnDefinitions="260,*" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="4">
+      <TextBlock Text="Formación del personal" FontSize="16" FontWeight="Bold" />
+      <TextBlock Text="Nombre del curso *" />
+      <TextBox Text="{Binding NombreCurso}" />
+      <TextBlock Text="Entidad organizadora" />
+      <TextBox Text="{Binding EntidadOrganizadora}" />
+      <TextBlock Text="Fecha" />
+      <DatePicker SelectedDate="{Binding Fecha}" />
+      <CheckBox Content="Acreditado" IsChecked="{Binding Acreditado}" />
+      <Button Content="Registrar" Command="{Binding RegistrarCommand}" Margin="0,8,0,0" />
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+                 IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+
+    <ListBox Grid.Column="1" Margin="16,0,0,0" ItemsSource="{Binding Resultados}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Margin="0,4" Spacing="2">
+            <TextBlock Text="{Binding NombreCurso}" FontWeight="Bold" />
+            <TextBlock Text="{Binding EntidadOrganizadora}" Foreground="Gray" FontSize="11" />
+            <TextBlock Text="{Binding Fecha}" />
+            <TextBlock Text="Acreditado" IsVisible="{Binding Acreditado}" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
+</UserControl>

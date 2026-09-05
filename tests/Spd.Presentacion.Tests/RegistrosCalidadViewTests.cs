@@ -35,6 +35,10 @@ public sealed class RegistrosCalidadViewTests
         var servicio = new ServicioRegistrosCalidad(new RepositorioRegistrosCalidad(conexion), repositorioFarmacia, auditoria);
         servicio.RegistrarAmbiental(new DatosRegistroAmbiental(20, 50, null), usuarioId);
         servicio.RegistrarLimpieza(TipoLimpieza.Rutinaria, null, usuarioId);
+        servicio.RegistrarFormacion(
+            new DatosFormacion(usuarioId, "Curso de manipulación", "Colegio", DateOnly.FromDateTime(DateTime.Today), true), usuarioId);
+        servicio.RegistrarRecogidaResiduos(
+            new DatosRecogidaResiduos(DateOnly.FromDateTime(DateTime.Today), "Gestora S.L.", null), usuarioId);
 
         var ventana = new RegistrosCalidadWindow(servicio, usuarioId);
 

@@ -84,16 +84,16 @@ consultables (CA-902); registrar una recogida de residuos con empresa gestora.
 
 ### Tests for User Story 2
 
-- [ ] T024 [P] [US2] Test: `RegistrarFormacion` tres veces para el mismo usuario deja las tres consultables, ninguna sustituye a otra (CA-902), en `tests/Spd.Aplicacion.Tests/ServicioRegistrosCalidadTests.cs`
-- [ ] T025 [P] [US2] Test: `RegistrarRecogidaResiduos` guarda fecha/empresa gestora/usuario
-- [ ] T026 [P] [US2] Test: `RegistrarFormacion` y `RegistrarRecogidaResiduos` registran en auditoría (Art. VII.6)
+- [X] T024 [P] [US2] Test: `RegistrarFormacion` tres veces para el mismo usuario deja las tres consultables, ninguna sustituye a otra (CA-902), en `tests/Spd.Aplicacion.Tests/ServicioRegistrosCalidadTests.cs`
+- [X] T025 [P] [US2] Test: `RegistrarRecogidaResiduos` guarda fecha/empresa gestora/usuario
+- [X] T026 [P] [US2] Test: `RegistrarFormacion` y `RegistrarRecogidaResiduos` registran en auditoría (Art. VII.6)
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Ampliar `ServicioRegistrosCalidad` con Formación y Recogida de residuos (depende de T005, T006, T019)
-- [ ] T028 [US2] Implementar `FormacionPersonalViewModel` + vista en `src/Spd.Presentacion/ViewModels/FormacionPersonalViewModel.cs` + vista, como pestaña de la ventana de T022
-- [ ] T029 [US2] Implementar `RecogidaResiduosViewModel` + vista en `src/Spd.Presentacion/ViewModels/RecogidaResiduosViewModel.cs` + vista, como pestaña de la ventana de T022
-- [ ] T030 [P] [US2] Test Avalonia.Headless: la pestaña de formación renderiza su listado con una formación real sin lanzar excepción, en el mismo fichero de T023
+- [X] T027 [US2] Ampliar `ServicioRegistrosCalidad` con Formación y Recogida de residuos (depende de T005, T006, T019)
+- [X] T028 [US2] Implementar `FormacionPersonalViewModel` + vista en `src/Spd.Presentacion/ViewModels/FormacionPersonalViewModel.cs` + vista, como pestaña de la ventana de T022
+- [X] T029 [US2] Implementar `RecogidaResiduosViewModel` + vista en `src/Spd.Presentacion/ViewModels/RecogidaResiduosViewModel.cs` + vista, como pestaña de la ventana de T022
+- [X] T030 [P] [US2] Test Avalonia.Headless: la pestaña de formación renderiza su listado con una formación real sin lanzar excepción, en el mismo fichero de T023
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 

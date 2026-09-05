@@ -22,7 +22,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (sin hallazgos) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1 (MVP) hecha (2026-09-05) | *(pendiente de commit)* |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1+US2 hechas (2026-09-05) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -98,3 +98,9 @@ fase de `/speckit-plan`.
   FR-950 (US4). En Presentación: `RegistrosCalidadWindow` con pestañas Ambiental/Limpieza, botón
   en `MainWindow` visible para Elaborador y Administrador. Test Avalonia.Headless de regresión
   para ambos listados. `dotnet build` sin errores; 7+3+38 = 48 tests en verde.
+- **2026-09-05** — User Story 2 (P2) completada: T024-T030. Formación acumulativa (tres
+  formaciones consultables, CA-902) y recogida de residuos no SIGRE. Dos pestañas nuevas
+  (Formación, Residuos) en `RegistrosCalidadWindow`. Se detectó que `Spd.Presentacion.csproj` no
+  trae `System` implícito en algunos ficheros nuevos (a diferencia de los proyectos de test);
+  corregido con `using System;` explícito en los dos ViewModels nuevos. `dotnet build` sin
+  errores; 7+3+41 = 51 tests en verde.
