@@ -13,6 +13,9 @@
               <Button Content="Cambiar pauta" FontSize="11"
                       Command="{Binding DataContext.PrepararCambioDePautaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                       CommandParameter="{Binding}" />
+              <Button Content="Comunicar incidencia" FontSize="11"
+                      Command="{Binding DataContext.ComunicarIncidenciaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                      CommandParameter="{Binding}" />
             </StackPanel>
           </DataTemplate>
         </ListBox.ItemTemplate>

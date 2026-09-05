@@ -60,12 +60,14 @@ public sealed class MainWindowTests
         var servicioImportacion = new ServicioImportacionTratamientoEnvase(
             repositorioMedicamentos, new RepositorioTratamientos(conexion), repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientos, auditoria);
+        var servicioComunicaciones = new ServicioComunicacionesMedico(
+            new RepositorioComunicacionesMedico(conexion), repositorioPacientes, new RepositorioTratamientos(conexion), auditoria);
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
             servicioPacientes, servicioTratamientos, servicioMedicamentos, servicioImportacionNomenclator, servicioConsultaCima,
             servicioRegistrosCalidad, servicioControlDocumental, servicioBackup, servicioCifrado,
-            servicioEnvases, servicioListadoRetirada, servicioImportacion, administrador);
+            servicioEnvases, servicioListadoRetirada, servicioImportacion, servicioComunicaciones, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

@@ -47,7 +47,10 @@ public sealed class BuscadorPacientesViewTests
         var servicioImportacion = new ServicioImportacionTratamientoEnvase(
             new RepositorioMedicamentos(conexion), new RepositorioTratamientos(conexion), repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientos, auditoria);
-        var ventana = new BuscadorPacientesWindow(servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion, usuarioActualId: null);
+        var servicioComunicaciones = new ServicioComunicacionesMedico(
+            new RepositorioComunicacionesMedico(conexion), repositorioPacientes, new RepositorioTratamientos(conexion), auditoria);
+        var ventana = new BuscadorPacientesWindow(
+            servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion, servicioComunicaciones, usuarioActualId: null);
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el paciente recién creado.
         ventana.Show();

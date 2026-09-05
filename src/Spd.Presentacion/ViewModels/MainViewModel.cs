@@ -31,6 +31,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioEnvases _servicioEnvases;
     private readonly IServicioListadoRetirada _servicioListadoRetirada;
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
+    private readonly IServicioComunicacionesMedico _servicioComunicaciones;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -59,6 +60,7 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioEnvases servicioEnvases,
         IServicioListadoRetirada servicioListadoRetirada,
         IServicioImportacionTratamientoEnvase servicioImportacion,
+        IServicioComunicacionesMedico servicioComunicaciones,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -78,6 +80,7 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioEnvases = servicioEnvases;
         _servicioListadoRetirada = servicioListadoRetirada;
         _servicioImportacion = servicioImportacion;
+        _servicioComunicaciones = servicioComunicaciones;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -86,7 +89,9 @@ public sealed partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirPacientes()
     {
-        var ventana = new BuscadorPacientesWindow(_servicioPacientes, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion, UsuarioActual.Id);
+        var ventana = new BuscadorPacientesWindow(
+            _servicioPacientes, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
+            _servicioComunicaciones, UsuarioActual.Id);
         ventana.Show();
     }
 
