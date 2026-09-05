@@ -23,11 +23,14 @@ public sealed class InfraestructuraFundamentosTests
     public void AplicadorMigraciones_es_idempotente()
     {
         using var conexion = AbrirBaseDeDatosDePrueba();
+        var versionTrasLaPrimeraAplicacion = conexion.ExecuteScalar<int>("SELECT MAX(version) FROM schema_version");
 
         new AplicadorMigraciones(conexion).Aplicar();
 
+        // No debe reaplicar ni cambiar la versión ya alcanzada (Art. VIII.3); el número exacto de
+        // migraciones embebidas lo cubre InfraestructuraMedicamentosFundamentosTests (Spec 003).
         var version = conexion.ExecuteScalar<int>("SELECT MAX(version) FROM schema_version");
-        Assert.Equal(1, version);
+        Assert.Equal(versionTrasLaPrimeraAplicacion, version);
     }
 
     [Fact]

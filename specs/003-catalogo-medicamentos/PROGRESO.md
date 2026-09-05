@@ -18,7 +18,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (2 hallazgos remediados) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Foundational hecha (2026-09-05) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -82,3 +82,13 @@ fase de `/speckit-plan`.
   ningún test verificaba que `DarDeBaja` conserva la fila (Art. III.1), a diferencia de Spec 001 →
   nuevo T020. **F2** — `ActualizarUnidadesEnvase` no estaba en la lista de escrituras auditadas de
   T019 → ampliado. Renumerado de 36 a 37 tareas (seguro, sin código aún).
+- **2026-09-05** — Fase 6 (Implementación) iniciada. Foundational (T001-T009) completada:
+  migración `0002_catalogo_medicamentos.sql` (Medicamento, Medicamento_Hist), enums de Dominio
+  (`FormaFarmaceutica`, `OrigenUnidadesEnvase`), `ReglaAptitudSpd`, entidad `Medicamento`,
+  `VersionDescripcionFisica`, repositorio con `Fila` explícita (mismo patrón que Spec 001).
+  **Nota de coordinación entre ramas**: se añadió `Spd.Dominio/Normalizador.cs` idéntico al de la
+  rama `001-pacientes-y-medicos` (sin mergear) y una columna `nombre_normalizado` en Medicamento,
+  análoga a `busqueda_normalizada` de esa spec — ambas ramas necesitan la misma utilidad de
+  normalización de búsqueda; quedará un solo fichero al mergear. También se corrigió, igual que en
+  Spec 001, el test viejo de Spec 000 que asumía un número fijo de migraciones. `dotnet build` sin
+  errores; 7+2+32 = 41 tests en verde.

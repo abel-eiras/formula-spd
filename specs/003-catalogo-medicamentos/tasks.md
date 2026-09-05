@@ -25,15 +25,15 @@ Spec 001. Sin fase de Setup: no se crea ningún proyecto nuevo, se reutilizan lo
 
 **⚠️ CRITICAL**: ninguna user story empieza antes de completar esta fase
 
-- [ ] T001 Crear script `src/Spd.Infraestructura/Migraciones/0002_catalogo_medicamentos.sql` con tablas `Medicamento` y `Medicamento_Hist` (columnas de [data-model.md](./data-model.md), incluida `desc_vigente_desde` — research.md Decisión 4). **Nota**: se numera `0002` en esta rama porque parte de `main` (solo Spec 000); ver plan.md §Project Structure sobre la coordinación pendiente con la rama 001 al mergear.
-- [ ] T002 [P] Crear enum `FormaFarmaceutica` en `src/Spd.Dominio/FormaFarmaceutica.cs` (FR-300, research.md Decisión 1)
-- [ ] T003 [P] Crear `ReglaAptitudSpd` (regla de derivación pura) en `src/Spd.Dominio/ReglaAptitudSpd.cs` (FR-301, research.md Decisión 2)
-- [ ] T004 [P] Crear entidad `Medicamento` en `src/Spd.Dominio/Medicamento.cs`
-- [ ] T005 [P] Crear `VersionDescripcionFisica` (record de solo lectura para el historial) en `src/Spd.Dominio/VersionDescripcionFisica.cs` (FR-304)
-- [ ] T006 [P] Definir `IRepositorioMedicamentos` en `src/Spd.Dominio/IRepositorioMedicamentos.cs`
-- [ ] T007 Implementar `RepositorioMedicamentos` en `src/Spd.Infraestructura/RepositorioMedicamentos.cs` (depende de T001, T004, T006)
-- [ ] T008 [P] Test de humo: la migración 0002 (de esta rama) se aplica de forma idempotente sobre el esquema de Spec 000, `schema_version` pasa a 2, en `tests/Spd.Aplicacion.Tests/InfraestructuraMedicamentosFundamentosTests.cs`
-- [ ] T009 [P] Test de humo: alta y lectura básica de Medicamento vía repositorio, en el mismo fichero
+- [X] T001 Crear script `src/Spd.Infraestructura/Migraciones/0002_catalogo_medicamentos.sql` con tablas `Medicamento` y `Medicamento_Hist` (columnas de [data-model.md](./data-model.md), incluida `desc_vigente_desde` — research.md Decisión 4). **Nota**: se numera `0002` en esta rama porque parte de `main` (solo Spec 000); ver plan.md §Project Structure sobre la coordinación pendiente con la rama 001 al mergear.
+- [X] T002 [P] Crear enum `FormaFarmaceutica` en `src/Spd.Dominio/FormaFarmaceutica.cs` (FR-300, research.md Decisión 1)
+- [X] T003 [P] Crear `ReglaAptitudSpd` (regla de derivación pura) en `src/Spd.Dominio/ReglaAptitudSpd.cs` (FR-301, research.md Decisión 2)
+- [X] T004 [P] Crear entidad `Medicamento` en `src/Spd.Dominio/Medicamento.cs`
+- [X] T005 [P] Crear `VersionDescripcionFisica` (record de solo lectura para el historial) en `src/Spd.Dominio/VersionDescripcionFisica.cs` (FR-304)
+- [X] T006 [P] Definir `IRepositorioMedicamentos` en `src/Spd.Dominio/IRepositorioMedicamentos.cs`
+- [X] T007 Implementar `RepositorioMedicamentos` en `src/Spd.Infraestructura/RepositorioMedicamentos.cs` (depende de T001, T004, T006)
+- [X] T008 [P] Test de humo: la migración 0002 (de esta rama) se aplica de forma idempotente sobre el esquema de Spec 000, `schema_version` pasa a 2, en `tests/Spd.Aplicacion.Tests/InfraestructuraMedicamentosFundamentosTests.cs`
+- [X] T009 [P] Test de humo: alta y lectura básica de Medicamento vía repositorio, en el mismo fichero
 
 **Checkpoint**: esquema y entidad listos — las user stories pueden empezar.
 
