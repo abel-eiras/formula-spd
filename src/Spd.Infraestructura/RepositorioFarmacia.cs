@@ -20,7 +20,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 prefijo_num_ficha, prefijo_num_spd, ruta_backup, ruta_documentos_generados,
                 url_nomenclator, umbral_reutilizacion_lectura_ambiental_horas,
                 temp_min, temp_max, hr_min, hr_max, dia_retirada_defecto, n_blisteres_defecto,
-                dias_antelacion_listado
+                dias_antelacion_listado, umbral_dias_aviso_calidad
             ) VALUES (
                 1, @CodigoSanitario, @Logo, @Nombre, @TitularOComunidadBienes, @Cif,
                 @TitularColegiado, @Direccion, @Cp, @Poblacion, @Provincia, @Telefono, @Fax, @Email,
@@ -28,7 +28,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 @PrefijoNumFicha, @PrefijoNumSpd, @RutaBackup, @RutaDocumentosGenerados,
                 @UrlNomenclator, @UmbralReutilizacionLecturaAmbientalHoras,
                 @TempMin, @TempMax, @HrMin, @HrMax, @DiaRetiradaDefecto, @NBlisteresDefecto,
-                @DiasAntelacionListado
+                @DiasAntelacionListado, @UmbralDiasAvisoCalidad
             )
             """,
             farmacia);
@@ -50,6 +50,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 temp_min = @TempMin, temp_max = @TempMax, hr_min = @HrMin, hr_max = @HrMax,
                 dia_retirada_defecto = @DiaRetiradaDefecto, n_blisteres_defecto = @NBlisteresDefecto,
                 dias_antelacion_listado = @DiasAntelacionListado,
+                umbral_dias_aviso_calidad = @UmbralDiasAvisoCalidad,
                 modificado_en = @ModificadoEn
             WHERE id = 1
             """,
@@ -65,6 +66,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 farmacia.UmbralReutilizacionLecturaAmbientalHoras, farmacia.TempMin,
                 farmacia.TempMax, farmacia.HrMin, farmacia.HrMax, farmacia.DiaRetiradaDefecto,
                 farmacia.NBlisteresDefecto, farmacia.DiasAntelacionListado,
+                farmacia.UmbralDiasAvisoCalidad,
                 ModificadoEn = DateTime.UtcNow.ToString("o")
             });
 }

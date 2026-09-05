@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.RegistrosCalidad.RegistroLimpiezaView">
+  <Grid ColumnDefinitions="260,*" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="4">
+      <TextBlock Text="Limpieza" FontSize="16" FontWeight="Bold" />
+      <TextBlock Text="Observaciones (opcional)" />
+      <TextBox Text="{Binding ObservacionesNuevas}" />
+      <Button Content="Registrar limpieza pre-preparación" Command="{Binding RegistrarPrePreparacionCommand}" Margin="0,8,0,0" />
+      <Button Content="Registrar limpieza post-preparación" Command="{Binding RegistrarPostPreparacionCommand}" />
+      <Button Content="Registrar limpieza rutinaria" Command="{Binding RegistrarRutinariaCommand}" />
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+                 IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+
+    <ListBox Grid.Column="1" Margin="16,0,0,0" ItemsSource="{Binding Resultados}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Margin="0,4" Spacing="2">
+            <TextBlock Text="{Binding Fecha}" FontWeight="Bold" />
+            <TextBlock Text="{Binding Tipo}" />
+            <TextBlock Text="{Binding Observaciones}" Foreground="Gray" FontSize="11" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
+</UserControl>

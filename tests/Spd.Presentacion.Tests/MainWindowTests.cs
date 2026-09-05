@@ -38,9 +38,12 @@ public sealed class MainWindowTests
         var gestorLogo = new GestorLogoFarmacia();
         var servicioActualizaciones = new ServicioActualizaciones(new HttpClient(), auditoria);
         var servicioNomenclator = new ServicioNomenclator(new HttpClient(), auditoria);
+        var servicioRegistrosCalidad = new ServicioRegistrosCalidad(
+            new RepositorioRegistrosCalidad(conexion), repositorioFarmacia, auditoria);
 
         var viewModel = new MainViewModel(
-            servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator, administrador);
+            servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
+            servicioRegistrosCalidad, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

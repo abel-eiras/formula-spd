@@ -5,6 +5,7 @@ using Spd.Aplicacion;
 using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Presentacion.Views.Configuracion;
+using Spd.Presentacion.Views.RegistrosCalidad;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -15,6 +16,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly GestorLogoFarmacia _gestorLogo;
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
+    private readonly IServicioRegistrosCalidad _servicioRegistrosCalidad;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -31,6 +33,7 @@ public sealed partial class MainViewModel : ViewModelBase
         GestorLogoFarmacia gestorLogo,
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
+        IServicioRegistrosCalidad servicioRegistrosCalidad,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -38,8 +41,18 @@ public sealed partial class MainViewModel : ViewModelBase
         _gestorLogo = gestorLogo;
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
+        _servicioRegistrosCalidad = servicioRegistrosCalidad;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
+    }
+
+    /// <summary>Cualquier Elaborador o Administrador accede a los registros de calidad, sin
+    /// restricción (FR-940 se restringe aparte en Control documental).</summary>
+    [RelayCommand]
+    private void AbrirRegistrosCalidad()
+    {
+        var ventana = new RegistrosCalidadWindow(_servicioRegistrosCalidad, UsuarioActual.Id);
+        ventana.Show();
     }
 
     [RelayCommand]

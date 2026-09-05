@@ -58,18 +58,18 @@ fecha/usuario automáticos (CA-901).
 
 ### Tests for User Story 1
 
-- [ ] T015 [P] [US1] Test: `RegistrarAmbiental` calcula y guarda `fuera_rango = true` para una lectura fuera del rango configurado, en `tests/Spd.Aplicacion.Tests/ServicioRegistrosCalidadTests.cs`
-- [ ] T016 [P] [US1] Test: una lectura ya registrada conserva su `fuera_rango` aunque el rango de `Farmacia` cambie después (CA-900, Art. IV)
-- [ ] T017 [P] [US1] Test: `RegistrarLimpieza` guarda con la fecha/hora y el usuario actuales sin pasos adicionales (CA-901)
-- [ ] T018 [P] [US1] Test: `RegistrarAmbiental` y `RegistrarLimpieza` registran en auditoría (Art. VII.6)
+- [X] T015 [P] [US1] Test: `RegistrarAmbiental` calcula y guarda `fuera_rango = true` para una lectura fuera del rango configurado, en `tests/Spd.Aplicacion.Tests/ServicioRegistrosCalidadTests.cs`
+- [X] T016 [P] [US1] Test: una lectura ya registrada conserva su `fuera_rango` aunque el rango de `Farmacia` cambie después (CA-900, Art. IV)
+- [X] T017 [P] [US1] Test: `RegistrarLimpieza` guarda con la fecha/hora y el usuario actuales sin pasos adicionales (CA-901)
+- [X] T018 [P] [US1] Test: `RegistrarAmbiental` y `RegistrarLimpieza` registran en auditoría (Art. VII.6)
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implementar `IServicioRegistrosCalidad` (parte Ambiental/Limpieza) y `ServicioRegistrosCalidad` en `src/Spd.Aplicacion/ServicioRegistrosCalidad.cs` (depende de T003, T004, T009, T011); cada escritura registra en auditoría
-- [ ] T020 [US1] Implementar `RegistroAmbientalViewModel` + vista (alta rápida + listado) en `src/Spd.Presentacion/ViewModels/RegistroAmbientalViewModel.cs` + `src/Spd.Presentacion/Views/RegistrosCalidad/RegistroAmbientalView.axaml`
-- [ ] T021 [US1] Implementar `RegistroLimpiezaViewModel` + vista (dos botones de un clic + listado, FR-911) en `src/Spd.Presentacion/ViewModels/RegistroLimpiezaViewModel.cs` + `src/Spd.Presentacion/Views/RegistrosCalidad/RegistroLimpiezaView.axaml`
-- [ ] T022 [US1] Añadir botón "Registros de calidad" a `MainWindow`/`MainViewModel` que abre una ventana con pestañas Ambiental/Limpieza (visible para Elaborador y Administrador, FR-940 se restringe aparte en US3)
-- [ ] T023 [P] [US1] Test Avalonia.Headless: la ventana de registros de calidad construye y muestra el listado de ambiental con una lectura real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/RegistrosCalidadViewTests.cs`
+- [X] T019 [US1] Implementar `IServicioRegistrosCalidad` (parte Ambiental/Limpieza) y `ServicioRegistrosCalidad` en `src/Spd.Aplicacion/ServicioRegistrosCalidad.cs` (depende de T003, T004, T009, T011); cada escritura registra en auditoría
+- [X] T020 [US1] Implementar `RegistroAmbientalViewModel` + vista (alta rápida + listado) en `src/Spd.Presentacion/ViewModels/RegistroAmbientalViewModel.cs` + `src/Spd.Presentacion/Views/RegistrosCalidad/RegistroAmbientalView.axaml`
+- [X] T021 [US1] Implementar `RegistroLimpiezaViewModel` + vista (dos botones de un clic + listado, FR-911) en `src/Spd.Presentacion/ViewModels/RegistroLimpiezaViewModel.cs` + `src/Spd.Presentacion/Views/RegistrosCalidad/RegistroLimpiezaView.axaml`
+- [X] T022 [US1] Añadir botón "Registros de calidad" a `MainWindow`/`MainViewModel` que abre una ventana con pestañas Ambiental/Limpieza (visible para Elaborador y Administrador, FR-940 se restringe aparte en US3)
+- [X] T023 [P] [US1] Test Avalonia.Headless: la ventana de registros de calidad construye y muestra el listado de ambiental con una lectura real sin lanzar excepción, en `tests/Spd.Presentacion.Tests/RegistrosCalidadViewTests.cs`
 
 **Checkpoint**: US1 funcional de forma independiente — MVP entregable.
 

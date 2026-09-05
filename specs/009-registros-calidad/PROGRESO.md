@@ -22,7 +22,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (sin hallazgos) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Foundational hecha (2026-09-05) | *(pendiente de commit)* |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1 (MVP) hecha (2026-09-05) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -92,3 +92,9 @@ fase de `/speckit-plan`.
   PascalCaseName`. Se ha dejado una tarea en segundo plano para revisar si `PacienteFila.MedicoId`
   (Spec 001, mismo patrón `long?`) tiene el mismo riesgo latente, aunque sus tests actuales pasan.
   `dotnet build` sin errores; 7+2+34 = 43 tests en verde.
+- **2026-09-05** — User Story 1 (P1, MVP) completada: T015-T023. `ServicioRegistrosCalidad`
+  (Ambiental/Limpieza) con `fuera_rango` congelado al registrar (CA-900) y limpieza de un clic con
+  fecha/usuario automáticos (CA-901). Se añadió `Farmacia.UmbralDiasAvisoCalidad` para soportar
+  FR-950 (US4). En Presentación: `RegistrosCalidadWindow` con pestañas Ambiental/Limpieza, botón
+  en `MainWindow` visible para Elaborador y Administrador. Test Avalonia.Headless de regresión
+  para ambos listados. `dotnet build` sin errores; 7+3+38 = 48 tests en verde.
