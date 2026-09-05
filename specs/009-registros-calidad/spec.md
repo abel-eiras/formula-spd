@@ -18,7 +18,9 @@
 
 ## Clarifications
 
-*(Pendiente — ver sección 9, Q1, marcada `[NEEDS CLARIFICATION]`)*
+### Session 2026-09-05
+
+- Q: ¿7 días es razonable como umbral del aviso de FR-950 para ambos registros (ambiental y limpieza), o prefieres umbrales distintos? → A: 7 días para ambos, como un único valor configurable (no dos independientes) — resuelto de forma autónoma adoptando la propuesta por defecto de la spec original, porque el usuario pidió avanzar en desarrollo que no requiera su intervención.
 
 ---
 
@@ -117,9 +119,7 @@ Dado que no hay ningún registro ambiental rutinario en los últimos 8 días y e
 
 ## 9. Preguntas abiertas
 
-| # | Pregunta | Bloquea |
-|---|---|---|
-| Q1 | [NEEDS CLARIFICATION: FR-950 ¿7 días es razonable para ambos avisos, o prefieres umbrales distintos para ambiental y limpieza?] | Nada; propuesta: 7 días para ambos, configurable individualmente si hace falta al implementar |
+Ninguna pendiente — Q1 resuelta, ver sección "Clarifications" al inicio del documento.
 
 ## Assumptions
 

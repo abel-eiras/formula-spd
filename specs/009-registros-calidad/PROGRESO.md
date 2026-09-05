@@ -18,7 +18,7 @@ respuesta, y se deja registrado aquí como una decisión autónoma, no como una 
 | # | Fase | Comando | Estado | Commit |
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 2 | Aclaración | `/speckit-clarify` | ⏳ Pendiente | — |
+| 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 resuelta de forma autónoma) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ⏳ Pendiente | — |
 | 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
@@ -56,3 +56,9 @@ fase de `/speckit-plan`.
   `spec-009-registros-calidad.md`, con Q1 (umbral de días del aviso) marcada
   `[NEEDS CLARIFICATION]`. Checklist de calidad generado; todo pasa salvo "sin NEEDS
   CLARIFICATION", bloqueado a propósito hasta la fase 2.
+- **2026-09-05** — Fase 2 completada. Q1 resuelta de forma **autónoma** (sin plantearla al
+  usuario): se adopta la propuesta por defecto de la spec original, 7 días como umbral único para
+  ambos avisos (ambiental y limpieza rutinaria). Esto se aparta del patrón habitual de Specs
+  000/001/003 (donde cada pregunta se planteó una a una); el motivo es la instrucción explícita del
+  usuario de seguir avanzando en desarrollo que no requiera su intervención. `spec.md` actualizado
+  con sección "Clarifications" y §9 sin marcadores pendientes. Checklist de calidad al 100 %.

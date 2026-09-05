@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — bloqueado a propósito hasta `/speckit-clarify` (Q1, umbral de días del aviso)
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -32,5 +32,5 @@
 ## Notes
 
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`.
-- Único punto pendiente: Q1 (§9 de spec.md), sobre el umbral de días del aviso de FR-950. La propia
-  spec original ya trae una propuesta por defecto (7 días para ambos, configurable si hace falta).
+- Checklist al 100 % tras `/speckit-clarify` (2026-09-05): Q1 resuelta de forma autónoma (7 días
+  para ambos avisos), sin intervención del usuario a petición suya explícita.
