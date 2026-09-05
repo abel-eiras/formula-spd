@@ -28,6 +28,7 @@ Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEG
 17. **Usuario**: añadidos `intentos_fallidos_consecutivos` y `bloqueado` (Spec 000 FR-045).
 18. **Paciente**: añadidos `correlativo_num_ficha` (entero, fuente de verdad del número de ficha, independiente del prefijo — Spec 001 FR-001), `motivo_baja_detalle` (texto libre cuando `motivo_baja = 'OTRO'`) y `busqueda_normalizada` (Spec 001 FR-010, Decisión 1).
 19. **Medico**: añadido `busqueda_normalizada` (Spec 001 FR-032, Decisión 1).
+20. **Envase**: añadido `entregado_a` (texto libre, solo para `ENTREGADO_PACIENTE`) para registrar a quién se entrega un envase fuera de blíster (Spec 005 FR-543, research.md Decisión 8).
 
 ---
 
@@ -161,6 +162,7 @@ paciente_id, tipo (PACIENTE/REPRESENTANTE), contacto_id, fecha_firma, fecha_revo
 | fecha_entrada, origen (ESCANEADO/MANUAL/IMPORTADO) | | |
 | **estado** | TEXT | `EN_CUSTODIA` → `AGOTADO` \| `RESIDUO_SIGRE` \| `ENTREGADO_PACIENTE`. Sin estado "devuelto al stock": no existe esa operación |
 | fecha_salida, motivo_salida | TEXT | Motivo: CESE_TRATAMIENTO, CAMBIO_TRATAMIENTO, CADUCADO, DETERIORADO, FALLECIMIENTO, BAJA_PACIENTE, OTRO |
+| entregado_a | TEXT | Solo para `ENTREGADO_PACIENTE` (Spec 005 FR-543): a quién se entrega un envase fuera de blíster |
 
 **Regla de consumo:** al descontar de una línea, se ordena por `unidades_restantes ASC, caducidad ASC` — se agota primero el envase ya empezado. El sobrante nunca se descarta mientras el tratamiento siga activo.
 

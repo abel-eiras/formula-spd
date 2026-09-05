@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.ImportarTratamientoView">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <StackPanel Grid.Row="0" Spacing="8">
+      <TextBlock Text="Importar tratamiento y envase (pegado)" FontSize="16" FontWeight="Bold" />
+      <TextBlock Text="Pega aquí el texto tabulado copiado del programa de gestión (una línea por envase)" />
+      <TextBox Text="{Binding TextoTabulado}" AcceptsReturn="True" Height="120" />
+      <CheckBox Content="La primera línea es una cabecera" IsChecked="{Binding TieneCabecera}" />
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <StackPanel>
+          <TextBlock Text="Columna CN (índice, base 0)" FontSize="11" />
+          <NumericUpDown Value="{Binding IndiceCn}" Minimum="0" />
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Text="Columna serie" FontSize="11" />
+          <NumericUpDown Value="{Binding IndiceSerie}" Minimum="0" />
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Text="Columna lote" FontSize="11" />
+          <NumericUpDown Value="{Binding IndiceLote}" Minimum="0" />
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Text="Columna caducidad" FontSize="11" />
+          <NumericUpDown Value="{Binding IndiceCaducidad}" Minimum="0" />
+        </StackPanel>
+      </StackPanel>
+      <Button Content="Importar" Command="{Binding ImportarCommand}" Margin="0,8,0,0" />
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" Margin="0,16,0,0">
+      <ListBox ItemsSource="{Binding FilasConError}" />
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Resumen, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Resumen}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>
