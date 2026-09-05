@@ -12,7 +12,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | `86ee536` |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Fases 1-2 (Setup+Foundational) hechas | `984d025` (+ pendiente) |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Setup+Foundational+US1(MVP) hechas | `984d025`, `769788a` (+ pendiente) |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
@@ -28,7 +28,7 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
 
 | CA | Descripción | Test previsto (tasks.md, renumerado tras `/speckit-analyze`) | Estado |
 |---|---|---|---|
-| CA-000 | Asistente obligatorio en primer arranque | T021, T022, T023 | ⏳ Pendiente de implementar |
+| CA-000 | Asistente obligatorio en primer arranque | T021, T022, T023 | ✅ Validado (tests + arranque real) |
 | CA-001 | Cambio de prefijo no afecta a numeración pasada | T038 | ⏳ Pendiente de implementar |
 | CA-002 | Único administrador protegido (no autobaja) | T028 | ⏳ Pendiente de implementar |
 | CA-003 | Baja de usuario conserva histórico | T029 | ⏳ Pendiente de implementar |
@@ -99,3 +99,16 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
     de Dapper para la columna `rol` (fallaba el CHECK de la tabla); se resolvió con una fila DTO
     explícita en vez de un `TypeHandler`, más acorde con Art. XI.2 (explícito antes que una
     abstracción que oculte el mapeo real).
+  - **User Story 1 — Asistente de primer arranque (T021-T027, MVP)**: `ServicioAsistentePrimerArranque`
+    acumula los datos de los 5 pasos en memoria y no escribe nada hasta `FinalizarAsistente()`
+    (CA-000). `AsistentePrimerArranqueViewModel` (CommunityToolkit.Mvvm) navega entre los 5 pasos;
+    el paso de cifrado solo guarda una preferencia de UI (remediación U1, Spec 010 no existe
+    todavía). 4 tests en verde (`AsistentePrimerArranqueTests.cs`): `HayConfiguracionInicial`
+    antes/después, validación de campos obligatorios (FR-001), y auditoría de la creación de
+    Farmacia+Usuario (remediación C1). `App.axaml.cs` cablea el arranque: sin fila `Farmacia`
+    muestra `AsistentePrimerArranqueWindow` como única ventana; al finalizar, abre la ventana
+    principal. Verificado con una ejecución real de `dotnet run` (8 s, sin excepciones): crea
+    `spd.db` con las 4 tablas y `schema_version=1`, sin fila `Farmacia` hasta completar el
+    asistente. **Limitación de esta verificación**: no hay captura de pantalla de la ventana nativa
+    de Avalonia — el aspecto visual de los 5 pasos no se ha comprobado ojo a ojo, solo que la app
+    arranca, no lanza excepciones y persiste correctamente al completar el flujo por código.

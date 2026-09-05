@@ -80,16 +80,16 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 ### Tests for User Story 1
 
-- [ ] T021 [P] [US1] Test unitario: `HayConfiguracionInicial()` devuelve `false` sin fila `Farmacia` y `true` tras crearla, en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs` (CA-000)
-- [ ] T022 [P] [US1] Test unitario: `EjecutarPaso` lanza `ErrorValidacionException` si falta un campo obligatorio del paso (FR-001), en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs`
-- [ ] T023 [P] [US1] Test unitario: `FinalizarAsistente` registra en `Auditoria` la creación de `Farmacia` y del primer `Usuario` (Art. VII.6), en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs` *(remediación C1)*
+- [x] T021 [P] [US1] Test unitario: `HayConfiguracionInicial()` devuelve `false` sin fila `Farmacia` y `true` tras crearla, en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs` (CA-000)
+- [x] T022 [P] [US1] Test unitario: `EjecutarPaso` lanza `ErrorValidacionException` si falta un campo obligatorio del paso (FR-001), en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs`
+- [x] T023 [P] [US1] Test unitario: `FinalizarAsistente` registra en `Auditoria` la creación de `Farmacia` y del primer `Usuario` (Art. VII.6), en `tests/Spd.Aplicacion.Tests/AsistentePrimerArranqueTests.cs` *(remediación C1)*
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] Implementar `IServicioAsistentePrimerArranque` y `ServicioAsistentePrimerArranque` en `src/Spd.Aplicacion/ServicioAsistentePrimerArranque.cs` (depende de T011, T012, T017, T018); `FinalizarAsistente` registra en auditoría la creación de `Farmacia` y del primer `Usuario` (Art. VII.6, depende también de T019)
-- [ ] T025 [US1] Implementar `AsistentePrimerArranqueViewModel` en `src/Spd.Presentacion/ViewModels/AsistentePrimerArranqueViewModel.cs` (5 pasos, navegación adelante/atrás — FR-001)
-- [ ] T026 [US1] Implementar las vistas Avalonia de los 5 pasos en `src/Spd.Presentacion/Views/Asistente/` (`PasoCifradoView`, `PasoFarmaciaView`, `PasoPrimerUsuarioView`, `PasoValoresDefectoView`, `PasoRutasView`). **`PasoCifradoView`** (remediación U1): al no existir todavía Spec 010, elegir "sí" solo guarda la preferencia (`Farmacia.cifrado_deseado`, campo interno de esta vista, no de `docs/data-model.md`) y muestra el aviso "el cifrado se activará cuando esté disponible"; no bloquea el asistente ni activa cifrado real
-- [ ] T027 [US1] Cablear `src/Spd.Presentacion/App.axaml.cs` para mostrar el asistente cuando `HayConfiguracionInicial()` es `false` y bloquear el resto de la navegación hasta `FinalizarAsistente()` (CA-000)
+- [x] T024 [US1] Implementar `IServicioAsistentePrimerArranque` y `ServicioAsistentePrimerArranque` en `src/Spd.Aplicacion/ServicioAsistentePrimerArranque.cs` (depende de T011, T012, T017, T018); `FinalizarAsistente` registra en auditoría la creación de `Farmacia` y del primer `Usuario` (Art. VII.6, depende también de T019)
+- [x] T025 [US1] Implementar `AsistentePrimerArranqueViewModel` en `src/Spd.Presentacion/ViewModels/AsistentePrimerArranqueViewModel.cs` (5 pasos, navegación adelante/atrás — FR-001)
+- [x] T026 [US1] Implementar las vistas Avalonia de los 5 pasos en `src/Spd.Presentacion/Views/Asistente/` (`PasoCifradoView`, `PasoFarmaciaView`, `PasoPrimerUsuarioView`, `PasoValoresDefectoView`, `PasoRutasView`). **`PasoCifradoView`** (remediación U1): al no existir todavía Spec 010, elegir "sí" solo guarda la preferencia (`Farmacia.cifrado_deseado`, campo interno de esta vista, no de `docs/data-model.md`) y muestra el aviso "el cifrado se activará cuando esté disponible"; no bloquea el asistente ni activa cifrado real
+- [x] T027 [US1] Cablear `src/Spd.Presentacion/App.axaml.cs` para mostrar el asistente cuando `HayConfiguracionInicial()` es `false` y bloquear el resto de la navegación hasta `FinalizarAsistente()` (CA-000)
 
 **Checkpoint**: US1 funcional de forma independiente — MVP entregable.
 

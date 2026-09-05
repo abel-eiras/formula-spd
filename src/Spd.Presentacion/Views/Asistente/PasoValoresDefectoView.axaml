@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Asistente.PasoValoresDefectoView">
+  <StackPanel Spacing="8" Margin="24">
+    <TextBlock Text="Paso 4 de 5 — Valores por defecto" FontSize="20" FontWeight="Bold" />
+    <TextBlock Text="Solo afectan a pacientes nuevos (FR-020)." Foreground="Gray" />
+    <TextBlock Text="Día de retirada por defecto *" />
+    <ComboBox SelectedItem="{Binding DiaRetiradaDefecto}">
+      <ComboBoxItem>LU</ComboBoxItem>
+      <ComboBoxItem>MA</ComboBoxItem>
+      <ComboBoxItem>MI</ComboBoxItem>
+      <ComboBoxItem>JU</ComboBoxItem>
+      <ComboBoxItem>VI</ComboBoxItem>
+      <ComboBoxItem>SA</ComboBoxItem>
+      <ComboBoxItem>DO</ComboBoxItem>
+    </ComboBox>
+    <TextBlock Text="Número de blísteres por defecto (1 o 2) *" />
+    <NumericUpDown Value="{Binding NBlisteresDefecto}" Minimum="1" Maximum="2" />
+    <TextBlock Text="Días de antelación en el listado de retirada" />
+    <NumericUpDown Value="{Binding DiasAntelacionListado}" Minimum="0" Maximum="14" />
+  </StackPanel>
+</UserControl>
