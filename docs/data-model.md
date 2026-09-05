@@ -1,6 +1,6 @@
 # data-model.md — Modelo de datos consolidado
 
-**Versión 0.5 — 5 de septiembre de 2026**
+**Versión 0.6 — 5 de septiembre de 2026**
 Sustituye al §3.3 del documento de Fase 1 en los puntos donde las specs 001/005/006 lo han corregido. Es la referencia que citan las specs; cuando una spec y este documento difieran, gana este documento y se corrige la spec.
 
 Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEGER 0/1; toda tabla de negocio tiene además `creado_en`, `creado_por`, `modificado_en`, `modificado_por` (omitidos abajo).
@@ -26,6 +26,8 @@ Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEG
 15. Regla de consumo de fraccionables corregida (Spec 005 FR-522 v2): "entero más uno", no ceil() de la suma semanal.
 16. **Farmacia**: añadidos `ruta_documentos_generados` (Spec 000 FR-031), `url_nomenclator` (Spec 000 FR-051) y `umbral_reutilizacion_lectura_ambiental_horas` (Spec 000 FR-022, por defecto 2).
 17. **Usuario**: añadidos `intentos_fallidos_consecutivos` y `bloqueado` (Spec 000 FR-045).
+18. **Paciente**: añadidos `correlativo_num_ficha` (entero, fuente de verdad del número de ficha, independiente del prefijo — Spec 001 FR-001), `motivo_baja_detalle` (texto libre cuando `motivo_baja = 'OTRO'`) y `busqueda_normalizada` (Spec 001 FR-010, Decisión 1).
+19. **Medico**: añadido `busqueda_normalizada` (Spec 001 FR-032, Decisión 1).
 
 ---
 
@@ -74,6 +76,7 @@ Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEG
 | nombre, apellidos, colegiado, especialidad, centro | TEXT | |
 | telefono, email, direccion | TEXT | |
 | activo | | |
+| **busqueda_normalizada** | TEXT | `apellidos + ' ' + nombre + ' ' + centro` en minúsculas y sin tildes (Spec 001 FR-032). Mantenida por la capa de Aplicación, no por trigger SQL |
 
 Índice de búsqueda sobre `apellidos || ' ' || nombre` normalizado sin tildes.
 
@@ -101,6 +104,7 @@ Copia de las columnas `desc_*` + `vigente_desde`, una fila por cambio.
 | Campo | Tipo | Notas |
 |---|---|---|
 | num_ficha | TEXT UNIQUE | Autogenerado, no reutilizable |
+| **correlativo_num_ficha** | INTEGER | Fuente de verdad del correlativo, independiente del prefijo vigente (Spec 001 FR-001; ver research.md Decisión 3 de esa spec) |
 | fecha_alta_ficha | TEXT | |
 | nombre, apellidos | TEXT | |
 | **sexo** | TEXT | `M` (mujer) / `H` (hombre). Obligatorio si se informa CIP |
@@ -115,7 +119,9 @@ Copia de las columnas `desc_*` + `vigente_desde`, una fila por cambio.
 | **dia_retirada** | TEXT | LU/MA/MI/JU/VI/SA/DO. Prerrellenado desde Farmacia.dia_retirada_defecto |
 | **n_blisteres** | INTEGER | 1 o 2. Prerrellenado desde Farmacia.n_blisteres_defecto |
 | estado | TEXT | EVALUACION, ACTIVO, SUSPENDIDO, BAJA |
-| fecha_baja, motivo_baja | | |
+| fecha_baja, motivo_baja | | `motivo_baja`: FALLECIMIENTO / RENUNCIA / TRASLADO / HOSPITALIZACION_PROLONGADA / CRITERIO_FARMACEUTICO / OTRO (Spec 001 FR-007) |
+| **motivo_baja_detalle** | TEXT | Texto libre cuando `motivo_baja = 'OTRO'` (Spec 001 FR-007) |
+| **busqueda_normalizada** | TEXT | `nombre + ' ' + apellidos + ' ' + dni + ' ' + cip + ' ' + num_ficha` en minúsculas y sin tildes (Spec 001 FR-010) |
 
 ## Contacto (0..n por paciente)
 paciente_id, tipo (FAMILIAR/REPRESENTANTE_LEGAL/PERSONA_AUTORIZADA/CUIDADOR), nombre, apellidos, dni, telefono, email, es_principal, **retira_medicacion** (INTEGER — marca a la persona cuyo DNI se usa en el listado de retirada, Spec 005; una misma persona con DNI puede estar vinculada como contacto en varios pacientes), activo.

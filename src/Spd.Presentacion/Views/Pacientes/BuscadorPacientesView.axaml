@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.BuscadorPacientesView">
+  <Grid RowDefinitions="Auto,*" Margin="16">
+    <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,8">
+      <TextBlock Text="Pacientes" FontSize="18" FontWeight="Bold" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBox Text="{Binding Fragmento}" Watermark="Nombre, apellidos, DNI, CIP o nº de ficha…" Width="320" />
+        <Button Content="Nuevo paciente" Command="{Binding NuevoPacienteCommand}" />
+      </StackPanel>
+      <CheckBox Content="Mostrar solo activos y en evaluación" IsChecked="{Binding MostrarSoloActivosYEvaluacion}" />
+    </StackPanel>
+
+    <ListBox Grid.Row="1" ItemsSource="{Binding Resultados}">
+      <ListBox.ItemTemplate>
+        <!-- Sin x:DataType a propósito: bindings por reflexión, evita el patrón fragil de
+             $parent + cast de tipo con compiled bindings que provocó un cierre inesperado en
+             Spec 000 (UsuariosView). -->
+        <DataTemplate>
+          <StackPanel Margin="0,4" Spacing="2">
+            <TextBlock Text="{Binding NumFicha}" FontWeight="Bold" />
+            <TextBlock Text="{Binding Apellidos}" />
+            <TextBlock Text="{Binding Nombre}" />
+            <TextBlock Text="{Binding Estado}" Foreground="Gray" FontSize="11" />
+            <Button Content="Abrir ficha" FontSize="11"
+                    Command="{Binding DataContext.AbrirPacienteCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                    CommandParameter="{Binding}" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
+</UserControl>

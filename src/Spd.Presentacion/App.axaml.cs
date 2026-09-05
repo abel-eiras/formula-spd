@@ -29,6 +29,7 @@ public partial class App : Application
     private GestorLogoFarmacia? _gestorLogo;
     private IServicioActualizaciones? _servicioActualizaciones;
     private IServicioNomenclator? _servicioNomenclator;
+    private IServicioPacientes? _servicioPacientes;
 
     public override void Initialize()
     {
@@ -74,6 +75,7 @@ public partial class App : Application
             new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, auditoria);
         _servicioNomenclator = new ServicioNomenclator(
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
+        _servicioPacientes = new ServicioPacientes(new RepositorioPacientes(_conexion), repositorioFarmacia, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -114,7 +116,7 @@ public partial class App : Application
     {
         var mainViewModel = new MainViewModel(
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-            _servicioActualizaciones!, _servicioNomenclator!, usuario);
+            _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
