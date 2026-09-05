@@ -9,7 +9,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | `cba86b9` |
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | *(pendiente de commit)* |
-| 3 | Plan de implementación | `/speckit-plan` | ⏳ Pendiente | — |
+| 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
@@ -69,3 +69,10 @@ fase de `/speckit-plan`.
   original): Q1 → solo médico de cabecera; Q2 → SUSPENDIDO se mantiene como estado formal. `spec.md`
   actualizado con sección "Clarifications" y FR-006/nota de médico de cabecera resueltos sin
   marcadores pendientes. Checklist de calidad al 100 %.
+- **2026-09-05** — Fase 3 completada. `plan.md` (Technical Context + Constitution Check con 9
+  artículos), `research.md` (5 decisiones: normalización de búsqueda sin extensión SQLite,
+  `motivo_baja` como TEXT+CHECK, `correlativo_num_ficha` independiente del prefijo, validación de
+  DNI/NIE y de CIP gallego como reglas de Dominio puras). `data-model.md` (recorte de
+  Paciente/Contacto/Medico), `contracts/servicios-aplicacion.md` (3 interfaces), `quickstart.md`.
+  Efecto colateral: `docs/data-model.md` sube a v0.6 (añade `correlativo_num_ficha`,
+  `motivo_baja_detalle`, `busqueda_normalizada` a Paciente; `busqueda_normalizada` a Medico).
