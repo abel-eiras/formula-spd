@@ -11,6 +11,7 @@
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
         <TextBlock Text="{Binding Greeting}" FontSize="18" />
+        <Button Content="Pacientes" Command="{Binding AbrirPacientesCommand}" />
         <Button Content="Configuración de usuarios" Command="{Binding AbrirUsuariosCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
         <Button Content="Configuración de la farmacia" Command="{Binding AbrirFarmaciaCommand}"

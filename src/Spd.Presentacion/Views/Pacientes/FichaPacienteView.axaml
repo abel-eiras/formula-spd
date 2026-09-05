@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.FichaPacienteView">
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <Border Grid.Row="0" Padding="16,8" Background="#22808080">
+      <StackPanel Orientation="Horizontal" Spacing="16">
+        <TextBlock Text="{Binding NumFicha}" FontWeight="Bold" />
+        <TextBlock Text="{Binding Estado}" />
+        <TextBlock Text="{Binding Edad, StringFormat='{}{0} años'}"
+                   IsVisible="{Binding Edad, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <TextBlock Text="Alergias" Foreground="Red" FontWeight="Bold" IsVisible="{Binding TieneAlergias}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Spacing="8" Margin="24">
+        <TextBlock Text="Nombre *" />
+        <TextBox Text="{Binding Nombre}" />
+        <TextBlock Text="Apellidos *" />
+        <TextBox Text="{Binding Apellidos}" />
+        <TextBlock Text="Sexo (obligatorio si hay CIP)" />
+        <ComboBox ItemsSource="{Binding SexosDisponibles}" SelectedItem="{Binding Sexo}" />
+        <TextBlock Text="DNI" />
+        <TextBox Text="{Binding Dni}" />
+        <TextBlock Text="Fecha de nacimiento" />
+        <DatePicker SelectedDate="{Binding FechaNacimiento}" />
+        <TextBlock Text="Nº Seguridad Social" />
+        <TextBox Text="{Binding NumSs}" />
+        <TextBlock Text="CIP" />
+        <TextBox Text="{Binding Cip}" />
+        <TextBlock Text="Dirección" />
+        <TextBox Text="{Binding Direccion}" />
+        <TextBlock Text="Código postal" />
+        <TextBox Text="{Binding Cp}" />
+        <TextBlock Text="Población" />
+        <TextBox Text="{Binding Poblacion}" />
+        <TextBlock Text="Teléfono 1" />
+        <TextBox Text="{Binding Telefono1}" />
+        <TextBlock Text="Teléfono 2" />
+        <TextBox Text="{Binding Telefono2}" />
+        <TextBlock Text="Email" />
+        <TextBox Text="{Binding Email}" />
+        <TextBlock Text="Enfermedades crónicas" />
+        <TextBox Text="{Binding EnfermedadesCronicas}" AcceptsReturn="True" Height="60" />
+        <TextBlock Text="Alergias e intolerancias" />
+        <TextBox Text="{Binding Alergias}" AcceptsReturn="True" Height="60" />
+        <TextBlock Text="Observaciones" />
+        <TextBox Text="{Binding Observaciones}" AcceptsReturn="True" Height="60" />
+        <CheckBox Content="Pictogramas de comidas" IsChecked="{Binding PictogramaComidas}" />
+        <TextBlock Text="Identificador visual" />
+        <TextBox Text="{Binding IdentificadorVisual}" />
+        <TextBlock Text="Día de retirada del SPD" />
+        <ComboBox ItemsSource="{Binding DiasSemanaDisponibles}" SelectedItem="{Binding DiaRetirada}" />
+        <TextBlock Text="Nº de blísteres (1 o 2)" />
+        <NumericUpDown Value="{Binding NBlisteres}" Minimum="1" Maximum="2" />
+
+        <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

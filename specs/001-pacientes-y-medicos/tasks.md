@@ -67,28 +67,28 @@ correlativo (CA-001), darlo de baja y reactivarlo (CA-009/010), buscarlo sin til
 
 ### Tests for User Story 1
 
-- [ ] T019 [P] [US1] Test: `ValidadorDni` valida formato y letra de control de varios DNI/NIE conocidos, en `tests/Spd.Dominio.Tests/ValidadorDniTests.cs`
-- [ ] T020 [P] [US1] Test: `ValidadorCip` detecta formato/correspondencia inválidos sin bloquear (CA-015), en `tests/Spd.Dominio.Tests/ValidadorCipTests.cs`
-- [ ] T021 [P] [US1] Test: `ValidadorCip` autocompleta posiciones 1-11 dejando 12-14 en blanco (CA-014), en el mismo fichero
-- [ ] T022 [P] [US1] Test: `Paciente.TransicionValida` permite las transiciones de FR-006 y rechaza el resto, en `tests/Spd.Dominio.Tests/PacienteTests.cs`
-- [ ] T023 [P] [US1] Test: `ServicioPacientes.Crear` asigna `num_ficha` correlativo con el prefijo vigente, no editable después (CA-001), en `tests/Spd.Aplicacion.Tests/ServicioPacientesTests.cs`
-- [ ] T024 [P] [US1] Test: `ServicioPacientes.Crear` rechaza si faltan los mínimos de FR-003 (CA-002)
-- [ ] T025 [P] [US1] Test: `ServicioPacientes.Crear` avisa (no bloquea) de duplicado por **DNI o CIP** activo (CA-003, FR-004 — remediación F4: el análisis detectó que solo se probaba el caso DNI pese a que FR-004 cubre también CIP)
-- [ ] T026 [P] [US1] Test: `ServicioPacientes.CambiarEstado` a BAJA exige fecha+motivo y no borra ningún dato relacionado (CA-009, Art. III.1)
-- [ ] T027 [P] [US1] Test: `ServicioPacientes.CambiarEstado` de BAJA a EVALUACION (reactivación) — CA-010 a nivel de esta spec (el aviso "sin consentimiento vigente" es de Spec 002)
-- [ ] T028 [P] [US1] Test: `Buscar` encuentra por fragmento sin tildes/mayúsculas (CA-011) y ordena activos→evaluación→suspendidos→bajas
-- [ ] T029 [P] [US1] Test: `Crear`, `Actualizar` y `CambiarEstado` registran en auditoría con detalle antes/después (CA-013, Art. VII.6)
-- [ ] T030 [P] [US1] Test: `ServicioPacientes.Crear`/`Actualizar` rechaza guardar con `cip` informado y `sexo` vacío (FR-002b — remediación F2: regla sin ninguna cobertura previa, ni de test ni de quickstart)
-- [ ] T031 [P] [US1] Test: un usuario con rol Elaborador crea, edita y cambia de estado un paciente sin ninguna restricción de campo respecto a un Administrador (CA-012 — remediación F1: la spec exige el criterio explícitamente y solo estaba cubierto de forma manual en quickstart.md)
+- [X] T019 [P] [US1] Test: `ValidadorDni` valida formato y letra de control de varios DNI/NIE conocidos, en `tests/Spd.Dominio.Tests/ValidadorDniTests.cs`
+- [X] T020 [P] [US1] Test: `ValidadorCip` detecta formato/correspondencia inválidos sin bloquear (CA-015), en `tests/Spd.Dominio.Tests/ValidadorCipTests.cs`
+- [X] T021 [P] [US1] Test: `ValidadorCip` autocompleta posiciones 1-11 dejando 12-14 en blanco (CA-014), en el mismo fichero
+- [X] T022 [P] [US1] Test: `Paciente.TransicionValida` permite las transiciones de FR-006 y rechaza el resto, en `tests/Spd.Dominio.Tests/PacienteTests.cs`
+- [X] T023 [P] [US1] Test: `ServicioPacientes.Crear` asigna `num_ficha` correlativo con el prefijo vigente, no editable después (CA-001), en `tests/Spd.Aplicacion.Tests/ServicioPacientesTests.cs`
+- [X] T024 [P] [US1] Test: `ServicioPacientes.Crear` rechaza si faltan los mínimos de FR-003 (CA-002)
+- [X] T025 [P] [US1] Test: `ServicioPacientes.Crear` avisa (no bloquea) de duplicado por **DNI o CIP** activo (CA-003, FR-004 — remediación F4: el análisis detectó que solo se probaba el caso DNI pese a que FR-004 cubre también CIP)
+- [X] T026 [P] [US1] Test: `ServicioPacientes.CambiarEstado` a BAJA exige fecha+motivo y no borra ningún dato relacionado (CA-009, Art. III.1)
+- [X] T027 [P] [US1] Test: `ServicioPacientes.CambiarEstado` de BAJA a EVALUACION (reactivación) — CA-010 a nivel de esta spec (el aviso "sin consentimiento vigente" es de Spec 002)
+- [X] T028 [P] [US1] Test: `Buscar` encuentra por fragmento sin tildes/mayúsculas (CA-011) y ordena activos→evaluación→suspendidos→bajas
+- [X] T029 [P] [US1] Test: `Crear`, `Actualizar` y `CambiarEstado` registran en auditoría con detalle antes/después (CA-013, Art. VII.6)
+- [X] T030 [P] [US1] Test: `ServicioPacientes.Crear`/`Actualizar` rechaza guardar con `cip` informado y `sexo` vacío (FR-002b — remediación F2: regla sin ninguna cobertura previa, ni de test ni de quickstart)
+- [X] T031 [P] [US1] Test: un usuario con rol Elaborador crea, edita y cambia de estado un paciente sin ninguna restricción de campo respecto a un Administrador (CA-012 — remediación F1: la spec exige el criterio explícitamente y solo estaba cubierto de forma manual en quickstart.md)
 
 ### Implementation for User Story 1
 
-- [ ] T032 [US1] Implementar `IServicioPacientes` y `ServicioPacientes` en `src/Spd.Aplicacion/ServicioPacientes.cs` (Crear, Actualizar, CambiarEstado, Buscar, ValidarDni, ValidarCip, AutocompletarCip; depende de T006, T008, T009, T010, T012, T015); cada escritura registra en auditoría (Art. VII.6)
-- [ ] T033 [US1] Implementar `FichaPacienteViewModel` en `src/Spd.Presentacion/ViewModels/FichaPacienteViewModel.cs` (pestaña Datos; cabecera con num_ficha/nombre/edad/estado/alertas, FR-008)
-- [ ] T034 [US1] Implementar `FichaPacienteView`/`FichaPacienteWindow` en `src/Spd.Presentacion/Views/Pacientes/`
-- [ ] T035 [US1] Implementar `BuscadorPacientesViewModel` + vista (listado, filtro por estado, FR-011) en `src/Spd.Presentacion/ViewModels/BuscadorPacientesViewModel.cs` + `src/Spd.Presentacion/Views/Pacientes/BuscadorPacientesView.axaml`
-- [ ] T036 [US1] Añadir botón "Pacientes" a `MainWindow`/`MainViewModel` (visible para Elaborador y Administrador, FR-040)
-- [ ] T037 [P] [US1] Test Avalonia.Headless: `BuscadorPacientesView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/BuscadorPacientesViewTests.cs` (remediación F5/F3 — mismo patrón de incidente que `UsuariosWindowTests` en Spec 000: un `ItemTemplate` con binding a un comando de un ancestro es la categoría de bug que ya causó un cierre inesperado (SIGABRT) sin que ningún test de Aplicación lo detectara)
+- [X] T032 [US1] Implementar `IServicioPacientes` y `ServicioPacientes` en `src/Spd.Aplicacion/ServicioPacientes.cs` (Crear, Actualizar, CambiarEstado, Buscar, ValidarDni, ValidarCip, AutocompletarCip; depende de T006, T008, T009, T010, T012, T015); cada escritura registra en auditoría (Art. VII.6)
+- [X] T033 [US1] Implementar `FichaPacienteViewModel` en `src/Spd.Presentacion/ViewModels/FichaPacienteViewModel.cs` (pestaña Datos; cabecera con num_ficha/nombre/edad/estado/alertas, FR-008)
+- [X] T034 [US1] Implementar `FichaPacienteView`/`FichaPacienteWindow` en `src/Spd.Presentacion/Views/Pacientes/`
+- [X] T035 [US1] Implementar `BuscadorPacientesViewModel` + vista (listado, filtro por estado, FR-011) en `src/Spd.Presentacion/ViewModels/BuscadorPacientesViewModel.cs` + `src/Spd.Presentacion/Views/Pacientes/BuscadorPacientesView.axaml`
+- [X] T036 [US1] Añadir botón "Pacientes" a `MainWindow`/`MainViewModel` (visible para Elaborador y Administrador, FR-040)
+- [X] T037 [P] [US1] Test Avalonia.Headless: `BuscadorPacientesView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/BuscadorPacientesViewTests.cs` (remediación F5/F3 — mismo patrón de incidente que `UsuariosWindowTests` en Spec 000: un `ItemTemplate` con binding a un comando de un ancestro es la categoría de bug que ya causó un cierre inesperado (SIGABRT) sin que ningún test de Aplicación lo detectara)
 
 **Checkpoint**: US1 funcional de forma independiente — MVP entregable.
 

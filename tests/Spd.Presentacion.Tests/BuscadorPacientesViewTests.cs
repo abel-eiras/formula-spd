@@ -1,0 +1,47 @@
+using Avalonia.Headless.XUnit;
+using Microsoft.Data.Sqlite;
+using Spd.Aplicacion;
+using Spd.Dominio;
+using Spd.Infraestructura;
+using Spd.Infraestructura.Migraciones;
+using Spd.Presentacion.Views.Pacientes;
+using Xunit;
+
+namespace Spd.Presentacion.Tests;
+
+/// <summary>Regresión F5 de `/speckit-analyze` (Spec 001): `BuscadorPacientesView` usa un
+/// `ListBox` con `ItemTemplate` y un binding de comando a un ancestro, exactamente el patrón que
+/// causó el cierre inesperado (SIGABRT) de `UsuariosWindow` en Spec 000. Este test fuerza la
+/// realización de la plantilla con un paciente real.</summary>
+public sealed class BuscadorPacientesViewTests
+{
+    [AvaloniaFact]
+    public void BuscadorPacientesWindow_se_construye_y_muestra_con_un_paciente_real_sin_lanzar()
+    {
+        var conexion = new SqliteConnection("Data Source=:memory:");
+        conexion.Open();
+        new AplicadorMigraciones(conexion).Aplicar();
+
+        var repositorioFarmacia = new RepositorioFarmacia(conexion);
+        repositorioFarmacia.Crear(new Farmacia
+        {
+            CodigoSanitario = "PO-001", Nombre = "Farmacia de Prueba", TitularOComunidadBienes = "Titular",
+            Cif = "B00000000", Direccion = "Calle Falsa 1", Cp = "36000", Poblacion = "Pontevedra",
+            Telefono = "986000000", PrefijoNumFicha = "F-"
+        });
+        var auditoria = new RegistradorAuditoria(conexion);
+        var servicio = new ServicioPacientes(new RepositorioPacientes(conexion), repositorioFarmacia, auditoria);
+        servicio.Crear(
+            new DatosAltaPaciente(
+                "José", "Núñez", Sexo: null, Dni: "12345678Z", FechaNacimiento: null, NumSs: null, Cip: null,
+                Direccion: null, Cp: null, Poblacion: null, Telefono1: null, Telefono2: null, Email: null,
+                MedicoId: null, EnfermedadesCronicas: null, Alergias: null, Observaciones: null,
+                PictogramaComidas: false, IdentificadorVisual: null, DiaRetirada: null, NBlisteres: null),
+            usuarioQueEjecutaId: null);
+
+        var ventana = new BuscadorPacientesWindow(servicio, usuarioActualId: null);
+
+        // Show() fuerza la realización del ItemTemplate del ListBox para el paciente recién creado.
+        ventana.Show();
+    }
+}

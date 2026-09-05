@@ -12,7 +12,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `0b5aa16` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (5 hallazgos remediados) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1 (MVP) hecha (2026-09-05) | *(pendiente de commit)* |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
@@ -100,3 +100,28 @@ fase de `/speckit-plan`.
     cierre inesperado una vez. Nuevos T037 y T049.
   Total tras remediación: 59 tareas. Informe completo del análisis conservado en el historial de
   la conversación, no duplicado aquí.
+- **2026-09-05** — Fase 6 (Implementación) iniciada. Foundational (T001-T018) completada: migración
+  `0002_pacientes_contactos_medicos.sql`, entidades y enums de Dominio (`EstadoPaciente`,
+  `TipoContacto`, `MotivoBaja`, `Medico`, `Paciente` con `TransicionValida`, `Contacto`),
+  `Normalizador`/`ValidadorDni`/`ValidadorCip` como reglas puras de Dominio, interfaces y
+  repositorios Dapper con una `Fila` explícita por entidad (mismo patrón que `UsuarioFila` de
+  Spec 000, para no depender de la conversión automática de Dapper de enums ni booleanos).
+  `dotnet build` sin errores; los 4 tests de humo (T017/T018) en verde. Commit `1011746`.
+- **2026-09-05** — User Story 1 (P1, MVP) completada: T019-T037. `ServicioPacientes` (Aplicación)
+  con Crear/Actualizar/CambiarEstado/Buscar/ValidarDni/ValidarCip/AutocompletarCip; num_ficha
+  correlativo con prefijo vigente (CA-001), mínimos de FR-003 (CA-002), aviso de duplicado por DNI
+  o CIP (CA-003/FR-004, remediación F4), máquina de estados con baja/reactivación (CA-009/CA-010),
+  búsqueda sin tildes con orden por estado (CA-011), auditoría con detalle antes/después vía
+  reflexión sobre las propiedades de `Paciente` (CA-013), FR-002b (remediación F2) y CA-012
+  (remediación F1, un Elaborador sin ninguna restricción). En Presentación: `FichaPacienteView`
+  (pestaña Datos) y `BuscadorPacientesView` con botón "Pacientes" en `MainWindow`, visible para
+  Elaborador y Administrador (FR-040) — a diferencia de los botones de Configuración, que siguen
+  solo para Administrador. Test Avalonia.Headless `BuscadorPacientesViewTests` (remediación F5)
+  fuerza la realización del `ItemTemplate` del listado con un paciente real, mismo patrón que
+  `UsuariosWindowTests` de Spec 000. Al añadir la migración 0002 quedó al descubierto un test viejo
+  de Spec 000 (`AplicadorMigraciones_es_idempotente`) que asumía "solo existe 1 migración";
+  corregido para comparar contra la versión ya alcanzada en vez de un número fijo, en vez de
+  parchearlo con el valor 2 (la fragilidad real era la constante, no el número). `dotnet build` sin
+  errores; 28+3+44 = 75 tests en verde (28 Dominio, 3 Presentación, 44 Aplicación). Pendiente de
+  prueba manual real (`dotnet run`) por el usuario antes de dar la user story por completamente
+  verificada, igual que en Spec 000.
