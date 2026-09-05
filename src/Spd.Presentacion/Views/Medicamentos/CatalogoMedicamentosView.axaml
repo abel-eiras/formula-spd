@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Medicamentos.CatalogoMedicamentosView">
+  <Grid ColumnDefinitions="320,*" Margin="16" RowDefinitions="*,Auto">
+    <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
+      <TextBlock Text="Catálogo de medicamentos" FontSize="18" FontWeight="Bold" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBox Text="{Binding Fragmento}" Watermark="CN o nombre…" Width="200" />
+        <Button Content="Nuevo" Command="{Binding NuevoMedicamentoCommand}" />
+      </StackPanel>
+      <ListBox ItemsSource="{Binding Resultados}">
+        <ListBox.ItemTemplate>
+          <!-- Sin x:DataType a propósito: bindings por reflexión, evita el patrón fragil de
+               $parent + cast de tipo con compiled bindings que provocó un cierre inesperado en
+               Spec 000 (UsuariosView). -->
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding Cn}" FontWeight="Bold" />
+              <TextBlock Text="{Binding Nombre}" />
+              <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0">
+                <Button Content="Abrir" FontSize="11"
+                        Command="{Binding DataContext.SeleccionarMedicamentoCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+                <Button Content="Dar de baja" FontSize="11"
+                        Command="{Binding DataContext.DarDeBajaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+              </StackPanel>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <ScrollViewer Grid.Column="1" Grid.Row="0" Margin="24,0,0,0">
+      <StackPanel Spacing="8">
+        <TextBlock Text="CN *" />
+        <TextBox Text="{Binding Cn}" IsEnabled="{Binding EsAltaNueva}" />
+        <TextBlock Text="Nombre *" />
+        <TextBox Text="{Binding Nombre}" />
+        <TextBlock Text="Principio activo" />
+        <TextBox Text="{Binding PrincipioActivo}" />
+        <TextBlock Text="Laboratorio" />
+        <TextBox Text="{Binding Laboratorio}" />
+        <TextBlock Text="Forma farmacéutica" />
+        <ComboBox ItemsSource="{Binding FormasDisponibles}" SelectedItem="{Binding FormaFarmaceutica}" />
+        <CheckBox Content="Fraccionable" IsChecked="{Binding Fraccionable}" />
+        <TextBlock Text="GTIN" />
+        <TextBox Text="{Binding Gtin}" />
+        <CheckBox Content="Apto para SPD" IsChecked="{Binding AptoSpd}" />
+        <TextBlock Text="Motivo (obligatorio si la aptitud no coincide con la derivada de la forma)" />
+        <TextBox Text="{Binding MotivoNoApto}" />
+        <TextBlock Text="Unidades por envase" />
+        <NumericUpDown Value="{Binding UnidadesEnvase}" Minimum="0" />
+
+        <Separator Margin="0,8" />
+        <TextBlock Text="Descripción física" FontSize="16" FontWeight="Bold" />
+        <TextBlock Text="Forma" />
+        <TextBox Text="{Binding DescForma}" />
+        <TextBlock Text="Color" />
+        <TextBox Text="{Binding DescColor}" />
+        <TextBlock Text="Ranura" />
+        <TextBox Text="{Binding DescRanura}" />
+        <TextBlock Text="Serigrafía" />
+        <TextBox Text="{Binding DescSerigrafia}" />
+        <TextBlock Text="Tamaño" />
+        <TextBox Text="{Binding DescTamano}" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="Descripción (texto)" VerticalAlignment="Center" />
+          <Button Content="Proponer" FontSize="11" Command="{Binding ProponerDescripcionCommand}" />
+        </StackPanel>
+        <TextBox Text="{Binding DescTexto}" AcceptsReturn="True" Height="60" />
+
+        <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

@@ -18,7 +18,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (2 hallazgos remediados) | *(pendiente de commit)* |
-| 6 | Implementación | `/speckit-implement` | 🔄 En curso — Foundational hecha (2026-09-05) | *(pendiente de commit)* |
+| 6 | Implementación | `/speckit-implement` | 🔄 En curso — US1 (MVP) hecha (2026-09-05) | *(pendiente de commit)* |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -92,3 +92,16 @@ fase de `/speckit-plan`.
   normalización de búsqueda; quedará un solo fichero al mergear. También se corrigió, igual que en
   Spec 001, el test viejo de Spec 000 que asumía un número fijo de migraciones. `dotnet build` sin
   errores; 7+2+32 = 41 tests en verde.
+- **2026-09-05** — User Story 1 (P1, MVP) completada: T010-T025. `ServicioMedicamentos` con alta
+  mínima que reactiva un CN de baja en vez de duplicar (CA-300/303/305), edición que exige motivo
+  solo cuando la aptitud SPD difiere de la derivada por `ReglaAptitudSpd` (CA-302), versionado de
+  la descripción física en `Medicamento_Hist` en cada cambio real, incluida la primera vez que se
+  rellena (CA-301), propuesta de `desc_texto` sin persistir, búsqueda por CN o nombre sin tildes, y
+  test dedicado de que `DarDeBaja` conserva la fila (Art. III.1, remediación F1). En Presentación:
+  `CatalogoMedicamentosView` (listado + formulario, mismo patrón que `UsuariosView` de Spec 000)
+  con botón en `MainWindow` visible para Elaborador y Administrador. Test Avalonia.Headless
+  `CatalogoMedicamentosViewTests` fuerza la realización del `ItemTemplate` con un medicamento real.
+  Un test descubrió un matiz real del versionado (dos cambios desde vacío generan dos versiones de
+  histórico, no una) que corrigió la expectativa del test, no el código — el comportamiento es el
+  correcto según FR-304 literal. `dotnet build` sin errores; 15+3+42 = 60 tests en verde. Pendiente
+  de prueba manual real por el usuario, igual que en Spec 001.

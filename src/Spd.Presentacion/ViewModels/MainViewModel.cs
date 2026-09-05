@@ -5,6 +5,7 @@ using Spd.Aplicacion;
 using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Presentacion.Views.Configuracion;
+using Spd.Presentacion.Views.Medicamentos;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -15,6 +16,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly GestorLogoFarmacia _gestorLogo;
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
+    private readonly IServicioMedicamentos _servicioMedicamentos;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -31,6 +33,7 @@ public sealed partial class MainViewModel : ViewModelBase
         GestorLogoFarmacia gestorLogo,
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
+        IServicioMedicamentos servicioMedicamentos,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -38,8 +41,17 @@ public sealed partial class MainViewModel : ViewModelBase
         _gestorLogo = gestorLogo;
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
+        _servicioMedicamentos = servicioMedicamentos;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
+    }
+
+    /// <summary>Cualquier Elaborador o Administrador accede al catálogo, sin restricción.</summary>
+    [RelayCommand]
+    private void AbrirCatalogoMedicamentos()
+    {
+        var ventana = new CatalogoMedicamentosWindow(_servicioMedicamentos, UsuarioActual.Id);
+        ventana.Show();
     }
 
     [RelayCommand]

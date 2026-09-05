@@ -50,25 +50,25 @@ comprobar que no guarda (CA-302), intentar duplicar su CN (CA-303), reactivar un
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Test: `ReglaAptitudSpd.PorDefecto` devuelve apto para las 7 formas del enum salvo `OtraNoApta`, en `tests/Spd.Dominio.Tests/ReglaAptitudSpdTests.cs`
-- [ ] T011 [P] [US1] Test: `ServicioMedicamentos.Crear` guarda con solo CN+nombre (CA-300), en `tests/Spd.Aplicacion.Tests/ServicioMedicamentosTests.cs`
-- [ ] T012 [P] [US1] Test: `ServicioMedicamentos.Crear` bloquea (lanza, no avisa) un CN ya activo (CA-303)
-- [ ] T013 [P] [US1] Test: `ServicioMedicamentos.Crear` reactiva un CN existente dado de baja en vez de duplicar (CA-305)
-- [ ] T014 [P] [US1] Test: `ServicioMedicamentos.ActualizarDatos` exige `motivo_no_apto` solo cuando `apto_spd` se fija distinto del derivado por `ReglaAptitudSpd` (CA-302)
-- [ ] T015 [P] [US1] Test: `ServicioMedicamentos.ActualizarDescripcionFisica` versiona la descripción anterior en `Medicamento_Hist` con su periodo de vigencia, y dos cambios sucesivos generan dos filas de histórico distintas (CA-301, Art. IV.3)
-- [ ] T016 [P] [US1] Test: `ServicioMedicamentos.ProponerDescripcionTexto` construye el texto a partir de los campos `desc_*` sin persistir nada (FR-303, research.md Decisión 3)
-- [ ] T017 [P] [US1] Test: `Buscar` encuentra por CN exacto y por fragmento de nombre sin tildes (FR-305)
-- [ ] T018 [P] [US1] Test: `ActualizarUnidadesEnvase` fija `unidades_envase_origen = MANUAL` (FR-310/FR-311)
-- [ ] T019 [P] [US1] Test: `Crear`, `ActualizarDatos`, `ActualizarDescripcionFisica`, `ActualizarUnidadesEnvase` y `DarDeBaja` registran en auditoría (Art. VII.6 — remediación F2: `ActualizarUnidadesEnvase` faltaba en la lista pese a ser una escritura)
-- [ ] T020 [P] [US1] Test: `DarDeBaja` no elimina la fila, solo marca `activo = 0` (Art. III.1 — remediación F1: invariante crítico sin test dedicado, a diferencia de Spec 001)
+- [X] T010 [P] [US1] Test: `ReglaAptitudSpd.PorDefecto` devuelve apto para las 7 formas del enum salvo `OtraNoApta`, en `tests/Spd.Dominio.Tests/ReglaAptitudSpdTests.cs`
+- [X] T011 [P] [US1] Test: `ServicioMedicamentos.Crear` guarda con solo CN+nombre (CA-300), en `tests/Spd.Aplicacion.Tests/ServicioMedicamentosTests.cs`
+- [X] T012 [P] [US1] Test: `ServicioMedicamentos.Crear` bloquea (lanza, no avisa) un CN ya activo (CA-303)
+- [X] T013 [P] [US1] Test: `ServicioMedicamentos.Crear` reactiva un CN existente dado de baja en vez de duplicar (CA-305)
+- [X] T014 [P] [US1] Test: `ServicioMedicamentos.ActualizarDatos` exige `motivo_no_apto` solo cuando `apto_spd` se fija distinto del derivado por `ReglaAptitudSpd` (CA-302)
+- [X] T015 [P] [US1] Test: `ServicioMedicamentos.ActualizarDescripcionFisica` versiona la descripción anterior en `Medicamento_Hist` con su periodo de vigencia, y dos cambios sucesivos generan dos filas de histórico distintas (CA-301, Art. IV.3)
+- [X] T016 [P] [US1] Test: `ServicioMedicamentos.ProponerDescripcionTexto` construye el texto a partir de los campos `desc_*` sin persistir nada (FR-303, research.md Decisión 3)
+- [X] T017 [P] [US1] Test: `Buscar` encuentra por CN exacto y por fragmento de nombre sin tildes (FR-305)
+- [X] T018 [P] [US1] Test: `ActualizarUnidadesEnvase` fija `unidades_envase_origen = MANUAL` (FR-310/FR-311)
+- [X] T019 [P] [US1] Test: `Crear`, `ActualizarDatos`, `ActualizarDescripcionFisica`, `ActualizarUnidadesEnvase` y `DarDeBaja` registran en auditoría (Art. VII.6 — remediación F2: `ActualizarUnidadesEnvase` faltaba en la lista pese a ser una escritura)
+- [X] T020 [P] [US1] Test: `DarDeBaja` no elimina la fila, solo marca `activo = 0` (Art. III.1 — remediación F1: invariante crítico sin test dedicado, a diferencia de Spec 001)
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implementar `IServicioMedicamentos` y `ServicioMedicamentos` en `src/Spd.Aplicacion/ServicioMedicamentos.cs` (depende de T004, T003, T006, T007); cada escritura registra en auditoría
-- [ ] T022 [US1] Implementar `CatalogoMedicamentosViewModel` en `src/Spd.Presentacion/ViewModels/CatalogoMedicamentosViewModel.cs` (listado con búsqueda a la izquierda, formulario de alta/edición a la derecha — mismo patrón que `UsuariosViewModel` de Spec 000)
-- [ ] T023 [US1] Implementar `CatalogoMedicamentosView`/`Window` en `src/Spd.Presentacion/Views/Medicamentos/`
-- [ ] T024 [US1] Añadir botón "Catálogo de medicamentos" a `MainWindow`/`MainViewModel` (visible para Elaborador y Administrador, mismo criterio que "Pacientes" en Spec 001)
-- [ ] T025 [P] [US1] Test Avalonia.Headless: `CatalogoMedicamentosView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/CatalogoMedicamentosViewTests.cs` (mismo patrón de regresión que `BuscadorPacientesViewTests` de Spec 001, por el incidente de `UsuariosWindow` en Spec 000)
+- [X] T021 [US1] Implementar `IServicioMedicamentos` y `ServicioMedicamentos` en `src/Spd.Aplicacion/ServicioMedicamentos.cs` (depende de T004, T003, T006, T007); cada escritura registra en auditoría
+- [X] T022 [US1] Implementar `CatalogoMedicamentosViewModel` en `src/Spd.Presentacion/ViewModels/CatalogoMedicamentosViewModel.cs` (listado con búsqueda a la izquierda, formulario de alta/edición a la derecha — mismo patrón que `UsuariosViewModel` de Spec 000)
+- [X] T023 [US1] Implementar `CatalogoMedicamentosView`/`Window` en `src/Spd.Presentacion/Views/Medicamentos/`
+- [X] T024 [US1] Añadir botón "Catálogo de medicamentos" a `MainWindow`/`MainViewModel` (visible para Elaborador y Administrador, mismo criterio que "Pacientes" en Spec 001)
+- [X] T025 [P] [US1] Test Avalonia.Headless: `CatalogoMedicamentosView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/CatalogoMedicamentosViewTests.cs` (mismo patrón de regresión que `BuscadorPacientesViewTests` de Spec 001, por el incidente de `UsuariosWindow` en Spec 000)
 
 **Checkpoint**: US1 funcional de forma independiente — MVP entregable.
 
