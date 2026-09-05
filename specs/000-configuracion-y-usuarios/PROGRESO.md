@@ -9,8 +9,8 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | `bff6a93` |
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | `b1422cb` |
-| 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
+| 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
+| 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
@@ -26,15 +26,15 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 Formato Dado/Cuando/Entonces (Constitución Art. IX.2). Cada uno se implementa como test antes de
 darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fase de `/speckit-plan`.
 
-| CA | Descripción | Capa / tipo de test previsto |
-|---|---|---|
-| CA-000 | Asistente obligatorio en primer arranque | Presentación/Aplicación — test de integración (arranque sin BD → asistente bloqueante) |
-| CA-001 | Cambio de prefijo no afecta a numeración pasada | Dominio — test unitario (Art. IV.3, instantánea/numeración ya asignada) |
-| CA-002 | Único administrador protegido (no autobaja) | Dominio — test unitario (FR-042) |
-| CA-003 | Baja de usuario conserva histórico | Dominio/Infraestructura — test de integración (Art. III.1, consulta de SPD tras baja) |
-| CA-004 | Bloqueo por intentos fallidos | Aplicación — test unitario/integración (FR-045; forma exacta depende de Q2) |
-| CA-005 | Descarga de nomenclátor no bloquea la app | Infraestructura — test de integración con fallo de red simulado (Art. VI.3) |
-| CA-006 | Cambio de valores por defecto no reescribe pacientes existentes | Dominio — test unitario (Art. V.3, FR-020) |
+| CA | Descripción | Test previsto (tasks.md) | Estado |
+|---|---|---|---|
+| CA-000 | Asistente obligatorio en primer arranque | T021, T022 | ⏳ Pendiente de implementar |
+| CA-001 | Cambio de prefijo no afecta a numeración pasada | T035 | ⏳ Pendiente de implementar |
+| CA-002 | Único administrador protegido (no autobaja) | T027 | ⏳ Pendiente de implementar |
+| CA-003 | Baja de usuario conserva histórico | T028 | ⏳ Pendiente de implementar |
+| CA-004 | Bloqueo por intentos fallidos | T029, T030 | ⏳ Pendiente de implementar |
+| CA-005 | Descarga de nomenclátor no bloquea la app | T044, T045 | ⏳ Pendiente de implementar |
+| CA-006 | Cambio de valores por defecto no reescribe pacientes existentes | T041 | ⏳ Pendiente de implementar |
 
 ## Invariantes de constitución que aplican a esta spec
 
@@ -68,3 +68,7 @@ darse por completado (Art. IX.1); el tipo de test se confirma o ajusta en la fas
   `url_nomenclator`, `umbral_reutilizacion_lectura_ambiental_horas` a Farmacia;
   `intentos_fallidos_consecutivos`, `bloqueado` a Usuario) porque esos campos los exige esta spec y
   no estaban en el documento consolidado.
+- **2026-09-05** — Fase 4 completada. `tasks.md` con 52 tareas en 8 fases (Setup, Foundational,
+  5 user stories por prioridad P1-P5, Polish). Cada user story mapeada a su escenario de la spec y
+  a sus CA-xxx (tabla al inicio de `tasks.md`). Tests incluidos por decisión explícita (Art. IX.1
+  exige test de Dominio antes de dar una regla por implementada). US1 (asistente) marcado como MVP.
