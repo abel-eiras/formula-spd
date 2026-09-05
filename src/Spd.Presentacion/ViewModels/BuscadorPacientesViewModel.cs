@@ -14,6 +14,8 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
     private readonly IServicioPacientes _servicio;
     private readonly IServicioTratamientos _servicioTratamientos;
     private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioEnvases _servicioEnvases;
+    private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private string _fragmento = string.Empty;
@@ -22,11 +24,13 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
 
     public BuscadorPacientesViewModel(
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
-        int? usuarioActualId)
+        IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion, int? usuarioActualId)
     {
         _servicio = servicio;
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
+        _servicioEnvases = servicioEnvases;
+        _servicioImportacion = servicioImportacion;
         _usuarioActualId = usuarioActualId;
         Buscar();
     }
@@ -42,11 +46,11 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirPaciente(Paciente paciente)
-        => new FichaPacienteWindow(_servicio, _servicioTratamientos, _servicioMedicamentos, paciente, _usuarioActualId).Show();
+        => new FichaPacienteWindow(_servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion, paciente, _usuarioActualId).Show();
 
     [RelayCommand]
     private void NuevoPaciente()
-        => new FichaPacienteWindow(_servicio, _servicioTratamientos, _servicioMedicamentos, null, _usuarioActualId).Show();
+        => new FichaPacienteWindow(_servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion, null, _usuarioActualId).Show();
 
     partial void OnFragmentoChanged(string value) => Buscar();
 

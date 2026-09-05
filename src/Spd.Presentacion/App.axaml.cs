@@ -39,6 +39,9 @@ public partial class App : Application
     private IServicioControlDocumental? _servicioControlDocumental;
     private IServicioBackup? _servicioBackup;
     private IServicioCifrado? _servicioCifrado;
+    private IServicioEnvases? _servicioEnvases;
+    private IServicioListadoRetirada? _servicioListadoRetirada;
+    private IServicioImportacionTratamientoEnvase? _servicioImportacion;
 
     public override void Initialize()
     {
@@ -144,6 +147,17 @@ public partial class App : Application
         _servicioControlDocumental = new ServicioControlDocumental(
             new RepositorioControlDocumental(_conexion!), repositorioUsuarios, auditoria);
         _servicioBackup = new ServicioBackup(_conexion!, repositorioFarmacia, auditoria);
+
+        var repositorioEnvases = new RepositorioEnvases(_conexion!);
+        _servicioEnvases = new ServicioEnvases(repositorioEnvases, new RepositorioTratamientos(_conexion!), repositorioPacientes, auditoria);
+        // ComprobadorCoberturaSpdNulo (research.md Decisión 3 de Spec 005): Spec 006 no existe
+        // todavía en esta rama; sustituir por la implementación real al mergear esa spec.
+        _servicioListadoRetirada = new ServicioListadoRetirada(
+            repositorioPacientes, new RepositorioContactos(_conexion!), new RepositorioTratamientos(_conexion!),
+            repositorioMedicamentos, repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
+        _servicioImportacion = new ServicioImportacionTratamientoEnvase(
+            repositorioMedicamentos, new RepositorioTratamientos(_conexion!), repositorioEnvases,
+            new RepositorioPerfilesImportacionTratamiento(_conexion!), _servicioTratamientos!, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -207,7 +221,8 @@ public partial class App : Application
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
             _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!, _servicioTratamientos!,
             _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
-            _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!, usuario);
+            _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
+            _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;

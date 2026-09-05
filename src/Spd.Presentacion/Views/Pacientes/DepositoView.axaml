@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.DepositoView">
+  <Grid ColumnDefinitions="320,*" RowDefinitions="*,Auto" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="8">
+      <TextBlock Text="Envases en custodia" FontSize="16" FontWeight="Bold" />
+      <Button Content="Importar tratamiento (pegado/fichero)" Command="{Binding AbrirImportarTratamientoCommand}" />
+      <ListBox ItemsSource="{Binding EnCustodia}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding NombreMedicamento}" FontWeight="Bold" />
+              <TextBlock Text="{Binding Envase.Serie, StringFormat='Serie: {0}'}" FontSize="11" />
+              <TextBlock Text="{Binding Envase.UnidadesRestantes, StringFormat='Restantes: {0}'}" FontSize="11" />
+              <TextBlock Text="{Binding Envase.Caducidad, StringFormat='Caduca: {0:d}'}" FontSize="11" />
+              <Button Content="Dar salida a SIGRE" FontSize="11"
+                      Command="{Binding DataContext.PrepararSalidaSigreCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                      CommandParameter="{Binding}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <CheckBox Content="Mostrar histórico" IsChecked="{Binding MostrarHistorico}" />
+      <ListBox ItemsSource="{Binding Historico}" IsVisible="{Binding MostrarHistorico}" MaxHeight="200">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4">
+              <TextBlock Text="{Binding NombreMedicamento}" FontWeight="Bold" />
+              <TextBlock Text="{Binding Envase.Estado, StringFormat='Estado: {0}'}" FontSize="11" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <Border Padding="8" Background="#22808080" IsVisible="{Binding EnvaseSeleccionadoParaSalida, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <StackPanel Spacing="4">
+          <TextBlock Text="{Binding EnvaseSeleccionadoParaSalida.NombreMedicamento, StringFormat='Salida SIGRE: {0}'}" FontWeight="Bold" />
+          <ComboBox ItemsSource="{Binding MotivosSalida}" SelectedItem="{Binding MotivoSalidaSeleccionado}" />
+          <Button Content="Confirmar salida" Command="{Binding ConfirmarSalidaSigreCommand}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Registrar envase / entrega" FontSize="16" FontWeight="Bold" />
+        <TextBlock Text="CN del medicamento *" />
+        <TextBox Text="{Binding Cn}" />
+        <TextBlock Text="Serie (obligatoria en custodia, opcional fuera de blíster)" />
+        <TextBox Text="{Binding Serie}" />
+        <TextBlock Text="Lote" />
+        <TextBox Text="{Binding Lote}" />
+        <TextBlock Text="Caducidad (solo para custodia)" />
+        <DatePicker SelectedDate="{Binding Caducidad}" />
+        <TextBlock Text="Unidades iniciales (solo para custodia)" />
+        <NumericUpDown Value="{Binding UnidadesIniciales}" Minimum="0" />
+        <Button Content="Registrar envase en custodia" Command="{Binding RegistrarEnvaseCommand}" Margin="0,8,0,0" />
+
+        <TextBlock Text="Entregado a (solo fuera de blíster)" Margin="0,16,0,0" />
+        <TextBox Text="{Binding EntregadoA}" />
+        <Button Content="Registrar entrega fuera de blíster" Command="{Binding RegistrarEntregaFueraBlisterCommand}" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

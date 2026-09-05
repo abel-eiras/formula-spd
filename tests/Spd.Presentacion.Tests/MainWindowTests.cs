@@ -52,11 +52,20 @@ public sealed class MainWindowTests
         var servicioBackup = new ServicioBackup(conexion, repositorioFarmacia, auditoria);
         var servicioCifrado = new ServicioCifrado(
             conexion, ":memory:", Path.GetTempPath(), auditoria, new GeneradorFraseRecuperacion());
+        var repositorioEnvases = new RepositorioEnvases(conexion);
+        var servicioEnvases = new ServicioEnvases(repositorioEnvases, new RepositorioTratamientos(conexion), repositorioPacientes, auditoria);
+        var servicioListadoRetirada = new ServicioListadoRetirada(
+            repositorioPacientes, new RepositorioContactos(conexion), new RepositorioTratamientos(conexion),
+            repositorioMedicamentos, repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
+        var servicioImportacion = new ServicioImportacionTratamientoEnvase(
+            repositorioMedicamentos, new RepositorioTratamientos(conexion), repositorioEnvases,
+            new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientos, auditoria);
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
             servicioPacientes, servicioTratamientos, servicioMedicamentos, servicioImportacionNomenclator, servicioConsultaCima,
-            servicioRegistrosCalidad, servicioControlDocumental, servicioBackup, servicioCifrado, administrador);
+            servicioRegistrosCalidad, servicioControlDocumental, servicioBackup, servicioCifrado,
+            servicioEnvases, servicioListadoRetirada, servicioImportacion, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

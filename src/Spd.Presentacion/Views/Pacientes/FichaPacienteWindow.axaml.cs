@@ -9,11 +9,12 @@ public partial class FichaPacienteWindow : Window
 {
     public FichaPacienteWindow(
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
+        IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
         Paciente? pacienteExistente, int? usuarioActualId)
     {
         InitializeComponent();
         DataContext = new FichaPacienteViewModel(
-            servicio, servicioTratamientos, servicioMedicamentos, pacienteExistente, usuarioActualId);
+            servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion, pacienteExistente, usuarioActualId);
     }
 
     // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.

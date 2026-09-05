@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
 using Spd.Infraestructura;
+using Spd.Presentacion.Views;
 using Spd.Presentacion.Views.Configuracion;
 using Spd.Presentacion.Views.Pacientes;
 using Spd.Presentacion.Views.Medicamentos;
@@ -27,6 +28,9 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioControlDocumental _servicioControlDocumental;
     private readonly IServicioBackup _servicioBackup;
     private readonly IServicioCifrado _servicioCifrado;
+    private readonly IServicioEnvases _servicioEnvases;
+    private readonly IServicioListadoRetirada _servicioListadoRetirada;
+    private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -52,6 +56,9 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioControlDocumental servicioControlDocumental,
         IServicioBackup servicioBackup,
         IServicioCifrado servicioCifrado,
+        IServicioEnvases servicioEnvases,
+        IServicioListadoRetirada servicioListadoRetirada,
+        IServicioImportacionTratamientoEnvase servicioImportacion,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -68,6 +75,9 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioControlDocumental = servicioControlDocumental;
         _servicioBackup = servicioBackup;
         _servicioCifrado = servicioCifrado;
+        _servicioEnvases = servicioEnvases;
+        _servicioListadoRetirada = servicioListadoRetirada;
+        _servicioImportacion = servicioImportacion;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -76,7 +86,16 @@ public sealed partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirPacientes()
     {
-        var ventana = new BuscadorPacientesWindow(_servicioPacientes, _servicioTratamientos, _servicioMedicamentos, UsuarioActual.Id);
+        var ventana = new BuscadorPacientesWindow(_servicioPacientes, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    /// <summary>Cualquier Elaborador o Administrador accede al listado de retirada, sin
+    /// restricción (mismo criterio que Pacientes, FR-040).</summary>
+    [RelayCommand]
+    private void AbrirRetiradaEnvases()
+    {
+        var ventana = new RetiradaEnvasesWindow(_servicioListadoRetirada, _servicioEnvases, UsuarioActual.Id);
         ventana.Show();
     }
 

@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.RetiradaEnvasesView">
+  <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="16">
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+      <CheckBox Content="Solo pacientes con faltantes" IsChecked="{Binding SoloConFaltantes}" />
+      <Button Content="Recalcular" Command="{Binding RecalcularCommand}" />
+      <Button Content="Imprimir" Command="{Binding ImprimirCommand}" />
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+      <StackPanel Spacing="4">
+        <ListBox ItemsSource="{Binding Filas}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="200,90,70,70,70,70,70,110,Auto" Margin="0,2">
+                <TextBlock Grid.Column="0" Text="{Binding Apellidos}" FontWeight="Bold" />
+                <TextBlock Grid.Column="1" Text="{Binding DniRetirada}" />
+                <TextBlock Grid.Column="2" Text="{Binding MedicamentoNombre}" />
+                <TextBlock Grid.Column="3" Text="{Binding Necesarias}" />
+                <TextBlock Grid.Column="4" Text="{Binding Disponibles}" />
+                <TextBlock Grid.Column="5" Text="{Binding Faltan}" />
+                <TextBlock Grid.Column="6" Text="{Binding EnvasesARetirar}" />
+                <TextBlock Grid.Column="7" Text="{Binding ProximaRetirada, StringFormat='{}{0:d}'}" />
+                <Button Grid.Column="8" Content="Registrar envase" FontSize="11"
+                        Command="{Binding DataContext.PrepararRegistroCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Padding="8" Background="#22808080" IsVisible="{Binding FilaSeleccionadaParaRegistrar, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <StackPanel Spacing="4">
+        <TextBlock Text="{Binding FilaSeleccionadaParaRegistrar.MedicamentoNombre, StringFormat='Registrar envase: {0}'}" FontWeight="Bold" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBox Watermark="Serie" Text="{Binding Serie}" />
+          <TextBox Watermark="Lote" Text="{Binding Lote}" />
+          <DatePicker SelectedDate="{Binding Caducidad}" />
+          <NumericUpDown Value="{Binding UnidadesIniciales}" Minimum="0" Watermark="Unidades" />
+          <Button Content="Guardar" Command="{Binding ConfirmarRegistroCommand}" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="3" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>
