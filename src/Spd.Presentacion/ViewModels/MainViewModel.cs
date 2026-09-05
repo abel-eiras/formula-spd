@@ -7,6 +7,7 @@ using Spd.Infraestructura;
 using Spd.Presentacion.Views.Configuracion;
 using Spd.Presentacion.Views.Pacientes;
 using Spd.Presentacion.Views.Medicamentos;
+using Spd.Presentacion.Views.RegistrosCalidad;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -21,6 +22,8 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly IServicioImportacionNomenclator _servicioImportacionNomenclator;
     private readonly IServicioConsultaCima _servicioConsultaCima;
+    private readonly IServicioRegistrosCalidad _servicioRegistrosCalidad;
+    private readonly IServicioControlDocumental _servicioControlDocumental;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -41,6 +44,8 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioMedicamentos servicioMedicamentos,
         IServicioImportacionNomenclator servicioImportacionNomenclator,
         IServicioConsultaCima servicioConsultaCima,
+        IServicioRegistrosCalidad servicioRegistrosCalidad,
+        IServicioControlDocumental servicioControlDocumental,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -52,6 +57,8 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioMedicamentos = servicioMedicamentos;
         _servicioImportacionNomenclator = servicioImportacionNomenclator;
         _servicioConsultaCima = servicioConsultaCima;
+        _servicioRegistrosCalidad = servicioRegistrosCalidad;
+        _servicioControlDocumental = servicioControlDocumental;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -70,6 +77,23 @@ public sealed partial class MainViewModel : ViewModelBase
     {
         var ventana = new CatalogoMedicamentosWindow(
             _servicioMedicamentos, _servicioImportacionNomenclator, _servicioConsultaCima, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    /// <summary>Solo Administrador (FR-942); el propio servicio también comprueba el rol.</summary>
+    [RelayCommand]
+    private void AbrirControlDocumental()
+    {
+        var ventana = new ControlDocumentalWindow(_servicioControlDocumental, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    /// <summary>Cualquier Elaborador o Administrador accede a los registros de calidad, sin
+    /// restricción (FR-940 se restringe aparte en Control documental).</summary>
+    [RelayCommand]
+    private void AbrirRegistrosCalidad()
+    {
+        var ventana = new RegistrosCalidadWindow(_servicioRegistrosCalidad, UsuarioActual.Id);
         ventana.Show();
     }
 

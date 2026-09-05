@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:registros="using:Spd.Presentacion.Views.RegistrosCalidad"
+        x:Class="Spd.Presentacion.Views.RegistrosCalidad.RegistrosCalidadWindow"
+        Title="SPD — Registros de calidad"
+        Width="760" Height="600">
+  <TabControl>
+    <TabItem Header="Formación">
+      <registros:FormacionPersonalView x:Name="FormacionView" />
+    </TabItem>
+    <TabItem Header="Residuos">
+      <registros:RecogidaResiduosView x:Name="ResiduosView" />
+    </TabItem>
+  </TabControl>
+</Window>

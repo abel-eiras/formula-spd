@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.RegistrosCalidad.RecogidaResiduosView">
+  <Grid ColumnDefinitions="260,*" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="4">
+      <TextBlock Text="Recogida de residuos no SIGRE" FontSize="16" FontWeight="Bold" />
+      <TextBlock Text="Empresa gestora *" />
+      <TextBox Text="{Binding EmpresaGestora}" />
+      <TextBlock Text="Observaciones" />
+      <TextBox Text="{Binding Observaciones}" />
+      <Button Content="Registrar" Command="{Binding RegistrarCommand}" Margin="0,8,0,0" />
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+                 IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+
+    <ListBox Grid.Column="1" Margin="16,0,0,0" ItemsSource="{Binding Resultados}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Margin="0,4" Spacing="2">
+            <TextBlock Text="{Binding Fecha}" FontWeight="Bold" />
+            <TextBlock Text="{Binding EmpresaGestora}" />
+            <TextBlock Text="{Binding Observaciones}" Foreground="Gray" FontSize="11" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </Grid>
+</UserControl>
