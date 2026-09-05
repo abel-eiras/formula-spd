@@ -36,14 +36,14 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 **Purpose**: crear los proyectos .NET dentro de las carpetas ya existentes (`src/`, `tests/`)
 
-- [ ] T001 Crear `SPD.sln` en la raíz referenciando los 4 proyectos de `src/` y los 2 de `tests/`
-- [ ] T002 [P] Crear `src/Spd.Dominio/Spd.Dominio.csproj` (net8.0, sin dependencias externas — Art. VIII.1)
-- [ ] T003 [P] Crear `src/Spd.Aplicacion/Spd.Aplicacion.csproj` (net8.0, referencia a `Spd.Dominio`)
-- [ ] T004 [P] Crear `src/Spd.Infraestructura/Spd.Infraestructura.csproj` (net8.0; paquetes: `Microsoft.Data.Sqlite`, `SQLitePCLRaw.bundle_e_sqlcipher`, `Dapper`, `Serilog`, `Konscious.Security.Cryptography.Argon2` — research.md Decisión 2)
-- [ ] T005 [P] Crear `src/Spd.Presentacion/Spd.Presentacion.csproj` (Avalonia UI 11, MVVM, referencia a `Spd.Aplicacion`)
-- [ ] T006 [P] Crear `tests/Spd.Dominio.Tests/Spd.Dominio.Tests.csproj` (xUnit, referencia a `Spd.Dominio`)
-- [ ] T007 [P] Crear `tests/Spd.Aplicacion.Tests/Spd.Aplicacion.Tests.csproj` (xUnit, referencia a `Spd.Aplicacion` y `Spd.Infraestructura`)
-- [ ] T008 [P] Crear el fichero único de recursos de interfaz en castellano `src/Spd.Presentacion/Recursos/Textos.resx` (Art. IX.5), vacío como base para esta feature
+- [x] T001 Crear `SPD.sln` en la raíz referenciando los 4 proyectos de `src/` y los 2 de `tests/`
+- [x] T002 [P] Crear `src/Spd.Dominio/Spd.Dominio.csproj` (net8.0, sin dependencias externas — Art. VIII.1)
+- [x] T003 [P] Crear `src/Spd.Aplicacion/Spd.Aplicacion.csproj` (net8.0, referencia a `Spd.Dominio`)
+- [x] T004 [P] Crear `src/Spd.Infraestructura/Spd.Infraestructura.csproj` (net8.0; paquetes: `Microsoft.Data.Sqlite`, `SQLitePCLRaw.bundle_e_sqlcipher`, `Dapper`, `Serilog`, `Konscious.Security.Cryptography.Argon2` — research.md Decisión 2)
+- [x] T005 [P] Crear `src/Spd.Presentacion/Spd.Presentacion.csproj` (Avalonia UI 11, MVVM, referencia a `Spd.Aplicacion`)
+- [x] T006 [P] Crear `tests/Spd.Dominio.Tests/Spd.Dominio.Tests.csproj` (xUnit, referencia a `Spd.Dominio`)
+- [x] T007 [P] Crear `tests/Spd.Aplicacion.Tests/Spd.Aplicacion.Tests.csproj` (xUnit, referencia a `Spd.Aplicacion` y `Spd.Infraestructura`)
+- [x] T008 [P] Crear el fichero único de recursos de interfaz en castellano `src/Spd.Presentacion/Recursos/Textos.resx` (Art. IX.5), vacío como base para esta feature
 
 **Checkpoint**: `dotnet build` y `dotnet test` ejecutan sin proyectos, listos para código.
 

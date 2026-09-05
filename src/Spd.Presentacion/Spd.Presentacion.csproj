@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Constitución Art. VIII.2 fija Avalonia UI 11 (no 12): pinnado explícito a la última 11.x estable -->
+    <PackageReference Include="Avalonia" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.20" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.20" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <ProjectReference Include="..\Spd.Aplicacion\Spd.Aplicacion.csproj" />
+  </ItemGroup>
+</Project>
