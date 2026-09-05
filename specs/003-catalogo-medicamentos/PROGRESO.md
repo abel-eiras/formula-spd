@@ -16,7 +16,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 resuelta) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
+| 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
@@ -71,3 +71,10 @@ fase de `/speckit-plan`.
   `001-pacientes-y-medicos` para su propia migración (que también parte de `main`). La que se
   mergee en segundo lugar de las dos deberá renumerar su migración a `0003` antes de mergear —
   anotado en `plan.md` §Project Structure para no olvidarlo cuando llegue el momento.
+- **2026-09-05** — Fase 4 completada. `tasks.md` generado: Foundational (T001-T009: migración
+  0002, entidad, `ReglaAptitudSpd`, repositorio, tests de humo) y 2 user stories — US1 Alta,
+  edición y búsqueda P1/MVP (T010-T024), US2 Importación del nomenclátor P2 (T025-T033) — más
+  Polish (T034-T036). 36 tareas en total. El test de auditoría (Art. VII.6) y el test
+  Avalonia.Headless de regresión (mismo patrón que `UsuariosWindowTests`/`BuscadorPacientesViewTests`)
+  se incluyeron desde el diseño, aplicando la misma lección ya aprendida en la remediación de
+  `/speckit-analyze` de Spec 001.
