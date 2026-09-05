@@ -11,7 +11,7 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | `b1422cb` |
 | 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `f57ee1f` |
 | 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 (52 tareas, 5 user stories) | `f3ad51c` |
-| 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | *(pendiente de commit)* |
+| 5 | Análisis de coherencia | `/speckit-analyze` | ✅ Hecho — 2026-09-05 (1 CRITICAL + 4 mejoras, remediadas) | `86ee536` |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
 ## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
