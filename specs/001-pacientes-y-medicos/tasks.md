@@ -34,24 +34,24 @@ Sin fase de Setup: no se crea ningún proyecto nuevo, se reutilizan los 6 de Spe
 
 **⚠️ CRITICAL**: ninguna user story empieza antes de completar esta fase
 
-- [ ] T001 Crear script `src/Spd.Infraestructura/Migraciones/0002_pacientes_contactos_medicos.sql` con tablas `Medico`, `Paciente`, `Contacto` (columnas de [data-model.md](./data-model.md), incluidas `correlativo_num_ficha`, `motivo_baja`/`motivo_baja_detalle` con `CHECK`, `busqueda_normalizada` en Paciente y Medico — research.md Decisiones 1-3)
-- [ ] T002 [P] Crear enum `EstadoPaciente` en `src/Spd.Dominio/EstadoPaciente.cs` (FR-006)
-- [ ] T003 [P] Crear enum `TipoContacto` en `src/Spd.Dominio/TipoContacto.cs` (FR-020)
-- [ ] T004 [P] Crear enum `MotivoBaja` en `src/Spd.Dominio/MotivoBaja.cs` (FR-007)
-- [ ] T005 [P] Crear entidad `Medico` en `src/Spd.Dominio/Medico.cs` (FR-030)
-- [ ] T006 [P] Crear entidad `Paciente` en `src/Spd.Dominio/Paciente.cs` con `TransicionValida(EstadoPaciente nuevo)` (máquina de estados de FR-006)
-- [ ] T007 [P] Crear entidad `Contacto` en `src/Spd.Dominio/Contacto.cs` (FR-020)
-- [ ] T008 [P] Crear `Normalizador` (minúsculas + quitar tildes) en `src/Spd.Dominio/Normalizador.cs` (research.md Decisión 1)
-- [ ] T009 [P] Crear `ValidadorDni` (letra de control DNI/NIE) en `src/Spd.Dominio/ValidadorDni.cs` (research.md Decisión 4, FR-005)
-- [ ] T010 [P] Crear `ValidadorCip` (validación + autocompletar posiciones 1-11) en `src/Spd.Dominio/ValidadorCip.cs` (research.md Decisión 5, FR-005/FR-005b)
-- [ ] T011 [P] Definir `IRepositorioMedicos` en `src/Spd.Dominio/IRepositorioMedicos.cs`
-- [ ] T012 [P] Definir `IRepositorioPacientes` en `src/Spd.Dominio/IRepositorioPacientes.cs` (incluye `ObtenerSiguienteCorrelativo()`)
-- [ ] T013 [P] Definir `IRepositorioContactos` en `src/Spd.Dominio/IRepositorioContactos.cs`
-- [ ] T014 Implementar `RepositorioMedicos` en `src/Spd.Infraestructura/RepositorioMedicos.cs` (depende de T001, T005, T011)
-- [ ] T015 Implementar `RepositorioPacientes` en `src/Spd.Infraestructura/RepositorioPacientes.cs` (depende de T001, T006, T012)
-- [ ] T016 Implementar `RepositorioContactos` en `src/Spd.Infraestructura/RepositorioContactos.cs` (depende de T001, T007, T013)
-- [ ] T017 [P] Test de humo: la migración 0002 se aplica de forma idempotente sobre un esquema ya en versión 1 (Spec 000), `schema_version` pasa a 2, en `tests/Spd.Aplicacion.Tests/InfraestructuraPacientesFundamentosTests.cs`
-- [ ] T018 [P] Test de humo: alta y lectura básica de Medico/Paciente/Contacto vía repositorios, en el mismo fichero
+- [X] T001 Crear script `src/Spd.Infraestructura/Migraciones/0002_pacientes_contactos_medicos.sql` con tablas `Medico`, `Paciente`, `Contacto` (columnas de [data-model.md](./data-model.md), incluidas `correlativo_num_ficha`, `motivo_baja`/`motivo_baja_detalle` con `CHECK`, `busqueda_normalizada` en Paciente y Medico — research.md Decisiones 1-3)
+- [X] T002 [P] Crear enum `EstadoPaciente` en `src/Spd.Dominio/EstadoPaciente.cs` (FR-006)
+- [X] T003 [P] Crear enum `TipoContacto` en `src/Spd.Dominio/TipoContacto.cs` (FR-020)
+- [X] T004 [P] Crear enum `MotivoBaja` en `src/Spd.Dominio/MotivoBaja.cs` (FR-007)
+- [X] T005 [P] Crear entidad `Medico` en `src/Spd.Dominio/Medico.cs` (FR-030)
+- [X] T006 [P] Crear entidad `Paciente` en `src/Spd.Dominio/Paciente.cs` con `TransicionValida(EstadoPaciente nuevo)` (máquina de estados de FR-006)
+- [X] T007 [P] Crear entidad `Contacto` en `src/Spd.Dominio/Contacto.cs` (FR-020)
+- [X] T008 [P] Crear `Normalizador` (minúsculas + quitar tildes) en `src/Spd.Dominio/Normalizador.cs` (research.md Decisión 1)
+- [X] T009 [P] Crear `ValidadorDni` (letra de control DNI/NIE) en `src/Spd.Dominio/ValidadorDni.cs` (research.md Decisión 4, FR-005)
+- [X] T010 [P] Crear `ValidadorCip` (validación + autocompletar posiciones 1-11) en `src/Spd.Dominio/ValidadorCip.cs` (research.md Decisión 5, FR-005/FR-005b)
+- [X] T011 [P] Definir `IRepositorioMedicos` en `src/Spd.Dominio/IRepositorioMedicos.cs`
+- [X] T012 [P] Definir `IRepositorioPacientes` en `src/Spd.Dominio/IRepositorioPacientes.cs` (incluye `ObtenerSiguienteCorrelativo()`)
+- [X] T013 [P] Definir `IRepositorioContactos` en `src/Spd.Dominio/IRepositorioContactos.cs`
+- [X] T014 Implementar `RepositorioMedicos` en `src/Spd.Infraestructura/RepositorioMedicos.cs` (depende de T001, T005, T011)
+- [X] T015 Implementar `RepositorioPacientes` en `src/Spd.Infraestructura/RepositorioPacientes.cs` (depende de T001, T006, T012)
+- [X] T016 Implementar `RepositorioContactos` en `src/Spd.Infraestructura/RepositorioContactos.cs` (depende de T001, T007, T013)
+- [X] T017 [P] Test de humo: la migración 0002 se aplica de forma idempotente sobre un esquema ya en versión 1 (Spec 000), `schema_version` pasa a 2, en `tests/Spd.Aplicacion.Tests/InfraestructuraPacientesFundamentosTests.cs`
+- [X] T018 [P] Test de humo: alta y lectura básica de Medico/Paciente/Contacto vía repositorios, en el mismo fichero
 
 **Checkpoint**: esquema y entidades listas — las user stories pueden empezar.
 
