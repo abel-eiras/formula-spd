@@ -15,7 +15,7 @@ sin conflicto — Medicamento y Paciente son catálogos/entidades independientes
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 resuelta) | *(pendiente de commit)* |
-| 3 | Plan de implementación | `/speckit-plan` | ⏳ Pendiente | — |
+| 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
@@ -60,3 +60,14 @@ fase de `/speckit-plan`.
   recomendada: mantener la lista de formas farmacéuticas de FR-300 tal cual, sin añadir valores.
   `spec.md` actualizado con sección "Clarifications" y §9 sin marcadores pendientes. Checklist de
   calidad al 100 %.
+- **2026-09-05** — Fase 3 completada. `plan.md` (Technical Context + Constitution Check con 8
+  artículos), `research.md` (5 decisiones: enum cerrado de forma farmacéutica, derivación de
+  `apto_spd` sin tabla de excepciones, `desc_texto` como propuesta que nunca sobrescribe una
+  edición manual, `desc_vigente_desde` para poder versionar en `Medicamento_Hist`, lector de
+  nomenclátor CSV mínimo a la espera de Spec 011). `data-model.md` (recorte de
+  Medicamento/Medicamento_Hist), `contracts/servicios-aplicacion.md` (2 interfaces),
+  `quickstart.md`. **Nota importante de coordinación entre ramas**: esta rama parte de `main`
+  (solo Spec 000), así que su migración se numera `0002` aquí, la misma que usa
+  `001-pacientes-y-medicos` para su propia migración (que también parte de `main`). La que se
+  mergee en segundo lugar de las dos deberá renumerar su migración a `0003` antes de mergear —
+  anotado en `plan.md` §Project Structure para no olvidarlo cuando llegue el momento.
