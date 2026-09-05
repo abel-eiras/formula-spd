@@ -220,3 +220,53 @@ Verificación: `dotnet build`/`dotnet test` en verde (37/37 tests, algunos actua
 firma de `CrearUsuario`/`ResetearPassword`) y una ejecución real de `dotnet run` sin excepciones.
 **Sigue pendiente que el usuario confirme a ojo** que el asistente ya pasa al login sin cerrarse —
 es el único de los 5 puntos que no se puede demostrar con un test automatizado sin un driver de UI.
+
+## Segunda ronda de correcciones tras la primera prueba visual (2026-09-05)
+
+El usuario probó la app de verdad (con capturas de pantalla) y reportó 6 problemas más. Todos eran
+reales, no percepciones:
+
+1. **El paso 5 del asistente (Rutas) no tenía botón "Explorar…"**, a diferencia de Configuración/
+   Farmacia. Se me olvidó aplicar el mismo arreglo al asistente. Añadido en `PasoRutasView.axaml`
+   (+ `.axaml.cs` con los mismos `FolderPickerOpenOptions` que en `FarmaciaView`).
+2. **La corrección anterior del cierre inesperado era incompleta.** El fix de `ShutdownMode` evitó
+   que la app se cerrara, pero `MostrarLogin` nunca llamaba a `ventanaLogin.Show()` — al reemplazar
+   `MainWindow` después de que el framework ya arrancó, Avalonia NO muestra la ventana nueva
+   automáticamente (solo lo hace una vez, al inicio). Resultado: la app quedaba viva pero sin
+   ninguna ventana visible ("segundo plano"). Añadido `Show()` explícito en los dos sitios donde se
+   reemplaza `MainWindow` (asistente→login y, por consistencia/robustez, también en el primer
+   arranque).
+3. **`UsuariosWindow` demasiado pequeña**, cortando el botón "Crear usuario", y columnas mal
+   repartidas (lista con mucho aire, formulario apretado). Ventana ampliada a 760×680, columna de
+   lista fijada a 260px (antes `2*`, más ancha que el formulario), formulario envuelto en
+   `ScrollViewer` como red de seguridad.
+4. **Los usuarios en la lista se mostraban como "Spd.Dominio.Usuario"**: bug real de XAML —
+   `x:DataType="vm:UsuariosViewModel"` en la `DataTemplate` del `ListBox.ItemTemplate`, cuando el
+   tipo real de cada elemento es `Usuario` (Dominio), no el ViewModel de la pantalla. Al no existir
+   `Nombre` en `UsuariosViewModel`, el binding no resolvía nada y caía al `ToString()` por defecto
+   del objeto. Corregido a `x:DataType="dominio:Usuario"`; de paso se añaden apellidos y rol al
+   listado.
+5. **El mensaje de "Validar" ruta aparecía al final del todo del formulario**, fuera de la vista sin
+   hacer scroll manual. `FarmaciaView` reestructurada con `Grid RowDefinitions="*,Auto"`: el
+   formulario largo va en un `ScrollViewer` (fila 0) y el mensaje en una barra fija siempre visible
+   (fila 1), igual que ya hacía `AsistentePrimerArranqueView` con sus botones Atrás/Siguiente.
+6. **"Avalonia.Controls.ComboBoxItem" como valor del día de retirada por defecto**: bug real en
+   `PasoValoresDefectoView.axaml` del asistente — el `ComboBox` tenía como hijos literales
+   `<ComboBoxItem>LU</ComboBoxItem>...`, y al enlazar `SelectedItem` a una propiedad `string`,
+   Avalonia asignaba el objeto `ComboBoxItem` completo (no su texto), que se convertía a cadena con
+   el `ToString()` por defecto — de ahí el nombre de la clase en vez de "LU". Ese valor corrupto se
+   guardó de verdad en `Farmacia.dia_retirada_defecto` durante la prueba del usuario. Corregido con
+   `ItemsSource="{Binding DiasSemanaDisponibles}"` (una lista de `string` nueva,
+   `Spd.Dominio.DiasSemana.Codigos`) en vez de `ComboBoxItem` literales; aplicado también a
+   `FarmaciaView` (antes un `TextBox` de texto libre para el mismo campo, ahora el mismo `ComboBox`
+   con la lista fija, evitando que se pueda volver a escribir un valor inválido a mano).
+   **El usuario deberá volver a elegir un día válido y pulsar "Guardar valores por defecto" una vez
+   para sobrescribir el valor corrupto ya guardado en su base de datos de pruebas**, o simplemente
+   borrar `spd.db` y repetir el asistente desde cero.
+
+Pendiente explícitamente no prioritario (sin cambios): sustituir las ventanas emergentes por
+navegación integrada.
+
+Verificación: `dotnet build`/`dotnet test` en verde (37/37 tests) y una ejecución real de
+`dotnet run` sin excepciones. El punto 2 (el más grave) sigue sin poder confirmarse visualmente por
+mi parte — pendiente de que el usuario lo vuelva a probar.

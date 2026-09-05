@@ -1,7 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Spd.Presentacion.Views.Configuracion.FarmaciaView">
-  <ScrollViewer>
+  <Grid RowDefinitions="*,Auto">
+  <ScrollViewer Grid.Row="0">
     <StackPanel Spacing="8" Margin="24">
       <TextBlock Text="Datos de la farmacia" FontSize="18" FontWeight="Bold" />
       <TextBlock Text="Código sanitario *" />
@@ -61,8 +62,8 @@
 
       <Separator Margin="0,8" />
       <TextBlock Text="Valores por defecto" FontSize="18" FontWeight="Bold" />
-      <TextBlock Text="Día de retirada por defecto (LU/MA/MI/JU/VI/SA/DO)" />
-      <TextBox Text="{Binding DiaRetiradaDefecto}" />
+      <TextBlock Text="Día de retirada por defecto" />
+      <ComboBox ItemsSource="{Binding DiasSemanaDisponibles}" SelectedItem="{Binding DiaRetiradaDefecto}" />
       <TextBlock Text="Nº de blísteres por defecto (1 o 2)" />
       <NumericUpDown Value="{Binding NBlisteresDefecto}" Minimum="1" Maximum="2" />
       <TextBlock Text="Días de antelación en el listado de retirada" />
@@ -82,8 +83,12 @@
       <Button Content="Guardar valores por defecto" Command="{Binding GuardarValoresDefectoCommand}" />
 
       <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
-      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
-                 IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
     </StackPanel>
   </ScrollViewer>
+
+  <Border Grid.Row="1" Padding="16,8" Background="#22808080"
+          IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+    <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+  </Border>
+  </Grid>
 </UserControl>

@@ -35,6 +35,7 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
     [ObservableProperty] private string? _rutaBackup;
     [ObservableProperty] private string? _rutaDocumentosGenerados;
 
+    public string[] DiasSemanaDisponibles => DiasSemana.Codigos;
     [ObservableProperty] private string _diaRetiradaDefecto;
     [ObservableProperty] private int _nBlisteresDefecto;
     [ObservableProperty] private int _diasAntelacionListado;

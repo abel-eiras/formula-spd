@@ -45,6 +45,7 @@ public sealed partial class AsistentePrimerArranqueViewModel : ViewModelBase
     [ObservableProperty] private bool _mostrarPassword;
 
     // Paso 4 — Valores por defecto (FR-020)
+    public string[] DiasSemanaDisponibles => DiasSemana.Codigos;
     [ObservableProperty] private string _diaRetiradaDefecto = "LU";
     [ObservableProperty] private int _nBlisteresDefecto = 1;
     [ObservableProperty] private int _diasAntelacionListado = 2;

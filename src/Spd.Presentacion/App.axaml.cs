@@ -86,6 +86,7 @@ public partial class App : Application
                 ventanaAsistente.Close();
             };
             desktop.MainWindow = ventanaAsistente;
+            ventanaAsistente.Show();
             RegistrarTiempoDeArranque("asistente");
         }
         else
@@ -113,6 +114,10 @@ public partial class App : Application
             ventanaLogin.Close();
         };
         desktop.MainWindow = ventanaLogin;
+        // Avalonia solo muestra la ventana inicial automáticamente al arrancar; al sustituir
+        // MainWindow más tarde (p. ej. al terminar el asistente) hay que mostrarla explícitamente,
+        // si no la app se queda sin ninguna ventana visible (el bug "no aparece el login").
+        ventanaLogin.Show();
         RegistrarTiempoDeArranque("login");
     }
 

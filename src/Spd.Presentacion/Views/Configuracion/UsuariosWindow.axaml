@@ -3,6 +3,6 @@
         xmlns:config="using:Spd.Presentacion.Views.Configuracion"
         x:Class="Spd.Presentacion.Views.Configuracion.UsuariosWindow"
         Title="SPD — Configuración de usuarios"
-        Width="720" Height="480">
+        Width="760" Height="680">
   <config:UsuariosView />
 </Window>
