@@ -52,6 +52,7 @@
         <TextBox Text="{Binding RutaBackup}" Width="280" />
         <Button Content="Explorar…" Click="ExplorarRutaBackup_Click" />
         <Button Content="Validar" Command="{Binding ValidarRutaBackupCommand}" />
+        <Button Content="Generar backup ahora" Command="{Binding GenerarBackupAhoraCommand}" />
       </StackPanel>
       <TextBlock Text="Carpeta de documentos generados" />
       <StackPanel Orientation="Horizontal" Spacing="8">

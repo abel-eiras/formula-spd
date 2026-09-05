@@ -7,10 +7,12 @@ namespace Spd.Presentacion.Views.Configuracion;
 
 public partial class FarmaciaWindow : Window
 {
-    public FarmaciaWindow(IServicioConfiguracionFarmacia servicio, GestorLogoFarmacia gestorLogo, int? administradorActualId)
+    public FarmaciaWindow(
+        IServicioConfiguracionFarmacia servicio, GestorLogoFarmacia gestorLogo, IServicioBackup servicioBackup,
+        int? administradorActualId)
     {
         InitializeComponent();
-        DataContext = new FarmaciaViewModel(servicio, gestorLogo, administradorActualId);
+        DataContext = new FarmaciaViewModel(servicio, gestorLogo, servicioBackup, administradorActualId);
     }
 
     // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.

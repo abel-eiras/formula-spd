@@ -29,6 +29,7 @@ public partial class App : Application
     private GestorLogoFarmacia? _gestorLogo;
     private IServicioActualizaciones? _servicioActualizaciones;
     private IServicioNomenclator? _servicioNomenclator;
+    private IServicioBackup? _servicioBackup;
 
     public override void Initialize()
     {
@@ -74,6 +75,7 @@ public partial class App : Application
             new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, auditoria);
         _servicioNomenclator = new ServicioNomenclator(
             new HttpClient { Timeout = TimeSpan.FromSeconds(10) }, auditoria);
+        _servicioBackup = new ServicioBackup(_conexion, repositorioFarmacia, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -114,7 +116,7 @@ public partial class App : Application
     {
         var mainViewModel = new MainViewModel(
             _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-            _servicioActualizaciones!, _servicioNomenclator!, usuario);
+            _servicioActualizaciones!, _servicioNomenclator!, _servicioBackup!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
@@ -124,6 +126,27 @@ public partial class App : Application
         {
             sesionCerradaPorElUsuario = true;
             MostrarLogin(desktop);
+            ventanaPrincipal.Close();
+        };
+
+        // Art. VI.6/FR-1000: al cerrar la aplicación (no al cerrar sesión) se genera un backup
+        // antes de que la app termine de cerrarse de verdad; si falla, un aviso visible detiene
+        // el cierre hasta que el usuario lo vea (FR-1001/CA-1001) — nunca solo un log.
+        var backupDeCierreHecho = false;
+        ventanaPrincipal.Closing += async (_, e) =>
+        {
+            if (sesionCerradaPorElUsuario || backupDeCierreHecho)
+            {
+                return;
+            }
+            e.Cancel = true;
+            var resultado = _servicioBackup!.GenerarBackup(usuario.Id, esAutomatico: true);
+            if (!resultado.Exito)
+            {
+                await AvisoWindow.MostrarAsync(
+                    ventanaPrincipal, $"No se pudo generar el backup de cierre: {resultado.Motivo}");
+            }
+            backupDeCierreHecho = true;
             ventanaPrincipal.Close();
         };
         ventanaPrincipal.Closed += (_, _) =>

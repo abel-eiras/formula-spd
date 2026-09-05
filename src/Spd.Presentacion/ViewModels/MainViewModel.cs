@@ -15,6 +15,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly GestorLogoFarmacia _gestorLogo;
     private readonly IServicioActualizaciones _servicioActualizaciones;
     private readonly IServicioNomenclator _servicioNomenclator;
+    private readonly IServicioBackup _servicioBackup;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -31,6 +32,7 @@ public sealed partial class MainViewModel : ViewModelBase
         GestorLogoFarmacia gestorLogo,
         IServicioActualizaciones servicioActualizaciones,
         IServicioNomenclator servicioNomenclator,
+        IServicioBackup servicioBackup,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -38,6 +40,7 @@ public sealed partial class MainViewModel : ViewModelBase
         _gestorLogo = gestorLogo;
         _servicioActualizaciones = servicioActualizaciones;
         _servicioNomenclator = servicioNomenclator;
+        _servicioBackup = servicioBackup;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -52,7 +55,7 @@ public sealed partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirFarmacia()
     {
-        var ventana = new FarmaciaWindow(_servicioFarmacia, _gestorLogo, UsuarioActual.Id);
+        var ventana = new FarmaciaWindow(_servicioFarmacia, _gestorLogo, _servicioBackup, UsuarioActual.Id);
         ventana.Show();
     }
 
