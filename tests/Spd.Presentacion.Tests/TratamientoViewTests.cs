@@ -48,7 +48,9 @@ public sealed class TratamientoViewTests
                 "1111111", null, null, DateOnly.FromDateTime(DateTime.Now), TipoTratamiento.Cronico),
             usuarioQueEjecutaId: null);
 
-        var ventana = new TratamientoWindow(servicioTratamientos, servicioMedicamentos, paciente.Id, usuarioActualId: null);
+        var servicioComunicaciones = new ServicioComunicacionesMedico(
+            new RepositorioComunicacionesMedico(conexion), repositorioPacientes, new RepositorioTratamientos(conexion), auditoria);
+        var ventana = new TratamientoWindow(servicioTratamientos, servicioMedicamentos, servicioComunicaciones, paciente.Id, usuarioActualId: null);
 
         ventana.Show();
     }

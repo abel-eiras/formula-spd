@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.ComunicacionesMedicoView">
+  <Grid ColumnDefinitions="320,*" RowDefinitions="*,Auto" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="8">
+      <TextBlock Text="Comunicaciones" FontSize="16" FontWeight="Bold" />
+      <ListBox ItemsSource="{Binding Comunicaciones}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding Tipo}" FontWeight="Bold" />
+              <TextBlock Text="{Binding Fecha, StringFormat='{}{0:d}'}" FontSize="11" />
+              <TextBlock Text="{Binding Respuesta}" FontSize="11" TextWrapping="Wrap" />
+              <Button Content="Registrar respuesta" FontSize="11"
+                      Command="{Binding DataContext.PrepararRespuestaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                      CommandParameter="{Binding}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <Border Padding="8" Background="#22808080" IsVisible="{Binding ComunicacionSeleccionadaParaRespuesta, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Respuesta del médico" FontWeight="Bold" />
+          <TextBox Text="{Binding RespuestaTexto}" AcceptsReturn="True" Height="60" />
+          <Button Content="Guardar respuesta" Command="{Binding ConfirmarRespuestaCommand}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Nueva comunicación" FontSize="16" FontWeight="Bold" />
+        <TextBlock Text="Tipo" />
+        <ComboBox ItemsSource="{Binding TiposDisponibles}" SelectedItem="{Binding Tipo}" />
+        <TextBlock Text="Médico (id; vacío = médico de cabecera del paciente)" />
+        <NumericUpDown Value="{Binding MedicoId}" Minimum="0" />
+        <TextBlock Text="Incidencias detectadas (obligatorio si Incidencia)" />
+        <TextBox Text="{Binding IncidenciasDetectadas}" AcceptsReturn="True" Height="60" />
+        <TextBlock Text="Propuesta del farmacéutico (obligatorio si Incidencia)" />
+        <TextBox Text="{Binding Propuesta}" AcceptsReturn="True" Height="60" />
+        <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,8,0,0" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

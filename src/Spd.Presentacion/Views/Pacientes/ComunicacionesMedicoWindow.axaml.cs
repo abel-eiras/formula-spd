@@ -1,0 +1,18 @@
+using Avalonia.Controls;
+using Spd.Aplicacion;
+using Spd.Presentacion.ViewModels;
+
+namespace Spd.Presentacion.Views.Pacientes;
+
+public partial class ComunicacionesMedicoWindow : Window
+{
+    public ComunicacionesMedicoWindow(
+        IServicioComunicacionesMedico servicio, int pacienteId, int? usuarioActualId, DatosAltaComunicacionMedico? prerrelleno = null)
+    {
+        InitializeComponent();
+        DataContext = new ComunicacionesMedicoViewModel(servicio, pacienteId, usuarioActualId, prerrelleno);
+    }
+
+    // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.
+    public ComunicacionesMedicoWindow() => InitializeComponent();
+}

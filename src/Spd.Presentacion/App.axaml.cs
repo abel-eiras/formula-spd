@@ -42,6 +42,7 @@ public partial class App : Application
     private IServicioEnvases? _servicioEnvases;
     private IServicioListadoRetirada? _servicioListadoRetirada;
     private IServicioImportacionTratamientoEnvase? _servicioImportacion;
+    private IServicioComunicacionesMedico? _servicioComunicaciones;
 
     public override void Initialize()
     {
@@ -158,6 +159,8 @@ public partial class App : Application
         _servicioImportacion = new ServicioImportacionTratamientoEnvase(
             repositorioMedicamentos, new RepositorioTratamientos(_conexion!), repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(_conexion!), _servicioTratamientos!, auditoria);
+        _servicioComunicaciones = new ServicioComunicacionesMedico(
+            new RepositorioComunicacionesMedico(_conexion!), repositorioPacientes, new RepositorioTratamientos(_conexion!), auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -222,7 +225,7 @@ public partial class App : Application
             _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!, _servicioTratamientos!,
             _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
             _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
-            _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, usuario);
+            _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;

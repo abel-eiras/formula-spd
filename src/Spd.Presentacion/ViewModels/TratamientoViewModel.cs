@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
+using Spd.Presentacion.Views.Pacientes;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -14,6 +15,7 @@ public sealed partial class TratamientoViewModel : ViewModelBase
 {
     private readonly IServicioTratamientos _servicioTratamientos;
     private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
     private int? _tratamientoIdEnEdicion;
@@ -41,13 +43,22 @@ public sealed partial class TratamientoViewModel : ViewModelBase
 
     public TratamientoViewModel(
         IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
-        int pacienteId, int? usuarioActualId)
+        IServicioComunicacionesMedico servicioComunicaciones, int pacienteId, int? usuarioActualId)
     {
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
+        _servicioComunicaciones = servicioComunicaciones;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
         CargarVigentes();
+    }
+
+    // FR-804: prerrellena paciente y médico prescriptor sin guardar nada (FR-807).
+    [RelayCommand]
+    private void ComunicarIncidencia(TratamientoFila fila)
+    {
+        var prerrelleno = _servicioComunicaciones.PrepararDesdeTratamiento(fila.Tratamiento.Id);
+        new ComunicacionesMedicoWindow(_servicioComunicaciones, _pacienteId, _usuarioActualId, prerrelleno).Show();
     }
 
     private void CargarVigentes()

@@ -8,10 +8,10 @@ public partial class TratamientoWindow : Window
 {
     public TratamientoWindow(
         IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
-        int pacienteId, int? usuarioActualId)
+        IServicioComunicacionesMedico servicioComunicaciones, int pacienteId, int? usuarioActualId)
     {
         InitializeComponent();
-        DataContext = new TratamientoViewModel(servicioTratamientos, servicioMedicamentos, pacienteId, usuarioActualId);
+        DataContext = new TratamientoViewModel(servicioTratamientos, servicioMedicamentos, servicioComunicaciones, pacienteId, usuarioActualId);
     }
 
     // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.
