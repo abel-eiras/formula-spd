@@ -18,7 +18,10 @@
 
 ## Clarifications
 
-*(Se completa en `/speckit-clarify`.)*
+### Session 2026-09-05
+
+- Q: ¿Segundo médico "especialista de referencia" en la ficha del paciente, o solo prescriptor por tratamiento? → A: Solo médico de cabecera; ningún campo adicional. Cada tratamiento fija su propio prescriptor (Spec 004).
+- Q: ¿Estado `SUSPENDIDO` necesario como estado formal del paciente, o basta con una observación de texto libre? → A: Se mantiene `SUSPENDIDO` como estado formal, con sus transiciones ACTIVO↔SUSPENDIDO (FR-006).
 
 ---
 
@@ -84,14 +87,14 @@ Como cualquier usuario, quiero encontrar un paciente escribiendo parte del nombr
   Validación: formato de 14 caracteres, fecha de las posiciones 1–6 coincide con `fecha_nacimiento`, posiciones 7–10 coinciden con las iniciales/segundas letras de `apellidos` (primer y segundo apellido, sin tildes), posición 11 coincide con `sexo`. Las posiciones 12–14 no se validan (son aleatorias). Formato o correspondencia inválidos = aviso, no bloqueo — apellidos compuestos, con partícula o de un solo apellido pueden no ajustarse a la regla estándar.
 
   **FR-005b** Si `fecha_nacimiento`, `apellidos` y `sexo` están informados y `cip` está vacío, el sistema propone autocompletar las posiciones 1–11 y deja las posiciones 12–14 en blanco para completar a mano.
-- **FR-006** Estados del paciente: `EVALUACION` (recién creado), `ACTIVO` (tras consentimiento vigente e idoneidad APTO — lo fija la Spec 002), `SUSPENDIDO` (pausa temporal: hospitalización, viaje) [NEEDS CLARIFICATION: Q2 — ¿es necesario el estado SUSPENDIDO en esta primera versión, o basta con registrarlo como observación de texto libre? Propuesta si no hay respuesta: mantenerlo como estado formal, coste de implementación bajo.], `BAJA`. Transiciones permitidas: EVALUACION→ACTIVO, ACTIVO↔SUSPENDIDO, cualquiera→BAJA, BAJA→EVALUACION (reactivación, exige nueva evaluación y consentimiento).
+- **FR-006** Estados del paciente: `EVALUACION` (recién creado), `ACTIVO` (tras consentimiento vigente e idoneidad APTO — lo fija la Spec 002), `SUSPENDIDO` (pausa temporal: hospitalización, viaje; estado formal, ver Clarifications), `BAJA`. Transiciones permitidas: EVALUACION→ACTIVO, ACTIVO↔SUSPENDIDO, cualquiera→BAJA, BAJA→EVALUACION (reactivación, exige nueva evaluación y consentimiento).
 - **FR-007** La baja exige fecha y motivo de una lista (`FALLECIMIENTO`, `RENUNCIA`, `TRASLADO`, `HOSPITALIZACION_PROLONGADA`, `CRITERIO_FARMACEUTICO`, `OTRO` con texto). No elimina ningún dato relacionado.
 - **FR-008** La pantalla del paciente muestra en cabecera permanente: número de ficha, nombre completo, edad, estado, alertas (alergias en rojo si existen; "sin consentimiento vigente" si aplica).
 - **FR-009** Desde la ficha se accede por pestañas a: Datos, Contactos, Idoneidad y consentimiento (Spec 002), Tratamiento (Spec 004), Depósito (Spec 005), Preparaciones (Spec 006), Comunicaciones (Spec 008). Esta spec define solo Datos y Contactos.
 - **FR-010** Búsqueda global de pacientes: coincidencia parcial, sin distinguir mayúsculas ni tildes, sobre nombre, apellidos, DNI, CIP y número de ficha. Resultados ordenados: activos primero, luego evaluación, suspendidos, bajas; dentro de cada grupo por apellidos.
 - **FR-011** El listado de pacientes permite filtrar por estado y por médico de cabecera, y muestra por defecto solo activos y en evaluación.
 
-**Nota sobre médico de cabecera** [NEEDS CLARIFICATION: Q1 — ¿se necesita un segundo médico "especialista de referencia" en la ficha del paciente, además del médico de cabecera, o basta con el prescriptor que se fija por cada tratamiento (Spec 004)? Propuesta si no hay respuesta: no añadir un segundo campo; solo prescriptor por tratamiento.]
+**Nota sobre médico de cabecera**: la ficha del paciente solo registra el médico de cabecera (FR-002). No existe un segundo campo de "especialista de referencia"; cada tratamiento fija su propio prescriptor de forma independiente (Spec 004, FR-038 prerrellena con el médico de cabecera como valor de partida).
 
 ### 4.2 Contactos
 
@@ -185,10 +188,7 @@ Dado un paciente con fecha de nacimiento 1991-04-10, apellidos "Eiras Espiño", 
 
 ## 8. Preguntas abiertas
 
-| # | Pregunta | Bloquea | Propuesta si no hay respuesta |
-|---|---|---|---|
-| Q1 | ¿Se necesita un segundo médico "especialista de referencia" en la ficha, o basta con el prescriptor por tratamiento? | Nada | Solo prescriptor por tratamiento |
-| Q2 | ¿Estado SUSPENDIDO es necesario en 1.0 o se cubre con observaciones? | Nada | Mantenerlo, coste bajo |
+Ninguna pendiente — Q1 y Q2 resueltas, ver sección "Clarifications" al inicio del documento.
 
 ## Assumptions
 

@@ -7,19 +7,19 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 
 | # | Fase | Comando | Estado | Commit |
 |---|---|---|---|---|
-| 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 2 | Aclaración | `/speckit-clarify` | ⏳ Pendiente (bloqueada por Q1/Q2) | — |
+| 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | `cba86b9` |
+| 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | *(pendiente de commit)* |
 | 3 | Plan de implementación | `/speckit-plan` | ⏳ Pendiente | — |
 | 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
-## Preguntas abiertas que bloquean la fase 2 (Constitución Art. X.3)
+## Preguntas abiertas resueltas en la fase 2 (Constitución Art. X.3)
 
 | # | Pregunta | Respuesta |
 |---|---|---|
-| Q1 | ¿Segundo médico "especialista de referencia" en la ficha, o solo prescriptor por tratamiento? | Pendiente de decidir con el propietario del producto |
-| Q2 | ¿Estado SUSPENDIDO necesario en 1.0, o se cubre con observaciones? | Pendiente de decidir con el propietario del producto |
+| Q1 | ¿Segundo médico "especialista de referencia" en la ficha, o solo prescriptor por tratamiento? | Solo médico de cabecera; cada tratamiento fija su propio prescriptor |
+| Q2 | ¿Estado SUSPENDIDO necesario en 1.0, o se cubre con observaciones? | Se mantiene como estado formal |
 
 ## Criterios de aceptación de la spec y su tipo de test previsto
 
@@ -63,4 +63,9 @@ fase de `/speckit-plan`.
 - **2026-09-05** — Fase 1 completada. `spec.md` trasladado literalmente desde
   `spec-001-pacientes-y-medicos.md`, con Q1/Q2 marcadas `[NEEDS CLARIFICATION]`. Checklist de
   calidad de la especificación generado; todo pasa salvo el punto de "sin NEEDS CLARIFICATION",
-  bloqueado a propósito hasta la fase 2.
+  bloqueado a propósito hasta la fase 2. Commit `cba86b9`.
+- **2026-09-05** — Fase 2 completada. Dos preguntas planteadas una a una; el propietario del
+  producto confirmó en ambas la opción recomendada (la propuesta por defecto ya apuntada en la spec
+  original): Q1 → solo médico de cabecera; Q2 → SUSPENDIDO se mantiene como estado formal. `spec.md`
+  actualizado con sección "Clarifications" y FR-006/nota de médico de cabecera resueltos sin
+  marcadores pendientes. Checklist de calidad al 100 %.

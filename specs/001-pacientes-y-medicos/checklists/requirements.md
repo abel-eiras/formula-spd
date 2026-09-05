@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — quedan 2 (Q1 médico especialista, Q2 estado SUSPENDIDO), pendientes de `/speckit-clarify`.
+- [x] No [NEEDS CLARIFICATION] markers remain — Q1 (médico especialista) y Q2 (estado SUSPENDIDO) resueltas en `/speckit-clarify` (sesión 2026-09-05).
 - [x] Requirements are testable and unambiguous.
 - [x] Success criteria are measurable — CA-001..CA-015 en formato Dado/Cuando/Entonces.
 - [x] Success criteria are technology-agnostic.
@@ -33,6 +33,6 @@
 
 - Traslado literal desde `spec-001-pacientes-y-medicos.md`; se conserva la numeración FR-xxx/CA-xxx
   original, igual que en la Spec 000.
-- Los dos `[NEEDS CLARIFICATION]` (Q1, Q2) ya estaban marcados como preguntas abiertas en el
-  documento original, con propuesta por defecto explícita. Bloquean el avance a `/speckit-plan`
-  hasta resolverse en `/speckit-clarify` (Constitución Artículo X.3).
+- Los dos `[NEEDS CLARIFICATION]` (Q1, Q2) quedaron resueltos en la sesión de `/speckit-clarify`
+  del 2026-09-05, ambos confirmando la propuesta por defecto del documento original (solo médico
+  de cabecera; SUSPENDIDO como estado formal). Checklist 100% pasado — lista para `/speckit-plan`.
