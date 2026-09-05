@@ -9,8 +9,8 @@ retroactivamente lo ya marcado como hecho; solo se añade.
 |---|---|---|---|---|
 | 1 | Especificación | `/speckit-specify` | ✅ Hecho — 2026-09-05 | `cba86b9` |
 | 2 | Aclaración | `/speckit-clarify` | ✅ Hecho — 2026-09-05 (Q1 y Q2 resueltas) | *(pendiente de commit)* |
-| 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
-| 4 | Desglose de tareas | `/speckit-tasks` | ⏳ Pendiente | — |
+| 3 | Plan de implementación | `/speckit-plan` | ✅ Hecho — 2026-09-05 | `0b5aa16` |
+| 4 | Desglose de tareas | `/speckit-tasks` | ✅ Hecho — 2026-09-05 | *(pendiente de commit)* |
 | 5 | Análisis de coherencia | `/speckit-analyze` | ⏳ Pendiente | — |
 | 6 | Implementación | `/speckit-implement` | ⏳ Pendiente | — |
 
@@ -76,3 +76,9 @@ fase de `/speckit-plan`.
   Paciente/Contacto/Medico), `contracts/servicios-aplicacion.md` (3 interfaces), `quickstart.md`.
   Efecto colateral: `docs/data-model.md` sube a v0.6 (añade `correlativo_num_ficha`,
   `motivo_baja_detalle`, `busqueda_normalizada` a Paciente; `busqueda_normalizada` a Medico).
+- **2026-09-05** — Fase 4 completada. `tasks.md` generado: sin fase de Setup (no hay proyectos
+  nuevos), Foundational (T001-T018: migración 0002, entidades, validadores, repositorios, tests de
+  humo) y 3 user stories — US1 Ficha de paciente P1/MVP (T019-T034), US2 Catálogo de médicos P2
+  (T035-T044), US3 Contactos P3 (T045-T051) — más Polish (T052-T054). A diferencia de la Spec 000,
+  el test explícito de auditoría (Art. VII.6) se incluyó desde el diseño de cada user story
+  (T029, T039, T049), no como remediación tardía de `/speckit-analyze`. 54 tareas en total.
