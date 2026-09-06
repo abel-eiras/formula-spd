@@ -20,7 +20,9 @@ public sealed class HeadlessTestApp : Application
         Resources.MergedDictionaries.Add(
             new ResourceInclude((System.Uri?)null) { Source = new System.Uri("avares://Spd.Presentacion/Estilos/Tipografia.axaml") });
         Styles.Add(new FluentTheme());
+        Styles.Add(new StyleInclude((System.Uri?)null) { Source = new System.Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml") });
         Styles.Add(new StyleInclude((System.Uri?)null) { Source = new System.Uri("avares://Spd.Presentacion/Estilos/Controles.axaml") });
+        Styles.Add(new StyleInclude((System.Uri?)null) { Source = new System.Uri("avares://Spd.Presentacion/Estilos/Tabla.axaml") });
     }
 }
 

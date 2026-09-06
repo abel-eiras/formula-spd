@@ -20,6 +20,14 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     [ObservableProperty] private bool _soloConFaltantes = true;
     [ObservableProperty] private string? _mensaje;
 
+    /// <summary>Spec 015 FR-1511: al llegar desde un aviso de faltantes, el listado se abre ya
+    /// centrado en ese paciente. `NombrePacienteFiltrado` es solo para poder decirlo en pantalla y
+    /// ofrecer quitar el filtro.</summary>
+    [ObservableProperty] private int? _filtroPacienteId;
+    [ObservableProperty] private string? _nombrePacienteFiltrado;
+
+    public bool HayFiltroDePaciente => FiltroPacienteId is not null;
+
     [ObservableProperty] private FilaListadoRetirada? _filaSeleccionadaParaRegistrar;
     [ObservableProperty] private string _serie = string.Empty;
     [ObservableProperty] private string? _lote;
@@ -37,7 +45,27 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     [RelayCommand]
     private void Recalcular()
         => Filas = new ObservableCollection<FilaListadoRetirada>(
-            _servicioListadoRetirada.ObtenerListado(DateOnly.FromDateTime(DateTime.Today), new FiltrosListadoRetirada(SoloConFaltantes)));
+            _servicioListadoRetirada.ObtenerListado(
+                DateOnly.FromDateTime(DateTime.Today),
+                new FiltrosListadoRetirada(SoloConFaltantes, PacienteId: FiltroPacienteId)));
+
+    [RelayCommand]
+    private void QuitarFiltroDePaciente()
+    {
+        FiltroPacienteId = null;
+        NombrePacienteFiltrado = null;
+        OnPropertyChanged(nameof(HayFiltroDePaciente));
+        Recalcular();
+    }
+
+    /// <summary>Lo llama la fábrica de ViewModels al llegar desde un aviso (FR-1511).</summary>
+    public void CentrarEnPaciente(int pacienteId, string? nombre)
+    {
+        FiltroPacienteId = pacienteId;
+        NombrePacienteFiltrado = nombre;
+        OnPropertyChanged(nameof(HayFiltroDePaciente));
+        Recalcular();
+    }
 
     [RelayCommand]
     private void PrepararRegistro(FilaListadoRetirada fila) => FilaSeleccionadaParaRegistrar = fila;

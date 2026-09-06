@@ -62,19 +62,19 @@
 
 ## Fase 2 — Inicio accionable, tablas y búsqueda
 
-- [ ] T025 [F2] `AvisoInicio` gana `Destino` en `src/Spd.Aplicacion/IServicioAvisosInicio.cs` y `ServicioAvisosInicio.cs` (sección + paciente + pestaña)
-- [ ] T026 [F2] `ViewModels/InicioViewModel.cs` y `Views/InicioView.axaml(.cs)`: cuatro indicadores + lista de avisos accionables + acciones rápidas
+- [X] T025 [F2] `AvisoInicio` gana `Destino` en `src/Spd.Aplicacion/IServicioAvisosInicio.cs` y `ServicioAvisosInicio.cs` (sección + paciente + pestaña)
+- [X] T026 [F2] `ViewModels/InicioViewModel.cs` y `Views/InicioView.axaml(.cs)`: cuatro indicadores + lista de avisos accionables + acciones rápidas
 - [ ] T027 [P] [F2] Test `tests/Spd.Aplicacion.Tests/ServicioAvisosInicioTests.cs` (ampliado): cada aviso lleva su destino
 - [ ] T028 [P] [F2] Test `tests/Spd.Presentacion.Tests/InicioViewTests.cs`: la vista se realiza con los cuatro tipos de aviso
-- [ ] T029 [F2] Decidir Q4 y, según la respuesta, añadir `Avalonia.Controls.DataGrid` 11.3.20 + su tema, o implementar la alternativa de `ItemsControl` con anchos compartidos (research.md Decisión 4)
-- [ ] T030 [F2] `Estilos/Tabla.axaml` y conversión de `PreparacionesView` a tabla ordenable con selección múltiple
+- [X] T029 [F2] Decidir Q4 y, según la respuesta, añadir `Avalonia.Controls.DataGrid` 11.3.20 + su tema, o implementar la alternativa de `ItemsControl` con anchos compartidos (research.md Decisión 4)
+- [X] T030 [F2] `Estilos/Tabla.axaml` y conversión de `PreparacionesView` a tabla ordenable con selección múltiple
 - [ ] T031 [P] [F2] Conversión de `RetiradaEnvasesView` a tabla
 - [ ] T032 [P] [F2] Conversión de `BuscadorPacientesView` a tabla
 - [ ] T033 [P] [F2] Conversión de `CatalogoMedicamentosView` a tabla
-- [ ] T034 [F2] `src/Spd.Aplicacion/IServicioBusquedaGlobal.cs` + `ServicioBusquedaGlobal.cs`: pacientes, medicamentos y blísteres, normalizados
-- [ ] T035 [F2] Búsqueda global en la cabecera del shell (`AppShellViewModel`), con navegación al resultado
+- [X] T034 [F2] `src/Spd.Aplicacion/IServicioBusquedaGlobal.cs` + `ServicioBusquedaGlobal.cs`: pacientes, medicamentos y blísteres, normalizados
+- [X] T035 [F2] Búsqueda global en la cabecera del shell (`AppShellViewModel`), con navegación al resultado
 - [ ] T036 [P] [F2] Tests `ServicioBusquedaGlobalTests` y `PreparacionesViewModelTests.Ordenar_conserva_la_seleccion`
-- [ ] T037 [F2] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
+- [X] T037 [F2] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
 
 ---
 

@@ -27,7 +27,7 @@ public sealed class ServicioAvisosInicio(
             var primera = grupo.First();
             avisos.Add(new AvisoInicio("Faltantes",
                 $"{primera.Nombre} {primera.Apellidos}: faltan envases de {string.Join(", ", grupo.Select(f => f.MedicamentoNombre))} para la retirada del {primera.ProximaRetirada:dd/MM}.",
-                grupo.Key));
+                grupo.Key, AreaAviso.Retirada, $"{primera.Nombre} {primera.Apellidos}"));
         }
 
         var todos = repositorioSpd.Listar(null, null, null);
@@ -35,7 +35,7 @@ public sealed class ServicioAvisosInicio(
         foreach (var spd in todos.Where(s => s.Estado == EstadoSpd.Verificado && s.ValidezDesde <= hoy))
             avisos.Add(new AvisoInicio("Sin entregar",
                 $"{NombrePaciente(spd.PacienteId)}: blíster {spd.NumRegistro} verificado y sin entregar; su validez empezó el {spd.ValidezDesde:dd/MM}.",
-                spd.PacienteId));
+                spd.PacienteId, AreaAviso.Preparaciones, NombrePaciente(spd.PacienteId)));
 
         foreach (var sesion in todos.GroupBy(s => s.SesionId))
         {
@@ -46,7 +46,7 @@ public sealed class ServicioAvisosInicio(
             if ((hoy.ToDateTime(TimeOnly.MinValue) - ultimaEntrega).TotalDays <= DiasSesionAMedias) continue;
             avisos.Add(new AvisoInicio("Sesión a medias",
                 $"{NombrePaciente(sesion.First().PacienteId)}: {entregados.Count} blíster(es) entregado(s) el {ultimaEntrega:dd/MM} y {pendientes.Count} todavía en {pendientes[0].Estado}.",
-                sesion.First().PacienteId));
+                sesion.First().PacienteId, AreaAviso.Preparaciones, NombrePaciente(sesion.First().PacienteId)));
         }
 
         var ultima = repositorioAmbiental.ObtenerUltimo();
@@ -54,9 +54,27 @@ public sealed class ServicioAvisosInicio(
         if (diasSinLectura >= DiasSinLecturaAmbiental)
             avisos.Add(new AvisoInicio("Ambiental",
                 ultima is null ? "No hay ninguna lectura de temperatura y humedad registrada." : $"Hace {diasSinLectura} días de la última lectura de temperatura y humedad.",
-                null));
+                null, AreaAviso.Calidad));
 
         return avisos;
+    }
+
+    /// <summary>FR-1510. Los indicadores se derivan de los mismos avisos, no de un cálculo aparte:
+    /// así el número del indicador y las líneas que el usuario ve debajo no pueden discrepar.</summary>
+    public IndicadoresInicio ObtenerIndicadores(DateOnly hoy)
+    {
+        var avisos = Obtener(hoy);
+        var ultima = repositorioAmbiental.ObtenerUltimo();
+
+        return new IndicadoresInicio(
+            Faltantes: avisos.Count(a => a.Tipo == "Faltantes"),
+            SinEntregar: avisos.Count(a => a.Tipo == "Sin entregar"),
+            SesionesAMedias: avisos.Count(a => a.Tipo == "Sesión a medias"),
+            // `null` = hay lectura reciente. Sin ninguna lectura se informa del umbral, no de
+            // `int.MaxValue`, que en pantalla no querría decir nada.
+            DiasSinLecturaAmbiental: ultima is null
+                ? DiasSinLecturaAmbiental
+                : (int)(DateTime.UtcNow - ultima.Fecha).TotalDays is var d && d >= DiasSinLecturaAmbiental ? d : null);
     }
 
     private string NombrePaciente(int pacienteId)

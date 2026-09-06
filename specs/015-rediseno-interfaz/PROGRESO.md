@@ -27,7 +27,7 @@ por fases con hitos y pruebas de aceptación, que es lo que documenta esta spec.
 | Fase | Estado | Ventanas al terminar | Fusión |
 |---|---|---|---|
 | 1 — Marco único y sistema visual | **Hecha** (2026-09-06) | 27 → **11** | sí |
-| 2 — Inicio accionable, tablas y búsqueda | Pendiente | 11 | — |
+| 2 — Inicio accionable, tablas y búsqueda | **Hecha** (2026-09-06) | 11 | — |
 | 3 — Espacio del paciente | Pendiente | 11 → 4 | — |
 | 4 — Preparación como carril y blíster | Pendiente | 4 | — |
 
@@ -72,3 +72,33 @@ headless no carga fuentes, así que los tests pasan a renderizar con Skia.
 
 **Pendiente de la prueba manual**: los estados de hover y pulsado de los botones siguen derivando de
 Fluent; la densidad (13 px) está por confirmar en el monitor real.
+
+## Fase 2 — Inicio accionable, tablas y búsqueda global (2026-09-06)
+
+Hecha entera y fusionada. **336 tests en verde** (68 Dominio + 227 Aplicación + 41 Presentación).
+
+- **H2.1 Indicadores**: `IServicioAvisosInicio.ObtenerIndicadores` devuelve faltantes, verificados
+  sin entregar, sesiones a medias y días sin lectura ambiental. Se derivan de los **mismos** avisos
+  que se listan debajo, no de un cálculo aparte: así el número del indicador y las líneas que el
+  usuario lee no pueden discrepar. El cuarto es un plazo, no un recuento, y `null` significa "al día".
+- **H2.2 Avisos accionables**: `AvisoInicio` gana `Area` (`Retirada` / `Preparaciones` / `Calidad`)
+  y el nombre del paciente. `Area` es un concepto de aplicación —dónde se arregla el aviso—, no una
+  pantalla: la traducción a secciones vive solo en `InicioViewModel.FilaAviso`. Pulsar un aviso abre
+  la pantalla **ya centrada en ese paciente**: la retirada por `PacienteId` (el filtro ya existía en
+  `FiltrosListadoRetirada`) y las preparaciones por nombre. El filtro se anuncia en pantalla y se
+  puede quitar, para que nadie crea que faltan filas.
+- **H2.3 Tablas**: `Avalonia.Controls.DataGrid` en Preparaciones, Retirada, Pacientes y Catálogo,
+  con `Estilos/Tabla.axaml` (cifras tabulares, bandas alternas, rejilla solo horizontal, filas de
+  30 px). La selección múltiple del lote sigue viviendo en cada fila, no en el índice de la rejilla.
+- **H2.4 Búsqueda global**: `IServicioBusquedaGlobal` sobre pacientes, medicamentos y blísteres,
+  reutilizando las búsquedas que ya existían (Art. V) en vez de escribir otra consulta; así encuentra
+  exactamente lo mismo que la pantalla correspondiente. Campo en la cabecera del marco, resultados
+  desplegados sobre el contenido y navegación al elegir uno.
+- **H2.5 Acciones rápidas**: cuatro atajos en el inicio a las secciones de uso diario.
+
+**Dos cosas anotadas por el camino**: la versión del `DataGrid` (research.md Decisión 4, resuelta —
+no existe 11.3.20 de ese paquete; se fija 11.3.13, misma rama y sin degradar el núcleo), y un aviso
+`CS8604` que la fase 1 había introducido en `App.axaml.cs`, ya corregido.
+
+**Pendiente de la prueba manual**: la densidad de la tabla (30 px de fila, cuerpo de 13 px) y si el
+ancho de la búsqueda global en la cabecera estorba en pantallas estrechas.

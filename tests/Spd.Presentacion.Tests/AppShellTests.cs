@@ -34,7 +34,7 @@ public sealed class AppShellTests
             new DatosAltaUsuario("Ana", "Ruiz", "ana", "contraseña-inicial", rol, null, null),
             administradorQueEjecutaId: null).Usuario;
         var navegador = new Navegador(rol == Rol.Administrador);
-        var vm = new AppShellViewModel(new FabricaViewModels(servicios, navegador, usuario), navegador, servicios.Avisos, usuario);
+        var vm = new AppShellViewModel(new FabricaViewModels(servicios, navegador, usuario), navegador, servicios.Avisos, servicios.BusquedaGlobal, usuario);
         return (vm, navegador, conexion);
     }
 
@@ -125,6 +125,35 @@ public sealed class AppShellTests
 
         navegador.Atras();
         Assert.IsType<BuscadorPacientesViewModel>(vm.Contenido);
+    }
+
+    /// <summary>Spec 015 CA-1513: la búsqueda de la cabecera encuentra desde cualquier sección y
+    /// lleva a la pantalla del resultado, sin abrir ventana ni perder el marco.</summary>
+    [AvaloniaFact]
+    public void La_busqueda_global_encuentra_un_paciente_y_navega_a_su_pantalla_CA_1513()
+    {
+        var (vm, navegador, conexion) = Crear(Rol.Administrador);
+        using var c = conexion;
+
+        new ServicioPacientes(new RepositorioPacientes(conexion), new RepositorioFarmacia(conexion),
+            new RegistradorAuditoria(conexion))
+            .Crear(new DatosAltaPaciente("María", "López Pérez", null, "12345678Z", null, null, null, null, null, null,
+                null, null, null, null, null, null, null, false, null, null, 1), null);
+
+        // Una sola letra no debe abrir nada: sería ruido, no una búsqueda.
+        vm.TextoBusqueda = "l";
+        Assert.False(vm.BusquedaAbierta);
+
+        vm.TextoBusqueda = "lopez";
+        Assert.True(vm.BusquedaAbierta);
+        var resultado = Assert.Single(vm.ResultadosBusqueda, r => r.Tipo == TipoResultadoBusqueda.Paciente);
+
+        vm.AbrirResultadoCommand.Execute(resultado);
+
+        Assert.Equal(Seccion.Pacientes, navegador.Actual.Seccion);
+        // Al elegir un resultado la lista se cierra y el campo queda limpio para la siguiente.
+        Assert.False(vm.BusquedaAbierta);
+        Assert.Equal(string.Empty, vm.TextoBusqueda);
     }
 
     /// <summary>Contenido mínimo para tener una ventana viva durante el test.</summary>

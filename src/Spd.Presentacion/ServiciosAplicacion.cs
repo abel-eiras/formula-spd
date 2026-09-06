@@ -34,5 +34,6 @@ public sealed record ServiciosAplicacion(
     IServicioGeneracionDocumentos Documentos,
     IServicioIdoneidadConsentimiento Idoneidad,
     IServicioAvisosInicio Avisos,
+    IServicioBusquedaGlobal BusquedaGlobal,
     IServicioGeneracionLote Lote,
     IServicioPurga Purga);

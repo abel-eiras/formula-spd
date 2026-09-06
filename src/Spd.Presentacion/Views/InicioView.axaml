@@ -1,30 +1,80 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
              x:Class="Spd.Presentacion.Views.InicioView">
-  <Grid RowDefinitions="Auto,*" Margin="24,20">
-    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10">
-      <TextBlock Text="Avisos del día" Classes="titulo" VerticalAlignment="Center" />
-      <Button Content="Actualizar" Classes="enlace" Command="{Binding RecargarCommand}" />
-    </StackPanel>
+  <ScrollViewer>
+    <StackPanel Margin="24,20" Spacing="18">
 
-    <ScrollViewer Grid.Row="1" Margin="0,14,0,0">
-      <StackPanel Spacing="8">
-        <Border Classes="tarjeta" IsVisible="{Binding !HayAvisos}">
-          <TextBlock Text="Sin avisos: no hay nada pendiente." Classes="suave" />
+      <!-- FR-1510: los cuatro indicadores. Se leen de un vistazo al abrir la aplicación y
+           responden a "¿qué tengo hoy?" antes de que el usuario tenga que buscar nada. -->
+      <UniformGrid Columns="4">
+        <Border Classes="tarjeta" Margin="0,0,10,0" Padding="16,14">
+          <StackPanel Spacing="2">
+            <TextBlock Text="{Binding Indicadores.Faltantes}" Classes="pagina datos" />
+            <TextBlock Text="pacientes con faltantes" Classes="etiqueta" TextWrapping="Wrap" />
+          </StackPanel>
         </Border>
-        <ItemsControl ItemsSource="{Binding Avisos}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Border Classes="tarjeta" Margin="0,0,0,8" Padding="14">
-                <StackPanel Spacing="3">
-                  <TextBlock Text="{Binding Tipo}" Classes="etiqueta" />
-                  <TextBlock Text="{Binding Texto}" TextWrapping="Wrap" />
-                </StackPanel>
-              </Border>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <Border Classes="tarjeta" Margin="0,0,10,0" Padding="16,14">
+          <StackPanel Spacing="2">
+            <TextBlock Text="{Binding Indicadores.SinEntregar}" Classes="pagina datos" />
+            <TextBlock Text="verificados sin entregar" Classes="etiqueta" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+        <Border Classes="tarjeta" Margin="0,0,10,0" Padding="16,14">
+          <StackPanel Spacing="2">
+            <TextBlock Text="{Binding Indicadores.SesionesAMedias}" Classes="pagina datos" />
+            <TextBlock Text="sesiones a medias" Classes="etiqueta" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+        <Border Classes="tarjeta" Padding="16,14">
+          <StackPanel Spacing="2">
+            <TextBlock Text="{Binding TextoAmbiental}" Classes="pagina datos" />
+            <TextBlock Text="lectura ambiental" Classes="etiqueta" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+      </UniformGrid>
+
+      <!-- FR-1513 (H2.5): lo que se hace a diario, a un clic desde el arranque. -->
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Classes="primario" Content="Preparaciones del día"
+                Command="{Binding IrACommand}" CommandParameter="Preparaciones" />
+        <Button Content="Pacientes" Command="{Binding IrACommand}" CommandParameter="Pacientes" />
+        <Button Content="Retirada de envases" Command="{Binding IrACommand}" CommandParameter="Retirada" />
+        <Button Content="Registros de calidad" Command="{Binding IrACommand}" CommandParameter="Calidad" />
       </StackPanel>
-    </ScrollViewer>
-  </Grid>
+
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="Avisos del día" Classes="titulo" VerticalAlignment="Center" />
+        <Button Content="Actualizar" Classes="enlace" Command="{Binding RecargarCommand}" />
+      </StackPanel>
+
+      <Border Classes="tarjeta" IsVisible="{Binding !HayAvisos}">
+        <TextBlock Text="Sin avisos: no hay nada pendiente." Classes="suave" />
+      </Border>
+
+      <!-- FR-1511: cada aviso es un botón que lleva a donde se resuelve. Sin x:DataType a
+           propósito, por la regresión de Spec 000/001 con $parent y compiled bindings. -->
+      <ItemsControl ItemsSource="{Binding Avisos}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button Classes="enlace" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    Padding="0" Margin="0,0,0,8"
+                    Command="{Binding DataContext.IrAlAvisoCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                    CommandParameter="{Binding}">
+              <Border Classes="tarjeta" Padding="0">
+                <DockPanel>
+                  <c:FranjaSeveridad DockPanel.Dock="Left" Severidad="{Binding Severidad}" />
+                  <StackPanel Margin="14,12" Spacing="3">
+                    <TextBlock Text="{Binding Tipo}" Classes="etiqueta" />
+                    <TextBlock Text="{Binding Texto}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </DockPanel>
+              </Border>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+    </StackPanel>
+  </ScrollViewer>
 </UserControl>
