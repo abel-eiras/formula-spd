@@ -64,10 +64,14 @@ public sealed class BuscadorPacientesViewTests
             new RepositorioSpdVerificaciones(conexion), repositorioPacientes, new RepositorioContactos(conexion),
             new RepositorioMedicos(conexion), new RepositorioTratamientos(conexion), new RepositorioMedicamentos(conexion),
             new RepositorioUsuarios(conexion), new RepositorioMaterialAcondicionamiento(conexion),
-            new RepositorioRegistrosAmbientales(conexion), repositorioFarmacia, auditoria);
+            new RepositorioRegistrosAmbientales(conexion), new RepositorioEvaluacionesIdoneidad(conexion),
+            new RepositorioConsentimientos(conexion), repositorioFarmacia, auditoria);
+        var servicioIdoneidad = new ServicioIdoneidadConsentimiento(
+            new RepositorioEvaluacionesIdoneidad(conexion), new RepositorioConsentimientos(conexion),
+            new RepositorioContactos(conexion), repositorioPacientes, servicio, auditoria);
         var ventana = new BuscadorPacientesWindow(
             servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
-            servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, usuarioActualId: null);
+            servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, servicioIdoneidad, usuarioActualId: null);
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el paciente recién creado.
         ventana.Show();

@@ -23,4 +23,8 @@ public interface IServicioGeneracionDocumentos
     /// <summary>Anexo I.D — información sobre protección de datos entregada al paciente junto
     /// con el consentimiento (RGPD). Se rellena con los datos de la farmacia y del paciente.</summary>
     ResultadoGeneracionDocumento GenerarInformacionProteccionDatos(int pacienteId, int? usuarioQueEjecutaId);
+
+    /// <summary>Anexo I.B — consentimiento informado (CONSENT), para el paciente o su
+    /// representante (Spec 002 FR-212). Marca <c>impreso_en</c> en el consentimiento.</summary>
+    ResultadoGeneracionDocumento GenerarConsentimiento(int consentimientoId, int? usuarioQueEjecutaId);
 }

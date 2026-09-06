@@ -56,6 +56,8 @@
         <NumericUpDown Value="{Binding NBlisteres}" Minimum="1" Maximum="2" />
 
         <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
+        <Button Content="Idoneidad y consentimiento" Command="{Binding AbrirIdoneidadCommand}"
+                IsVisible="{Binding PuedeAbrirTratamientos}" />
         <Button Content="Tratamientos" Command="{Binding AbrirTratamientosCommand}"
                 IsVisible="{Binding PuedeAbrirTratamientos}" />
         <Button Content="Depósito" Command="{Binding AbrirDepositoCommand}"

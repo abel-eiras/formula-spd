@@ -128,11 +128,11 @@ Copia de las columnas `desc_*` + `vigente_desde`, una fila por cambio.
 ## Contacto (0..n por paciente)
 paciente_id, tipo (FAMILIAR/REPRESENTANTE_LEGAL/PERSONA_AUTORIZADA/CUIDADOR), nombre, apellidos, dni, telefono, email, es_principal, **retira_medicacion** (INTEGER — marca a la persona cuyo DNI se usa en el listado de retirada, Spec 005; una misma persona con DNI puede estar vinculada como contacto en varios pacientes), activo.
 
-## EvaluacionIdoneidad
-paciente_id, fecha, farmaceutico_id, criterio_1…7, observaciones, resultado.
+## EvaluacionIdoneidad (solo INSERT — Spec 002 FR-202, migración 0011)
+paciente_id, fecha, farmaceutico_id, criterio_1…7 (los siete criterios de inclusión del PNT I §4.1), condicion_motivacion, condicion_destreza (las dos condiciones "es importante que"), observaciones, resultado (APTO/NO_APTO, decisión del farmacéutico; la app propone con `ResultadoPropuesto()`). La más reciente es la vigente.
 
-## Consentimiento
-paciente_id, tipo (PACIENTE/REPRESENTANTE), contacto_id, fecha_firma, fecha_revocacion, impreso_en.
+## Consentimiento (Spec 002, migración 0011)
+paciente_id, tipo (PACIENTE/REPRESENTANTE), contacto_id (representante legal o persona autorizada con DNI si REPRESENTANTE), fecha_creacion, fecha_firma, fecha_revocacion, motivo_revocacion, impreso_en. Vigente = firmado y no revocado; el vigente del paciente es el más reciente que lo cumple (FR-215). Un único modelo de documento (Anexo I.B) para ambos tipos.
 
 ## Tratamiento (inmutable — un cambio cierra la fila y abre otra)
 

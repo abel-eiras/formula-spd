@@ -1,0 +1,141 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.IdoneidadConsentimientoView">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <StackPanel Grid.Row="0" Spacing="4">
+      <TextBlock Text="{Binding Cabecera}" FontWeight="Bold" TextWrapping="Wrap" />
+      <Button Content="Pasar el paciente a SUSPENDIDO" Command="{Binding SuspenderCommand}"
+              IsVisible="{Binding SugerirSuspension}" />
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+      <StackPanel Spacing="16">
+
+        <Border Padding="8" Background="#22808080">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Evaluación de idoneidad (PNT I §4.1 — Anexo I.E)" FontWeight="Bold" />
+            <TextBlock Text="Criterios de inclusión:" FontStyle="Italic" />
+            <CheckBox Content="{Binding TextosCriterios[0]}" IsChecked="{Binding Criterio1}" />
+            <CheckBox Content="{Binding TextosCriterios[1]}" IsChecked="{Binding Criterio2}" />
+            <CheckBox Content="{Binding TextosCriterios[2]}" IsChecked="{Binding Criterio3}" />
+            <CheckBox Content="{Binding TextosCriterios[3]}" IsChecked="{Binding Criterio4}" />
+            <CheckBox Content="{Binding TextosCriterios[4]}" IsChecked="{Binding Criterio5}" />
+            <CheckBox Content="{Binding TextosCriterios[5]}" IsChecked="{Binding Criterio6}" />
+            <CheckBox Content="{Binding TextosCriterios[6]}" IsChecked="{Binding Criterio7}" />
+            <TextBlock Text="Condiciones importantes:" FontStyle="Italic" Margin="0,6,0,0" />
+            <CheckBox Content="{Binding TextosCondiciones[0]}" IsChecked="{Binding CondicionMotivacion}" />
+            <CheckBox Content="{Binding TextosCondiciones[1]}" IsChecked="{Binding CondicionDestreza}" />
+            <TextBox Watermark="Observaciones (obligatorias si NO APTO o si el resultado difiere de la propuesta)"
+                     Text="{Binding ObservacionesEvaluacion}" AcceptsReturn="True" Height="60" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="{Binding ResultadoPropuestoTexto}" VerticalAlignment="Center" />
+              <Button Content="Aceptar propuesta" Command="{Binding AceptarPropuestaCommand}" />
+              <TextBlock Text="Resultado:" VerticalAlignment="Center" />
+              <ComboBox ItemsSource="{Binding ResultadosDisponibles}" SelectedItem="{Binding ResultadoSeleccionado}" />
+              <Button Content="Registrar evaluación" Command="{Binding RegistrarEvaluacionCommand}" />
+            </StackPanel>
+            <TextBlock Text="Evaluaciones anteriores (la más reciente es la vigente):" FontStyle="Italic" Margin="0,6,0,0" />
+            <ItemsControl ItemsSource="{Binding Evaluaciones}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock FontSize="11" TextWrapping="Wrap">
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="{}{0} — {1} {2} — {3} — {4}">
+                        <Binding Path="Fecha" />
+                        <Binding Path="Resultado" />
+                        <Binding Path="Discrepancia" />
+                        <Binding Path="Resumen" />
+                        <Binding Path="Observaciones" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <Border Padding="8" Background="#22808080">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Consentimiento informado (Anexo I.B)" FontWeight="Bold" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="Firma:" VerticalAlignment="Center" />
+              <ComboBox ItemsSource="{Binding TiposConsentimiento}" SelectedItem="{Binding TipoSeleccionado}" />
+              <ComboBox ItemsSource="{Binding RepresentantesElegibles}" SelectedItem="{Binding RepresentanteSeleccionado}"
+                        IsVisible="{Binding EsRepresentante}" Width="260">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock>
+                      <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} {1} ({2}) — {3}">
+                          <Binding Path="Nombre" />
+                          <Binding Path="Apellidos" />
+                          <Binding Path="Tipo" />
+                          <Binding Path="Dni" />
+                        </MultiBinding>
+                      </TextBlock.Text>
+                    </TextBlock>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button Content="Crear consentimiento" Command="{Binding CrearConsentimientoCommand}" />
+            </StackPanel>
+
+            <Border Padding="6" BorderThickness="1" BorderBrush="#33808080" IsVisible="{Binding EsRepresentante}">
+              <StackPanel Spacing="4">
+                <TextBlock Text="Nuevo representante legal / persona autorizada (si no está en la lista)" FontStyle="Italic" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ComboBox ItemsSource="{Binding TiposRepresentante}" SelectedItem="{Binding NuevoTipo}" />
+                  <TextBox Watermark="Nombre" Text="{Binding NuevoNombre}" Width="120" />
+                  <TextBox Watermark="Apellidos" Text="{Binding NuevoApellidos}" Width="160" />
+                  <TextBox Watermark="DNI *" Text="{Binding NuevoDni}" Width="100" />
+                  <TextBox Watermark="Teléfono" Text="{Binding NuevoTelefono}" Width="100" />
+                  <TextBox Watermark="Email" Text="{Binding NuevoEmail}" Width="140" />
+                  <Button Content="Crear contacto" Command="{Binding CrearRepresentanteCommand}" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="Fecha de firma en papel:" VerticalAlignment="Center" />
+              <DatePicker SelectedDate="{Binding FechaFirma}" />
+            </StackPanel>
+            <ListBox ItemsSource="{Binding Consentimientos}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding Descripcion}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" />
+                    <Button Content="Imprimir" FontSize="11"
+                            Command="{Binding DataContext.ImprimirCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                    <Button Content="Registrar firma" FontSize="11" IsVisible="{Binding PuedeFirmar}"
+                            Command="{Binding DataContext.RegistrarFirmaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                    <Button Content="Revocar" FontSize="11" IsVisible="{Binding PuedeRevocar}"
+                            Command="{Binding DataContext.PrepararRevocacionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border Padding="6" BorderThickness="1" BorderBrush="#33808080"
+                    IsVisible="{Binding ConsentimientoEnRevocacion, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="Revocar:" VerticalAlignment="Center" FontWeight="Bold" />
+                <DatePicker SelectedDate="{Binding FechaRevocacion}" />
+                <TextBox Watermark="Motivo *" Text="{Binding MotivoRevocacion}" Width="260" />
+                <Button Content="Confirmar revocación" Command="{Binding ConfirmarRevocacionCommand}" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

@@ -24,6 +24,8 @@ public sealed class ServicioGeneracionDocumentos(
     IRepositorioUsuarios repositorioUsuarios,
     IRepositorioMaterialAcondicionamiento repositorioMaterial,
     IRepositorioRegistrosAmbientales repositorioRegistrosAmbientales,
+    IRepositorioEvaluacionesIdoneidad repositorioEvaluaciones,
+    IRepositorioConsentimientos repositorioConsentimientos,
     IRepositorioFarmacia repositorioFarmacia,
     IRegistradorAuditoria auditoria)
     : IServicioGeneracionDocumentos
@@ -384,14 +386,31 @@ public sealed class ServicioGeneracionDocumentos(
                 col.Item().Text(t => { t.Span("Observaciones: ").Bold(); t.Span(paciente.Observaciones ?? "—"); });
                 col.Item().Text($"Día de retirada: {paciente.DiaRetirada} — Nº blísteres: {paciente.NBlisteres} — Estado: {paciente.Estado}").FontSize(8).Italic();
 
-                // Spec 002 (idoneidad) no está construida: el bloque se imprime para cubrirlo a
-                // mano, que es lo que vale legalmente (Art. II, el papel es la base legal).
+                // Bloque del Anexo I.E. Con evaluación vigente (Spec 002) se imprime; sin ella, en
+                // blanco para cubrirlo a mano, que es lo que vale legalmente (Art. II).
+                var evaluacion = repositorioEvaluaciones.ObtenerVigente(pacienteId);
                 col.Item().PaddingTop(6).Text("EVALUACIÓN IDONEIDAD PARA LA INCLUSIÓN EN EL SERVICIO").Bold();
                 col.Item().Border(0.5f).Padding(4).Column(c =>
                 {
-                    c.Item().Text("Criterios de inclusión: ______________________________________________________________");
-                    c.Item().Text("Observaciones: _______________________________________________________________________");
-                    c.Item().PaddingTop(4).Text("APTO  [   ]        NO APTO  [   ]        Firma farmacéutico/a: ______________________");
+                    if (evaluacion is null)
+                    {
+                        c.Item().Text("Criterios de inclusión: ______________________________________________________________");
+                        c.Item().Text("Observaciones: _______________________________________________________________________");
+                        c.Item().PaddingTop(4).Text("APTO  [   ]        NO APTO  [   ]        Firma farmacéutico/a: ______________________");
+                        return;
+                    }
+                    c.Item().Text("Criterios de inclusión:").Bold();
+                    for (var i = 0; i < EvaluacionIdoneidad.TextosCriterios.Length; i++)
+                        c.Item().Text($"[{(evaluacion.Criterios[i] ? "X" : "  ")}] {EvaluacionIdoneidad.TextosCriterios[i]}").FontSize(8);
+                    c.Item().Text($"[{(evaluacion.CondicionMotivacion ? "X" : "  ")}] {EvaluacionIdoneidad.TextosCondiciones[0]}").FontSize(8);
+                    c.Item().Text($"[{(evaluacion.CondicionDestreza ? "X" : "  ")}] {EvaluacionIdoneidad.TextosCondiciones[1]}").FontSize(8);
+                    c.Item().Text(t => { t.Span("Observaciones: ").Bold(); t.Span(evaluacion.Observaciones ?? "—"); });
+                    var apto = evaluacion.Resultado == ResultadoIdoneidad.Apto;
+                    c.Item().PaddingTop(4).Text(t =>
+                    {
+                        t.Span($"APTO  [{(apto ? "X" : "  ")}]        NO APTO  [{(apto ? "  " : "X")}]        ").Bold();
+                        t.Span($"Fecha: {evaluacion.Fecha.ToLocalTime():dd/MM/yyyy}    Farmacéutico/a: {NombreUsuario(evaluacion.FarmaceuticoId)}    Firma: ______________");
+                    });
                 });
 
                 var incluidos = tratamientos.Where(t => t.EnSpd).ToList();
@@ -500,6 +519,90 @@ public sealed class ServicioGeneracionDocumentos(
         }));
 
         return GuardarDocumento(documento, "Información protección de datos", "RGPD", paciente, paciente.NumFicha, farmacia, "Paciente", pacienteId, usuarioQueEjecutaId);
+    }
+
+    // ------------------------------------------------------------------ Anexo I.B — CONSENT
+
+    public ResultadoGeneracionDocumento GenerarConsentimiento(int consentimientoId, int? usuarioQueEjecutaId)
+    {
+        var consentimiento = repositorioConsentimientos.ObtenerPorId(consentimientoId)
+            ?? throw new ErrorValidacionException($"No existe el consentimiento {consentimientoId}.");
+        var paciente = ObtenerPaciente(consentimiento.PacienteId);
+        var farmacia = ObtenerFarmacia();
+        var representante = consentimiento.ContactoId is int cid ? repositorioContactos.ObtenerPorId(cid) : null;
+        var nombrePaciente = $"{paciente.Nombre} {paciente.Apellidos}";
+        var dniPaciente = paciente.Dni ?? "________________";
+
+        // Compromisos literales del Anexo I.B del PNT I.
+        string[] compromisos =
+        [
+            "Conozco el servicio de SPD.",
+            "Conozco que el servicio de SPD se ofrece como un acto posterior a la dispensación y que es preparado por la misma oficina de farmacia que realiza la dispensación de mis medicamentos.",
+            "Tengo derecho a prescindir del servicio libremente en cualquier momento.",
+            "Se me ha facilitado y facilitará toda la información relativa a mi tratamiento de forma actualizada, ordenada y veraz.",
+            "En el caso de medicamentos sujetos a prescripción médica, me comprometo a traer siempre con la suficiente antelación las recetas necesarias para efectuar la dispensación previa a la preparación de SPD o, en su caso, a solicitar la renovación de la prescripción en el módulo de receta electrónica en tiempo y forma.",
+            "Me comprometo a presentar la tarjeta sanitaria individual para el acceso del/de la farmacéutico/a al módulo de receta electrónica o para la dispensación de recetas en formato papel.",
+            "Me comprometo a informar puntualmente al personal farmacéutico de los cambios de tratamiento y a presentar la justificación correspondiente de dichos cambios por escrito.",
+            "Presto mi consentimiento para que se reacondicione la medicación como servicio posterior a la dispensación.",
+            "Autorizo que la medicación restante quede en depósito en la farmacia.",
+            "Cumpliré con las condiciones de conservación y seguridad del SPD.",
+            "Facilitaré al personal farmacéutico la información necesaria para comprobar la adherencia a mi tratamiento. En cada acto de entrega de SPD, proporcionaré la información sobre la administración de los medicamentos que me facilitaron en SPD con anterioridad o aportaré los dispositivos de SPD empleados para posibilitar la comprobación del cumplimiento de las pautas posológicas establecidas y para la destrucción de aquellos dispositivos no reutilizables.",
+        ];
+
+        var documento = Document.Create(contenedor => contenedor.Page(pagina =>
+        {
+            ConfigurarPagina(pagina, PageSizes.A4, 9.5f);
+            pagina.Header().Element(e => Cabecera(e, farmacia, "CONSENTIMIENTO INFORMADO — SERVICIO DE SISTEMAS PERSONALIZADOS DE DOSIFICACIÓN (SPD)"));
+            pagina.Content().PaddingTop(10).Column(col =>
+            {
+                col.Spacing(6);
+                col.Item().Text(t =>
+                {
+                    if (representante is null)
+                    {
+                        t.Span("D./Dña. "); t.Span(nombrePaciente).Bold(); t.Span(" con DNI "); t.Span(dniPaciente).Bold();
+                        t.Span(", en nombre propio, ");
+                    }
+                    else
+                    {
+                        t.Span("D./Dña. "); t.Span($"{representante.Nombre} {representante.Apellidos}").Bold();
+                        t.Span(" con DNI "); t.Span(representante.Dni ?? "________________").Bold();
+                        t.Span(representante.Tipo == TipoContacto.RepresentanteLegal ? ", como representante legal de D./Dña. " : ", como persona autorizada de D./Dña. ");
+                        t.Span(nombrePaciente).Bold(); t.Span(" con DNI "); t.Span(dniPaciente).Bold(); t.Span(", ");
+                    }
+                    t.Span("AUTORIZO a la farmacia ").Bold(); t.Span(farmacia.Nombre).Bold();
+                    t.Span(" para que me preste el servicio de elaboración y entrega de sistemas personalizados de dosificación (SPD).");
+                });
+                col.Item().Text("Manifiesto que, con carácter previo a prestar mi consentimiento, he sido informado de que:");
+                foreach (var c in compromisos)
+                    col.Item().PaddingLeft(10).Text($"▪ {c}");
+
+                col.Item().PaddingTop(10).Text(consentimiento.FechaFirma is DateOnly f
+                    ? $"{farmacia.Poblacion}, a {f.Day} de {f.ToString("MMMM", new System.Globalization.CultureInfo("es-ES"))} de {f.Year}"
+                    : $"{farmacia.Poblacion}, a ______ de ____________________ de ________");
+                col.Item().PaddingTop(18).Row(fila =>
+                {
+                    fila.RelativeItem().Column(c =>
+                    {
+                        c.Item().Text("Firma del/de la paciente, representante legal o persona autorizada").FontSize(8);
+                        c.Item().PaddingTop(24).Text("_________________________________");
+                    });
+                    fila.RelativeItem().Column(c =>
+                    {
+                        c.Item().Text("Firma del farmacéutico/a").FontSize(8);
+                        c.Item().PaddingTop(24).Text("_________________________________");
+                        if (!string.IsNullOrWhiteSpace(farmacia.TitularColegiado))
+                            c.Item().Text($"Nº colegiado/a: {farmacia.TitularColegiado}").FontSize(8);
+                    });
+                });
+                col.Item().PaddingTop(8).Text("Una copia de este consentimiento se entrega al paciente y otra se conserva en el archivo de la farmacia (PNT I §4.2).").FontSize(7).Italic();
+            });
+        }));
+
+        var resultado = GuardarDocumento(documento, "Consentimiento informado", "CONSENT", paciente, paciente.NumFicha, farmacia, "Paciente", paciente.Id, usuarioQueEjecutaId);
+        consentimiento.ImpresoEn = DateTime.UtcNow;
+        repositorioConsentimientos.Actualizar(consentimiento);
+        return resultado;
     }
 
     // ------------------------------------------------------------------ datos
