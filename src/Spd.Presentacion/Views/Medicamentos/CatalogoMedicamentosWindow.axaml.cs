@@ -11,6 +11,7 @@ public partial class CatalogoMedicamentosWindow : Window
         IServicioConsultaCima servicioConsultaCima, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new CatalogoMedicamentosViewModel(servicio, servicioImportacion, servicioConsultaCima, usuarioActualId);
     }
 

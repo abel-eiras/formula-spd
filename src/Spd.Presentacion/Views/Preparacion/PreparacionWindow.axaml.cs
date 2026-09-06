@@ -11,6 +11,7 @@ public partial class PreparacionWindow : Window
         IServicioGeneracionDocumentos servicioGeneracionDocumentos, int pacienteId, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new PreparacionViewModel(servicio, servicioMedicamentos, servicioGeneracionDocumentos, pacienteId, usuarioActualId);
     }
 

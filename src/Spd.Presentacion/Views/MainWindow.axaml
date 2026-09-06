@@ -30,7 +30,8 @@
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
         <Button Content="Perfiles de importación" Command="{Binding AbrirPerfilesImportacionCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
-        <Button Content="Cerrar sesión" Command="{Binding CerrarSesionCommand}" Margin="0,16,0,0" />
+        <Button Content="Ayuda (F1)" Command="{Binding AbrirAyudaCommand}" Margin="0,16,0,0" />
+        <Button Content="Cerrar sesión" Command="{Binding CerrarSesionCommand}" />
     </StackPanel>
 
 </Window>

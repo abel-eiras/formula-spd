@@ -9,6 +9,7 @@ public partial class RegistrosCalidadWindow : Window
     public RegistrosCalidadWindow(IServicioRegistrosCalidad servicio, int usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         FormacionView.DataContext = new FormacionPersonalViewModel(servicio, usuarioActualId);
         ResiduosView.DataContext = new RecogidaResiduosViewModel(servicio, usuarioActualId);
     }

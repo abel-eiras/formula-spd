@@ -9,6 +9,7 @@ public partial class ControlDocumentalWindow : Window
     public ControlDocumentalWindow(IServicioControlDocumental servicio, int administradorActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new ControlDocumentalViewModel(servicio, administradorActualId);
     }
 

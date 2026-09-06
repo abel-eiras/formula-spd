@@ -9,6 +9,8 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
+    <!-- Spec 014 FR-1405: la ayuda es documentación versionada con el código (Art. XI.5) -->
+    <EmbeddedResource Include="Ayuda\*.md" />
   </ItemGroup>
 
   <ItemGroup>

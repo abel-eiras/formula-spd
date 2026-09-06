@@ -15,6 +15,7 @@ public partial class FichaPacienteWindow : Window
         Paciente? pacienteExistente, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new FichaPacienteViewModel(
             servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
             servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, servicioIdoneidad, pacienteExistente, usuarioActualId);

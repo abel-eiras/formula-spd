@@ -100,6 +100,10 @@ public sealed partial class MainViewModel : ViewModelBase
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
 
+    /// <summary>Spec 014 FR-1400: ayuda accesible desde cualquier pantalla (aquí, el índice).</summary>
+    [RelayCommand]
+    private void AbrirAyuda() => AyudaWindow.Abrir(null, null);
+
     /// <summary>Cualquier Elaborador o Administrador accede a Pacientes, sin restricción (FR-040).</summary>
     [RelayCommand]
     private void AbrirPacientes()

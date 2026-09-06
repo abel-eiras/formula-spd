@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.AyudaView">
+  <Grid ColumnDefinitions="300,*" Margin="12">
+    <Grid Grid.Column="0" RowDefinitions="Auto,*">
+      <TextBox Grid.Row="0" Watermark="Buscar en la ayuda…" Text="{Binding TextoBusqueda}" Margin="0,0,8,8" />
+      <ScrollViewer Grid.Row="1" Margin="0,0,8,0">
+        <StackPanel Spacing="6">
+          <StackPanel IsVisible="{Binding HayBusqueda}">
+            <TextBlock Text="Resultados" FontWeight="Bold" />
+            <ListBox ItemsSource="{Binding Resultados}" SelectedItem="{Binding EntradaSeleccionada}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel>
+                    <TextBlock Text="{Binding Titulo}" />
+                    <TextBlock Text="{Binding SeccionTitulo}" FontSize="10" Foreground="Gray" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+          <StackPanel IsVisible="{Binding !HayBusqueda}" Spacing="6">
+            <TextBlock Text="Procedimiento del servicio SPD" FontWeight="Bold" />
+            <ListBox ItemsSource="{Binding Procedimiento}" SelectedItem="{Binding EntradaSeleccionada}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Titulo}" TextWrapping="Wrap" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock Text="Uso de la aplicación" FontWeight="Bold" Margin="0,8,0,0" />
+            <ListBox ItemsSource="{Binding Uso}" SelectedItem="{Binding EntradaSeleccionada}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Titulo}" TextWrapping="Wrap" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <ScrollViewer Grid.Column="1">
+      <ContentControl Name="PanelContenido" />
+    </ScrollViewer>
+  </Grid>
+</UserControl>

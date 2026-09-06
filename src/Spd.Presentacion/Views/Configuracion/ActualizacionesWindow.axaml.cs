@@ -9,6 +9,7 @@ public partial class ActualizacionesWindow : Window
     public ActualizacionesWindow(IServicioActualizaciones servicio, int? administradorActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new ActualizacionesViewModel(servicio, administradorActualId);
     }
 

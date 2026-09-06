@@ -144,7 +144,10 @@
 
     <Border Grid.Row="2" Padding="16,8" Background="#22808080"
             IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
-      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Content="¿Por qué? (F1)" FontSize="11" Click="Porque_Click" Margin="8,0,0,0" />
+        <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" VerticalAlignment="Center" />
+      </DockPanel>
     </Border>
   </Grid>
 </UserControl>

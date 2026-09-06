@@ -10,6 +10,7 @@ public partial class NomenclatorWindow : Window
         IServicioConfiguracionFarmacia servicioFarmacia, IServicioNomenclator servicioNomenclator, int? administradorActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new NomenclatorViewModel(servicioFarmacia, servicioNomenclator, administradorActualId);
     }
 

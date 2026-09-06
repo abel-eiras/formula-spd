@@ -9,6 +9,7 @@ public partial class RetiradaEnvasesWindow : Window
     public RetiradaEnvasesWindow(IServicioListadoRetirada servicioListadoRetirada, IServicioEnvases servicioEnvases, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new RetiradaEnvasesViewModel(servicioListadoRetirada, servicioEnvases, usuarioActualId);
     }
 

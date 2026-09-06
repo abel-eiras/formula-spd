@@ -9,6 +9,7 @@ public partial class UsuariosWindow : Window
     public UsuariosWindow(IServicioUsuarios servicio, int administradorActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new UsuariosViewModel(servicio, administradorActualId);
     }
 

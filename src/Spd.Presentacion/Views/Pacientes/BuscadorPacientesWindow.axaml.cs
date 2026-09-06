@@ -13,6 +13,7 @@ public partial class BuscadorPacientesWindow : Window
         IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioIdoneidadConsentimiento servicioIdoneidad, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new BuscadorPacientesViewModel(
             servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
             servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, servicioIdoneidad, usuarioActualId);

@@ -12,6 +12,7 @@ public partial class TratamientoWindow : Window
         int pacienteId, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new TratamientoViewModel(
             servicioTratamientos, servicioMedicamentos, servicioComunicaciones, servicioDocumentos, pacienteId, usuarioActualId);
     }

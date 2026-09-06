@@ -11,6 +11,7 @@ public partial class DepositoWindow : Window
         IServicioImportacionTratamientoEnvase servicioImportacion, int pacienteId, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new DepositoViewModel(servicioEnvases, servicioMedicamentos, servicioImportacion, pacienteId, usuarioActualId);
     }
 
