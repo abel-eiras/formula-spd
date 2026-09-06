@@ -7,6 +7,7 @@ public enum Seccion
 {
     Inicio,
     Pacientes,
+    Paciente,
     Preparaciones,
     Retirada,
     Exportar,
@@ -24,7 +25,8 @@ public enum Seccion
 }
 
 /// <summary>A dónde se navega. `Detalle` es el sub-destino: el apartado de ayuda en
-/// <see cref="Seccion.Ayuda"/> y, desde la fase 3, la pestaña del paciente.</summary>
+/// <see cref="Seccion.Ayuda"/> y la pestaña de <see cref="Seccion.Paciente"/>. En `Seccion.Paciente`
+/// un `PacienteId` nulo significa alta nueva, no "cualquiera".</summary>
 public sealed record Destino(Seccion Seccion, int? PacienteId = null, string? Detalle = null);
 
 /// <summary>Una entrada del menú lateral.</summary>
@@ -33,9 +35,9 @@ public sealed record EntradaNavegacion(Seccion Seccion, string Titulo, string Gr
     public const string GrupoTrabajo = "Trabajo diario";
     public const string GrupoAdministracion = "Administración";
 
-    /// <summary>Las entradas visibles del menú, en orden. `RevisionNomenclator` y `Ayuda` son
-    /// secciones navegables pero no entradas del menú: se llega a ellas desde el catálogo y desde
-    /// F1 respectivamente.</summary>
+    /// <summary>Las entradas visibles del menú, en orden. `Paciente`, `RevisionNomenclator` y `Ayuda`
+    /// son secciones navegables pero no entradas del menú: se llega a ellas desde el buscador de
+    /// pacientes, desde el catálogo y desde F1 respectivamente.</summary>
     public static readonly IReadOnlyList<EntradaNavegacion> Todas =
     [
         new(Seccion.Inicio, "Inicio", GrupoTrabajo, false),

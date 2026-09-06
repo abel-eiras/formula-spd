@@ -3,25 +3,23 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
-using Spd.Presentacion.Views.Pacientes;
-using Spd.Presentacion.Views.Preparacion;
+using Spd.Presentacion.Pacientes;
 
 namespace Spd.Presentacion.ViewModels;
 
 /// <summary>Ficha de paciente, pestaña Datos (FR-002/FR-003/FR-008). `Paciente` es null en alta
 /// nueva; al guardar por primera vez pasa a contener el paciente ya creado, con su num_ficha
-/// asignado (FR-001, no editable — por eso no hay ninguna propiedad `NumFichaNuevo`).</summary>
+/// asignado (FR-001, no editable — por eso no hay ninguna propiedad `NumFichaNuevo`).
+///
+/// Spec 015: era el centro de mando que abría las otras seis ventanas del paciente. Ya no abre
+/// nada: son pestañas del mismo espacio, y el paciente compartido vive en el
+/// <see cref="PacienteContexto"/>. Con eso desaparecen los seis comandos `Abrir…`, las nueve
+/// dependencias de servicio que solo servían para construir aquellas ventanas y el parche de releer
+/// la ficha al cerrarlas.</summary>
 public sealed partial class FichaPacienteViewModel : ViewModelBase
 {
     private readonly IServicioPacientes _servicio;
-    private readonly IServicioTratamientos _servicioTratamientos;
-    private readonly IServicioMedicamentos _servicioMedicamentos;
-    private readonly IServicioEnvases _servicioEnvases;
-    private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
-    private readonly IServicioComunicacionesMedico _servicioComunicaciones;
-    private readonly IServicioPreparacion _servicioPreparacion;
-    private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
-    private readonly IServicioIdoneidadConsentimiento _servicioIdoneidad;
+    private readonly PacienteContexto _contexto;
     private readonly int? _usuarioActualId;
     private bool _pendienteConfirmarDuplicado;
 
@@ -63,96 +61,26 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
 
     public bool TieneAlergias => !string.IsNullOrWhiteSpace(Alergias);
 
-    /// <summary>Los tratamientos exigen un paciente ya creado (FR-400 referencia `paciente_id`).</summary>
-    public bool PuedeAbrirTratamientos => Paciente is not null;
-
-    /// <summary>El depósito exige un paciente ya creado (FR-510 referencia `paciente_id`).</summary>
-    public bool PuedeAbrirDeposito => Paciente is not null;
-
-    /// <summary>Las comunicaciones exigen un paciente ya creado (FR-801 referencia `paciente_id`).</summary>
-    public bool PuedeAbrirComunicaciones => Paciente is not null;
-
-    /// <summary>La preparación exige un paciente ya creado (FR-600 referencia `paciente_id`).</summary>
-    public bool PuedeAbrirPreparacion => Paciente is not null;
-
-    /// <summary>La ficha del paciente exige un paciente ya creado (FR-700 `FICHA-PAC`).</summary>
-    public bool PuedeImprimirFicha => Paciente is not null;
-
-    public FichaPacienteViewModel(
-        IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
-        IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
-        IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion,
-        IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioIdoneidadConsentimiento servicioIdoneidad,
-        Paciente? pacienteExistente, int? usuarioActualId)
+    public FichaPacienteViewModel(IServicioPacientes servicio, PacienteContexto contexto, int? usuarioActualId)
     {
-        _servicioIdoneidad = servicioIdoneidad;
         _servicio = servicio;
-        _servicioTratamientos = servicioTratamientos;
-        _servicioMedicamentos = servicioMedicamentos;
-        _servicioEnvases = servicioEnvases;
-        _servicioImportacion = servicioImportacion;
-        _servicioComunicaciones = servicioComunicaciones;
-        _servicioPreparacion = servicioPreparacion;
-        _servicioGeneracionDocumentos = servicioGeneracionDocumentos;
+        _contexto = contexto;
         _usuarioActualId = usuarioActualId;
-        Paciente = pacienteExistente;
-        if (pacienteExistente is not null)
-        {
-            CargarDesdePaciente(pacienteExistente);
-        }
+        Paciente = contexto.Paciente;
+        if (Paciente is not null) CargarDesdePaciente(Paciente);
+
+        // Si otra pestaña cambia al paciente (la idoneidad lo activa, Spec 002 FR-213), los campos
+        // y la cabecera de esta se actualizan solos: es lo que antes exigía cerrar la ventana.
+        _contexto.Cambiado += AlCambiarElPaciente;
     }
 
-    [RelayCommand]
-    private void AbrirTratamientos()
-        => new TratamientoWindow(_servicioTratamientos, _servicioMedicamentos, _servicioComunicaciones, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
-
-    [RelayCommand]
-    private void AbrirDeposito()
-        => new DepositoWindow(_servicioEnvases, _servicioMedicamentos, _servicioImportacion, Paciente!.Id, _usuarioActualId).Show();
-
-    [RelayCommand]
-    private void AbrirComunicaciones()
-        => new ComunicacionesMedicoWindow(_servicioComunicaciones, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
-
-    /// <summary>Spec 002: idoneidad y consentimiento; es lo que lleva al paciente de EVALUACION a ACTIVO.</summary>
-    [RelayCommand]
-    private void AbrirIdoneidad()
+    private void AlCambiarElPaciente(Paciente? paciente)
     {
-        var ventana = new IdoneidadConsentimientoWindow(_servicioIdoneidad, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId);
-        // La idoneidad/consentimiento puede activar al paciente (Spec 002 FR-213): al cerrar, se
-        // relee la ficha para que la cabecera muestre el estado real.
-        ventana.Closed += (_, _) => RecargarPaciente();
-        ventana.Show();
-    }
-
-    [RelayCommand]
-    private void AbrirPreparacion()
-        => new PreparacionWindow(_servicioPreparacion, _servicioMedicamentos, _servicioGeneracionDocumentos, _servicioComunicaciones, Paciente!.Id, _usuarioActualId).Show();
-
-    private void RecargarPaciente()
-    {
-        if (Paciente is null) return;
-        var actual = _servicio.ObtenerPorId(Paciente.Id);
-        if (actual is null) return;
-        Paciente = actual;
-        CargarDesdePaciente(actual);
-        OnPropertyChanged(nameof(Estado));
+        if (paciente is null || ReferenceEquals(paciente, Paciente)) return;
+        Paciente = paciente;
+        CargarDesdePaciente(paciente);
         OnPropertyChanged(nameof(NumFicha));
-    }
-
-    [RelayCommand]
-    private void ImprimirFicha()
-    {
-        var resultado = _servicioGeneracionDocumentos.GenerarFichaPaciente(Paciente!.Id, _usuarioActualId);
-        Mensaje = $"Ficha del paciente generada: {resultado.RutaCompleta}";
-    }
-
-    /// <summary>Anexo I.D del PNT I: se entrega al paciente con el consentimiento informado.</summary>
-    [RelayCommand]
-    private void ImprimirProteccionDatos()
-    {
-        var resultado = _servicioGeneracionDocumentos.GenerarInformacionProteccionDatos(Paciente!.Id, _usuarioActualId);
-        Mensaje = $"Información de protección de datos generada: {resultado.RutaCompleta}";
+        OnPropertyChanged(nameof(Estado));
     }
 
     [RelayCommand]
@@ -164,22 +92,20 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
             {
                 var creado = _servicio.Crear(ConstruirDatosAlta(), _usuarioActualId);
                 Paciente = creado;
+                // Avisar al contexto es lo que hace aparecer las otras seis pestañas (FR-1530).
+                _contexto.Establecer(creado);
                 Mensaje = $"Paciente creado con ficha {creado.NumFicha}.";
             }
             else
             {
                 AplicarCambiosAPaciente(Paciente);
                 _servicio.Actualizar(Paciente, _usuarioActualId);
+                _contexto.Establecer(Paciente);
                 Mensaje = "Cambios guardados.";
             }
             _pendienteConfirmarDuplicado = false;
             OnPropertyChanged(nameof(NumFicha));
             OnPropertyChanged(nameof(Estado));
-            OnPropertyChanged(nameof(PuedeAbrirTratamientos));
-            OnPropertyChanged(nameof(PuedeAbrirDeposito));
-            OnPropertyChanged(nameof(PuedeAbrirComunicaciones));
-            OnPropertyChanged(nameof(PuedeAbrirPreparacion));
-            OnPropertyChanged(nameof(PuedeImprimirFicha));
         }
         catch (PacienteDuplicadoException ex)
         {

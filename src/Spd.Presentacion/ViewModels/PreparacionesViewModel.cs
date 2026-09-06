@@ -22,6 +22,7 @@ public sealed partial class PreparacionesViewModel : ViewModelBase
     private readonly IServicioGeneracionDocumentos _servicioDocumentos;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly IServicioGeneracionLote _servicioLote;
+    private readonly Navegacion.Navegador _navegador;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private ObservableCollection<FilaPreparacion> _filas = [];
@@ -38,8 +39,10 @@ public sealed partial class PreparacionesViewModel : ViewModelBase
     public PreparacionesViewModel(
         IServicioPreparacion servicioPreparacion, IServicioPacientes servicioPacientes, IServicioUsuarios servicioUsuarios,
         IServicioMedicamentos servicioMedicamentos, IServicioGeneracionDocumentos servicioDocumentos,
-        IServicioComunicacionesMedico servicioComunicaciones, IServicioGeneracionLote servicioLote, int? usuarioActualId)
+        IServicioComunicacionesMedico servicioComunicaciones, IServicioGeneracionLote servicioLote,
+        Navegacion.Navegador navegador, int? usuarioActualId)
     {
+        _navegador = navegador;
         _servicioPreparacion = servicioPreparacion;
         _servicioPacientes = servicioPacientes;
         _servicioUsuarios = servicioUsuarios;
@@ -89,7 +92,9 @@ public sealed partial class PreparacionesViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirPreparacion(FilaPreparacion fila)
-        => new PreparacionWindow(_servicioPreparacion, _servicioMedicamentos, _servicioDocumentos, _servicioComunicaciones, fila.Spd.PacienteId, _usuarioActualId).Show();
+        // Spec 015 FR-1530: la preparación es una pestaña del espacio del paciente, no una ventana.
+        => _navegador.Navegar(new Navegacion.Destino(
+            Navegacion.Seccion.Paciente, fila.Spd.PacienteId, nameof(Pacientes.PestanaPaciente.Preparacion)));
 
     [RelayCommand]
     private void SeleccionarAlDia()

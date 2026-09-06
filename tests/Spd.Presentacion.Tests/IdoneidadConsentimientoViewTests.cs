@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -14,7 +15,7 @@ namespace Spd.Presentacion.Tests;
 public sealed class IdoneidadConsentimientoViewTests
 {
     [AvaloniaFact]
-    public void IdoneidadConsentimientoWindow_se_construye_y_muestra_con_datos_reales_sin_lanzar()
+    public void IdoneidadConsentimientoView_se_construye_y_muestra_con_datos_reales_sin_lanzar()
     {
         var conexion = new SqliteConnection("Data Source=:memory:");
         conexion.Open();
@@ -51,7 +52,10 @@ public sealed class IdoneidadConsentimientoViewTests
             new RepositorioMaterialAcondicionamiento(conexion), new RepositorioRegistrosAmbientales(conexion),
             evaluaciones, consentimientos, new RepositorioComunicacionesMedico(conexion), repositorioFarmacia, auditoria);
 
-        var ventana = new IdoneidadConsentimientoWindow(servicioIdoneidad, servicioDocumentos, paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new IdoneidadConsentimientoView
+        {
+            DataContext = new IdoneidadConsentimientoViewModel(servicioIdoneidad, servicioDocumentos, paciente.Id, usuarioActualId: null)
+        });
 
         ventana.Show();
     }

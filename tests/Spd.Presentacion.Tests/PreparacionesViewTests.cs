@@ -74,7 +74,8 @@ public sealed class PreparacionesViewTests
 
         return new PreparacionesViewModel(
             servicioPreparacion, servicioPacientes, servicioUsuarios, new ServicioMedicamentos(repositorioMedicamentos, auditoria),
-            documentos, comunicaciones, lote, usuarioActualId: elaborador.Id);
+            documentos, comunicaciones, lote, new Spd.Presentacion.Navegacion.Navegador(esAdministrador: true),
+            usuarioActualId: elaborador.Id);
     }
 
     [AvaloniaFact]

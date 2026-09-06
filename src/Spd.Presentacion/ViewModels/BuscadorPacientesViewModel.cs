@@ -3,45 +3,27 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
-using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.Navegacion;
 
 namespace Spd.Presentacion.ViewModels;
 
-/// <summary>Búsqueda global de pacientes y acceso a su ficha (FR-010/FR-011). Por defecto solo
-/// muestra activos y en evaluación (FR-011).</summary>
+/// <summary>Búsqueda de pacientes y acceso a su espacio (FR-010/FR-011). Por defecto solo muestra
+/// activos y en evaluación (FR-011). Spec 015: abrir un paciente ya no abre una ventana, navega a su
+/// espacio dentro del marco, y por eso este ViewModel deja de necesitar los ocho servicios que solo
+/// servían para construir aquella ventana.</summary>
 public sealed partial class BuscadorPacientesViewModel : ViewModelBase
 {
     private readonly IServicioPacientes _servicio;
-    private readonly IServicioTratamientos _servicioTratamientos;
-    private readonly IServicioMedicamentos _servicioMedicamentos;
-    private readonly IServicioEnvases _servicioEnvases;
-    private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
-    private readonly IServicioComunicacionesMedico _servicioComunicaciones;
-    private readonly IServicioPreparacion _servicioPreparacion;
-    private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
-    private readonly IServicioIdoneidadConsentimiento _servicioIdoneidad;
-    private readonly int? _usuarioActualId;
+    private readonly Navegador _navegador;
 
     [ObservableProperty] private string _fragmento = string.Empty;
     [ObservableProperty] private bool _mostrarSoloActivosYEvaluacion = true;
     [ObservableProperty] private ObservableCollection<Paciente> _resultados = [];
 
-    public BuscadorPacientesViewModel(
-        IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
-        IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
-        IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion,
-        IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioIdoneidadConsentimiento servicioIdoneidad, int? usuarioActualId)
+    public BuscadorPacientesViewModel(IServicioPacientes servicio, Navegador navegador)
     {
-        _servicioIdoneidad = servicioIdoneidad;
         _servicio = servicio;
-        _servicioTratamientos = servicioTratamientos;
-        _servicioMedicamentos = servicioMedicamentos;
-        _servicioEnvases = servicioEnvases;
-        _servicioImportacion = servicioImportacion;
-        _servicioComunicaciones = servicioComunicaciones;
-        _servicioPreparacion = servicioPreparacion;
-        _servicioGeneracionDocumentos = servicioGeneracionDocumentos;
-        _usuarioActualId = usuarioActualId;
+        _navegador = navegador;
         Buscar();
     }
 
@@ -56,15 +38,12 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirPaciente(Paciente paciente)
-        => new FichaPacienteWindow(
-            _servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
-            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, _servicioIdoneidad,paciente, _usuarioActualId).Show();
+        => _navegador.Navegar(new Destino(Seccion.Paciente, paciente.Id));
 
+    /// <summary>Sin `PacienteId`: el espacio se abre en alta nueva, solo con la pestaña de datos
+    /// hasta que se guarde por primera vez (FR-1530).</summary>
     [RelayCommand]
-    private void NuevoPaciente()
-        => new FichaPacienteWindow(
-            _servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
-            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, _servicioIdoneidad,null, _usuarioActualId).Show();
+    private void NuevoPaciente() => _navegador.Navegar(new Destino(Seccion.Paciente));
 
     partial void OnFragmentoChanged(string value) => Buscar();
 

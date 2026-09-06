@@ -60,7 +60,7 @@ public sealed class InicioViewTests
         Assert.Equal(Seccion.Calidad, ambiental.Destino.Seccion);
 
         vm.IrAlAvisoCommand.Execute(ambiental);
-        Assert.Equal(Seccion.Calidad, navegador.Actual.Seccion);
+        Assert.Equal(Seccion.Calidad, navegador.Actual!.Seccion);
     }
 
     [AvaloniaFact]
@@ -70,9 +70,9 @@ public sealed class InicioViewTests
         using var c = conexion;
 
         vm.IrACommand.Execute("Preparaciones");
-        Assert.Equal(Seccion.Preparaciones, navegador.Actual.Seccion);
+        Assert.Equal(Seccion.Preparaciones, navegador.Actual!.Seccion);
 
         vm.IrACommand.Execute("Retirada");
-        Assert.Equal(Seccion.Retirada, navegador.Actual.Seccion);
+        Assert.Equal(Seccion.Retirada, navegador.Actual!.Seccion);
     }
 }

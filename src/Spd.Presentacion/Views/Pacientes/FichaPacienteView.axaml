@@ -1,79 +1,73 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Spd.Presentacion.Views.Pacientes.FichaPacienteView">
-  <Grid RowDefinitions="Auto,*,Auto">
+  <!-- Spec 015 FR-1530: la cabecera (ficha, estado, alergias) ya no está aquí, es la cabecera fija
+       del espacio del paciente, y los siete botones que abrían ventanas son ahora pestañas. Lo que
+       queda son los datos, en dos columnas para que quepan sin desplazar tanto. -->
+  <Grid RowDefinitions="*,Auto">
+    <ScrollViewer Grid.Row="0">
+      <Grid ColumnDefinitions="*,*" Margin="24,20" ColumnSpacing="28">
 
-    <Border Grid.Row="0" Padding="16,8" Background="#22808080">
-      <StackPanel Orientation="Horizontal" Spacing="16">
-        <TextBlock Text="{Binding NumFicha}" FontWeight="Bold" />
-        <TextBlock Text="{Binding Estado}" />
-        <TextBlock Text="{Binding Edad, StringFormat='{}{0} años'}"
-                   IsVisible="{Binding Edad, Converter={x:Static ObjectConverters.IsNotNull}}" />
-        <TextBlock Text="Alergias" Foreground="Red" FontWeight="Bold" IsVisible="{Binding TieneAlergias}" />
-      </StackPanel>
-    </Border>
+        <StackPanel Grid.Column="0" Spacing="6">
+          <TextBlock Text="Identificación" Classes="titulo" Margin="0,0,0,4" />
+          <TextBlock Text="Nombre *" Classes="etiqueta" />
+          <TextBox Text="{Binding Nombre}" />
+          <TextBlock Text="Apellidos *" Classes="etiqueta" />
+          <TextBox Text="{Binding Apellidos}" />
+          <TextBlock Text="Sexo (obligatorio si hay CIP)" Classes="etiqueta" />
+          <ComboBox ItemsSource="{Binding SexosDisponibles}" SelectedItem="{Binding Sexo}" HorizontalAlignment="Stretch" />
+          <TextBlock Text="DNI" Classes="etiqueta" />
+          <TextBox Text="{Binding Dni}" />
+          <TextBlock Text="Fecha de nacimiento" Classes="etiqueta" />
+          <DatePicker SelectedDate="{Binding FechaNacimiento}" />
+          <TextBlock Text="{Binding Edad, StringFormat='{}{0} años'}" Classes="suave"
+                     IsVisible="{Binding Edad, Converter={x:Static ObjectConverters.IsNotNull}}" />
+          <TextBlock Text="Nº Seguridad Social" Classes="etiqueta" />
+          <TextBox Text="{Binding NumSs}" />
+          <TextBlock Text="CIP" Classes="etiqueta" />
+          <TextBox Text="{Binding Cip}" />
 
-    <ScrollViewer Grid.Row="1">
-      <StackPanel Spacing="8" Margin="24">
-        <TextBlock Text="Nombre *" />
-        <TextBox Text="{Binding Nombre}" />
-        <TextBlock Text="Apellidos *" />
-        <TextBox Text="{Binding Apellidos}" />
-        <TextBlock Text="Sexo (obligatorio si hay CIP)" />
-        <ComboBox ItemsSource="{Binding SexosDisponibles}" SelectedItem="{Binding Sexo}" />
-        <TextBlock Text="DNI" />
-        <TextBox Text="{Binding Dni}" />
-        <TextBlock Text="Fecha de nacimiento" />
-        <DatePicker SelectedDate="{Binding FechaNacimiento}" />
-        <TextBlock Text="Nº Seguridad Social" />
-        <TextBox Text="{Binding NumSs}" />
-        <TextBlock Text="CIP" />
-        <TextBox Text="{Binding Cip}" />
-        <TextBlock Text="Dirección" />
-        <TextBox Text="{Binding Direccion}" />
-        <TextBlock Text="Código postal" />
-        <TextBox Text="{Binding Cp}" />
-        <TextBlock Text="Población" />
-        <TextBox Text="{Binding Poblacion}" />
-        <TextBlock Text="Teléfono 1" />
-        <TextBox Text="{Binding Telefono1}" />
-        <TextBlock Text="Teléfono 2" />
-        <TextBox Text="{Binding Telefono2}" />
-        <TextBlock Text="Email" />
-        <TextBox Text="{Binding Email}" />
-        <TextBlock Text="Enfermedades crónicas" />
-        <TextBox Text="{Binding EnfermedadesCronicas}" AcceptsReturn="True" Height="60" />
-        <TextBlock Text="Alergias e intolerancias" />
-        <TextBox Text="{Binding Alergias}" AcceptsReturn="True" Height="60" />
-        <TextBlock Text="Observaciones" />
-        <TextBox Text="{Binding Observaciones}" AcceptsReturn="True" Height="60" />
-        <CheckBox Content="Pictogramas de comidas" IsChecked="{Binding PictogramaComidas}" />
-        <TextBlock Text="Identificador visual" />
-        <TextBox Text="{Binding IdentificadorVisual}" />
-        <TextBlock Text="Día de retirada del SPD" />
-        <ComboBox ItemsSource="{Binding DiasSemanaDisponibles}" SelectedItem="{Binding DiaRetirada}" />
-        <TextBlock Text="Nº de blísteres (1 o 2)" />
-        <NumericUpDown Value="{Binding NBlisteres}" Minimum="1" Maximum="2" />
+          <TextBlock Text="Contacto" Classes="titulo" Margin="0,14,0,4" />
+          <TextBlock Text="Dirección" Classes="etiqueta" />
+          <TextBox Text="{Binding Direccion}" />
+          <TextBlock Text="Código postal" Classes="etiqueta" />
+          <TextBox Text="{Binding Cp}" />
+          <TextBlock Text="Población" Classes="etiqueta" />
+          <TextBox Text="{Binding Poblacion}" />
+          <TextBlock Text="Teléfono 1" Classes="etiqueta" />
+          <TextBox Text="{Binding Telefono1}" />
+          <TextBlock Text="Teléfono 2" Classes="etiqueta" />
+          <TextBox Text="{Binding Telefono2}" />
+          <TextBlock Text="Email" Classes="etiqueta" />
+          <TextBox Text="{Binding Email}" />
+        </StackPanel>
 
-        <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
-        <Button Content="Idoneidad y consentimiento" Command="{Binding AbrirIdoneidadCommand}"
-                IsVisible="{Binding PuedeAbrirTratamientos}" />
-        <Button Content="Tratamientos" Command="{Binding AbrirTratamientosCommand}"
-                IsVisible="{Binding PuedeAbrirTratamientos}" />
-        <Button Content="Depósito" Command="{Binding AbrirDepositoCommand}"
-                IsVisible="{Binding PuedeAbrirDeposito}" />
-        <Button Content="Comunicaciones" Command="{Binding AbrirComunicacionesCommand}"
-                IsVisible="{Binding PuedeAbrirComunicaciones}" />
-        <Button Content="Preparación" Command="{Binding AbrirPreparacionCommand}"
-                IsVisible="{Binding PuedeAbrirPreparacion}" />
-        <Button Content="Imprimir ficha" Command="{Binding ImprimirFichaCommand}"
-                IsVisible="{Binding PuedeImprimirFicha}" />
-        <Button Content="Imprimir información de protección de datos (RGPD)" Command="{Binding ImprimirProteccionDatosCommand}"
-                IsVisible="{Binding PuedeImprimirFicha}" />
-      </StackPanel>
+        <StackPanel Grid.Column="1" Spacing="6">
+          <TextBlock Text="Clínica" Classes="titulo" Margin="0,0,0,4" />
+          <TextBlock Text="Enfermedades crónicas" Classes="etiqueta" />
+          <TextBox Text="{Binding EnfermedadesCronicas}" AcceptsReturn="True" Height="70" />
+          <TextBlock Text="Alergias e intolerancias" Classes="etiqueta" />
+          <TextBox Text="{Binding Alergias}" AcceptsReturn="True" Height="70" />
+          <TextBlock Text="Observaciones" Classes="etiqueta" />
+          <TextBox Text="{Binding Observaciones}" AcceptsReturn="True" Height="70" />
+
+          <TextBlock Text="SPD" Classes="titulo" Margin="0,14,0,4" />
+          <CheckBox Content="Pictogramas de comidas" IsChecked="{Binding PictogramaComidas}" />
+          <TextBlock Text="Identificador visual" Classes="etiqueta" />
+          <TextBox Text="{Binding IdentificadorVisual}" />
+          <TextBlock Text="Día de retirada del SPD" Classes="etiqueta" />
+          <ComboBox ItemsSource="{Binding DiasSemanaDisponibles}" SelectedItem="{Binding DiaRetirada}" HorizontalAlignment="Stretch" />
+          <TextBlock Text="Nº de blísteres (1 o 2)" Classes="etiqueta" />
+          <NumericUpDown Value="{Binding NBlisteres}" Minimum="1" Maximum="2" />
+
+          <Button Classes="primario" Content="Guardar" Command="{Binding GuardarCommand}"
+                  Margin="0,20,0,0" HorizontalAlignment="Left" />
+        </StackPanel>
+
+      </Grid>
     </ScrollViewer>
 
-    <Border Grid.Row="2" Padding="16,8" Background="#22808080"
+    <Border Grid.Row="1" Classes="panel" Margin="24,0,24,16"
             IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
     </Border>

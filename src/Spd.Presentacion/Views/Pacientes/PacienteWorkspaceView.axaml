@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
+             xmlns:pacientes="using:Spd.Presentacion.Views.Pacientes"
+             x:Class="Spd.Presentacion.Views.Pacientes.PacienteWorkspaceView">
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!-- FR-1531: cabecera fija, visible desde cualquier pestaña. -->
+    <pacientes:CabeceraPacienteView Grid.Row="0" DataContext="{Binding Cabecera}" />
+
+    <!-- FR-1530/1532: las pestañas, con su indicador de pendiente. Sin x:DataType a propósito:
+         bindings por reflexión, evita el patrón frágil de $parent + cast con compiled bindings. -->
+    <Border Grid.Row="1" Padding="24,0" Background="{DynamicResource Superficie}"
+            BorderBrush="{DynamicResource Linea}" BorderThickness="0,0,0,1">
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Pestanas}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="2" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button Classes="navegacion" Padding="14,10"
+                      Command="{Binding DataContext.SeleccionarCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                      CommandParameter="{Binding}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding Titulo}" VerticalAlignment="Center" />
+                  <c:Pastilla Variante="Aviso" Texto="{Binding PendienteTexto}"
+                              IsVisible="{Binding TienePendiente}" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+
+    <ContentControl Grid.Row="2" Content="{Binding PestanaSeleccionada.Contenido}" />
+  </Grid>
+</UserControl>

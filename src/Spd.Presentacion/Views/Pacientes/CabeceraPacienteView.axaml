@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
+             x:Class="Spd.Presentacion.Views.Pacientes.CabeceraPacienteView">
+  <!-- Spec 015 FR-1531: lo que hay que tener delante siempre, se esté en la pestaña que se esté.
+       Las alergias van en rojo y a la vista porque su ausencia en pantalla es justo lo que puede
+       acabar en un blíster preparado para quien no debía. -->
+  <Border Padding="24,14" Background="{DynamicResource Superficie}"
+          BorderBrush="{DynamicResource Linea}" BorderThickness="0,0,0,1">
+    <StackPanel Spacing="8">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <TextBlock Text="{Binding NombreCompleto}" Classes="pagina" VerticalAlignment="Center" />
+        <c:Pastilla Texto="{Binding NumFicha}" VerticalAlignment="Center" />
+        <c:Pastilla Texto="{Binding Estado}" Variante="{Binding VarianteEstado}" VerticalAlignment="Center" />
+        <c:Pastilla Texto="{Binding Idoneidad}" Variante="{Binding VarianteIdoneidad}" VerticalAlignment="Center" />
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Spacing="20">
+        <TextBlock Classes="suave" Text="{Binding DiaRetirada, StringFormat='Retirada: {0}'}" />
+        <TextBlock Classes="suave" Text="{Binding Blisteres, StringFormat='Blísteres por sesión: {0}'}" />
+        <TextBlock Classes="suave" Text="{Binding PendientesDeEntrega, StringFormat='Sin entregar: {0}'}" />
+      </StackPanel>
+
+      <Border Classes="panel" Padding="10,6" IsVisible="{Binding TieneAlergias}"
+              Background="{DynamicResource BloqueoSuave}" BorderBrush="{DynamicResource Bloqueo}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="Alergias" FontWeight="Bold" Foreground="{DynamicResource Bloqueo}" />
+          <TextBlock Text="{Binding Alergias}" TextWrapping="Wrap" Foreground="{DynamicResource Bloqueo}" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </Border>
+</UserControl>

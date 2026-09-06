@@ -39,14 +39,20 @@ public sealed partial class ComunicacionesMedicoViewModel : ViewModelBase
         _servicioDocumentos = servicioDocumentos;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
-        if (prerrelleno is not null)
-        {
-            MedicoId = prerrelleno.MedicoId;
-            Tipo = prerrelleno.Tipo;
-            IncidenciasDetectadas = prerrelleno.IncidenciasDetectadas;
-            Propuesta = prerrelleno.Propuesta;
-        }
+        if (prerrelleno is not null) Prerrellenar(prerrelleno);
         Cargar();
+    }
+
+    /// <summary>Spec 015 FR-1530: llegando desde la pestaña de tratamiento o de preparación, el
+    /// formulario aparece ya relleno con lo que hay que consultarle al médico. Antes esto se pasaba
+    /// al constructor de una ventana nueva; ahora la pestaña ya existe y hay que poder rellenarla
+    /// en cualquier momento (Spec 008 FR-810).</summary>
+    public void Prerrellenar(DatosAltaComunicacionMedico prerrelleno)
+    {
+        MedicoId = prerrelleno.MedicoId;
+        Tipo = prerrelleno.Tipo;
+        IncidenciasDetectadas = prerrelleno.IncidenciasDetectadas;
+        Propuesta = prerrelleno.Propuesta;
     }
 
     private void Cargar() => Comunicaciones = new ObservableCollection<ComunicacionMedico>(_servicio.ListarDePaciente(_pacienteId));

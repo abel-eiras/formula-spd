@@ -4,6 +4,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
+using Spd.Presentacion.Pacientes;
 using Spd.Dominio;
 
 namespace Spd.Presentacion.ViewModels;
@@ -16,6 +17,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
     private readonly IServicioIdoneidadConsentimiento _servicio;
     private readonly IServicioGeneracionDocumentos _servicioDocumentos;
     private readonly int _pacienteId;
+    private readonly PacienteContexto? _contexto;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private string _cabecera = string.Empty;
@@ -65,13 +67,28 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
     public bool EsRepresentante => TipoSeleccionado == TipoConsentimiento.Representante;
 
     public IdoneidadConsentimientoViewModel(
-        IServicioIdoneidadConsentimiento servicio, IServicioGeneracionDocumentos servicioDocumentos, int pacienteId, int? usuarioActualId)
+        IServicioIdoneidadConsentimiento servicio, IServicioGeneracionDocumentos servicioDocumentos, int pacienteId,
+        int? usuarioActualId, PacienteContexto? contexto = null)
     {
+        _contexto = contexto;
         _servicio = servicio;
         _servicioDocumentos = servicioDocumentos;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
         Cargar();
+    }
+
+    /// <summary>Spec 002 FR-213: registrar la evaluación o el consentimiento puede activar al
+    /// paciente. Avisar al contexto es lo que hace que la cabecera y las demás pestañas se enteren
+    /// en el acto; antes hacía falta cerrar esta ventana para que la ficha se releyera.
+    ///
+    /// Va aquí y **no** dentro de `Cargar`: `Cargar` también se llama al construir, y entonces no
+    /// ha cambiado nada — avisar allí encadenaba reconstruir las pestañas con volver a construir
+    /// este mismo ViewModel, sin fin.</summary>
+    private void RecargarYAvisar()
+    {
+        Cargar();
+        _contexto?.Recargar();
     }
 
     private void Cargar()
@@ -122,7 +139,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
             SugerirSuspension = resultado.SugerirSuspension;
             if (SugerirSuspension) Mensaje += " El paciente está ACTIVO con una evaluación NO APTO: puede pasarlo a SUSPENDIDO.";
             ObservacionesEvaluacion = null;
-            Cargar();
+            RecargarYAvisar();
         }
         catch (ErrorValidacionException ex)
         {
@@ -139,7 +156,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
                 _pacienteId, new DatosContactoRepresentante(NuevoTipo, NuevoNombre, NuevoApellidos, NuevoDni, NuevoTelefono, NuevoEmail), _usuarioActualId);
             NuevoNombre = NuevoApellidos = NuevoDni = string.Empty;
             NuevoTelefono = NuevoEmail = null;
-            Cargar();
+            RecargarYAvisar();
             RepresentanteSeleccionado = RepresentantesElegibles.FirstOrDefault(c => c.Id == contacto.Id);
             Mensaje = $"Contacto {contacto.Nombre} {contacto.Apellidos} creado y seleccionado como firmante.";
         }
@@ -156,7 +173,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
         {
             _servicio.CrearConsentimiento(_pacienteId, TipoSeleccionado, EsRepresentante ? RepresentanteSeleccionado?.Id : null, _usuarioActualId);
             Mensaje = "Consentimiento creado: imprímalo, recoja la firma y registre la fecha.";
-            Cargar();
+            RecargarYAvisar();
         }
         catch (ErrorValidacionException ex)
         {
@@ -171,7 +188,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
         {
             var resultado = _servicioDocumentos.GenerarConsentimiento(fila.Consentimiento.Id, _usuarioActualId);
             Mensaje = $"Consentimiento generado: {resultado.RutaCompleta}";
-            Cargar();
+            RecargarYAvisar();
         }
         catch (ErrorValidacionException ex)
         {
@@ -187,7 +204,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
         {
             var resultado = _servicio.RegistrarFirma(fila.Consentimiento.Id, DateOnly.FromDateTime(FechaFirma.Value.Date), _usuarioActualId);
             Mensaje = "Firma registrada." + (resultado.PacienteActivado ? " El paciente pasa a ACTIVO (FR-213)." : "");
-            Cargar();
+            RecargarYAvisar();
         }
         catch (ErrorValidacionException ex)
         {
@@ -214,7 +231,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
             SugerirSuspension = resultado.SugerirSuspension;
             Mensaje = "Consentimiento revocado." + (SugerirSuspension ? " No queda ningún consentimiento vigente: puede pasar al paciente a SUSPENDIDO (FR-214)." : "");
             ConsentimientoEnRevocacion = null;
-            Cargar();
+            RecargarYAvisar();
         }
         catch (ErrorValidacionException ex)
         {
@@ -230,7 +247,7 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
             _servicio.Suspender(_pacienteId, _usuarioActualId);
             SugerirSuspension = false;
             Mensaje = "Paciente pasado a SUSPENDIDO.";
-            Cargar();
+            RecargarYAvisar();
         }
         catch (ErrorValidacionException ex)
         {
