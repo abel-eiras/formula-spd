@@ -125,3 +125,59 @@ fase de `/speckit-plan`.
   errores; 28+3+44 = 75 tests en verde (28 Dominio, 3 Presentación, 44 Aplicación). Pendiente de
   prueba manual real (`dotnet run`) por el usuario antes de dar la user story por completamente
   verificada, igual que en Spec 000.
+
+## 2026-09-06 — US2 (médicos) y US3 (contactos), por fin construidas
+
+Hasta hoy solo existían `RepositorioMedicos` y `RepositorioContactos`: **nadie llamaba a
+`RepositorioMedicos.Crear`**, así que no había forma de dar de alta un médico desde la aplicación y
+cualquier campo que lo referenciara estaba condenado a quedarse vacío. El selector por nombre que
+añadió la Spec 015 (FR-1542) hizo visible el agujero en vez de disimularlo. Ahora está cerrado.
+
+**371 tests en verde** (68 Dominio + 239 Aplicación + 64 Presentación), 27 nuevos.
+
+### Médicos (FR-030..FR-037)
+
+- `IServicioMedicos` / `ServicioMedicos`: buscar (mínimo 2 caracteres, sin tildes, por apellidos,
+  nombre **y centro**), listar activos, crear, actualizar, dar de baja y contar pacientes de cabecera.
+  Cada escritura queda en auditoría (Art. VII.6).
+- **FR-034 avisa, no bloquea**: mismo nombre y apellidos, o mismo colegiado, generan un aviso y el
+  alta se hace igual. Dos médicos pueden llamarse igual y el mismo médico puede pasar consulta en dos
+  centros; quien lo sabe es el usuario.
+- **FR-036**: la baja se rechaza **listando los pacientes** a los que hay que reasignar, no con un
+  «no se puede» a secas. Un médico de baja no se borra (Art. III.1): los tratamientos y las
+  comunicaciones que ya lo referencian se siguen leyendo.
+- `SelectorMedicoViewModel` + `SelectorMedicoView`, reutilizado en los tres sitios que referencian un
+  médico: cabecera del paciente, prescriptor del tratamiento y destinatario de la comunicación.
+- `CatalogoMedicosViewModel` + vista, como sección **del trabajo diario** (no de administración):
+  quien registra un tratamiento necesita poder dar de alta al prescriptor en ese momento.
+
+### Contactos (FR-020..FR-023)
+
+- `IServicioContactos` / `ServicioContactos`, con las reglas donde deben estar —en la capa de
+  aplicación, no en la pantalla— porque son invariantes de dominio (Art. I.3): DNI obligatorio para
+  representante legal, persona autorizada y para quien retira; un solo principal y un solo «retira»
+  por paciente; baja lógica.
+- **Exclusividad por desmarcado, no por rechazo**: marcar a otro como principal es exactamente la
+  forma de cambiar quién lo es; hacer que fallara obligaría a dos pasos.
+- Al dar de baja se le quitan las marcas de principal y de retirada: si no, el Anexo imprimiría a
+  alguien que ya no está y el listado de retirada tomaría su DNI.
+- `ContactosPacienteViewModel` + vista **dentro de la pestaña Datos** (decisión del propietario,
+  2026-09-06), con panel lateral para el alta y la edición.
+
+### Dos agujeros colaterales que esto cierra
+
+- **La ficha del paciente no tenía campo de médico de cabecera**: el alta pasaba `MedicoId: null`
+  siempre. Ahora lo tiene, y al releer el paciente el selector se coloca solo.
+- **La columna «DNI retirada» del listado de retirada salía siempre en blanco**, porque sale del
+  contacto marcado como quien retira y no había forma de crear contactos. Si no hay ninguno marcado,
+  la pantalla dice explícitamente que se usará el DNI del propio paciente (FR-021b).
+
+### Corrección de la spec
+
+El FR-033 decía «diálogo»; la Spec 015 sustituyó los diálogos por paneles laterales en toda la
+aplicación y manda por ser posterior. Anotado en `spec.md` como corrección, no ignorado.
+
+### Ayuda
+
+Dos apartados nuevos: `uso__025-medicos` y `uso__026-contactos`, con lo que tiene consecuencias
+reales (las dos marcas de contacto, cuándo el DNI es obligatorio, por qué una baja no borra).

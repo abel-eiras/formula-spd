@@ -105,21 +105,21 @@ salir de la ficha (CA-005), editar su teléfono y comprobarlo en un paciente que
 
 ### Tests for User Story 2
 
-- [ ] T038 [P] [US2] Test: `Buscar` de médicos no busca con menos de 2 caracteres y encuentra por fragmento normalizado (CA-004), en `tests/Spd.Aplicacion.Tests/ServicioMedicosTests.cs`
-- [ ] T039 [P] [US2] Test: `Crear` médico avisa (no bloquea) si existe otro activo con mismos apellidos+nombre o mismo colegiado (FR-034)
-- [ ] T040 [P] [US2] Test: `Actualizar` médico se refleja al releer un paciente que lo referencia, sin copia de datos (CA-006, Art. IV.1)
-- [ ] T041 [P] [US2] Test: `DarDeBaja` médico lanza excepción con la lista de pacientes si es cabecera de alguno activo/evaluación (CA-007)
-- [ ] T042 [P] [US2] Test: `Crear` y `DarDeBaja` de médico registran en auditoría (Art. VII.6)
+- [X] T038 [P] [US2] Test: `Buscar` de médicos no busca con menos de 2 caracteres y encuentra por fragmento normalizado (CA-004), en `tests/Spd.Aplicacion.Tests/ServicioMedicosTests.cs`
+- [X] T039 [P] [US2] Test: `Crear` médico avisa (no bloquea) si existe otro activo con mismos apellidos+nombre o mismo colegiado (FR-034)
+- [X] T040 [P] [US2] Test: `Actualizar` médico se refleja al releer un paciente que lo referencia, sin copia de datos (CA-006, Art. IV.1)
+- [X] T041 [P] [US2] Test: `DarDeBaja` médico lanza excepción con la lista de pacientes si es cabecera de alguno activo/evaluación (CA-007)
+- [X] T042 [P] [US2] Test: `Crear` y `DarDeBaja` de médico registran en auditoría (Art. VII.6)
 
 ### Implementation for User Story 2
 
-- [ ] T043 [US2] Implementar `IServicioMedicos` y `ServicioMedicos` en `src/Spd.Aplicacion/ServicioMedicos.cs` (depende de T005, T008, T011, T014); cada escritura registra en auditoría
-- [ ] T044 [US2] Implementar `SelectorMedicoViewModel` (autocompletado + "Nuevo médico…", FR-032/033) en `src/Spd.Presentacion/ViewModels/SelectorMedicoViewModel.cs` + vista reutilizable
-- [ ] T045 [US2] Integrar `SelectorMedicoViewModel` en `FichaPacienteView` como campo de médico de cabecera (depende de T033/T034, T044)
-- [ ] T046 [US2] Implementar `CatalogoMedicosViewModel` + vista (listado con búsqueda y nº de pacientes activos por médico, FR-037) en `src/Spd.Presentacion/ViewModels/CatalogoMedicosViewModel.cs` + vista
-- [ ] T047 [US2] Añadir botón "Catálogo de médicos" a `MainWindow`/`MainViewModel`
-- [ ] T048 [P] [US2] Test Avalonia.Headless: `SelectorMedicoViewModel` muestra los resultados del autocompletado en su lista, y elegir "Nuevo médico…" crea el médico y lo deja seleccionado sin cerrar la ficha (CA-005), en `tests/Spd.Presentacion.Tests/SelectorMedicoViewTests.cs` (remediación F3 — CA-005 es una aserción de comportamiento de UI que ningún test de `ServicioMedicos` puede verificar)
-- [ ] T049 [P] [US2] Test Avalonia.Headless: `CatalogoMedicosView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/CatalogoMedicosViewTests.cs` (remediación F5)
+- [X] T043 [US2] Implementar `IServicioMedicos` y `ServicioMedicos` en `src/Spd.Aplicacion/ServicioMedicos.cs` (depende de T005, T008, T011, T014); cada escritura registra en auditoría
+- [X] T044 [US2] Implementar `SelectorMedicoViewModel` (autocompletado + "Nuevo médico…", FR-032/033) en `src/Spd.Presentacion/ViewModels/SelectorMedicoViewModel.cs` + vista reutilizable
+- [X] T045 [US2] Integrar `SelectorMedicoViewModel` en `FichaPacienteView` como campo de médico de cabecera (depende de T033/T034, T044)
+- [X] T046 [US2] Implementar `CatalogoMedicosViewModel` + vista (listado con búsqueda y nº de pacientes activos por médico, FR-037) en `src/Spd.Presentacion/ViewModels/CatalogoMedicosViewModel.cs` + vista
+- [X] T047 [US2] «Catálogo de médicos» como sección del marco único (`Seccion.Medicos`, grupo Trabajo diario). El enunciado original decía `MainWindow`, que la Spec 015 eliminó
+- [X] T048 [P] [US2] Test Avalonia.Headless: `SelectorMedicoViewModel` muestra los resultados del autocompletado en su lista, y elegir "Nuevo médico…" crea el médico y lo deja seleccionado sin cerrar la ficha (CA-005), en `tests/Spd.Presentacion.Tests/SelectorMedicoViewTests.cs` (remediación F3 — CA-005 es una aserción de comportamiento de UI que ningún test de `ServicioMedicos` puede verificar)
+- [X] T049 [P] [US2] Test Avalonia.Headless: `CatalogoMedicosView` construye la ventana, renderiza el listado con su `ItemTemplate` y ejecuta `.Show()` sin lanzar excepción, en `tests/Spd.Presentacion.Tests/CatalogoMedicosViewTests.cs` (remediación F5)
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 
@@ -136,16 +136,16 @@ mismo paciente.
 
 ### Tests for User Story 3
 
-- [ ] T050 [P] [US3] Test: contacto REPRESENTANTE_LEGAL/PERSONA_AUTORIZADA sin DNI no se guarda (CA-008), en `tests/Spd.Aplicacion.Tests/ServicioContactosTests.cs`
-- [ ] T051 [P] [US3] Test: marcar `retira_medicacion` exige DNI (FR-021c) y desmarca cualquier otro contacto del mismo paciente que lo tuviera (FR-021b)
-- [ ] T052 [P] [US3] Test: marcar `es_principal` desmarca cualquier otro contacto principal del mismo paciente (FR-021)
-- [ ] T053 [P] [US3] Test: la baja de contacto es lógica, no se elimina y no aparece salvo "ver histórico" (FR-023, Art. III.1)
-- [ ] T054 [P] [US3] Test: alta y baja de contacto registran en auditoría (Art. VII.6)
+- [X] T050 [P] [US3] Test: contacto REPRESENTANTE_LEGAL/PERSONA_AUTORIZADA sin DNI no se guarda (CA-008), en `tests/Spd.Aplicacion.Tests/ServicioContactosTests.cs`
+- [X] T051 [P] [US3] Test: marcar `retira_medicacion` exige DNI (FR-021c) y desmarca cualquier otro contacto del mismo paciente que lo tuviera (FR-021b)
+- [X] T052 [P] [US3] Test: marcar `es_principal` desmarca cualquier otro contacto principal del mismo paciente (FR-021)
+- [X] T053 [P] [US3] Test: la baja de contacto es lógica, no se elimina y no aparece salvo "ver histórico" (FR-023, Art. III.1)
+- [X] T054 [P] [US3] Test: alta y baja de contacto registran en auditoría (Art. VII.6)
 
 ### Implementation for User Story 3
 
-- [ ] T055 [US3] Implementar `IServicioContactos` y `ServicioContactos` en `src/Spd.Aplicacion/ServicioContactos.cs` (depende de T007, T013, T016); cada escritura registra en auditoría
-- [ ] T056 [US3] Implementar pestaña "Contactos" (`ContactosPacienteViewModel` + vista) integrada en `FichaPacienteView` como segunda pestaña (FR-009; depende de T034)
+- [X] T055 [US3] Implementar `IServicioContactos` y `ServicioContactos` en `src/Spd.Aplicacion/ServicioContactos.cs` (depende de T007, T013, T016); cada escritura registra en auditoría
+- [X] T056 [US3] Implementar pestaña "Contactos" (`ContactosPacienteViewModel` + vista) integrada en `FichaPacienteView` como segunda pestaña (FR-009; depende de T034)
 
 **Checkpoint**: las 3 user stories funcionan de forma independiente.
 

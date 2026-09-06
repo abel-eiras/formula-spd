@@ -50,7 +50,8 @@ public sealed class ComunicacionesMedicoViewTests
         var ventana = AnfitrionDeVista.Anfitrion(new ComunicacionesMedicoView
         {
             DataContext = new ComunicacionesMedicoViewModel(
-                servicioComunicaciones, FabricaServiciosTest.GeneracionDocumentos(conexion), pacienteId, usuarioActualId: null)
+                servicioComunicaciones, FabricaServiciosTest.GeneracionDocumentos(conexion), pacienteId, usuarioActualId: null,
+                new ServicioMedicos(new RepositorioMedicos(conexion), repositorioPacientes, auditoria))
         });
 
         ventana.Show();

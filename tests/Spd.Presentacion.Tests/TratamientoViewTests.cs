@@ -55,7 +55,9 @@ public sealed class TratamientoViewTests
         {
             DataContext = new TratamientoViewModel(
                 servicioTratamientos, servicioMedicamentos, servicioComunicaciones,
-                FabricaServiciosTest.GeneracionDocumentos(conexion), paciente.Id, usuarioActualId: null)
+                FabricaServiciosTest.GeneracionDocumentos(conexion),
+                new ServicioMedicos(new RepositorioMedicos(conexion), repositorioPacientes, auditoria),
+                paciente.Id, usuarioActualId: null)
         });
 
         ventana.Show();

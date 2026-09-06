@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:medicos="using:Spd.Presentacion.Views.Medicos"
              x:Class="Spd.Presentacion.Views.Pacientes.TratamientoView">
   <Grid ColumnDefinitions="280,*" RowDefinitions="*,Auto" Margin="16">
     <StackPanel Grid.Column="0" Spacing="8">
@@ -31,21 +32,7 @@
         <TextBlock Text="Problema de salud / indicación" />
         <TextBox Text="{Binding ProblemaSalud}" />
         <TextBlock Text="Médico prescriptor (id)" />
-        <ComboBox ItemsSource="{Binding MedicosDisponibles}" SelectedItem="{Binding MedicoSeleccionado}"
-                  HorizontalAlignment="Stretch" PlaceholderText="Elige el médico prescriptor…">
-          <ComboBox.ItemTemplate>
-            <DataTemplate>
-              <TextBlock>
-                <TextBlock.Text>
-                  <MultiBinding StringFormat="{}{0} {1}">
-                    <Binding Path="Nombre" />
-                    <Binding Path="Apellidos" />
-                  </MultiBinding>
-                </TextBlock.Text>
-              </TextBlock>
-            </DataTemplate>
-          </ComboBox.ItemTemplate>
-        </ComboBox>
+        <medicos:SelectorMedicoView DataContext="{Binding SelectorMedico}" />
         <TextBlock Text="Pauta D / A / C / N" />
         <StackPanel Orientation="Horizontal" Spacing="4">
           <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaD}" Width="80" />

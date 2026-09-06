@@ -29,18 +29,16 @@ public sealed partial class ComunicacionesMedicoViewModel : ViewModelBase
     [ObservableProperty] private ComunicacionMedico? _comunicacionSeleccionadaParaRespuesta;
     [ObservableProperty] private string _respuestaTexto = string.Empty;
 
-    [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<Spd.Dominio.Medico> _medicosDisponibles = [];
-    [ObservableProperty] private Spd.Dominio.Medico? _medicoSeleccionado;
+    /// <summary>FR-032/FR-033: el destinatario se busca por nombre y se puede dar de alta aquí mismo.</summary>
+    public SelectorMedicoViewModel SelectorMedico { get; }
 
     public TipoComunicacionMedico[] TiposDisponibles { get; } = Enum.GetValues<TipoComunicacionMedico>();
 
     public ComunicacionesMedicoViewModel(
         IServicioComunicacionesMedico servicio, IServicioGeneracionDocumentos servicioDocumentos, int pacienteId, int? usuarioActualId,
-        DatosAltaComunicacionMedico? prerrelleno = null, IServicioMedicos? servicioMedicos = null)
+        IServicioMedicos servicioMedicos, DatosAltaComunicacionMedico? prerrelleno = null)
     {
-        // FR-1542: el médico se elige por nombre, no tecleando su id.
-        MedicosDisponibles = new System.Collections.ObjectModel.ObservableCollection<Spd.Dominio.Medico>(
-            servicioMedicos?.ListarActivos() ?? []);
+        SelectorMedico = new SelectorMedicoViewModel(servicioMedicos, usuarioActualId);
         _servicio = servicio;
         _servicioDocumentos = servicioDocumentos;
         _pacienteId = pacienteId;
@@ -68,7 +66,7 @@ public sealed partial class ComunicacionesMedicoViewModel : ViewModelBase
     {
         try
         {
-            _servicio.Crear(new DatosAltaComunicacionMedico(_pacienteId, MedicoId, Tipo, IncidenciasDetectadas, Propuesta), _usuarioActualId);
+            _servicio.Crear(new DatosAltaComunicacionMedico(_pacienteId, SelectorMedico.Seleccionado?.Id, Tipo, IncidenciasDetectadas, Propuesta), _usuarioActualId);
             Mensaje = "Comunicación guardada.";
             MedicoId = null; IncidenciasDetectadas = null; Propuesta = null;
             Cargar();
@@ -108,12 +106,6 @@ public sealed partial class ComunicacionesMedicoViewModel : ViewModelBase
         Cargar();
     }
 
-    /// <summary>FR-1542: la lista de médicos y el `MedicoId` que se guarda se mantienen en sintonía
-    /// en los dos sentidos; el número deja de teclearse y por tanto deja de poder equivocarse.</summary>
-    partial void OnMedicoSeleccionadoChanged(Spd.Dominio.Medico? value) => MedicoId = value?.Id;
-
-    partial void OnMedicoIdChanged(int? value)
-        => MedicoSeleccionado = value is null
-            ? null
-            : System.Linq.Enumerable.FirstOrDefault(MedicosDisponibles, m => m.Id == value);
+    /// <summary>FR-032: el destinatario que se guarda sale del selector, no de un número tecleado.</summary>
+    partial void OnMedicoIdChanged(int? value) => SelectorMedico.Establecer(value);
 }
