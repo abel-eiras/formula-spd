@@ -124,8 +124,8 @@ que el fichero usa el formato corto (CA-701).
 | Información sobre protección de datos (Anexo I.D) | `RGPD` | Por paciente | Este documento (corrección 2026-09-06) | Sí — desde la ficha del paciente |
 | Evaluación de idoneidad | `IDONEIDAD` | Por evaluación | Spec 002 | Sin documento aparte: se imprime dentro de `FICHA-PAC` (Anexo I.E; Spec 002, 2026-09-06) |
 | Consentimiento informado (Anexo I.B, paciente o representante) | `CONSENT` | Por consentimiento | Spec 002 | Sí — desde la pantalla de idoneidad y consentimiento (2026-09-06) |
-| Carta de presentación al médico | `CARTA-PRES` | Por comunicación | Spec 008 | Diferido |
-| Carta de incidencias al médico | `CARTA-INC` | Por comunicación | Spec 008 | Diferido |
+| Carta de presentación al médico (Anexo I.C) | `CARTA-PRES` | Por comunicación | Spec 008 | Sí — desde Comunicaciones (2026-09-06) |
+| Carta de incidencias al médico | `CARTA-INC` | Por comunicación | Spec 008 | Sí — desde Comunicaciones (2026-09-06); sin modelo en el PNT, deriva del Anexo I.C |
 | Listado de retirada de envases | `RETIRADA` | Por fecha de listado | Spec 005 | Diferido |
 | Registro de condiciones ambientales | `REG-AMB` | Por periodo | Spec 006/009 | Diferido |
 | Registro de limpieza | `REG-LIMP` | Por periodo | Spec 009 | Diferido |

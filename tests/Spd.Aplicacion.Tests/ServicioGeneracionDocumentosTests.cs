@@ -25,7 +25,8 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
 
     private sealed record Contexto(
         SqliteConnection Conexion, ServicioGeneracionDocumentos Servicio, int PacienteId, int SpdId,
-        int ConsentimientoPacienteId, int ConsentimientoRepresentanteId, RepositorioConsentimientos RepositorioConsentimientos);
+        int ConsentimientoPacienteId, int ConsentimientoRepresentanteId, RepositorioConsentimientos RepositorioConsentimientos,
+        int ComunicacionPresentacionId, int ComunicacionIncidenciaId, int ComunicacionTelefonoId);
 
     private Contexto Crear()
     {
@@ -160,12 +161,30 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
             PacienteId = paciente.Id, Tipo = TipoConsentimiento.Representante, ContactoId = representanteId, FechaCreacion = DateTime.UtcNow
         });
 
+        // Spec 008: una comunicación de cada tipo (solo presentación e incidencia generan carta).
+        var repositorioComunicaciones = new RepositorioComunicacionesMedico(conexion);
+        var presentacionId = repositorioComunicaciones.Crear(new ComunicacionMedico
+        {
+            PacienteId = paciente.Id, MedicoId = medico.Id, Tipo = TipoComunicacionMedico.Presentacion, Fecha = new DateOnly(2026, 9, 2), FarmaceuticoId = elaborador.Id
+        });
+        var incidenciaId = repositorioComunicaciones.Crear(new ComunicacionMedico
+        {
+            PacienteId = paciente.Id, MedicoId = medico.Id, Tipo = TipoComunicacionMedico.Incidencia, Fecha = new DateOnly(2026, 9, 5),
+            IncidenciasDetectadas = "Duplicidad de paracetamol con otro analgésico", Propuesta = "Retirar uno de los dos", FarmaceuticoId = elaborador.Id
+        });
+        var telefonoId = repositorioComunicaciones.Crear(new ComunicacionMedico
+        {
+            PacienteId = paciente.Id, MedicoId = medico.Id, Tipo = TipoComunicacionMedico.Telefono, Fecha = new DateOnly(2026, 9, 5)
+        });
+
         var servicio = new ServicioGeneracionDocumentos(
             repositorioSpd, repositorioLineas, repositorioLineaEnvases, repositorioVerificaciones, repositorioPacientes,
             repositorioContactos, repositorioMedicos, repositorioTratamientos, repositorioMedicamentos, repositorioUsuarios,
-            repositorioMaterial, repositorioAmbiental, repositorioEvaluaciones, repositorioConsentimientos, repositorioFarmacia, auditoria);
+            repositorioMaterial, repositorioAmbiental, repositorioEvaluaciones, repositorioConsentimientos, repositorioComunicaciones,
+            repositorioFarmacia, auditoria);
 
-        return new Contexto(conexion, servicio, paciente.Id, spd.Id, consentimientoPacienteId, consentimientoRepresentanteId, repositorioConsentimientos);
+        return new Contexto(conexion, servicio, paciente.Id, spd.Id, consentimientoPacienteId, consentimientoRepresentanteId, repositorioConsentimientos,
+            presentacionId, incidenciaId, telefonoId);
     }
 
     private static string TextoDelPdf(string ruta)
@@ -334,6 +353,47 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
         ContieneTodo(texto, "Ana Vidal Souto", "87654321X", "como representante legal de", "María López Vidal", "12345678Z",
             "a ______ de");   // sin firmar: fecha en blanco
         Assert.DoesNotContain("en nombre propio", texto);
+    }
+
+    [Fact]
+    public void GenerarCartaMedico_presentacion_contiene_el_Anexo_I_C_literal_CARTA_PRES()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+
+        var resultado = ctx.Servicio.GenerarCartaMedico(ctx.ComunicacionPresentacionId, usuarioQueEjecutaId: 2);
+
+        Assert.StartsWith("Carta de presentación al médico", resultado.NombreFichero);
+        var texto = TextoDelPdf(resultado.RutaCompleta);
+        ContieneTodo(texto,
+            "Pontevedra, a 2 de septiembre de 2026", "Rosa Ferreiro Castro",
+            "Sistema Personalizado de Dosificación o SPD", "María López Vidal", "Se adjunta Ficha del Paciente",
+            "Farmacéutico/a responsable", "Elena Ruiz", "colegiado", "986000000");
+        var registros = ctx.Conexion.Query<string>("SELECT detalle FROM Auditoria WHERE entidad = 'ComunicacionMedico' AND accion = 'GENERAR_DOCUMENTO'");
+        Assert.Contains(registros, d => d.Contains("tipo=CARTA-PRES"));
+    }
+
+    [Fact]
+    public void GenerarCartaMedico_incidencia_lleva_incidencias_y_propuesta_CARTA_INC()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+
+        var resultado = ctx.Servicio.GenerarCartaMedico(ctx.ComunicacionIncidenciaId, null);
+
+        Assert.StartsWith("Carta de incidencias al médico", resultado.NombreFichero);
+        var texto = TextoDelPdf(resultado.RutaCompleta);
+        ContieneTodo(texto, "INCIDENCIAS", "María López Vidal", "Duplicidad de paracetamol", "Propuesta del farmacéutico", "Retirar uno de los dos");
+        Assert.DoesNotContain("Se adjunta Ficha del Paciente", texto);
+    }
+
+    [Fact]
+    public void GenerarCartaMedico_rechaza_una_comunicacion_telefonica_FR_806()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+
+        Assert.Throws<ErrorValidacionException>(() => ctx.Servicio.GenerarCartaMedico(ctx.ComunicacionTelefonoId, null));
     }
 
     [Fact]

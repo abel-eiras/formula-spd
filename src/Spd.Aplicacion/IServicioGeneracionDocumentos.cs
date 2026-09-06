@@ -27,4 +27,10 @@ public interface IServicioGeneracionDocumentos
     /// <summary>Anexo I.B — consentimiento informado (CONSENT), para el paciente o su
     /// representante (Spec 002 FR-212). Marca <c>impreso_en</c> en el consentimiento.</summary>
     ResultadoGeneracionDocumento GenerarConsentimiento(int consentimientoId, int? usuarioQueEjecutaId);
+
+    /// <summary>Anexo I.C — carta al médico (Spec 008 FR-806): `CARTA-PRES` para una comunicación
+    /// de presentación (texto literal del anexo) y `CARTA-INC` para una de incidencia (mismo
+    /// encabezado y cierre, cuerpo con incidencias y propuesta). Una comunicación telefónica no
+    /// genera documento.</summary>
+    ResultadoGeneracionDocumento GenerarCartaMedico(int comunicacionId, int? usuarioQueEjecutaId);
 }

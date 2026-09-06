@@ -26,6 +26,7 @@ public sealed class ServicioGeneracionDocumentos(
     IRepositorioRegistrosAmbientales repositorioRegistrosAmbientales,
     IRepositorioEvaluacionesIdoneidad repositorioEvaluaciones,
     IRepositorioConsentimientos repositorioConsentimientos,
+    IRepositorioComunicacionesMedico repositorioComunicaciones,
     IRepositorioFarmacia repositorioFarmacia,
     IRegistradorAuditoria auditoria)
     : IServicioGeneracionDocumentos
@@ -603,6 +604,85 @@ public sealed class ServicioGeneracionDocumentos(
         consentimiento.ImpresoEn = DateTime.UtcNow;
         repositorioConsentimientos.Actualizar(consentimiento);
         return resultado;
+    }
+
+    // ------------------------------------------------------------------ Anexo I.C — CARTA-PRES / CARTA-INC
+
+    public ResultadoGeneracionDocumento GenerarCartaMedico(int comunicacionId, int? usuarioQueEjecutaId)
+    {
+        var comunicacion = repositorioComunicaciones.ObtenerPorId(comunicacionId)
+            ?? throw new ErrorValidacionException($"No existe la comunicación {comunicacionId}.");
+        if (!comunicacion.EsImprimible)
+            throw new ErrorValidacionException("Una comunicación telefónica es un registro interno: no genera carta (Spec 008 FR-806).");
+
+        var paciente = ObtenerPaciente(comunicacion.PacienteId);
+        var farmacia = ObtenerFarmacia();
+        var medico = repositorioMedicos.ObtenerPorId(comunicacion.MedicoId);
+        var esPresentacion = comunicacion.Tipo == TipoComunicacionMedico.Presentacion;
+        var farmaceutico = comunicacion.FarmaceuticoId is int fid ? repositorioUsuarios.ObtenerPorId(fid) : null;
+        var colegiado = farmaceutico?.Colegiado ?? farmacia.TitularColegiado ?? "______________";
+        var fecha = comunicacion.Fecha;
+        var mes = fecha.ToString("MMMM", new System.Globalization.CultureInfo("es-ES"));
+
+        var documento = Document.Create(contenedor => contenedor.Page(pagina =>
+        {
+            ConfigurarPagina(pagina, PageSizes.A4, 10);
+            pagina.Header().Element(e => Cabecera(e, farmacia, esPresentacion ? "CARTA DE PRESENTACIÓN DEL SERVICIO DE SPD AL MÉDICO" : "COMUNICACIÓN DE INCIDENCIAS AL MÉDICO — SERVICIO DE SPD"));
+            pagina.Content().PaddingTop(12).Column(col =>
+            {
+                col.Spacing(8);
+                col.Item().AlignRight().Text($"En {farmacia.Poblacion}, a {fecha.Day} de {mes} de {fecha.Year}");
+                col.Item().Text($"Apreciado/a Dr./a. {(medico is null ? "______________________" : $"{medico.Nombre} {medico.Apellidos}")}" +
+                                (string.IsNullOrWhiteSpace(medico?.Centro) ? "" : $" ({medico!.Centro})") + ":");
+
+                if (esPresentacion)
+                {
+                    // Texto literal del Anexo I.C del PNT I.
+                    col.Item().Text("Con objeto de mejorar el cumplimiento del tratamiento farmacológico, esta farmacia ofrece a los pacientes que lo necesitan el Sistema Personalizado de Dosificación o SPD. La no observancia del tratamiento puede comportar el fracaso de una terapia bien prescrita y comprometer los resultados esperados de ella.");
+                    col.Item().Text("El sistema personalizado de dosificación es el conjunto de actuaciones de atención farmacéutica que, tras la dispensación de los medicamentos y la solicitud del/de la paciente, de la persona autorizada o de su representante legal, consisten en reacondicionar para un período de tiempo determinado todos o parte de los medicamentos dispensados en dispositivos de dosificación personalizados, así como en facilitar al/a la paciente una adecuada información, con el fin de mejorar el cumplimiento del tratamiento farmacoterapéutico y de prevenir y resolver los problemas relacionados con los medicamentos.");
+                    col.Item().Text(t =>
+                    {
+                        t.Span("Con este servicio pretendemos mejorar la organización de los medicamentos e incidir de manera directa en una mejor adherencia terapéutica y uso de los medicamentos con el fin de que el tratamiento que usted ha prescrito al paciente ");
+                        t.Span($"{paciente.Nombre} {paciente.Apellidos}").Bold();
+                        if (!string.IsNullOrWhiteSpace(paciente.Dni)) { t.Span(" (DNI "); t.Span(paciente.Dni).Bold(); t.Span(")"); }
+                        t.Span(" se cumpla de forma correcta, detectando posibles incumplimientos e informándole a usted de los posibles problemas que pudiesen aparecer.");
+                    });
+                    col.Item().Text("Se adjunta Ficha del Paciente con su tratamiento completo. Si hubiera alguna discrepancia, ruego se ponga en contacto conmigo a la mayor brevedad posible, en el correo o teléfono abajo indicados.");
+                }
+                else
+                {
+                    col.Item().Text(t =>
+                    {
+                        t.Span("En relación con el/la paciente ");
+                        t.Span($"{paciente.Nombre} {paciente.Apellidos}").Bold();
+                        if (!string.IsNullOrWhiteSpace(paciente.Dni)) { t.Span(" (DNI "); t.Span(paciente.Dni).Bold(); t.Span(")"); }
+                        t.Span(", incluido/a en el servicio de Sistemas Personalizados de Dosificación (SPD) de esta farmacia, durante la revisión de su tratamiento farmacoterapéutico hemos detectado las siguientes incidencias:");
+                    });
+                    col.Item().PaddingLeft(12).Text(comunicacion.IncidenciasDetectadas ?? "—");
+                    col.Item().Text("Propuesta del farmacéutico:").Bold();
+                    col.Item().PaddingLeft(12).Text(comunicacion.Propuesta ?? "—");
+                    col.Item().Text("Le ruego valore esta información y, si lo estima oportuno, me comunique su decisión por escrito para actualizar la ficha del paciente y, en su caso, la preparación del SPD. Hasta entonces se mantiene la pauta prescrita vigente.");
+                }
+
+                col.Item().Text("Agradecemos por adelantado su colaboración y le saludamos cordialmente,");
+                col.Item().PaddingTop(16).Row(fila =>
+                {
+                    fila.RelativeItem().Column(c =>
+                    {
+                        c.Item().Text(t => { t.Span("Farmacéutico/a responsable: ").Bold(); t.Span(farmaceutico is null ? "______________________" : $"{farmaceutico.Nombre} {farmaceutico.Apellidos}"); });
+                        c.Item().Text(t => { t.Span("Nº de colegiado/a: ").Bold(); t.Span(colegiado); });
+                        c.Item().PaddingTop(20).Text("Firma: _____________________________");
+                    });
+                });
+                col.Item().PaddingTop(14).Text($"P.D.: Para una información más detallada o cualquier sugerencia, sírvase contactar con nosotros en {farmacia.Nombre}, {farmacia.Direccion}, {farmacia.Cp} {farmacia.Poblacion} — teléfono {farmacia.Telefono}" +
+                                                (string.IsNullOrWhiteSpace(farmacia.Email) ? "." : $" — {farmacia.Email}.")).FontSize(8.5f);
+            });
+        }));
+
+        return GuardarDocumento(
+            documento, esPresentacion ? "Carta de presentación al médico" : "Carta de incidencias al médico",
+            esPresentacion ? "CARTA-PRES" : "CARTA-INC", paciente, $"{paciente.NumFicha}-C{comunicacion.Id}", farmacia,
+            "ComunicacionMedico", comunicacion.Id, usuarioQueEjecutaId);
     }
 
     // ------------------------------------------------------------------ datos

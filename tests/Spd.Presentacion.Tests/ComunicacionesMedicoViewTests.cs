@@ -46,7 +46,8 @@ public sealed class ComunicacionesMedicoViewTests
             new RepositorioComunicacionesMedico(conexion), repositorioPacientes, repositorioTratamientos, auditoria);
         servicioComunicaciones.Crear(new DatosAltaComunicacionMedico(pacienteId, medicoId, TipoComunicacionMedico.Presentacion, null, null), null);
 
-        var ventana = new ComunicacionesMedicoWindow(servicioComunicaciones, pacienteId, usuarioActualId: null);
+        var ventana = new ComunicacionesMedicoWindow(
+            servicioComunicaciones, FabricaServiciosTest.GeneracionDocumentos(conexion), pacienteId, usuarioActualId: null);
 
         ventana.Show();
     }

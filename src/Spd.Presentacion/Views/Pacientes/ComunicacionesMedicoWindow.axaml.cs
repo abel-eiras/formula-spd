@@ -7,10 +7,11 @@ namespace Spd.Presentacion.Views.Pacientes;
 public partial class ComunicacionesMedicoWindow : Window
 {
     public ComunicacionesMedicoWindow(
-        IServicioComunicacionesMedico servicio, int pacienteId, int? usuarioActualId, DatosAltaComunicacionMedico? prerrelleno = null)
+        IServicioComunicacionesMedico servicio, IServicioGeneracionDocumentos servicioDocumentos, int pacienteId, int? usuarioActualId,
+        DatosAltaComunicacionMedico? prerrelleno = null)
     {
         InitializeComponent();
-        DataContext = new ComunicacionesMedicoViewModel(servicio, pacienteId, usuarioActualId, prerrelleno);
+        DataContext = new ComunicacionesMedicoViewModel(servicio, servicioDocumentos, pacienteId, usuarioActualId, prerrelleno);
     }
 
     // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.

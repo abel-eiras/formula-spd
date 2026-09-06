@@ -104,7 +104,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirTratamientos()
-        => new TratamientoWindow(_servicioTratamientos, _servicioMedicamentos, _servicioComunicaciones, Paciente!.Id, _usuarioActualId).Show();
+        => new TratamientoWindow(_servicioTratamientos, _servicioMedicamentos, _servicioComunicaciones, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
 
     [RelayCommand]
     private void AbrirDeposito()
@@ -112,7 +112,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirComunicaciones()
-        => new ComunicacionesMedicoWindow(_servicioComunicaciones, Paciente!.Id, _usuarioActualId).Show();
+        => new ComunicacionesMedicoWindow(_servicioComunicaciones, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
 
     /// <summary>Spec 002: idoneidad y consentimiento; es lo que lleva al paciente de EVALUACION a ACTIVO.</summary>
     [RelayCommand]

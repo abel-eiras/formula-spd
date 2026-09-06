@@ -11,9 +11,14 @@
               <TextBlock Text="{Binding Tipo}" FontWeight="Bold" />
               <TextBlock Text="{Binding Fecha, StringFormat='{}{0:d}'}" FontSize="11" />
               <TextBlock Text="{Binding Respuesta}" FontSize="11" TextWrapping="Wrap" />
-              <Button Content="Registrar respuesta" FontSize="11"
-                      Command="{Binding DataContext.PrepararRespuestaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                      CommandParameter="{Binding}" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button Content="Registrar respuesta" FontSize="11"
+                        Command="{Binding DataContext.PrepararRespuestaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+                <Button Content="Imprimir carta" FontSize="11" IsVisible="{Binding EsImprimible}"
+                        Command="{Binding DataContext.ImprimirCartaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                        CommandParameter="{Binding}" />
+              </StackPanel>
             </StackPanel>
           </DataTemplate>
         </ListBox.ItemTemplate>

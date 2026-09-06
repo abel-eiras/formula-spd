@@ -77,7 +77,7 @@ public sealed class MainWindowTests
             new RepositorioMedicos(conexion), new RepositorioTratamientos(conexion), repositorioMedicamentos,
             repositorioUsuarios, new RepositorioMaterialAcondicionamiento(conexion),
             new RepositorioRegistrosAmbientales(conexion), new RepositorioEvaluacionesIdoneidad(conexion),
-            new RepositorioConsentimientos(conexion), repositorioFarmacia, auditoria);
+            new RepositorioConsentimientos(conexion), new RepositorioComunicacionesMedico(conexion), repositorioFarmacia, auditoria);
         var servicioIdoneidad = new ServicioIdoneidadConsentimiento(
             new RepositorioEvaluacionesIdoneidad(conexion), new RepositorioConsentimientos(conexion),
             new RepositorioContactos(conexion), repositorioPacientes, servicioPacientes, auditoria);
