@@ -73,7 +73,10 @@ public sealed class MainWindowTests
             servicioEnvases, servicioListadoRetirada, new ComprobadorIdoneidadYConsentimientoNulo(), auditoria);
         var servicioGeneracionDocumentos = new ServicioGeneracionDocumentos(
             new RepositorioSpd(conexion), new RepositorioSpdLineas(conexion), new RepositorioSpdLineaEnvases(conexion),
-            repositorioPacientes, repositorioFarmacia, auditoria);
+            new RepositorioSpdVerificaciones(conexion), repositorioPacientes, new RepositorioContactos(conexion),
+            new RepositorioMedicos(conexion), new RepositorioTratamientos(conexion), repositorioMedicamentos,
+            repositorioUsuarios, new RepositorioMaterialAcondicionamiento(conexion),
+            new RepositorioRegistrosAmbientales(conexion), repositorioFarmacia, auditoria);
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,

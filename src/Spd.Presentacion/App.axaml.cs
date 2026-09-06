@@ -183,7 +183,10 @@ public partial class App : Application
         // ServicioPreparacion.RegistrarImpresion por generación real de PDF con QuestPDF.
         _servicioGeneracionDocumentos = new ServicioGeneracionDocumentos(
             repositorioSpd, new RepositorioSpdLineas(_conexion!), new RepositorioSpdLineaEnvases(_conexion!),
-            repositorioPacientes, repositorioFarmacia, auditoria);
+            new RepositorioSpdVerificaciones(_conexion!), repositorioPacientes, new RepositorioContactos(_conexion!),
+            new RepositorioMedicos(_conexion!), new RepositorioTratamientos(_conexion!), repositorioMedicamentos,
+            repositorioUsuarios, new RepositorioMaterialAcondicionamiento(_conexion!),
+            new RepositorioRegistrosAmbientales(_conexion!), repositorioFarmacia, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)

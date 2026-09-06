@@ -30,6 +30,14 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
     [ObservableProperty] private string? _logo;
     [ObservableProperty] private string? _rutaNuevoLogo;
 
+    // Protección de datos (Anexo I.D del PNT I, documento RGPD de Spec 007): responsable y
+    // vías para ejercer derechos si son distintos de los datos generales; DPO del Colegio.
+    [ObservableProperty] private string? _responsableDatos;
+    [ObservableProperty] private string? _direccionDerechos;
+    [ObservableProperty] private string? _emailDerechos;
+    [ObservableProperty] private string? _dpoNombre;
+    [ObservableProperty] private string? _dpoContacto;
+
     [ObservableProperty] private string _prefijoNumFicha;
     [ObservableProperty] private string _prefijoNumSpd;
 
@@ -70,6 +78,11 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
         _email = _farmacia.Email;
         _whatsapp = _farmacia.Whatsapp;
         _logo = _farmacia.Logo;
+        _responsableDatos = _farmacia.ResponsableDatos;
+        _direccionDerechos = _farmacia.DireccionDerechos;
+        _emailDerechos = _farmacia.EmailDerechos;
+        _dpoNombre = _farmacia.DpoNombre;
+        _dpoContacto = _farmacia.DpoContacto;
         _prefijoNumFicha = _farmacia.PrefijoNumFicha;
         _prefijoNumSpd = _farmacia.PrefijoNumSpd;
         _rutaBackup = _farmacia.RutaBackup;
@@ -165,6 +178,11 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
         _farmacia.Fax = Fax;
         _farmacia.Email = Email;
         _farmacia.Whatsapp = Whatsapp;
+        _farmacia.ResponsableDatos = ResponsableDatos;
+        _farmacia.DireccionDerechos = DireccionDerechos;
+        _farmacia.EmailDerechos = EmailDerechos;
+        _farmacia.DpoNombre = DpoNombre;
+        _farmacia.DpoContacto = DpoContacto;
         _farmacia.RutaBackup = RutaBackup;
         _farmacia.RutaDocumentosGenerados = RutaDocumentosGenerados;
     }

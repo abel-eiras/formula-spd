@@ -45,7 +45,8 @@ Convenciones: `id` INTEGER PRIMARY KEY; fechas ISO-8601 en TEXT; booleanos INTEG
 | direccion, cp, poblacion, provincia | TEXT | |
 | telefono, fax, email | TEXT | |
 | **whatsapp** | TEXT | |
-| responsable_datos, direccion_derechos, email_derechos | TEXT | Para el consentimiento |
+| responsable_datos, direccion_derechos, email_derechos | TEXT | Para el consentimiento y el documento RGPD (Anexo I.D); si están vacíos se usan nombre, dirección y email generales |
+| dpo_nombre, dpo_contacto | TEXT | Delegado de Protección de Datos (normalmente el del Colegio) para el documento RGPD. Migración 0010 |
 | prefijo_num_ficha, prefijo_num_spd | TEXT | |
 | ruta_backup | TEXT | |
 | **ruta_documentos_generados** | TEXT | Carpeta de salida de todo documento generado (Spec 000 FR-031, Spec 007). Misma validación de escritura que `ruta_backup` |
@@ -212,7 +213,9 @@ descripcion, lote, fecha_entrada, activo.
 | snap_serie, snap_lote, snap_caducidad | TEXT | Copiados del envase en el momento del descuento, para que la instantánea no dependa de que el envase original siga existiendo con esos datos |
 
 ## SPD_Verificacion (una fila por intento — se conservan todas)
-spd_id, verificador_id, fecha, verif_aspecto, verif_etiqueta_datos, verif_etiqueta_validez, verif_instrucciones, verif_contenido, resultado, excepcion_motivo.
+spd_id, verificador_id, fecha, verif_aspecto, verif_etiqueta_datos, verif_etiqueta_validez, verif_instrucciones, verif_contenido, verif_fabricante_pnt, verif_etiqueta_ficha_paciente, verif_trazabilidad, resultado, excepcion_motivo.
+
+Las ocho preguntas SÍ/NO de la verificación final del Anexo I.G del PNT I (Spec 006 FR-651 enumeraba cinco; corrección 2026-09-06, migración 0010 — el PNT manda, Art. I.1).
 
 ## SPD_Modificacion (historial de reelaboraciones — Constitución Artículo III.4)
 

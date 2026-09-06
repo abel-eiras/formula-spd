@@ -21,6 +21,10 @@ public sealed class Farmacia
     public string? ResponsableDatos { get; set; }
     public string? DireccionDerechos { get; set; }
     public string? EmailDerechos { get; set; }
+    /// <summary>Delegado de Protección de Datos (nombre) y su contacto — Anexo I.D del PNT I.
+    /// Habitualmente el DPO del Colegio provincial; opcional, el documento lo omite si está vacío.</summary>
+    public string? DpoNombre { get; set; }
+    public string? DpoContacto { get; set; }
     public string PrefijoNumFicha { get; set; } = string.Empty;
     public string PrefijoNumSpd { get; set; } = string.Empty;
     public string? RutaBackup { get; set; }

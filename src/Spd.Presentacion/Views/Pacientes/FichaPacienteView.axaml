@@ -66,6 +66,8 @@
                 IsVisible="{Binding PuedeAbrirPreparacion}" />
         <Button Content="Imprimir ficha" Command="{Binding ImprimirFichaCommand}"
                 IsVisible="{Binding PuedeImprimirFicha}" />
+        <Button Content="Imprimir información de protección de datos (RGPD)" Command="{Binding ImprimirProteccionDatosCommand}"
+                IsVisible="{Binding PuedeImprimirFicha}" />
       </StackPanel>
     </ScrollViewer>
 

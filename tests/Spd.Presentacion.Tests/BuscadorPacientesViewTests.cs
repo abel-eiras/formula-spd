@@ -61,7 +61,10 @@ public sealed class BuscadorPacientesViewTests
             servicioEnvases, servicioListadoRetirada, new ComprobadorIdoneidadYConsentimientoNulo(), auditoria);
         var servicioGeneracionDocumentos = new ServicioGeneracionDocumentos(
             new RepositorioSpd(conexion), new RepositorioSpdLineas(conexion), new RepositorioSpdLineaEnvases(conexion),
-            repositorioPacientes, repositorioFarmacia, auditoria);
+            new RepositorioSpdVerificaciones(conexion), repositorioPacientes, new RepositorioContactos(conexion),
+            new RepositorioMedicos(conexion), new RepositorioTratamientos(conexion), new RepositorioMedicamentos(conexion),
+            new RepositorioUsuarios(conexion), new RepositorioMaterialAcondicionamiento(conexion),
+            new RepositorioRegistrosAmbientales(conexion), repositorioFarmacia, auditoria);
         var ventana = new BuscadorPacientesWindow(
             servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
             servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, usuarioActualId: null);

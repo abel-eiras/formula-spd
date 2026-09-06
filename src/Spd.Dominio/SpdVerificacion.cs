@@ -13,6 +13,10 @@ public sealed class SpdVerificacion
     public bool VerifEtiquetaValidez { get; set; }
     public bool VerifInstrucciones { get; set; }
     public bool VerifContenido { get; set; }
+    // Las tres preguntas del Anexo I.G que Spec 006 FR-651 no recogía (migración 0010).
+    public bool VerifFabricantePnt { get; set; }
+    public bool VerifEtiquetaFichaPaciente { get; set; }
+    public bool VerifTrazabilidad { get; set; }
     public ResultadoVerificacion Resultado { get; set; }
     public string? ExcepcionMotivo { get; set; }
 }

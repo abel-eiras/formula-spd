@@ -16,6 +16,20 @@
 
 ---
 
+## 0.b Decisiones del usuario y ejecución (2026-09-06, misma tarde)
+
+- **No** se crean documentos nuevos tipo calibración, incidencia ambiental, recepción de DDP,
+  organigrama ni reconocimiento de firmas: para esos basta el modelo oficial del Colegio en papel.
+  Los códigos propuestos en §2.4/§4 para ellos quedan descartados.
+- **Sí** se añade el documento **`RGPD`** (Anexo I.D), único de los no contemplados que la app puede
+  rellenar automáticamente con datos de la farmacia y del paciente; se genera desde la ficha del
+  paciente. `Farmacia` gana `dpo_nombre`/`dpo_contacto` (migración 0010).
+- **Ejecutado** en la rama `007b-documentos-minimos-pnt`: los cinco documentos existentes
+  completados campo a campo según §2.3, con tests de presencia de elementos por extracción de texto
+  del PDF (Art. IX.3); verificación ampliada a las ocho preguntas del Anexo I.G (§2.8).
+- Sigue pendiente de decisión: fuente canónica Pontevedra/A Coruña (§2.1), reubicación de ficheros
+  (§5), limpieza (§2.6) y registro ambiental por zona (§2.5).
+
 ## 1. Inventario y veredicto por fichero
 
 Leyenda de destino: **PNT** = fuente normativa del procedimiento · **AYUDA** = contenido para Spec 014 · **PLANTILLA** = modelo de documento imprimible (Spec 007) · **LEG** = `docs/legislacion/` · **NO** = no útil / obsoleto.
