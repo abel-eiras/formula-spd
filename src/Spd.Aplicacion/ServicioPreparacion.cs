@@ -272,6 +272,21 @@ public sealed class ServicioPreparacion(
             auditoria.Registrar(usuarioId, "ENTREGAR_SPD", "SPD", spdId, null);
             entregados.Add(spd);
         }
+
+        // FR-663: un cambio de medicación referido por el paciente sin prescripción deja los
+        // tratamientos en SPD pendientes de revisión, lo que bloquea la sesión siguiente (FR-674)
+        // hasta que un farmacéutico lo confirme con el médico (Spec 008 FR-805).
+        if (datos.CambiosMedicacionReferidos && entregados.Count > 0)
+        {
+            var pacienteId = entregados[0].PacienteId;
+            foreach (var tratamiento in repositorioTratamientos.ListarVigentesDePaciente(pacienteId)
+                         .Where(t => t.EnSpd && t.Estado == EstadoTratamiento.Activo))
+            {
+                tratamiento.Estado = EstadoTratamiento.PendienteRevision;
+                repositorioTratamientos.Actualizar(tratamiento);
+                auditoria.Registrar(usuarioId, "TRATAMIENTO_PENDIENTE_REVISION", "Tratamiento", tratamiento.Id, "cambios referidos en la entrega (FR-663)");
+            }
+        }
         return entregados;
     }
 
@@ -515,4 +530,32 @@ public sealed class ServicioPreparacion(
         => repositorioSpd.Listar(filtros.Estado, filtros.PacienteId, filtros.ElaboradorId);
 
     public IReadOnlyList<SpdLinea> ListarLineas(int spdId) => repositorioLineas.ListarPorSpd(spdId);
+
+    public ResultadoEnvasesAlDia ComprobarEnvasesAlDia(int pacienteId)
+    {
+        var paciente = repositorioPacientes.ObtenerPorId(pacienteId);
+        if (paciente is null) return new ResultadoEnvasesAlDia(false, "Paciente inexistente");
+        if (paciente.Estado != EstadoPaciente.Activo) return new ResultadoEnvasesAlDia(false, $"Paciente en {paciente.Estado}");
+        if (!comprobadorIdoneidad.Aprobado(pacienteId)) return new ResultadoEnvasesAlDia(false, "Sin idoneidad o consentimiento vigentes");
+
+        var tratamientos = repositorioTratamientos.ListarVigentesDePaciente(pacienteId).Where(t => t.EnSpd).ToList();
+        if (tratamientos.Count == 0) return new ResultadoEnvasesAlDia(false, "Sin tratamiento activo en SPD");
+        if (tratamientos.Any(t => t.Estado == EstadoTratamiento.PendienteRevision))
+            return new ResultadoEnvasesAlDia(false, "Tratamiento pendiente de revisión");
+
+        // Saldo real en custodia para la próxima sesión completa (n blísteres de 7 días), con la
+        // misma regla de caducidad que PasarAPreparado; no depende de la ventana del listado de retirada.
+        var caducidadMinima = DateOnly.FromDateTime(DateTime.Today).AddDays(7 * paciente.NBlisteres - 1);
+        var faltantes = new List<string>();
+        foreach (var t in tratamientos)
+        {
+            var necesarias = CalculadoraUnidadesADescontar.Calcular(t) * paciente.NBlisteres;
+            var disponibles = CalcularDisponibles(pacienteId, t.MedicamentoId, caducidadMinima);
+            if (disponibles < necesarias)
+                faltantes.Add($"{repositorioMedicamentos.ObtenerPorId(t.MedicamentoId)?.Nombre ?? $"medicamento {t.MedicamentoId}"} ({necesarias - disponibles})");
+        }
+        return faltantes.Count == 0
+            ? new ResultadoEnvasesAlDia(true, null)
+            : new ResultadoEnvasesAlDia(false, "Faltan: " + string.Join(", ", faltantes));
+    }
 }

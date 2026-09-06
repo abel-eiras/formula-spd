@@ -80,3 +80,14 @@ Clarifications 2026-09-05 y "Fuera de alcance").
   verificar una interfaz gráfica de escritorio sin ejecutarla de verdad, y esta spec en particular
   toca el arranque (petición de contraseña maestra) y el cierre (backup) de la aplicación, los dos
   puntos más sensibles a un fallo no capturado por un test automatizado.
+
+## 2026-09-06 (noche) — Sección 4.3 Purga (FR-1020..1024)
+
+Ya existen todas las entidades de paciente, así que se construye: `ServicioPurga` (lista bajas con
+antigüedad ≥ `Farmacia.anios_retencion_purga`, mínimo 5 por Art. III.2 — migración 0012; verifica
+rol y contraseña del administrador con el hasheador Argon2id; bloquea si quedan envases en custodia;
+audita `PURGAR_PACIENTE` con nº de ficha, nombre y fecha antes de borrar) y `RepositorioPurga` (el
+único DELETE de datos de paciente de la aplicación, en cascada y en transacción). Pantalla en
+Configuración → Seguridad, paciente a paciente con la contraseña. El plazo configurado se imprime en
+el documento RGPD (Anexo I.D) para que lo comunicado y lo aplicado coincidan. CA-1005/1006/1007 con
+test. Sin purga automática (FR-1023).

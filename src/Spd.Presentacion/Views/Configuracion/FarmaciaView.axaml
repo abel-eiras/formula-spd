@@ -94,6 +94,8 @@
       </StackPanel>
       <TextBlock Text="Umbral de reutilización de lectura ambiental (horas)" />
       <NumericUpDown Value="{Binding UmbralReutilizacionLecturaAmbientalHoras}" Minimum="0" Maximum="24" />
+      <TextBlock Text="Años desde la baja para poder purgar un paciente (mínimo 5; se imprime en el documento RGPD)" />
+      <NumericUpDown Value="{Binding AniosRetencionPurga}" Minimum="5" Maximum="30" />
       <Button Content="Guardar valores por defecto" Command="{Binding GuardarValoresDefectoCommand}" />
 
       <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />

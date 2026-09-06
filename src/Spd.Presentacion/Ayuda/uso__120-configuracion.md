@@ -12,6 +12,8 @@ Alta con nombre, apellidos, usuario, contraseña inicial (debe cambiarla al entr
 
 **Cifrado** de la base de datos con contraseña maestra: al activarlo se muestra una **frase de recuperación de 24 palabras** que hay que guardar fuera del ordenador; sin contraseña ni frase no hay forma de abrir los datos. Se puede desactivar con la contraseña.
 
+**Purga de pacientes antiguos**: lista los pacientes en BAJA cuya baja es anterior a los años de retención configurados (mínimo 5, constitución Art. III.2). Se purgan **uno a uno**, escribiendo la contraseña del administrador en cada purga. Antes de borrar queda una fila de auditoría con el número de ficha y el nombre; un paciente con envases todavía en custodia no se purga. Es la única eliminación física de datos de toda la aplicación y nunca se ejecuta sola.
+
 ## Actualizaciones
 
 Comprueba si hay una versión nueva de la aplicación (necesita conexión) y la descarga; la instalación es manual.

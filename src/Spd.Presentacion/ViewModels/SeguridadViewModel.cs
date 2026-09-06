@@ -1,8 +1,10 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
+using Spd.Dominio;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -18,7 +20,12 @@ public sealed partial class SeguridadViewModel : ViewModelBase
     }
 
     private readonly IServicioCifrado _servicio;
+    private readonly IServicioPurga _servicioPurga;
     private readonly int _administradorActualId;
+
+    // Purga manual (Spec 010 §4.3): paciente a paciente, con la contraseña del administrador.
+    [ObservableProperty] private ObservableCollection<Paciente> _purgables = [];
+    [ObservableProperty] private string? _contrasenaPurga;
 
     private byte[]? _mekPendiente;
     private string[]? _fraseGeneradaInterna;
@@ -32,11 +39,32 @@ public sealed partial class SeguridadViewModel : ViewModelBase
     [ObservableProperty] private bool _hayFraseParaConfirmar;
     [ObservableProperty] private string? _mensaje;
 
-    public SeguridadViewModel(IServicioCifrado servicio, int administradorActualId)
+    public SeguridadViewModel(IServicioCifrado servicio, IServicioPurga servicioPurga, int administradorActualId)
     {
         _servicio = servicio;
+        _servicioPurga = servicioPurga;
         _administradorActualId = administradorActualId;
         _cifradoActivo = servicio.EstaActivo();
+        CargarPurgables();
+    }
+
+    private void CargarPurgables()
+        => Purgables = new ObservableCollection<Paciente>(_servicioPurga.ListarPurgables(DateOnly.FromDateTime(DateTime.Today)));
+
+    [RelayCommand]
+    private void Purgar(Paciente paciente)
+    {
+        try
+        {
+            var resultado = _servicioPurga.Purgar(paciente.Id, _administradorActualId, ContrasenaPurga ?? string.Empty, DateOnly.FromDateTime(DateTime.Today));
+            Mensaje = $"Paciente {resultado.NumFicha} ({resultado.NombreCompleto}) purgado: {resultado.FilasEliminadas} filas eliminadas. Queda la traza en auditoría.";
+            ContrasenaPurga = null;
+            CargarPurgables();
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
     }
 
     // FR-1010/CA-1003: genera y muestra la frase, pero no toca la base de datos todavía — eso

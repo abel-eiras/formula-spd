@@ -41,6 +41,9 @@ public sealed class ServicioConfiguracionFarmacia(
         farmacia.HrMin = valores.HrMin;
         farmacia.HrMax = valores.HrMax;
         farmacia.UmbralReutilizacionLecturaAmbientalHoras = valores.UmbralReutilizacionLecturaAmbientalHoras;
+        if (valores.AniosRetencionPurga < 5)
+            throw new ErrorValidacionException("La retención antes de purgar no puede ser inferior a cinco años (constitución Art. III.2).");
+        farmacia.AniosRetencionPurga = valores.AniosRetencionPurga;
         repositorio.Actualizar(farmacia);
         auditoria.Registrar(administradorQueEjecutaId, "MODIFICACION", "Farmacia", farmacia.Id, "valores_defecto");
     }

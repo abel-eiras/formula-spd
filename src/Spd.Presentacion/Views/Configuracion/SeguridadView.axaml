@@ -35,6 +35,33 @@
       </StackPanel>
     </StackPanel>
 
+    <Separator Margin="0,8" />
+    <TextBlock Text="Purga de pacientes antiguos (baja anterior a los años de retención configurados)" FontSize="16" FontWeight="Bold" />
+    <TextBlock Text="Uno a uno y con su contraseña. Antes de borrar queda la traza en auditoría; nunca se ejecuta sola." TextWrapping="Wrap" />
+    <TextBox Watermark="Su contraseña de administrador" Text="{Binding ContrasenaPurga}" PasswordChar="*" Width="260" HorizontalAlignment="Left" />
+    <ItemsControl ItemsSource="{Binding Purgables}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+            <TextBlock VerticalAlignment="Center">
+              <TextBlock.Text>
+                <MultiBinding StringFormat="{}{0} — {1} {2} — baja {3:dd/MM/yyyy}">
+                  <Binding Path="NumFicha" />
+                  <Binding Path="Nombre" />
+                  <Binding Path="Apellidos" />
+                  <Binding Path="FechaBaja" />
+                </MultiBinding>
+              </TextBlock.Text>
+            </TextBlock>
+            <Button Content="Purgar" FontSize="11"
+                    Command="{Binding DataContext.PurgarCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                    CommandParameter="{Binding}" />
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <TextBlock Text="(ningún paciente purgable)" Foreground="Gray" IsVisible="{Binding !Purgables.Count}" />
+
     <Border Padding="8" Background="#22808080" IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
     </Border>

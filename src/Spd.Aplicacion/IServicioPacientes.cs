@@ -6,6 +6,7 @@ namespace Spd.Aplicacion;
 /// Elaborador o Administrador ejecuta todas estas operaciones sin restricción (FR-040, CA-012).</summary>
 public interface IServicioPacientes
 {
+    Paciente? ObtenerPorId(int pacienteId);
     Paciente Crear(DatosAltaPaciente datos, int? usuarioQueEjecutaId);
     void Actualizar(Paciente paciente, int? usuarioQueEjecutaId);
     void CambiarEstado(int pacienteId, EstadoPaciente nuevoEstado, DatosBaja? datosBaja, int? usuarioQueEjecutaId);

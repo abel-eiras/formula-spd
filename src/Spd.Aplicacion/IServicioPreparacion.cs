@@ -36,5 +36,9 @@ public interface IServicioPreparacion
 
     IReadOnlyList<SPD> ListarPorFiltro(FiltrosPreparaciones filtros);
 
+    /// <summary>Spec 007 FR-720: paciente ACTIVO con idoneidad, tratamiento en SPD sin líneas
+    /// pendientes de revisión y saldo suficiente en custodia para todas ellas.</summary>
+    ResultadoEnvasesAlDia ComprobarEnvasesAlDia(int pacienteId);
+
     IReadOnlyList<SpdLinea> ListarLineas(int spdId);
 }

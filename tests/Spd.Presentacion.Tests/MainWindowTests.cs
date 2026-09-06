@@ -88,7 +88,11 @@ public sealed class MainWindowTests
             servicioRegistrosCalidad, servicioControlDocumental, servicioBackup, servicioCifrado,
             servicioEnvases, servicioListadoRetirada, servicioImportacion, servicioComunicaciones,
             servicioPerfilesImportacion, servicioExportacionPacientes, servicioPreparacion,
-            servicioGeneracionDocumentos, servicioIdoneidad, administrador);
+            servicioGeneracionDocumentos, servicioIdoneidad,
+            new ServicioAvisosInicio(servicioListadoRetirada, new RepositorioSpd(conexion), repositorioPacientes, new RepositorioRegistrosAmbientales(conexion)),
+            new ServicioGeneracionLote(servicioPreparacion, servicioGeneracionDocumentos, new RepositorioSpd(conexion), repositorioPacientes),
+            new ServicioPurga(repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia, new RepositorioPurga(conexion), auditoria),
+            administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

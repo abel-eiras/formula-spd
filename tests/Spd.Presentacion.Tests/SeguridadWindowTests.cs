@@ -1,5 +1,6 @@
 using Avalonia.Headless.XUnit;
 using Microsoft.Data.Sqlite;
+using Spd.Aplicacion;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Configuracion;
@@ -22,7 +23,10 @@ public sealed class SeguridadWindowTests
         var auditoria = new RegistradorAuditoria(conexion);
         var servicioCifrado = new ServicioCifrado(conexion, rutaDb, carpeta, auditoria, new GeneradorFraseRecuperacion());
 
-        var ventana = new SeguridadWindow(servicioCifrado, administradorActualId: 1);
+        var servicioPurga = new ServicioPurga(
+            new RepositorioPacientes(conexion), new RepositorioEnvases(conexion), new RepositorioUsuarios(conexion), new HasheadorArgon2id(),
+            new RepositorioFarmacia(conexion), new RepositorioPurga(conexion), auditoria);
+        var ventana = new SeguridadWindow(servicioCifrado, servicioPurga, administradorActualId: 1);
 
         ventana.Show();
     }

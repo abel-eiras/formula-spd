@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
@@ -8,6 +9,7 @@ using Spd.Presentacion.Views;
 using Spd.Presentacion.Views.Configuracion;
 using Spd.Presentacion.Views.Pacientes;
 using Spd.Presentacion.Views.Medicamentos;
+using Spd.Presentacion.Views.Preparacion;
 using Spd.Presentacion.Views.RegistrosCalidad;
 
 namespace Spd.Presentacion.ViewModels;
@@ -37,6 +39,12 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioPreparacion _servicioPreparacion;
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
     private readonly IServicioIdoneidadConsentimiento _servicioIdoneidad;
+    private readonly IServicioAvisosInicio _servicioAvisos;
+    private readonly IServicioGeneracionLote _servicioLote;
+    private readonly IServicioPurga _servicioPurga;
+
+    /// <summary>Spec 006 FR-691 / Spec 009 FR-950: avisos informativos del panel de inicio.</summary>
+    [ObservableProperty] private ObservableCollection<AvisoInicio> _avisos = [];
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -71,9 +79,15 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioPreparacion servicioPreparacion,
         IServicioGeneracionDocumentos servicioGeneracionDocumentos,
         IServicioIdoneidadConsentimiento servicioIdoneidad,
+        IServicioAvisosInicio servicioAvisos,
+        IServicioGeneracionLote servicioLote,
+        IServicioPurga servicioPurga,
         Usuario usuarioActual)
     {
         _servicioIdoneidad = servicioIdoneidad;
+        _servicioAvisos = servicioAvisos;
+        _servicioLote = servicioLote;
+        _servicioPurga = servicioPurga;
         _servicioUsuarios = servicioUsuarios;
         _servicioFarmacia = servicioFarmacia;
         _gestorLogo = gestorLogo;
@@ -98,7 +112,19 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioGeneracionDocumentos = servicioGeneracionDocumentos;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
+        RecargarAvisos();
     }
+
+    [RelayCommand]
+    private void RecargarAvisos()
+        => Avisos = new ObservableCollection<AvisoInicio>(_servicioAvisos.Obtener(DateOnly.FromDateTime(DateTime.Today)));
+
+    /// <summary>Spec 006 FR-690 / Spec 007 FR-720: listado global y generación en lote.</summary>
+    [RelayCommand]
+    private void AbrirPreparaciones()
+        => new PreparacionesWindow(
+            _servicioPreparacion, _servicioPacientes, _servicioUsuarios, _servicioMedicamentos, _servicioGeneracionDocumentos,
+            _servicioComunicaciones, _servicioLote, UsuarioActual.Id).Show();
 
     /// <summary>Spec 014 FR-1400: ayuda accesible desde cualquier pantalla (aquí, el índice).</summary>
     [RelayCommand]
@@ -180,7 +206,7 @@ public sealed partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirSeguridad()
     {
-        var ventana = new SeguridadWindow(_servicioCifrado, UsuarioActual.Id);
+        var ventana = new SeguridadWindow(_servicioCifrado, _servicioPurga, UsuarioActual.Id);
         ventana.Show();
     }
 

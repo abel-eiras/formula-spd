@@ -278,6 +278,39 @@ public sealed class ServicioPreparacionTests
             ctx.Servicio.Verificar(spd.Id, ctx.VerificadorId, ChecklistVerificacion.TodoConforme, null, ctx.VerificadorId));
     }
 
+    [Fact]
+    public void Entrega_con_cambios_referidos_deja_el_tratamiento_pendiente_de_revision_FR_663()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        CrearEnvase(ctx, "S1", 28, new DateOnly(2030, 1, 1));
+        var spd = ctx.Servicio.CrearSesion(ctx.PacienteId, ctx.ElaboradorId).Single();
+        PrepararYVerificar(ctx, spd.Id);
+
+        var datos = new DatosEntregaSpd(DateOnly.FromDateTime(DateTime.Today), "Su hija", false, true, null, null, true, null, CambiosMedicacionReferidos: true);
+        ctx.Servicio.RegistrarEntrega(datos, [spd.Id], ctx.ElaboradorId);
+
+        var tratamiento = ctx.RepositorioTratamientos.ListarVigentesDePaciente(ctx.PacienteId).Single();
+        Assert.Equal(EstadoTratamiento.PendienteRevision, tratamiento.Estado);
+        Assert.Contains("TRATAMIENTO_PENDIENTE_REVISION", ctx.Conexion.Query<string>("SELECT accion FROM Auditoria"));
+        Assert.Throws<ErrorValidacionException>(() => ctx.Servicio.PrepararSiguiente(ctx.PacienteId, ctx.ElaboradorId, out _));   // FR-674
+        Assert.False(ctx.Servicio.ComprobarEnvasesAlDia(ctx.PacienteId).AlDia);
+    }
+
+    [Fact]
+    public void ComprobarEnvasesAlDia_refleja_saldo_y_estado_FR_720()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+
+        var sinEnvases = ctx.Servicio.ComprobarEnvasesAlDia(ctx.PacienteId);
+        Assert.False(sinEnvases.AlDia);
+        Assert.Contains("Faltan", sinEnvases.Motivo);
+
+        CrearEnvase(ctx, "S1", 28, new DateOnly(2030, 1, 1));
+        Assert.True(ctx.Servicio.ComprobarEnvasesAlDia(ctx.PacienteId).AlDia);
+    }
+
     private static SPD PrepararYVerificar(Contexto ctx, int spdId)
     {
         ctx.Servicio.AsignarMaterial(spdId, CrearMaterial(ctx));

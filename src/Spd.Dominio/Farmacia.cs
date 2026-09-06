@@ -38,6 +38,9 @@ public sealed class Farmacia
     public string DiaRetiradaDefecto { get; set; } = "LU";
     public int NBlisteresDefecto { get; set; } = 1;
     public int DiasAntelacionListado { get; set; } = 2;
+    /// <summary>Años desde la baja a partir de los cuales un paciente puede purgarse (Spec 010
+    /// FR-1020; constitución Art. III.2: cinco). Se imprime en el documento RGPD.</summary>
+    public int AniosRetencionPurga { get; set; } = 5;
 
     /// <summary>Valor efectivo de responsable de datos para el consentimiento (Spec 002, FR-012): el titular si no se ha rellenado aparte.</summary>
     public string ResponsableDatosEfectivo() => ResponsableDatos ?? TitularOComunidadBienes;
