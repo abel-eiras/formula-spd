@@ -272,6 +272,30 @@ public sealed class ServicioGeneracionDocumentos(
     public ResultadoGeneracionDocumento GenerarInstrucciones(int spdId, int? usuarioQueEjecutaId)
     {
         var (spd, paciente, lineas) = ObtenerDatosSpd(spdId);
+        return ConstruirInstrucciones(paciente, lineas, spd.NumRegistro, spd.FechaPreparacion, spd.ValidezDesde, spd.ValidezHasta, spd.NumRegistro, spdId, usuarioQueEjecutaId);
+    }
+
+    public ResultadoGeneracionDocumento GenerarInstruccionesSesion(Guid sesionId, int? usuarioQueEjecutaId)
+    {
+        var spds = repositorioSpd.ListarPorSesion(sesionId).Where(s => s.Estado != EstadoSpd.Anulado).OrderBy(s => s.ValidezDesde).ToList();
+        if (spds.Count == 0) throw new ErrorValidacionException("La sesión no tiene blísteres.");
+        if (spds.Count == 1) return GenerarInstrucciones(spds[0].Id, usuarioQueEjecutaId);
+
+        var paciente = ObtenerPaciente(spds[0].PacienteId);
+        var lineasPorSpd = spds.Select(s => repositorioLineas.ListarPorSpd(s.Id).Where(l => l.EstadoLinea != EstadoLinea.Excluida)
+            .Select(l => (l.MedicamentoId, l.SnapPautaD, l.SnapPautaA, l.SnapPautaC, l.SnapPautaN, l.SnapMomento)).OrderBy(x => x.MedicamentoId).ToList()).ToList();
+        if (lineasPorSpd.Any(l => !l.SequenceEqual(lineasPorSpd[0])))
+            throw new ErrorValidacionException("Los blísteres de la sesión no tienen el mismo contenido: imprima una hoja de instrucciones por blíster (FR-682).");
+
+        var registros = string.Join(" / ", spds.Select(s => s.NumRegistro));
+        return ConstruirInstrucciones(paciente, repositorioLineas.ListarPorSpd(spds[0].Id), registros, spds[0].FechaPreparacion,
+            spds[0].ValidezDesde, spds[^1].ValidezHasta, spds[0].NumRegistro, spds[0].Id, usuarioQueEjecutaId);
+    }
+
+    private ResultadoGeneracionDocumento ConstruirInstrucciones(
+        Paciente paciente, IReadOnlyList<SpdLinea> lineas, string numRegistro, DateTime? fechaPreparacion,
+        DateOnly validezDesde, DateOnly validezHasta, string identificadorCorto, int spdId, int? usuarioQueEjecutaId)
+    {
         var farmacia = ObtenerFarmacia();
         var incluidas = lineas.Where(l => l.EstadoLinea != EstadoLinea.Excluida).ToList();
         var noIncluidos = TratamientosNoIncluidos(paciente.Id, lineas);
@@ -288,9 +312,9 @@ public sealed class ServicioGeneracionDocumentos(
                     fila.RelativeItem().Text(t => { t.Span("Paciente: ").Bold(); t.Span($"{paciente.Nombre} {paciente.Apellidos}"); });
                     fila.RelativeItem().Column(c =>
                     {
-                        c.Item().Text(t => { t.Span("FECHA PREPARACIÓN: ").Bold(); t.Span(Fecha(spd.FechaPreparacion)); });
-                        c.Item().Text(t => { t.Span("Nº REGISTRO DDP: ").Bold(); t.Span(spd.NumRegistro); });
-                        c.Item().Text(t => { t.Span("PERIODO DE VALIDEZ: ").Bold(); t.Span($"{spd.ValidezDesde:dd/MM/yyyy} — {spd.ValidezHasta:dd/MM/yyyy}"); });
+                        c.Item().Text(t => { t.Span("FECHA PREPARACIÓN: ").Bold(); t.Span(Fecha(fechaPreparacion)); });
+                        c.Item().Text(t => { t.Span("Nº REGISTRO DDP: ").Bold(); t.Span(numRegistro); });
+                        c.Item().Text(t => { t.Span("PERIODO DE VALIDEZ: ").Bold(); t.Span($"{validezDesde:dd/MM/yyyy} — {validezHasta:dd/MM/yyyy}"); });
                     });
                 });
 
@@ -337,7 +361,7 @@ public sealed class ServicioGeneracionDocumentos(
             });
         }));
 
-        return GuardarDocumento(documento, "Hoja de instrucciones", "INSTR", paciente, spd.NumRegistro, farmacia, "SPD", spdId, usuarioQueEjecutaId);
+        return GuardarDocumento(documento, "Hoja de instrucciones", "INSTR", paciente, identificadorCorto, farmacia, "SPD", spdId, usuarioQueEjecutaId);
     }
 
     // ------------------------------------------------------------------ Anexo I.E — FICHA-PAC
@@ -489,7 +513,10 @@ public sealed class ServicioGeneracionDocumentos(
                 col.Item().Text("Necesitamos sus datos para poder elaborar el sistema personalizado de dosificación.");
 
                 Titulo(col, "¿Cuánto tiempo conservaremos sus datos?");
-                col.Item().Text("Conservamos sus datos para la prestación del servicio de atención farmacéutica y elaboración del sistema personalizado de dosificación. Finalizado el servicio profesional, o cuando la atención prestada se interrumpe o ya no es necesaria, bloqueamos la información transcurrido un año de la inactividad. El bloqueo implica la mera conservación de los datos, sin que se efectúe ningún otro tratamiento, a los meros efectos de posibles responsabilidades. Borramos las fichas inactivas al cuarto año.");
+                // El plazo de borrado es el mismo que aplica la purga (Farmacia.AniosRetencionPurga,
+                // constitución Art. III.2): lo impreso y lo ejecutado no pueden discrepar.
+                col.Item().Text("Conservamos sus datos para la prestación del servicio de atención farmacéutica y elaboración del sistema personalizado de dosificación. Finalizado el servicio profesional, o cuando la atención prestada se interrumpe o ya no es necesaria, bloqueamos la información transcurrido un año de la inactividad. El bloqueo implica la mera conservación de los datos, sin que se efectúe ningún otro tratamiento, a los meros efectos de posibles responsabilidades. " +
+                                $"Eliminamos definitivamente las fichas transcurridos {farmacia.AniosRetencionPurga} años desde la baja en el servicio.");
 
                 Titulo(col, "Base jurídica del tratamiento");
                 col.Item().Text("La base jurídica es el cumplimiento de una obligación legal (artículo 6.1.c del RGPD; Ley 41/2002, de 14 de noviembre, básica reguladora de la autonomía del paciente y de derechos y obligaciones en materia de información y documentación clínica, artículo 17; Ley 3/2019, de 2 de julio, de ordenación farmacéutica de Galicia, artículo 8).");

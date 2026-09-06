@@ -117,11 +117,28 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     /// <summary>Spec 002: idoneidad y consentimiento; es lo que lleva al paciente de EVALUACION a ACTIVO.</summary>
     [RelayCommand]
     private void AbrirIdoneidad()
-        => new IdoneidadConsentimientoWindow(_servicioIdoneidad, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
+    {
+        var ventana = new IdoneidadConsentimientoWindow(_servicioIdoneidad, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId);
+        // La idoneidad/consentimiento puede activar al paciente (Spec 002 FR-213): al cerrar, se
+        // relee la ficha para que la cabecera muestre el estado real.
+        ventana.Closed += (_, _) => RecargarPaciente();
+        ventana.Show();
+    }
 
     [RelayCommand]
     private void AbrirPreparacion()
-        => new PreparacionWindow(_servicioPreparacion, _servicioMedicamentos, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
+        => new PreparacionWindow(_servicioPreparacion, _servicioMedicamentos, _servicioGeneracionDocumentos, _servicioComunicaciones, Paciente!.Id, _usuarioActualId).Show();
+
+    private void RecargarPaciente()
+    {
+        if (Paciente is null) return;
+        var actual = _servicio.ObtenerPorId(Paciente.Id);
+        if (actual is null) return;
+        Paciente = actual;
+        CargarDesdePaciente(actual);
+        OnPropertyChanged(nameof(Estado));
+        OnPropertyChanged(nameof(NumFicha));
+    }
 
     [RelayCommand]
     private void ImprimirFicha()

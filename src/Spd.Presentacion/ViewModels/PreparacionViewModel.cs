@@ -17,6 +17,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     private readonly IServicioPreparacion _servicio;
     private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
+    private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
 
@@ -43,7 +44,13 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     [ObservableProperty] private int? _verificadorId;
     [ObservableProperty] private string? _excepcionMotivo;
 
+    // Datos de entrega (FR-661/663): comunes a todos los blísteres que se entreguen juntos.
     [ObservableProperty] private string _entregadoA = string.Empty;
+    [ObservableProperty] private bool _primeraEntrega;
+    [ObservableProperty] private bool _spdAnteriorRecogido;
+    [ObservableProperty] private string? _unidadesNoAdministradas;
+    [ObservableProperty] private string? _observacionesAdherencia;
+    [ObservableProperty] private bool _cambiosMedicacionReferidos;
 
     [ObservableProperty] private BlisterFila? _blisterEnReelaboracion;
     [ObservableProperty] private OrigenSolicitudReelaboracion _origenReelaboracion = OrigenSolicitudReelaboracion.Paciente;
@@ -59,11 +66,13 @@ public sealed partial class PreparacionViewModel : ViewModelBase
 
     public PreparacionViewModel(
         IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos,
-        IServicioGeneracionDocumentos servicioGeneracionDocumentos, int pacienteId, int? usuarioActualId)
+        IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioComunicacionesMedico servicioComunicaciones,
+        int pacienteId, int? usuarioActualId)
     {
         _servicio = servicio;
         _servicioMedicamentos = servicioMedicamentos;
         _servicioGeneracionDocumentos = servicioGeneracionDocumentos;
+        _servicioComunicaciones = servicioComunicaciones;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
         Cargar();
@@ -181,9 +190,28 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         }
         try
         {
-            var datos = new DatosEntregaSpd(DateOnly.FromDateTime(DateTime.Today), EntregadoA, true, null, null, null, false, null);
-            _servicio.RegistrarEntrega(datos, pendientes, _usuarioActualId);
+            var datos = new DatosEntregaSpd(
+                DateOnly.FromDateTime(DateTime.Today), EntregadoA, PrimeraEntrega, PrimeraEntrega ? null : SpdAnteriorRecogido,
+                string.IsNullOrWhiteSpace(UnidadesNoAdministradas) ? null : UnidadesNoAdministradas,
+                string.IsNullOrWhiteSpace(ObservacionesAdherencia) ? null : ObservacionesAdherencia,
+                CambiosMedicacionPreguntado: true, null, CambiosMedicacionReferidos);
+            var entregados = _servicio.RegistrarEntrega(datos, pendientes, _usuarioActualId);
             Mensaje = $"{pendientes.Count} blíster(es) entregado(s).";
+            if (CambiosMedicacionReferidos)
+            {
+                // FR-663 + Spec 008 FR-805: el tratamiento queda pendiente de revisión y se abre la
+                // comunicación al médico prerrellenada, con el texto en blanco para redactar.
+                Mensaje += " Cambios de medicación referidos: el tratamiento queda pendiente de revisión; redacte la comunicación al médico.";
+                var tratamientoId = Blisteres.Where(b => entregados.Any(e => e.Id == b.Spd.Id))
+                    .SelectMany(b => b.Lineas).Select(l => l.TratamientoId).FirstOrDefault();
+                if (tratamientoId != 0)
+                {
+                    var prerrelleno = _servicioComunicaciones.PrepararDesdeTratamiento(tratamientoId);
+                    new Views.Pacientes.ComunicacionesMedicoWindow(_servicioComunicaciones, _servicioGeneracionDocumentos, _pacienteId, _usuarioActualId, prerrelleno).Show();
+                }
+            }
+            UnidadesNoAdministradas = ObservacionesAdherencia = null;
+            CambiosMedicacionReferidos = false;
             Cargar();
         }
         catch (ErrorValidacionException ex)
@@ -279,6 +307,27 @@ public sealed partial class PreparacionViewModel : ViewModelBase
             var reverso = _servicioGeneracionDocumentos.GenerarEtiquetaReverso(fila.Spd.Id, _usuarioActualId);
             _servicio.RegistrarImpresion(fila.Spd.Id, TipoDocumentoSpd.Etiquetas, _usuarioActualId);
             Mensaje = $"Etiquetas generadas: {anverso.RutaCompleta}; {reverso.RutaCompleta}";
+            Cargar();
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
+
+    /// <summary>FR-682 (PNT I §4.4.1: una hoja "en cada entrega"): una hoja para los blísteres de la
+    /// última sesión si tienen el mismo contenido.</summary>
+    [RelayCommand]
+    private void ImprimirInstruccionesSesion()
+    {
+        var ultima = Blisteres.FirstOrDefault();
+        if (ultima is null) return;
+        try
+        {
+            var resultado = _servicioGeneracionDocumentos.GenerarInstruccionesSesion(ultima.Spd.SesionId, _usuarioActualId);
+            foreach (var b in Blisteres.Where(b => b.Spd.SesionId == ultima.Spd.SesionId))
+                _servicio.RegistrarImpresion(b.Spd.Id, TipoDocumentoSpd.Instrucciones, _usuarioActualId);
+            Mensaje = $"Hoja de instrucciones de la sesión generada: {resultado.RutaCompleta}";
             Cargar();
         }
         catch (ErrorValidacionException ex)

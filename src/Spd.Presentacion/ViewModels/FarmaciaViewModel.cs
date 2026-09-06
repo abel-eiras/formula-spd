@@ -53,6 +53,7 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
     [ObservableProperty] private double _hrMin;
     [ObservableProperty] private double _hrMax;
     [ObservableProperty] private int _umbralReutilizacionLecturaAmbientalHoras;
+    [ObservableProperty] private int _aniosRetencionPurga;
 
     [ObservableProperty] private string? _mensaje;
 
@@ -95,6 +96,7 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
         _hrMin = _farmacia.HrMin;
         _hrMax = _farmacia.HrMax;
         _umbralReutilizacionLecturaAmbientalHoras = _farmacia.UmbralReutilizacionLecturaAmbientalHoras;
+        _aniosRetencionPurga = _farmacia.AniosRetencionPurga;
     }
 
     [RelayCommand]
@@ -109,11 +111,18 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
     [RelayCommand]
     private void GuardarValoresDefecto()
     {
-        var valores = new DatosValoresDefecto(
-            DiaRetiradaDefecto, NBlisteresDefecto, DiasAntelacionListado,
-            TempMin, TempMax, HrMin, HrMax, UmbralReutilizacionLecturaAmbientalHoras);
-        _servicio.ActualizarValoresDefecto(valores, _administradorActualId);
-        Mensaje = "Valores por defecto guardados.";
+        try
+        {
+            var valores = new DatosValoresDefecto(
+                DiaRetiradaDefecto, NBlisteresDefecto, DiasAntelacionListado,
+                TempMin, TempMax, HrMin, HrMax, UmbralReutilizacionLecturaAmbientalHoras, AniosRetencionPurga);
+            _servicio.ActualizarValoresDefecto(valores, _administradorActualId);
+            Mensaje = "Valores por defecto guardados.";
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
     }
 
     [RelayCommand]

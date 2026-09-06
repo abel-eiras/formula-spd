@@ -97,3 +97,15 @@ texto del PDF** (PdfPig, solo en tests) y comprueba la presencia de los elemento
   que exista Spec 002 (Art. II: el papel es la base legal).
 
 **59 (Dominio) + 17 (Presentación) + 197 (Aplicación) = 273 tests en verde.**
+
+## 2026-09-06 (noche) — Generación en lote (FR-720..725)
+
+`ServicioGeneracionLote` sobre `PreparacionesWindow`: columna "envases al día" (FR-720,
+`ServicioPreparacion.ComprobarEnvasesAlDia`, saldo real en custodia para la próxima sesión completa),
+selección múltiple con "seleccionar los que están al día" (FR-721), localización o creación de la
+sesión y paso a PREPARADO automático con el primer material activo y la última lectura ambiental
+reutilizable (FR-722), elección de ficha/etiquetas/instrucciones (FR-723), resumen de generados,
+excluidos con motivo y fallidos sin detener al resto (FR-724, CA-703/705), `impreso_*_en` como en la
+generación individual (FR-725). Sin barra de progreso (síncrono; el resumen sustituye a la barra) —
+documentado, no fabricado. FR-730..733 (documentación base) siguen fuera: el propietario decidió
+que los registros en blanco se cubren con el modelo oficial.

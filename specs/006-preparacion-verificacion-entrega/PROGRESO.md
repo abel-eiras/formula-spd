@@ -77,3 +77,19 @@ ahora.
   medias): no implementado; es una vista de panel de inicio, no bloquea el ciclo pedido.
 - Prueba manual real (`dotnet run`) por el usuario — el ciclo completo de un paciente nunca se ha
   ejecutado en una app en ejecución real, solo en tests headless.
+
+## 2026-09-06 (noche) — Pantalla "Preparaciones" global, avisos de inicio y enganches pendientes
+
+- **FR-690** `PreparacionesWindow` desde la pantalla principal: todos los blísteres cruzando pacientes,
+  filtro por paciente/estado y "solo pendientes", elaborador y verificador por fila, acceso a la
+  preparación del paciente. Con la columna "envases al día" y el lote de Spec 007.
+- **FR-691** Avisos de inicio en `MainWindow` (`ServicioAvisosInicio`): faltantes en el listado de
+  retirada, verificados sin entregar con validez iniciada, sesiones a medias (>3 días) y días sin
+  lectura ambiental (Spec 009 FR-950, umbral 7). Informativos; "Actualizar avisos" recalcula.
+- **FR-663** real: la entrega tiene ahora sus campos (primera entrega, SPD anterior recogido,
+  unidades no administradas, observaciones, "refiere cambios de medicación"); con cambios referidos
+  los tratamientos en SPD pasan a pendiente de revisión (auditado) y se abre la comunicación al
+  médico prerrellenada (Spec 008 FR-805).
+- **FR-682** resuelto por el PNT I §4.4.1 (la hoja es "en cada entrega"): botón "Imprimir
+  instrucciones de la sesión" — una hoja para los blísteres de la sesión si su contenido es idéntico,
+  con el periodo de validez completo; si difieren, se imprime una por blíster.

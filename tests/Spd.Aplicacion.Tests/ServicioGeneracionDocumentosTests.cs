@@ -314,7 +314,7 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
         ContieneTodo(texto,
             "María López Vidal", "12345678Z",
             "Responsable", "Farmacia de Prueba", "Calle Falsa 1", "986000000", "farmacia@ejemplo.gal",
-            "un año de la inactividad", "cuarto año",
+            "un año de la inactividad", "5 años desde la baja",
             "6.1.c", "Ley 41/2002", "Ley 3/2019",
             "Diego DPO Ejemplo", "dpo@ejemplo.gal",
             "Recibí una copia");
@@ -394,6 +394,19 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
         using var c = ctx.Conexion;
 
         Assert.Throws<ErrorValidacionException>(() => ctx.Servicio.GenerarCartaMedico(ctx.ComunicacionTelefonoId, null));
+    }
+
+    [Fact]
+    public void GenerarInstruccionesSesion_con_un_solo_blister_equivale_a_la_hoja_del_blister_FR_682()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var sesionId = Guid.Parse(ctx.Conexion.QuerySingle<string>("SELECT sesion_id FROM SPD WHERE id = @id", new { id = ctx.SpdId }));
+
+        var resultado = ctx.Servicio.GenerarInstruccionesSesion(sesionId, null);
+
+        Assert.StartsWith("Hoja de instrucciones", resultado.NombreFichero);
+        ContieneTodo(TextoDelPdf(resultado.RutaCompleta), "F-000001", "07/09/2026", "13/09/2026", "Paracetamol");
     }
 
     [Fact]

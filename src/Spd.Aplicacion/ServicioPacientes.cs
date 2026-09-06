@@ -9,6 +9,8 @@ public sealed class ServicioPacientes(
     IRepositorioFarmacia repositorioFarmacia,
     IRegistradorAuditoria auditoria) : IServicioPacientes
 {
+    public Paciente? ObtenerPorId(int pacienteId) => repositorio.ObtenerPorId(pacienteId);
+
     public Paciente Crear(DatosAltaPaciente datos, int? usuarioQueEjecutaId)
     {
         ValidarMinimos(datos);

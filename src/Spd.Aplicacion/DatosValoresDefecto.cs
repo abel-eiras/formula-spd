@@ -1,8 +1,8 @@
 namespace Spd.Aplicacion;
 
-/// <summary>Valores por defecto de retirada y rangos ambientales (FR-020..FR-022). Solo afectan a
-/// entidades nuevas o sin personalización propia — esta spec no toca ninguna entidad de Paciente,
-/// eso es responsabilidad de Spec 001/005/006/009 al leer estos valores.</summary>
+/// <summary>Valores por defecto de retirada y rangos ambientales (FR-020..FR-022) y años de
+/// retención antes de la purga (Spec 010 FR-1020). Solo afectan a entidades nuevas o sin
+/// personalización propia — esta spec no toca ninguna entidad de Paciente.</summary>
 public sealed record DatosValoresDefecto(
     string DiaRetiradaDefecto,
     int NBlisteresDefecto,
@@ -11,4 +11,5 @@ public sealed record DatosValoresDefecto(
     double TempMax,
     double HrMin,
     double HrMax,
-    int UmbralReutilizacionLecturaAmbientalHoras);
+    int UmbralReutilizacionLecturaAmbientalHoras,
+    int AniosRetencionPurga = 5);

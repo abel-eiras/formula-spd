@@ -10,7 +10,9 @@ Usuario y contraseña. Tras cinco intentos fallidos consecutivos el usuario qued
 
 ## Pantalla principal
 
-Botones para cada área. Para cualquier usuario: **Pacientes** ([[uso:pacientes]]), **Retirada de envases** ([[uso:retirada-envases]]), **Exportar pacientes**, **Catálogo de medicamentos** ([[uso:catalogo-medicamentos]]), **Registros de calidad** ([[uso:registros-calidad]]) y **Ayuda**. Solo para Administrador: usuarios, farmacia, actualizaciones, nomenclátor, control documental, seguridad y perfiles de importación ([[uso:configuracion]]).
+Arriba, los **avisos del día**: pacientes con faltantes de envases antes de su próxima retirada, blísteres verificados sin entregar con la validez ya empezada, sesiones a medias (un blíster entregado y el otro no desde hace más de tres días) y días sin lectura ambiental. Son informativos; "Actualizar avisos" los recalcula.
+
+Botones para cada área. Para cualquier usuario: **Pacientes** ([[uso:pacientes]]), **Preparaciones** ([[uso:preparacion]]), **Retirada de envases** ([[uso:retirada-envases]]), **Exportar pacientes**, **Catálogo de medicamentos** ([[uso:catalogo-medicamentos]]), **Registros de calidad** ([[uso:registros-calidad]]) y **Ayuda**. Solo para Administrador: usuarios, farmacia, actualizaciones, nomenclátor, control documental, seguridad y perfiles de importación ([[uso:configuracion]]).
 
 **Cerrar sesión** vuelve al inicio de sesión sin cerrar la aplicación. Cerrar la ventana principal con la X cierra la aplicación y, antes, genera una **copia de seguridad** automática; si falla, avisa y no cierra hasta que lo veas.
 

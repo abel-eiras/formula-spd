@@ -48,6 +48,9 @@ public partial class App : Application
     private IServicioPreparacion? _servicioPreparacion;
     private IServicioGeneracionDocumentos? _servicioGeneracionDocumentos;
     private IServicioIdoneidadConsentimiento? _servicioIdoneidad;
+    private IServicioAvisosInicio? _servicioAvisos;
+    private IServicioGeneracionLote? _servicioLote;
+    private IServicioPurga? _servicioPurga;
 
     public override void Initialize()
     {
@@ -196,6 +199,12 @@ public partial class App : Application
             repositorioUsuarios, new RepositorioMaterialAcondicionamiento(_conexion!),
             new RepositorioRegistrosAmbientales(_conexion!), repositorioEvaluaciones, repositorioConsentimientos,
             new RepositorioComunicacionesMedico(_conexion!), repositorioFarmacia, auditoria);
+
+        // Panel de inicio (Spec 006 FR-691), lote (Spec 007 FR-720..725) y purga manual (Spec 010 §4.3).
+        _servicioAvisos = new ServicioAvisosInicio(_servicioListadoRetirada, repositorioSpd, repositorioPacientes, new RepositorioRegistrosAmbientales(_conexion!));
+        _servicioLote = new ServicioGeneracionLote(_servicioPreparacion, _servicioGeneracionDocumentos, repositorioSpd, repositorioPacientes);
+        _servicioPurga = new ServicioPurga(
+            repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia, new RepositorioPurga(_conexion!), auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -262,7 +271,7 @@ public partial class App : Application
             _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
             _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!,
             _servicioPerfilesImportacion!, _servicioExportacionPacientes!, _servicioPreparacion!,
-            _servicioGeneracionDocumentos!, _servicioIdoneidad!, usuario);
+            _servicioGeneracionDocumentos!, _servicioIdoneidad!, _servicioAvisos!, _servicioLote!, _servicioPurga!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;

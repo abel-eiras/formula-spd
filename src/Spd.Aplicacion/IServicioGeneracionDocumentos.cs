@@ -17,6 +17,11 @@ public interface IServicioGeneracionDocumentos
     /// <summary>Anexo I.H — hoja de instrucciones al paciente (INSTR).</summary>
     ResultadoGeneracionDocumento GenerarInstrucciones(int spdId, int? usuarioQueEjecutaId);
 
+    /// <summary>Spec 006 FR-682 (resuelto por el PNT I §4.4.1: la hoja es "en cada entrega"): una
+    /// sola hoja para todos los blísteres de la sesión si su contenido es idéntico, con el periodo
+    /// de validez completo; si difieren, lanza para que se imprima una por blíster.</summary>
+    ResultadoGeneracionDocumento GenerarInstruccionesSesion(Guid sesionId, int? usuarioQueEjecutaId);
+
     /// <summary>Anexo I.E — ficha del paciente (FICHA-PAC).</summary>
     ResultadoGeneracionDocumento GenerarFichaPaciente(int pacienteId, int? usuarioQueEjecutaId);
 
