@@ -14,6 +14,7 @@ namespace Spd.Presentacion.ViewModels;
 public sealed partial class ComunicacionesMedicoViewModel : ViewModelBase
 {
     private readonly IServicioComunicacionesMedico _servicio;
+    private readonly IServicioGeneracionDocumentos _servicioDocumentos;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
 
@@ -31,9 +32,11 @@ public sealed partial class ComunicacionesMedicoViewModel : ViewModelBase
     public TipoComunicacionMedico[] TiposDisponibles { get; } = Enum.GetValues<TipoComunicacionMedico>();
 
     public ComunicacionesMedicoViewModel(
-        IServicioComunicacionesMedico servicio, int pacienteId, int? usuarioActualId, DatosAltaComunicacionMedico? prerrelleno = null)
+        IServicioComunicacionesMedico servicio, IServicioGeneracionDocumentos servicioDocumentos, int pacienteId, int? usuarioActualId,
+        DatosAltaComunicacionMedico? prerrelleno = null)
     {
         _servicio = servicio;
+        _servicioDocumentos = servicioDocumentos;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
         if (prerrelleno is not null)
@@ -66,6 +69,21 @@ public sealed partial class ComunicacionesMedicoViewModel : ViewModelBase
 
     [RelayCommand]
     private void PrepararRespuesta(ComunicacionMedico comunicacion) => ComunicacionSeleccionadaParaRespuesta = comunicacion;
+
+    /// <summary>FR-806 (Spec 007 `CARTA-PRES`/`CARTA-INC`, Anexo I.C del PNT I).</summary>
+    [RelayCommand]
+    private void ImprimirCarta(ComunicacionMedico comunicacion)
+    {
+        try
+        {
+            var resultado = _servicioDocumentos.GenerarCartaMedico(comunicacion.Id, _usuarioActualId);
+            Mensaje = $"Carta generada: {resultado.RutaCompleta}";
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
 
     [RelayCommand]
     private void ConfirmarRespuesta()

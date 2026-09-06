@@ -47,3 +47,15 @@ directamente a la 0006 de Spec 005.
 - FR-806 real: Spec 007 debe generar `CARTA-PRES`/`CARTA-INC`; hoy solo existe `EsImprimible` como
   dato expuesto.
 - Prueba manual real (`dotnet run`) por el usuario.
+
+## 2026-09-06 (tarde) — FR-806 real: `CARTA-PRES` / `CARTA-INC`
+
+Con el Anexo I.C del PNT I (COF A Coruña) disponible tras el cribado de `resources/`, el motor de
+documentos de Spec 007 genera la carta de presentación con el texto literal del anexo (fecha y
+lugar, saludo al médico, definición del servicio, paciente, "se adjunta ficha del paciente",
+farmacéutico responsable y nº de colegiado, P.D. con los datos de contacto de la farmacia). La carta
+de incidencias no tiene modelo en el PNT: reutiliza encabezado y cierre y lleva las incidencias
+detectadas y la propuesta del farmacéutico. Una comunicación telefónica sigue sin generar documento
+(`EsImprimible`). Botón "Imprimir carta" en cada comunicación imprimible; la ventana recibe el
+servicio de documentos también desde la ficha de tratamiento (FR-804). Tests de presencia de
+elementos por extracción de texto del PDF. FR-805 sigue pendiente.

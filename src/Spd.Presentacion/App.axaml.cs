@@ -195,7 +195,7 @@ public partial class App : Application
             new RepositorioMedicos(_conexion!), new RepositorioTratamientos(_conexion!), repositorioMedicamentos,
             repositorioUsuarios, new RepositorioMaterialAcondicionamiento(_conexion!),
             new RepositorioRegistrosAmbientales(_conexion!), repositorioEvaluaciones, repositorioConsentimientos,
-            repositorioFarmacia, auditoria);
+            new RepositorioComunicacionesMedico(_conexion!), repositorioFarmacia, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)

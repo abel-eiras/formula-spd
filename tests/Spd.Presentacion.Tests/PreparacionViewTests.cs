@@ -80,7 +80,7 @@ public sealed class PreparacionViewTests
             new RepositorioMedicos(conexion), repositorioTratamientos, repositorioMedicamentos,
             repositorioUsuarios, new RepositorioMaterialAcondicionamiento(conexion),
             new RepositorioRegistrosAmbientales(conexion), new RepositorioEvaluacionesIdoneidad(conexion),
-            new RepositorioConsentimientos(conexion), repositorioFarmacia, auditoria);
+            new RepositorioConsentimientos(conexion), new RepositorioComunicacionesMedico(conexion), repositorioFarmacia, auditoria);
         var ventana = new PreparacionWindow(
             servicioPreparacion, servicioMedicamentos, servicioGeneracionDocumentos, paciente.Id, usuarioActualId: null);
 

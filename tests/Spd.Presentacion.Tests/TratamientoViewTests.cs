@@ -50,7 +50,9 @@ public sealed class TratamientoViewTests
 
         var servicioComunicaciones = new ServicioComunicacionesMedico(
             new RepositorioComunicacionesMedico(conexion), repositorioPacientes, new RepositorioTratamientos(conexion), auditoria);
-        var ventana = new TratamientoWindow(servicioTratamientos, servicioMedicamentos, servicioComunicaciones, paciente.Id, usuarioActualId: null);
+        var ventana = new TratamientoWindow(
+            servicioTratamientos, servicioMedicamentos, servicioComunicaciones, FabricaServiciosTest.GeneracionDocumentos(conexion),
+            paciente.Id, usuarioActualId: null);
 
         ventana.Show();
     }

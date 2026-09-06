@@ -65,7 +65,7 @@ public sealed class BuscadorPacientesViewTests
             new RepositorioMedicos(conexion), new RepositorioTratamientos(conexion), new RepositorioMedicamentos(conexion),
             new RepositorioUsuarios(conexion), new RepositorioMaterialAcondicionamiento(conexion),
             new RepositorioRegistrosAmbientales(conexion), new RepositorioEvaluacionesIdoneidad(conexion),
-            new RepositorioConsentimientos(conexion), repositorioFarmacia, auditoria);
+            new RepositorioConsentimientos(conexion), new RepositorioComunicacionesMedico(conexion), repositorioFarmacia, auditoria);
         var servicioIdoneidad = new ServicioIdoneidadConsentimiento(
             new RepositorioEvaluacionesIdoneidad(conexion), new RepositorioConsentimientos(conexion),
             new RepositorioContactos(conexion), repositorioPacientes, servicio, auditoria);

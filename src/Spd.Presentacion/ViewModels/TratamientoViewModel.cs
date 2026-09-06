@@ -16,6 +16,7 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     private readonly IServicioTratamientos _servicioTratamientos;
     private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
+    private readonly IServicioGeneracionDocumentos _servicioDocumentos;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
     private int? _tratamientoIdEnEdicion;
@@ -43,11 +44,13 @@ public sealed partial class TratamientoViewModel : ViewModelBase
 
     public TratamientoViewModel(
         IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
-        IServicioComunicacionesMedico servicioComunicaciones, int pacienteId, int? usuarioActualId)
+        IServicioComunicacionesMedico servicioComunicaciones, IServicioGeneracionDocumentos servicioDocumentos,
+        int pacienteId, int? usuarioActualId)
     {
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
         _servicioComunicaciones = servicioComunicaciones;
+        _servicioDocumentos = servicioDocumentos;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
         CargarVigentes();
@@ -58,7 +61,7 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     private void ComunicarIncidencia(TratamientoFila fila)
     {
         var prerrelleno = _servicioComunicaciones.PrepararDesdeTratamiento(fila.Tratamiento.Id);
-        new ComunicacionesMedicoWindow(_servicioComunicaciones, _pacienteId, _usuarioActualId, prerrelleno).Show();
+        new ComunicacionesMedicoWindow(_servicioComunicaciones, _servicioDocumentos, _pacienteId, _usuarioActualId, prerrelleno).Show();
     }
 
     private void CargarVigentes()

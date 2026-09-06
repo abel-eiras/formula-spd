@@ -49,7 +49,7 @@ public sealed class IdoneidadConsentimientoViewTests
             new RepositorioSpdVerificaciones(conexion), repositorioPacientes, repositorioContactos, new RepositorioMedicos(conexion),
             new RepositorioTratamientos(conexion), new RepositorioMedicamentos(conexion), new RepositorioUsuarios(conexion),
             new RepositorioMaterialAcondicionamiento(conexion), new RepositorioRegistrosAmbientales(conexion),
-            evaluaciones, consentimientos, repositorioFarmacia, auditoria);
+            evaluaciones, consentimientos, new RepositorioComunicacionesMedico(conexion), repositorioFarmacia, auditoria);
 
         var ventana = new IdoneidadConsentimientoWindow(servicioIdoneidad, servicioDocumentos, paciente.Id, usuarioActualId: null);
 
