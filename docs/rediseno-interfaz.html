@@ -1,0 +1,426 @@
+<title>SPD, una sola ventana</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #F6F8F7; --paper: #FFFFFF; --ink: #1B2A2F; --muted: #5B6B70; --line: #D5DDDB;
+    --accent: #1F7A8C; --accent-soft: #E3F0F3; --ok: #2E8B57; --warn: #C9861F; --bad: #B3402F;
+    --ok-soft: #E4F2EA; --warn-soft: #FAEFD9; --bad-soft: #F7E3DF; --shadow: 0 1px 2px rgba(27,42,47,.06), 0 6px 20px rgba(27,42,47,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #101819; --paper: #172224; --ink: #E6ECEA; --muted: #9AA9AB; --line: #2A3739;
+      --accent: #5FB4C4; --accent-soft: #1B3238; --ok: #5FBF85; --warn: #E0A94A; --bad: #E07A66;
+      --ok-soft: #1B3226; --warn-soft: #3A2E15; --bad-soft: #3B2220; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #101819; --paper: #172224; --ink: #E6ECEA; --muted: #9AA9AB; --line: #2A3739;
+    --accent: #5FB4C4; --accent-soft: #1B3238; --ok: #5FBF85; --warn: #E0A94A; --bad: #E07A66;
+    --ok-soft: #1B3226; --warn-soft: #3A2E15; --bad-soft: #3B2220; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+  main { max-width: 1120px; margin: 0 auto; padding: 48px 28px 96px; }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
+  h1 { font-size: 44px; line-height: 1.05; letter-spacing: -0.01em; }
+  h2 { font-size: 28px; line-height: 1.15; margin-top: 64px; }
+  h3 { font-size: 19px; margin-top: 28px; }
+  p { max-width: 68ch; margin: 12px 0; }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .lead { font-size: 18px; color: var(--muted); max-width: 60ch; }
+  .hero { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; margin-bottom: 24px; }
+  .blister { display: grid; grid-template-columns: repeat(7, 26px); grid-auto-rows: 26px; gap: 5px; padding: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  .blister i { display: block; border-radius: 50%; border: 1px solid var(--line); background: var(--ground); }
+  .blister i.f { background: var(--accent-soft); border-color: var(--accent); }
+  .blister i.h { background: var(--accent); border-color: var(--accent); }
+  .blister small { grid-column: 1 / -1; font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--muted); letter-spacing: .08em; text-align: center; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .card h3 { margin-top: 0; font-size: 17px; }
+  .card p { font-size: 14px; color: var(--muted); }
+  .num { font-family: "Fraunces", serif; font-size: 34px; line-height: 1; color: var(--accent); }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--paper); }
+  .compare > div { padding: 18px 20px; }
+  .compare > div + div { border-left: 1px solid var(--line); }
+  .compare h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .compare ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .compare li { margin: 4px 0; }
+  code { font-family: "IBM Plex Mono", monospace; font-size: 13px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .scroll { overflow-x: auto; }
+
+  /* ---------- Maquetas de la interfaz ---------- */
+  .mock { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; margin: 18px 0 8px; font-size: 13px; }
+  .mock .titlebar { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--ground); font-size: 12px; color: var(--muted); }
+  .mock .titlebar b { color: var(--ink); font-weight: 600; }
+  .mock .dots { display: flex; gap: 5px; } .mock .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+  .shell { display: grid; grid-template-columns: 200px 1fr; min-height: 420px; }
+  .side { border-right: 1px solid var(--line); padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; background: var(--ground); }
+  .side .brand { font-family: "Fraunces", serif; font-size: 16px; padding: 4px 8px 10px; }
+  .side a { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 7px; color: var(--ink); text-decoration: none; }
+  .side a.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .side .group { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 12px 10px 4px; }
+  .side .user { margin-top: auto; padding: 8px 10px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); }
+  .side .badge { margin-left: auto; font-size: 11px; background: var(--warn-soft); color: var(--warn); padding: 0 6px; border-radius: 10px; font-weight: 600; }
+  .content { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .topbar { display: flex; align-items: center; gap: 12px; }
+  .topbar h4 { margin: 0; font-size: 18px; font-weight: 600; }
+  .topbar .search { margin-left: auto; border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; width: 260px; color: var(--muted); background: var(--ground); }
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 10px; letter-spacing: .02em; }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.warn { background: var(--warn-soft); color: var(--warn); } .pill.bad { background: var(--bad-soft); color: var(--bad); } .pill.acc { background: var(--accent-soft); color: var(--accent); } .pill.mut { background: var(--ground); color: var(--muted); border: 1px solid var(--line); }
+  .btn { display: inline-block; border: 1px solid var(--line); border-radius: 7px; padding: 5px 11px; font-size: 12px; font-weight: 500; background: var(--paper); color: var(--ink); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.ghost { border-color: transparent; color: var(--accent); }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kpi { border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; }
+  .kpi b { display: block; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .kpi span { font-size: 11px; color: var(--muted); }
+  .kpi.warn { border-left: 4px solid var(--warn); } .kpi.bad { border-left: 4px solid var(--bad); } .kpi.ok { border-left: 4px solid var(--ok); }
+  .list { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .row { display: grid; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--line); }
+  .row:first-child { border-top: 0; background: var(--ground); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .row.sel { background: var(--accent-soft); }
+  .mono { font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+  .stripe { width: 4px; align-self: stretch; border-radius: 2px; } .stripe.warn { background: var(--warn); } .stripe.bad { background: var(--bad); } .stripe.ok { background: var(--ok); }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+  .tabs span { padding: 8px 12px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tabs span.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tabs span.dot::after { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); margin-left: 6px; vertical-align: middle; }
+  .patient-head { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+  .patient-head h4 { margin: 0; font-size: 20px; font-weight: 600; }
+  .patient-head .meta { color: var(--muted); font-size: 12px; display: flex; gap: 14px; flex-wrap: wrap; margin-top: 4px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field { display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 12px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+  .field b { color: var(--muted); font-weight: 500; }
+  .rail { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .step { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12px; position: relative; }
+  .step .n { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--muted); letter-spacing: .1em; }
+  .step.done { border-color: var(--ok); background: var(--ok-soft); } .step.now { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); } .step.lock { color: var(--muted); }
+  .alveolos { display: grid; grid-template-columns: 90px repeat(7, 1fr); gap: 4px; font-size: 11px; align-items: center; }
+  .alveolos .d { text-align: center; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+  .alveolos .cell { height: 24px; border: 1px solid var(--line); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .alveolos .cell.f { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .side-panel { border-left: 1px solid var(--line); padding-left: 14px; }
+  .drawer { border: 1px solid var(--accent); border-radius: 9px; padding: 10px 12px; background: var(--accent-soft); }
+  .toast { display: flex; gap: 10px; align-items: center; border-radius: 8px; padding: 8px 12px; background: var(--bad-soft); color: var(--bad); font-size: 12px; }
+  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .sw { border-radius: 9px; border: 1px solid var(--line); overflow: hidden; font-size: 11px; }
+  .sw i { display: block; height: 44px; } .sw span { display: block; padding: 6px 8px; } .sw .mono { font-size: 11px; color: var(--muted); }
+  .phases { counter-reset: f; display: grid; gap: 12px; }
+  .phase { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: start; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .phase .k { font-family: "Fraunces", serif; font-size: 26px; color: var(--accent); }
+  .phase p { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+  .phase .t { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .fase { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; margin: 16px 0; box-shadow: var(--shadow); }
+  .fase > header { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 14px; }
+  .fase .k { font-family: "Fraunces", serif; font-size: 30px; color: var(--accent); line-height: 1; }
+  .fase h3 { margin: 0; font-size: 21px; }
+  .fase .obj { font-size: 14px; color: var(--muted); margin: 2px 0 0; }
+  .fase .t { font-size: 12px; color: var(--muted); white-space: nowrap; text-align: right; }
+  .bloque { margin-top: 14px; }
+  .bloque > h4 { margin: 0 0 6px; font-size: 11px; letter-spacing: .11em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .hitos { display: grid; gap: 6px; }
+  .hito { display: grid; grid-template-columns: 52px 1fr; gap: 10px; font-size: 14px; align-items: baseline; }
+  .hito .h { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); font-weight: 500; }
+  .pruebas { display: grid; gap: 4px; font-size: 13.5px; }
+  .pruebas div { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: baseline; }
+  .pruebas .m { color: var(--accent); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+  .terminado { margin-top: 14px; font-size: 13px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; }
+  .terminado b { color: var(--ink); }
+  .note { border-left: 3px solid var(--accent); padding: 8px 14px; background: var(--paper); border-radius: 0 8px 8px 0; font-size: 14px; }
+  @media (max-width: 860px) { .hero, .grid2, .grid3, .compare, .cols, .patient-head { grid-template-columns: 1fr; } .kpis, .rail { grid-template-columns: 1fr 1fr; } .shell { grid-template-columns: 1fr; } .side { display: none; } .swatches { grid-template-columns: repeat(3, 1fr); } }
+  @media (prefers-reduced-motion: no-preference) { .step.now { transition: box-shadow .2s; } }
+</style>
+
+<main>
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Propuesta de rediseño · 6 de septiembre de 2026</div>
+      <h1 style="margin-top:10px">SPD, una sola ventana</h1>
+      <p class="lead">Hoy la aplicación abre <strong>25 ventanas distintas</strong> y cada dato vive detrás de un botón. La propuesta: un espacio de trabajo único, con el paciente siempre a la vista, la preparación como un carril de pasos y las alertas en el sitio donde se actúa sobre ellas.</p>
+    </div>
+    <div class="blister" aria-hidden="true">
+      <i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i>
+      <i class="f"></i><i></i><i class="f"></i><i></i><i class="f"></i><i></i><i class="f"></i>
+      <i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <small>L M X J V S D · D A C N</small>
+    </div>
+  </div>
+
+  <h2>Qué pasa hoy</h2>
+  <div class="grid3" style="margin-top:16px">
+    <div class="card"><div class="num">25</div><h3>ventanas</h3><p>Pacientes → Ficha → Tratamientos → Comunicaciones… cada paso abre otra ventana encima de la anterior. Al cerrar, la de abajo no sabe qué cambió (la ficha no se entera de que el paciente pasó a ACTIVO).</p></div>
+    <div class="card"><div class="num">0</div><h3>datos en la primera pantalla</h3><p>El inicio es una columna de 14 botones. Nada te dice qué hay que hacer hoy hasta que abres el listado de retirada o el de preparaciones.</p></div>
+    <div class="card"><div class="num">1</div><h3>estilo: el de fábrica</h3><p>Controles Fluent por defecto, cajas grises al 13 % de opacidad, ids numéricos donde debería haber nombres (verificador, médico). Funciona, pero no se ve profesional.</p></div>
+  </div>
+
+  <h2>Cuatro principios</h2>
+  <div class="grid2" style="margin-top:16px">
+    <div class="card"><h3>El paciente es el espacio de trabajo</h3><p>Ficha, idoneidad, tratamiento, depósito, preparación, comunicaciones y documentos son <strong>pestañas de una misma pantalla</strong>, con una cabecera fija que muestra estado, alergias, idoneidad y próxima retirada. Nunca se pierde el contexto.</p></div>
+    <div class="card"><h3>Una ventana, navegación lateral</h3><p>Menú a la izquierda con Inicio, Pacientes, Preparaciones, Retirada, Catálogo, Calidad y Configuración. El contenido cambia en el mismo marco. Solo lo que exige confirmación (purga, cifrado) usa un diálogo.</p></div>
+    <div class="card"><h3>El estado se lee sin leer</h3><p>Pastillas de color para estados (BORRADOR · PREPARADO · VERIFICADO · ENTREGADO), franjas de severidad en las filas con problema, y contadores en el menú (Retirada <span class="pill warn">3</span>). Lo urgente se ve antes que el detalle.</p></div>
+    <div class="card"><h3>Formularios en paneles, no en ventanas</h3><p>Registrar un envase, verificar, revocar un consentimiento: paneles laterales que se abren dentro de la pantalla y se cierran con la acción hecha. Los mensajes de bloqueo llevan su "¿Por qué?" al lado, como ahora.</p></div>
+  </div>
+
+  <h2>Inicio: lo que hay que hacer hoy</h2>
+  <p>Sustituye la columna de botones por un panel de trabajo. Los cuatro contadores son los avisos que ya calcula la aplicación; cada fila lleva directamente al paciente.</p>
+  <div class="mock">
+    <div class="titlebar"><span class="dots"><i></i><i></i><i></i></span><b>SPD — Farmacia de Prueba</b><span>Elena Ruiz · Elaboradora</span></div>
+    <div class="shell">
+      <nav class="side">
+        <div class="brand">SPD</div>
+        <a class="on">Inicio</a><a>Pacientes</a><a>Preparaciones <span class="badge">2</span></a><a>Retirada de envases <span class="badge">3</span></a><a>Catálogo</a><a>Calidad</a>
+        <div class="group">Administración</div><a>Farmacia</a><a>Usuarios</a><a>Seguridad</a>
+        <div class="user">F1 Ayuda · Cerrar sesión</div>
+      </nav>
+      <div class="content">
+        <div class="topbar"><h4>Lunes 7 de septiembre</h4><span class="search">Buscar paciente, ficha, CN…</span></div>
+        <div class="kpis">
+          <div class="kpi warn"><b>3</b><span>pacientes con faltantes antes de su retirada</span></div>
+          <div class="kpi bad"><b>1</b><span>blíster verificado sin entregar (validez iniciada)</span></div>
+          <div class="kpi warn"><b>1</b><span>sesión a medias desde hace 5 días</span></div>
+          <div class="kpi ok"><b>21,5 ºC · 48 %</b><span>última lectura ambiental, hoy 09:12</span></div>
+        </div>
+        <div class="list">
+          <div class="row" style="grid-template-columns:4px 1fr 180px 120px">
+            <span></span><span>Aviso</span><span>Paciente</span><span></span>
+          </div>
+          <div class="row" style="grid-template-columns:4px 1fr 180px 120px"><i class="stripe warn"></i><span>Faltan envases de <b>Paracetamol 1 g</b> y <b>Enalapril 10 mg</b> para la retirada del miércoles</span><span>López Vidal, María</span><span class="btn ghost">Ver depósito →</span></div>
+          <div class="row" style="grid-template-columns:4px 1fr 180px 120px"><i class="stripe bad"></i><span>Blíster <span class="mono">F-000041</span> verificado el 4/9 y sin entregar; su validez empezó el 5/9</span><span>Núñez Pena, José</span><span class="btn ghost">Entregar →</span></div>
+          <div class="row" style="grid-template-columns:4px 1fr 180px 120px"><i class="stripe warn"></i><span>Sesión a medias: <span class="mono">F-000038</span> entregado el 1/9, <span class="mono">F-000039</span> todavía en PREPARADO</span><span>Ferreiro Castro, Rosa</span><span class="btn ghost">Abrir →</span></div>
+        </div>
+        <div style="display:flex;gap:8px"><span class="btn primary">Nueva sesión de preparación</span><span class="btn">Nuevo paciente</span><span class="btn">Generar documentos en lote</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>El paciente: una pantalla, siete pestañas</h2>
+  <p>La cabecera se queda fija mientras cambias de pestaña: nombre, ficha, estado con su pastilla, alergias en rojo, si tiene idoneidad y consentimiento, y el próximo día de retirada. Las pestañas con algo pendiente llevan un punto.</p>
+  <div class="mock">
+    <div class="titlebar"><span class="dots"><i></i><i></i><i></i></span><b>SPD — Pacientes</b></div>
+    <div class="shell">
+      <nav class="side"><div class="brand">SPD</div><a>Inicio</a><a class="on">Pacientes</a><a>Preparaciones <span class="badge">2</span></a><a>Retirada de envases <span class="badge">3</span></a><a>Catálogo</a><a>Calidad</a><div class="group">Administración</div><a>Farmacia</a><a>Usuarios</a><a>Seguridad</a><div class="user">F1 Ayuda · Cerrar sesión</div></nav>
+      <div class="content">
+        <div class="patient-head">
+          <div>
+            <h4>María López Vidal <span class="mono" style="color:var(--muted);font-weight:400">F-000123</span></h4>
+            <div class="meta"><span class="pill ok">ACTIVO</span><span class="pill bad">ALERGIA: penicilina</span><span>86 años</span><span>Idoneidad APTO · consentimiento 01/09/2026</span><span>Retira los <b>miércoles</b> · 2 blísteres</span><span>Médico: Rosa Ferreiro (CS Lérez)</span></div>
+          </div>
+          <div style="display:flex;gap:6px"><span class="btn">Imprimir ficha</span><span class="btn primary">Preparar semana</span></div>
+        </div>
+        <div class="tabs"><span>Datos</span><span>Idoneidad y consentimiento</span><span class="on">Tratamiento</span><span class="dot">Depósito</span><span>Preparación</span><span>Comunicaciones</span><span>Documentos</span></div>
+        <div class="cols">
+          <div>
+            <div class="list">
+              <div class="row" style="grid-template-columns:1fr 110px 70px 80px"><span>Medicamento</span><span>D · A · C · N</span><span>En SPD</span><span>Prescriptor</span></div>
+              <div class="row" style="grid-template-columns:1fr 110px 70px 80px"><span><b>Paracetamol 1 g</b><br><span class="mono" style="color:var(--muted)">654321</span> · dolor crónico</span><span class="mono">½ · 0 · 1 · 0</span><span class="pill acc">SÍ</span><span style="font-size:12px">Ferreiro</span></div>
+              <div class="row" style="grid-template-columns:1fr 110px 70px 80px"><span><b>Enalapril 10 mg</b><br><span class="mono" style="color:var(--muted)">700123</span> · hipertensión</span><span class="mono">1 · 0 · 0 · 0</span><span class="pill acc">SÍ</span><span style="font-size:12px">Ferreiro</span></div>
+              <div class="row" style="grid-template-columns:1fr 110px 70px 80px"><span><b>Jarabe Tos 100 ml</b><br><span class="mono" style="color:var(--muted)">111222</span> · 5 ml cada 8 h</span><span class="mono">—</span><span class="pill mut">NO</span><span style="font-size:12px">Ferreiro</span></div>
+            </div>
+            <div style="margin-top:8px;display:flex;gap:6px"><span class="btn">Añadir tratamiento</span><span class="btn">Comunicar incidencia</span></div>
+          </div>
+          <div class="side-panel">
+            <div class="eyebrow" style="margin-bottom:6px">Cambiar pauta · Paracetamol 1 g</div>
+            <div class="field"><b>Desayuno</b><span>½</span></div><div class="field"><b>Almuerzo</b><span>0</span></div><div class="field"><b>Cena</b><span>1</span></div><div class="field"><b>Noche</b><span>0</span></div>
+            <div class="field"><b>Momento</b><span>con las comidas</span></div><div class="field"><b>Justificación</b><span>Hoja de medicación 05/09/2026</span></div>
+            <div style="margin-top:10px;display:flex;gap:6px"><span class="btn primary">Guardar nueva pauta</span><span class="btn">Cancelar</span></div>
+            <p style="font-size:12px;margin-top:10px">La pauta anterior se cierra con fecha de hoy y queda en el historial.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Preparación: un carril de pasos, no una lista de botones</h2>
+  <p>La preparación es un proceso con orden (el PNT lo fija: sesión → material y ambiente → llenado → verificación → entrega). La pantalla lo muestra como carril: el paso actual resaltado, los hechos en verde, los bloqueados en gris con su motivo. El blíster se dibuja como rejilla de alvéolos, que es lo que el elaborador tiene delante en la mesa.</p>
+  <div class="mock">
+    <div class="titlebar"><span class="dots"><i></i><i></i><i></i></span><b>SPD — María López Vidal · Preparación</b></div>
+    <div class="content" style="padding:16px 20px">
+      <div class="rail">
+        <div class="step done"><div class="n">1 · SESIÓN</div><b>F-000041 / 42</b><br>7–13 y 14–20 sep</div>
+        <div class="step done"><div class="n">2 · AMBIENTE Y MATERIAL</div>21,5 ºC · 48 % · Venalink MAT-778</div>
+        <div class="step now"><div class="n">3 · LLENADO</div><b>Pasar a preparado</b><br>2 líneas · saldo OK</div>
+        <div class="step lock"><div class="n">4 · VERIFICACIÓN</div>8 preguntas · otro farmacéutico</div>
+        <div class="step lock"><div class="n">5 · ENTREGA</div>acuse · adherencia</div>
+      </div>
+      <div class="cols" style="grid-template-columns:1.4fr 1fr">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">Blíster F-000041 · <span class="pill mut">BORRADOR</span></div>
+          <div class="alveolos">
+            <span></span><span class="d">L</span><span class="d">M</span><span class="d">X</span><span class="d">J</span><span class="d">V</span><span class="d">S</span><span class="d">D</span>
+            <span>Desayuno</span><span class="cell f">½ P · 1 E</span><span class="cell f">½ P · 1 E</span><span class="cell f">½ P · 1 E</span><span class="cell f">½ P · 1 E</span><span class="cell f">½ P · 1 E</span><span class="cell f">½ P · 1 E</span><span class="cell f">½ P · 1 E</span>
+            <span>Almuerzo</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
+            <span>Cena</span><span class="cell f">1 P</span><span class="cell f">1 P</span><span class="cell f">1 P</span><span class="cell f">1 P</span><span class="cell f">1 P</span><span class="cell f">1 P</span><span class="cell f">1 P</span>
+            <span>Noche</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
+          </div>
+          <div class="list" style="margin-top:10px">
+            <div class="row" style="grid-template-columns:1fr 90px 120px 90px"><span>Línea</span><span>Unidades</span><span>Envase</span><span></span></div>
+            <div class="row" style="grid-template-columns:1fr 90px 120px 90px"><span><b>P</b> Paracetamol 1 g</span><span class="mono">11 / 24</span><span class="mono">SER1 · LOT1</span><span class="pill ok">saldo OK</span></div>
+            <div class="row" style="grid-template-columns:1fr 90px 120px 90px"><span><b>E</b> Enalapril 10 mg</span><span class="mono">7 / 28</span><span class="mono">SER9 · LOT4</span><span class="pill ok">saldo OK</span></div>
+          </div>
+        </div>
+        <div class="side-panel">
+          <div class="drawer">
+            <div class="eyebrow" style="margin-bottom:6px">Paso 3 · Llenado</div>
+            <p style="margin:0 0 8px;font-size:12px">Llena medicamento a medicamento, comprobando cada uno antes del siguiente. Al pasar a preparado se descuentan las unidades de los envases indicados.</p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="btn primary">Pasar a preparado</span><span class="btn">Imprimir etiquetas</span><span class="btn">Excluir línea…</span></div>
+          </div>
+          <div class="toast" style="margin-top:10px"><span>⚠</span><span>Verificador = elaborador exige motivo (Art. I.3). <u>¿Por qué?</u></span></div>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px">Ejemplo del mensaje de bloqueo tal y como aparecería en el paso 4: en el panel, junto a la acción, con su explicación a un clic.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Preparaciones: la tabla que se usa cada mañana</h2>
+  <p>La pantalla global ya existe desde esta tarde; aquí se convierte en tabla real con columnas alineadas, la columna "envases al día" como pastilla, y la selección para el lote integrada en la propia fila.</p>
+  <div class="mock">
+    <div class="titlebar"><span class="dots"><i></i><i></i><i></i></span><b>SPD — Preparaciones</b></div>
+    <div class="content" style="padding:16px 20px">
+      <div class="topbar"><h4>Preparaciones</h4><span class="pill mut">Solo pendientes</span><span class="pill mut">Estado: todos</span><span class="search">Filtrar por paciente…</span></div>
+      <div class="scroll"><div class="list" style="min-width:760px">
+        <div class="row" style="grid-template-columns:24px 1fr 110px 110px 140px 140px 110px"><span></span><span>Paciente</span><span>Nº registro</span><span>Estado</span><span>Validez</span><span>Envases al día</span><span></span></div>
+        <div class="row sel" style="grid-template-columns:24px 1fr 110px 110px 140px 140px 110px"><span>☑</span><span><b>López Vidal, María</b> <span class="mono" style="color:var(--muted)">F-000123</span></span><span class="mono">F-000041</span><span class="pill mut">BORRADOR</span><span class="mono">07/09 – 13/09</span><span class="pill ok">SÍ</span><span class="btn ghost">Abrir →</span></div>
+        <div class="row sel" style="grid-template-columns:24px 1fr 110px 110px 140px 140px 110px"><span>☑</span><span><b>Núñez Pena, José</b> <span class="mono" style="color:var(--muted)">F-000097</span></span><span class="mono">F-000040</span><span class="pill acc">VERIFICADO</span><span class="mono">05/09 – 11/09</span><span class="pill ok">SÍ</span><span class="btn ghost">Abrir →</span></div>
+        <div class="row" style="grid-template-columns:24px 1fr 110px 110px 140px 140px 110px"><span>☐</span><span><b>Ferreiro Castro, Rosa</b> <span class="mono" style="color:var(--muted)">F-000102</span></span><span class="mono">F-000039</span><span class="pill warn">PREPARADO</span><span class="mono">02/09 – 08/09</span><span class="pill bad">NO · falta Enalapril (7)</span><span class="btn ghost">Abrir →</span></div>
+      </div></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="btn primary">Generar ficha, etiquetas e instrucciones (2 seleccionados)</span><span class="btn">Seleccionar los que están al día</span></div>
+    </div>
+  </div>
+
+  <h2>Sistema visual</h2>
+  <p>Pocas decisiones, aplicadas en todas partes. El acento es un verdigrís de botica; el verde, el ámbar y el rojo se reservan para estados y nunca decoran.</p>
+  <div class="swatches" style="margin-top:14px">
+    <div class="sw"><i style="background:#1F7A8C"></i><span>Acento</span><span class="mono">#1F7A8C</span></div>
+    <div class="sw"><i style="background:#1B2A2F"></i><span>Tinta</span><span class="mono">#1B2A2F</span></div>
+    <div class="sw"><i style="background:#F6F8F7;border-bottom:1px solid var(--line)"></i><span>Fondo</span><span class="mono">#F6F8F7</span></div>
+    <div class="sw"><i style="background:#2E8B57"></i><span>Apto · OK</span><span class="mono">#2E8B57</span></div>
+    <div class="sw"><i style="background:#C9861F"></i><span>Aviso</span><span class="mono">#C9861F</span></div>
+    <div class="sw"><i style="background:#B3402F"></i><span>Bloqueo</span><span class="mono">#B3402F</span></div>
+  </div>
+  <div class="grid2" style="margin-top:16px">
+    <div class="card"><h3>Tipografía</h3><p><b>IBM Plex Sans</b> para toda la interfaz (13 px base, 18 px títulos de pantalla). <b>IBM Plex Mono</b> para lo que se copia o se compara a ojo: nº de registro, CN, series, lotes, pautas <span class="mono">½ · 0 · 1 · 0</span>. Ambas van embebidas en la app (Avalonia acepta fuentes como recurso), sin depender de lo que tenga instalado el PC.</p></div>
+    <div class="card"><h3>Estados como forma</h3><p>Estado del blíster y del paciente siempre como pastilla; problemas como franja de color a la izquierda de la fila; pestañas con punto cuando tienen algo pendiente; contadores en el menú. Los ids numéricos desaparecen de la interfaz: verificador y médico se eligen por nombre.</p></div>
+  </div>
+
+  <h2>Cómo se llega: cuatro fases</h2>
+  <p>La buena noticia técnica: cada pantalla ya es un <code>UserControl</code> separado de su <code>Window</code>, y toda la lógica está en los ViewModels con tests. Pasar a una sola ventana es sobre todo cambiar el marco, no reescribir pantallas.</p>
+  <p style="margin-top:16px"><b>Cada fase se fusiona por separado</b>: deja la aplicación usable, con todos los tests en verde, y termina con una prueba manual tuya antes de empezar la siguiente. Punto de partida verificado hoy: <b>27 ventanas · 322 tests en verde</b>.</p>
+
+  <section class="fase">
+    <header><div class="k">1</div><div><h3>Marco único y sistema visual</h3><p class="obj">Que la aplicación deje de ser una colección de ventanas y empiece a verse de la farmacia.</p></div><div class="t">1 sesión<br>27 → <b>11</b> ventanas</div></header>
+    <div class="bloque"><h4>Hitos</h4><div class="hitos">
+      <div class="hito"><span class="h">H1.1</span><span><b>Tema</b>: paleta clara y oscura, IBM Plex embebida, escala tipográfica y estilos de botón, campo, lista y pestaña.</span></div>
+      <div class="hito"><span class="h">H1.2</span><span><b>Componentes de estado</b>: pastilla, franja de severidad y barra de mensaje con su "¿Por qué?".</span></div>
+      <div class="hito"><span class="h">H1.3</span><span><b>Marco</b>: ventana única con navegación lateral (grupos, contadores, usuario) y región de contenido.</span></div>
+      <div class="hito"><span class="h">H1.4</span><span><b>Fábrica de ViewModels</b>: los servicios se reciben una vez; desaparece la cascada de constructores entre ventanas.</span></div>
+      <div class="hito"><span class="h">H1.5</span><span><b>Migración de 14 secciones</b> a la región y borrado de sus ventanas.</span></div>
+      <div class="hito"><span class="h">H1.6</span><span><b>F1 por vista</b> y anfitrión común para los tests, que conserva la regresión de plantillas.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas automáticas</h4><div class="pruebas">
+      <div><span class="m">CA-1500</span><span>Recorrer las 14 secciones no abre ninguna ventana; un Elaborador no alcanza las de administración.</span></div>
+      <div><span class="m">CA-1501</span><span>Con tres pacientes con faltantes, la sección de retirada muestra contador 3.</span></div>
+      <div><span class="m">CA-1502</span><span>Ninguna clave de color queda definida solo en una de las dos variantes; las fuentes embebidas cargan.</span></div>
+      <div><span class="m">CA-1503</span><span>F1 en Preparaciones abre su apartado, no el índice; cada vista registrada tiene apartado de Uso y de Procedimiento.</span></div>
+      <div><span class="m">F5</span><span>Los 29 tests de vista siguen realizando plantillas con una ventana real.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas manuales</h4><div class="pruebas">
+      <div><span class="m">1</span><span>Iniciar sesión: una sola ventana, menú con contadores.</span></div>
+      <div><span class="m">2</span><span>Recorrer las catorce secciones y usar "atrás".</span></div>
+      <div><span class="m">3</span><span>F1 en cuatro secciones distintas.</span></div>
+      <div><span class="m">4</span><span>Tema del sistema a oscuro y de vuelta a claro: legible en ambos.</span></div>
+      <div><span class="m">5</span><span>Entrar como Elaborador: sin secciones de administración.</span></div>
+      <div><span class="m">6</span><span>Log de arranque: sigue por debajo de 2 s.</span></div>
+    </div></div>
+    <p class="terminado"><b>Terminado cuando</b>: compila sin avisos nuevos, 322+ tests en verde, las catorce ventanas eliminadas del repositorio y la fase fusionada.</p>
+  </section>
+
+  <section class="fase">
+    <header><div class="k">2</div><div><h3>Inicio accionable, tablas y búsqueda</h3><p class="obj">Que la primera pantalla diga qué hay que hacer hoy y que los listados se lean como tablas.</p></div><div class="t">1 sesión<br>11 ventanas</div></header>
+    <div class="bloque"><h4>Hitos</h4><div class="hitos">
+      <div class="hito"><span class="h">H2.1</span><span><b>Panel de inicio</b>: cuatro indicadores y la lista de avisos, sobre el servicio que ya los calcula.</span></div>
+      <div class="hito"><span class="h">H2.2</span><span><b>Avisos accionables</b>: cada aviso gana destino y lleva al depósito, la preparación o la sección donde se resuelve.</span></div>
+      <div class="hito"><span class="h">H2.3</span><span><b>Tablas</b> en Preparaciones, Retirada, Pacientes y Catálogo: cabecera, ordenación, selección múltiple, cifras alineadas.</span></div>
+      <div class="hito"><span class="h">H2.4</span><span><b>Búsqueda global</b> en la cabecera: paciente, medicamento y blíster.</span></div>
+      <div class="hito"><span class="h">H2.5</span><span><b>Acciones rápidas</b>: nueva sesión, nuevo paciente, generar en lote.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas automáticas</h4><div class="pruebas">
+      <div><span class="m">CA-1510</span><span>Con los cuatro tipos de aviso presentes, el inicio los muestra con sus valores.</span></div>
+      <div><span class="m">CA-1511</span><span>El aviso de faltantes apunta al depósito de ese paciente; el ambiental, a calidad.</span></div>
+      <div><span class="m">CA-1512</span><span>Ordenar por otra columna conserva la selección para el lote.</span></div>
+      <div><span class="m">CA-1513</span><span>"lópez" → paciente, "F-000041" → blíster, "654321" → medicamento; sin tildes ni mayúsculas.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas manuales</h4><div class="pruebas">
+      <div><span class="m">1</span><span>Con un día real, el inicio refleja lo que está pendiente de verdad.</span></div>
+      <div><span class="m">2</span><span>Pulsar un aviso de cada tipo y llegar donde se resuelve.</span></div>
+      <div><span class="m">3</span><span>Ordenar Preparaciones por paciente y por validez.</span></div>
+      <div><span class="m">4</span><span>Seleccionar tres pacientes al día y lanzar el lote desde la tabla.</span></div>
+      <div><span class="m">5</span><span>Buscar un apellido, un nº de blíster y un CN desde la cabecera.</span></div>
+    </div></div>
+    <p class="terminado"><b>Terminado cuando</b>: el inicio ya no es una columna de botones, las cuatro tablas son ordenables y la batería sigue en verde.</p>
+  </section>
+
+  <section class="fase">
+    <header><div class="k">3</div><div><h3>Espacio del paciente</h3><p class="obj">El paciente se trabaja entero en una pantalla; ninguna acción suya abre ventana.</p></div><div class="t">2 sesiones<br>11 → <b>4</b> ventanas</div></header>
+    <div class="bloque"><h4>Hitos</h4><div class="hitos">
+      <div class="hito"><span class="h">H3.1</span><span><b>Cabecera fija</b>: estado, alergias, idoneidad y consentimiento, retirada, blísteres, médico.</span></div>
+      <div class="hito"><span class="h">H3.2</span><span><b>Contexto del paciente</b>: una sola carga y muchos suscriptores; se acaba el desfase de la ficha.</span></div>
+      <div class="hito"><span class="h">H3.3</span><span><b>Siete pestañas</b> que alojan las vistas que ya existen.</span></div>
+      <div class="hito"><span class="h">H3.4</span><span><b>Indicador de pendiente</b> por pestaña.</span></div>
+      <div class="hito"><span class="h">H3.5</span><span><b>Paneles laterales</b> en vez de ventanas: envase, representante, respuesta del médico, importación, revocación, reelaboración.</span></div>
+      <div class="hito"><span class="h">H3.6</span><span><b>Borrado de las 7 ventanas</b> de paciente y del parche de refresco al cerrar.</span></div>
+      <div class="hito"><span class="h">H3.7</span><span><b>Ayuda actualizada</b> a la nueva navegación.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas automáticas</h4><div class="pruebas">
+      <div><span class="m">CA-1520</span><span>Las siete pestañas se realizan con un paciente real: regresión de plantillas en cada una.</span></div>
+      <div><span class="m">CA-1521</span><span>Registrada la firma, la cabecera pasa a ACTIVO sin recrear la pantalla.</span></div>
+      <div><span class="m">CA-1522</span><span>Paciente con faltantes ⇒ Depósito marcado; sin consentimiento ⇒ Idoneidad marcada.</span></div>
+      <div><span class="m">CA-1523</span><span>Guardar en un panel lo cierra y deja la lista de detrás actualizada.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas manuales</h4><div class="pruebas">
+      <div><span class="m">1</span><span>Alta → idoneidad → consentimiento → tratamiento → depósito → preparación sin abrir una sola ventana.</span></div>
+      <div><span class="m">2</span><span>La cabecera pasa a ACTIVO en el momento de registrar la firma.</span></div>
+      <div><span class="m">3</span><span>Indicadores de pendiente en un paciente con faltantes.</span></div>
+      <div><span class="m">4</span><span>Abrir y cerrar tres paneles laterales distintos.</span></div>
+      <div><span class="m">5</span><span>F1 en cuatro pestañas.</span></div>
+    </div></div>
+    <p class="terminado"><b>Terminado cuando</b>: siete ventanas eliminadas, ayuda actualizada y batería en verde. <b>Riesgo vigilado</b>: es la fase de más superficie; se migra pestaña a pestaña, no las siete de golpe.</p>
+  </section>
+
+  <section class="fase">
+    <header><div class="k">4</div><div><h3>Preparación como carril y blíster dibujado</h3><p class="obj">Que la pantalla más usada muestre el proceso que sigue y el blíster que hay en la mesa.</p></div><div class="t">2 sesiones<br>4 ventanas</div></header>
+    <div class="bloque"><h4>Hitos</h4><div class="hitos">
+      <div class="hito"><span class="h">H4.1</span><span><b>Carril de cinco pasos</b> derivado del estado del blíster, con el motivo de cada bloqueo.</span></div>
+      <div class="hito"><span class="h">H4.2</span><span><b>Rejilla de alvéolos</b> generada de las líneas: días × tomas, con fracción e identificación del medicamento.</span></div>
+      <div class="hito"><span class="h">H4.3</span><span><b>Verificación</b> como panel del paso 4: las ocho preguntas del Anexo I.G y verificador por nombre.</span></div>
+      <div class="hito"><span class="h">H4.4</span><span><b>Entrega</b> como panel del paso 5, avisando de las consecuencias de "refiere cambios".</span></div>
+      <div class="hito"><span class="h">H4.5</span><span><b>Selectores por nombre</b> también para el médico: desaparecen los identificadores numéricos de la interfaz.</span></div>
+      <div class="hito"><span class="h">H4.6</span><span><b>Impresión desde el carril</b>, en el paso que corresponde.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas automáticas</h4><div class="pruebas">
+      <div><span class="m">CA-1530</span><span>Para cada estado del blíster, el paso actual, los completados y los bloqueados son los esperados, con su motivo.</span></div>
+      <div><span class="m">CA-1531</span><span>Pauta ½-0-1-0 ⇒ siete alvéolos de desayuno con ½, siete de cena con 1, ninguno en almuerzo ni noche; dos medicamentos comparten alvéolo correctamente.</span></div>
+      <div><span class="m">CA-1532</span><span>Ningún fichero de interfaz enlaza un control numérico a un identificador de usuario o de médico.</span></div>
+    </div></div>
+    <div class="bloque"><h4>Pruebas manuales</h4><div class="pruebas">
+      <div><span class="m">1</span><span>Ciclo completo por el carril: el paso actual siempre correcto.</span></div>
+      <div><span class="m">2</span><span>La rejilla coincide con el blíster real que se está llenando.</span></div>
+      <div><span class="m">3</span><span>Verificar por nombre; provocar verificador = elaborador y ver el motivo obligatorio junto al botón.</span></div>
+      <div><span class="m">4</span><span>Entrega con "refiere cambios": avisa antes de aplicarlo.</span></div>
+      <div><span class="m">5</span><span>Imprimir ficha, etiquetas e instrucciones desde el carril.</span></div>
+    </div></div>
+    <p class="terminado"><b>Terminado cuando</b>: sin identificadores numéricos en la interfaz, batería en verde y <b>hecha la prueba manual del ciclo completo</b>, la que sigue pendiente desde el principio del proyecto.</p>
+  </section>
+
+  <h2>Lo que necesito que decidas</h2>
+  <div class="note"><b>Orden.</b> ¿Empezamos por el marco único (fase 1: efecto inmediato en toda la app) o por el espacio del paciente (fase 3: el mayor ahorro de ventanas)? Mi recomendación: 1 → 2 → 3 → 4, porque cada fase deja la app usable y probada.</div>
+  <div class="note" style="margin-top:10px"><b>Rejilla de alvéolos.</b> Es la pieza con más personalidad y también la que más depende de vuestro dispositivo real (7 columnas × 4 tomas es el estándar, pero hay blísteres de 3 tomas o de 28 días). Dime qué modelo usáis y la dibujo igual que la caja.</div>
+  <div class="note" style="margin-top:10px"><b>Densidad.</b> Las maquetas están en 13 px, pensadas para un monitor de 1366×768 o mayor. Si en la farmacia se usa una pantalla pequeña o táctil, subo a 14–15 px y controles más altos: conviene saberlo antes de la fase 1.</div>
+  <div class="note" style="margin-top:10px"><b>Un paquete para las tablas.</b> Las columnas ordenables se hacen con <code>Avalonia.Controls.DataGrid</code>, que es del mismo fabricante y la misma versión que el resto de la interfaz, pero es una dependencia más y la constitución fija el stack (Art. VIII.2). Lo interpreto como parte de lo ya fijado, pero prefiero preguntarte antes que darlo por hecho: si prefieres cero dependencias nuevas, hay alternativa con algo más de código. Solo bloquea la fase 2.</div>
+
+  <p style="margin-top:28px;font-size:13px;color:var(--muted)">El plan completo, con los requisitos numerados, los contratos técnicos y la lista de tareas ejecutable, está en el repositorio: <code>specs/015-rediseno-interfaz/</code> (spec, plan, research, contracts, tasks y progreso). Esta página es su resumen visual y la fuente del diseño.</p>
+</main>
