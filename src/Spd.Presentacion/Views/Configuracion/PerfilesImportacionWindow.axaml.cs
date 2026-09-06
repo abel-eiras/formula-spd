@@ -9,6 +9,7 @@ public partial class PerfilesImportacionWindow : Window
     public PerfilesImportacionWindow(IServicioPerfilesImportacion servicio, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new PerfilesImportacionViewModel(servicio, usuarioActualId);
     }
 

@@ -12,6 +12,7 @@ public partial class FarmaciaWindow : Window
         int? administradorActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new FarmaciaViewModel(servicio, gestorLogo, servicioBackup, administradorActualId);
     }
 

@@ -10,6 +10,7 @@ public partial class ExportarPacientesWindow : Window
         IServicioPerfilesImportacion servicioPerfiles, IServicioExportacionPacientes servicioExportacion, IServicioPacientes servicioPacientes)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new ExportarPacientesViewModel(servicioPerfiles, servicioExportacion, servicioPacientes);
     }
 

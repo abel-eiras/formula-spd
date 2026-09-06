@@ -11,6 +11,7 @@ public partial class ComunicacionesMedicoWindow : Window
         DatosAltaComunicacionMedico? prerrelleno = null)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new ComunicacionesMedicoViewModel(servicio, servicioDocumentos, pacienteId, usuarioActualId, prerrelleno);
     }
 

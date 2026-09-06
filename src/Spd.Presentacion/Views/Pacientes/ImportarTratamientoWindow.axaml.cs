@@ -9,6 +9,7 @@ public partial class ImportarTratamientoWindow : Window
     public ImportarTratamientoWindow(IServicioImportacionTratamientoEnvase servicio, int pacienteId, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new ImportarTratamientoViewModel(servicio, pacienteId, usuarioActualId);
     }
 

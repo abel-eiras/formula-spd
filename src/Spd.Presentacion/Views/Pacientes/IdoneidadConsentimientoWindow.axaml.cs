@@ -10,6 +10,7 @@ public partial class IdoneidadConsentimientoWindow : Window
         IServicioIdoneidadConsentimiento servicio, IServicioGeneracionDocumentos servicioDocumentos, int pacienteId, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new IdoneidadConsentimientoViewModel(servicio, servicioDocumentos, pacienteId, usuarioActualId);
     }
 

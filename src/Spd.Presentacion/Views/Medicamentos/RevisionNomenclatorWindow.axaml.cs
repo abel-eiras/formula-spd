@@ -9,6 +9,7 @@ public partial class RevisionNomenclatorWindow : Window
     public RevisionNomenclatorWindow(IServicioImportacionNomenclator servicio, int? usuarioActualId)
     {
         InitializeComponent();
+        AyudaContextual.Registrar(this);
         DataContext = new RevisionNomenclatorViewModel(servicio, usuarioActualId);
     }
 
