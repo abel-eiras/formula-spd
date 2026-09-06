@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.Views.Preparacion;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -18,6 +19,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     private readonly IServicioEnvases _servicioEnvases;
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
+    private readonly IServicioPreparacion _servicioPreparacion;
     private readonly int? _usuarioActualId;
     private bool _pendienteConfirmarDuplicado;
 
@@ -68,10 +70,14 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     /// <summary>Las comunicaciones exigen un paciente ya creado (FR-801 referencia `paciente_id`).</summary>
     public bool PuedeAbrirComunicaciones => Paciente is not null;
 
+    /// <summary>La preparación exige un paciente ya creado (FR-600 referencia `paciente_id`).</summary>
+    public bool PuedeAbrirPreparacion => Paciente is not null;
+
     public FichaPacienteViewModel(
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
-        IServicioComunicacionesMedico servicioComunicaciones, Paciente? pacienteExistente, int? usuarioActualId)
+        IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion,
+        Paciente? pacienteExistente, int? usuarioActualId)
     {
         _servicio = servicio;
         _servicioTratamientos = servicioTratamientos;
@@ -79,6 +85,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
         _servicioEnvases = servicioEnvases;
         _servicioImportacion = servicioImportacion;
         _servicioComunicaciones = servicioComunicaciones;
+        _servicioPreparacion = servicioPreparacion;
         _usuarioActualId = usuarioActualId;
         Paciente = pacienteExistente;
         if (pacienteExistente is not null)
@@ -98,6 +105,10 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirComunicaciones()
         => new ComunicacionesMedicoWindow(_servicioComunicaciones, Paciente!.Id, _usuarioActualId).Show();
+
+    [RelayCommand]
+    private void AbrirPreparacion()
+        => new PreparacionWindow(_servicioPreparacion, _servicioMedicamentos, Paciente!.Id, _usuarioActualId).Show();
 
     [RelayCommand]
     private void Guardar()
@@ -122,6 +133,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
             OnPropertyChanged(nameof(PuedeAbrirTratamientos));
             OnPropertyChanged(nameof(PuedeAbrirDeposito));
             OnPropertyChanged(nameof(PuedeAbrirComunicaciones));
+            OnPropertyChanged(nameof(PuedeAbrirPreparacion));
         }
         catch (PacienteDuplicadoException ex)
         {

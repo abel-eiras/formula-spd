@@ -62,6 +62,8 @@
                 IsVisible="{Binding PuedeAbrirDeposito}" />
         <Button Content="Comunicaciones" Command="{Binding AbrirComunicacionesCommand}"
                 IsVisible="{Binding PuedeAbrirComunicaciones}" />
+        <Button Content="Preparación" Command="{Binding AbrirPreparacionCommand}"
+                IsVisible="{Binding PuedeAbrirPreparacion}" />
       </StackPanel>
     </ScrollViewer>
 

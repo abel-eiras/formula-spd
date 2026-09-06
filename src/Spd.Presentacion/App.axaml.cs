@@ -45,6 +45,7 @@ public partial class App : Application
     private IServicioComunicacionesMedico? _servicioComunicaciones;
     private IServicioPerfilesImportacion? _servicioPerfilesImportacion;
     private IServicioExportacionPacientes? _servicioExportacionPacientes;
+    private IServicioPreparacion? _servicioPreparacion;
 
     public override void Initialize()
     {
@@ -153,11 +154,12 @@ public partial class App : Application
 
         var repositorioEnvases = new RepositorioEnvases(_conexion!);
         _servicioEnvases = new ServicioEnvases(repositorioEnvases, new RepositorioTratamientos(_conexion!), repositorioPacientes, auditoria);
-        // ComprobadorCoberturaSpdNulo (research.md Decisión 3 de Spec 005): Spec 006 no existe
-        // todavía en esta rama; sustituir por la implementación real al mergear esa spec.
+        // ComprobadorCoberturaSpdReal (research.md Decisión 3 de Spec 005): Spec 006 ya existe,
+        // completa el punto de extensión que Spec 005 dejó documentado en vez de fabricado.
+        var repositorioSpd = new RepositorioSpd(_conexion!);
         _servicioListadoRetirada = new ServicioListadoRetirada(
             repositorioPacientes, new RepositorioContactos(_conexion!), new RepositorioTratamientos(_conexion!),
-            repositorioMedicamentos, repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
+            repositorioMedicamentos, repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdReal(repositorioSpd), auditoria);
         _servicioImportacion = new ServicioImportacionTratamientoEnvase(
             repositorioMedicamentos, new RepositorioTratamientos(_conexion!), repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(_conexion!), _servicioTratamientos!, auditoria);
@@ -165,6 +167,16 @@ public partial class App : Application
             new RepositorioComunicacionesMedico(_conexion!), repositorioPacientes, new RepositorioTratamientos(_conexion!), auditoria);
         _servicioPerfilesImportacion = new ServicioPerfilesImportacion(new RepositorioPerfilesImportacion(_conexion!), auditoria);
         _servicioExportacionPacientes = new ServicioExportacionPacientes();
+
+        // ComprobadorIdoneidadYConsentimientoNulo (research.md Decisión 1 de Spec 006): Spec 002
+        // no existe todavía en esta rama; sustituir por la implementación real al mergear esa spec.
+        _servicioPreparacion = new ServicioPreparacion(
+            repositorioSpd, new RepositorioSpdLineas(_conexion!), new RepositorioSpdLineaEnvases(_conexion!),
+            new RepositorioSpdVerificaciones(_conexion!), new RepositorioSpdModificaciones(_conexion!),
+            new RepositorioRegistrosAmbientales(_conexion!), new RepositorioMaterialAcondicionamiento(_conexion!),
+            repositorioPacientes, new RepositorioTratamientos(_conexion!), repositorioMedicamentos, repositorioEnvases,
+            repositorioFarmacia, new ServicioAsignacionEnvases(repositorioEnvases, new RepositorioTratamientos(_conexion!), auditoria),
+            _servicioEnvases, _servicioListadoRetirada, new ComprobadorIdoneidadYConsentimientoNulo(), auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -230,7 +242,7 @@ public partial class App : Application
             _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
             _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
             _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!,
-            _servicioPerfilesImportacion!, _servicioExportacionPacientes!, usuario);
+            _servicioPerfilesImportacion!, _servicioExportacionPacientes!, _servicioPreparacion!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
