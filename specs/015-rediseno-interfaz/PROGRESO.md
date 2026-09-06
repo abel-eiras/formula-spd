@@ -173,3 +173,30 @@ Hecha y fusionada. **354 tests en verde** (68 Dominio + 227 Aplicación + 59 Pre
 **Lo que queda es la prueba manual del propietario (T061)**, pendiente desde el inicio del proyecto:
 es lo único que puede confirmar la densidad, los colores, el modelo del dispositivo y el ciclo
 completo en pantalla real.
+
+
+## 2026-09-06 (cierre) — Ayuda al día y BarraMensaje
+
+Cerradas las dos tareas que quedaban de la 015 aparte de la prueba manual.
+
+**T008 · `BarraMensaje`**: unifica el recuadro del mensaje y el botón «¿Por qué?» que abre la
+explicación normativa de un bloqueo. Estaba copiado a mano en dos pantallas y **ausente en las
+otras veinte**, así que un rechazo con base legal —«el representante necesita DNI», «la firma no
+puede ser futura»— se leía como un capricho de la aplicación. El Art. XI exige que un bloqueo se
+explique; ahora explicarlo es poner un atributo. Un test recorre los `.axaml` para que el patrón no
+vuelva a duplicarse.
+
+Se adopta en las dos pantallas que ya tenían el botón y en las nuevas. Las otras veinte conservan su
+`Border` sencillo a propósito: convertirlas es puro trasiego visual que no se puede validar sin
+pantalla, y el `Border` que tienen funciona. Queda como limpieza para después de la prueba manual.
+
+**T048 · Ayuda**: diez apartados al día con lo que la aplicación hace hoy —marco único, búsqueda
+global, avisos accionables, tablas ordenables, cabecera fija y pestañas del paciente, paneles
+laterales, carril de pasos, rejilla de alvéolos, selectores por nombre— más dos nuevos, `medicos` y
+`contactos`, para lo que construyó la Spec 001 US2/US3.
+
+## Estado de la Spec 015
+
+Las cuatro fases hechas y fusionadas. **Lo único pendiente es T061: la prueba manual del ciclo
+completo por el propietario** (`quickstart.md`), que es lo único que puede confirmar la densidad, los
+estados de hover, el modelo del dispositivo (Q2) y que las siete pestañas caben en el monitor real.

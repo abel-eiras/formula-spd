@@ -90,7 +90,7 @@
 - [X] T045 [F3] Todos los ViewModels de pestaña usan `PacienteContexto`; eliminar el parche `FichaPacienteViewModel.RecargarPaciente` y los `Closed +=`
 - [X] T046 [F3] **Eliminar** `FichaPacienteWindow`, `TratamientoWindow`, `DepositoWindow`, `ComunicacionesMedicoWindow`, `IdoneidadConsentimientoWindow`, `PreparacionWindow`, `ImportarTratamientoWindow`
 - [X] T047 [P] [F3] Tests `PacienteWorkspaceViewTests` (siete pestañas), `PacienteContextoTests` (activación en el momento), `PanelLateralTests`
-- [ ] T048 [P] [F3] Ayuda (Spec 014 FR-1525) — **a medias**: reescritos `uso__010-inicio` (marco único, búsqueda global, avisos accionables), `uso__020-pacientes` (tabla), `uso__030-ficha-paciente` (cabecera fija y pestañas) y `uso__060-deposito` (panel lateral). **Faltan** `uso__040-idoneidad-consentimiento`, `uso__050-tratamientos`, `uso__070-preparacion` (carril y rejilla) y `uso__080-comunicaciones-medico` (selector de médico por nombre)
+- [X] T048 [P] [F3] Ayuda (Spec 014 FR-1525): reescritos los nueve apartados afectados — `uso__010-inicio`, `uso__020-pacientes`, `uso__025-medicos` (nuevo), `uso__026-contactos` (nuevo), `uso__030-ficha-paciente`, `uso__040-idoneidad-consentimiento`, `uso__050-tratamientos`, `uso__060-deposito`, `uso__070-preparacion` y `uso__080-comunicaciones-medico`
 - [X] T049 [F3] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
 
 ---
