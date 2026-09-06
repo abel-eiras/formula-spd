@@ -69,7 +69,8 @@ public sealed partial class PacienteWorkspaceViewModel : ViewModelBase
         var pestanas = new ObservableCollection<Pestana>
         {
             new(PestanaPaciente.Datos, "Datos",
-                new FichaPacienteViewModel(_servicios.Pacientes, _contexto, _usuarioActualId))
+                new FichaPacienteViewModel(_servicios.Pacientes, _servicios.Medicos, _servicios.Contactos,
+                    _contexto, _usuarioActualId))
         };
 
         if (_contexto.PacienteId is { } id)
@@ -78,7 +79,7 @@ public sealed partial class PacienteWorkspaceViewModel : ViewModelBase
                 new IdoneidadConsentimientoViewModel(_servicios.Idoneidad, _servicios.Documentos, id, _usuarioActualId, _contexto)));
             pestanas.Add(new Pestana(PestanaPaciente.Tratamiento, "Tratamiento",
                 new TratamientoViewModel(_servicios.Tratamientos, _servicios.Medicamentos, _servicios.Comunicaciones,
-                    _servicios.Documentos, id, _usuarioActualId, _contexto, _servicios.Medicos)));
+                    _servicios.Documentos, _servicios.Medicos, id, _usuarioActualId, _contexto)));
             pestanas.Add(new Pestana(PestanaPaciente.Deposito, "Depósito",
                 new DepositoViewModel(_servicios.Envases, _servicios.Medicamentos, _servicios.ImportacionTratamiento,
                     id, _usuarioActualId)));
@@ -87,7 +88,7 @@ public sealed partial class PacienteWorkspaceViewModel : ViewModelBase
                     _servicios.Comunicaciones, id, _usuarioActualId, _contexto, _servicios.Usuarios)));
             pestanas.Add(new Pestana(PestanaPaciente.Comunicaciones, "Comunicaciones",
                 new ComunicacionesMedicoViewModel(_servicios.Comunicaciones, _servicios.Documentos, id, _usuarioActualId,
-                    prerrelleno: null, servicioMedicos: _servicios.Medicos)));
+                    _servicios.Medicos)));
             pestanas.Add(new Pestana(PestanaPaciente.Documentos, "Documentos",
                 new DocumentosPacienteViewModel(_contexto, _servicios.Documentos, _usuarioActualId)));
         }

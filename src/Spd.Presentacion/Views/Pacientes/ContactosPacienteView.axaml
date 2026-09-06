@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
+             x:Class="Spd.Presentacion.Views.Pacientes.ContactosPacienteView">
+  <Grid>
+    <StackPanel Spacing="8">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="Contactos" Classes="titulo" VerticalAlignment="Center" />
+        <Button Classes="enlace" Content="Añadir contacto" Command="{Binding NuevoCommand}"
+                IsEnabled="{Binding HayPaciente}" />
+        <CheckBox Content="Ver histórico" IsChecked="{Binding VerHistorico}" />
+      </StackPanel>
+
+      <TextBlock Classes="suave" TextWrapping="Wrap" IsVisible="{Binding !HayPaciente}"
+                 Text="Guarda primero los datos del paciente: hasta entonces no hay ficha a la que añadir contactos." />
+
+      <TextBlock Classes="suave" TextWrapping="Wrap" IsVisible="{Binding SinContactos}"
+                 Text="Sin contactos registrados." />
+
+      <!-- FR-021b: si nadie retira, retira el propio paciente y el listado usa su DNI. Se dice, para
+           que no parezca un olvido. -->
+      <Border Classes="panel" Padding="10,6" IsVisible="{Binding RetiraElPropioPaciente}">
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="Nadie está marcado como quien retira la medicación: el listado de retirada usará el DNI del propio paciente." />
+      </Border>
+
+      <ItemsControl ItemsSource="{Binding Contactos}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Classes="tarjeta" Margin="0,0,0,6" Padding="12,10">
+              <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <Button Classes="enlace" Content="Editar"
+                          Command="{Binding DataContext.EditarCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                          CommandParameter="{Binding}" />
+                  <Button Classes="enlace" Content="Dar de baja" IsVisible="{Binding Activo}"
+                          Command="{Binding DataContext.DarDeBajaCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                          CommandParameter="{Binding}" />
+                </StackPanel>
+                <StackPanel Spacing="3">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock FontWeight="SemiBold">
+                      <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0}, {1}">
+                          <Binding Path="Apellidos" />
+                          <Binding Path="Nombre" />
+                        </MultiBinding>
+                      </TextBlock.Text>
+                    </TextBlock>
+                    <c:Pastilla Texto="{Binding Tipo}" VerticalAlignment="Center" />
+                    <c:Pastilla Variante="Acento" Texto="principal" IsVisible="{Binding EsPrincipal}" VerticalAlignment="Center" />
+                    <c:Pastilla Variante="Apto" Texto="retira" IsVisible="{Binding RetiraMedicacion}" VerticalAlignment="Center" />
+                    <c:Pastilla Variante="Bloqueo" Texto="de baja" IsVisible="{Binding !Activo}" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <TextBlock Classes="etiqueta" Text="{Binding Dni, StringFormat='DNI {0}'}"
+                             IsVisible="{Binding Dni, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                  <TextBlock Classes="etiqueta" Text="{Binding Telefono}"
+                             IsVisible="{Binding Telefono, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <Border Classes="panel" IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+      </Border>
+    </StackPanel>
+
+    <c:PanelLateral Titulo="{Binding TituloPanel}" IsVisible="{Binding PanelAbierto}"
+                    CerrarCommand="{Binding CerrarPanelCommand}">
+      <StackPanel Spacing="6">
+        <TextBlock Text="Tipo" Classes="etiqueta" />
+        <ComboBox ItemsSource="{Binding TiposDisponibles}" SelectedItem="{Binding Tipo}" HorizontalAlignment="Stretch" />
+        <TextBlock Text="Apellidos *" Classes="etiqueta" />
+        <TextBox Text="{Binding Apellidos}" />
+        <TextBlock Text="Nombre *" Classes="etiqueta" />
+        <TextBox Text="{Binding Nombre}" />
+        <TextBlock Text="DNI" Classes="etiqueta" />
+        <TextBox Text="{Binding Dni}" />
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="Obligatorio para representante legal, persona autorizada y para quien retira la medicación." />
+        <TextBlock Text="Teléfono" Classes="etiqueta" />
+        <TextBox Text="{Binding Telefono}" />
+        <TextBlock Text="Email" Classes="etiqueta" />
+        <TextBox Text="{Binding Email}" />
+        <CheckBox Content="Contacto principal (familiar próximo del Anexo)" IsChecked="{Binding EsPrincipal}" />
+        <CheckBox Content="Retira la medicación" IsChecked="{Binding RetiraMedicacion}" />
+        <Button Classes="primario" Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,10,0,0" />
+      </StackPanel>
+    </c:PanelLateral>
+  </Grid>
+</UserControl>

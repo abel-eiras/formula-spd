@@ -18,8 +18,8 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly IServicioGeneracionDocumentos _servicioDocumentos;
     private readonly int _pacienteId;
-    [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<Medico> _medicosDisponibles = [];
-    [ObservableProperty] private Medico? _medicoSeleccionado;
+    /// <summary>FR-032/FR-033: el prescriptor se busca por nombre y se puede dar de alta aquí mismo.</summary>
+    public SelectorMedicoViewModel SelectorMedico { get; }
 
     private readonly PacienteContexto? _contexto;
     private readonly int? _usuarioActualId;
@@ -49,11 +49,9 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     public TratamientoViewModel(
         IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioGeneracionDocumentos servicioDocumentos,
-        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null, IServicioMedicos? servicioMedicos = null)
+        IServicioMedicos servicioMedicos, int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null)
     {
-        // FR-1542: el médico se elige por nombre, no tecleando su id.
-        MedicosDisponibles = new System.Collections.ObjectModel.ObservableCollection<Medico>(
-            servicioMedicos?.ListarActivos() ?? []);
+        SelectorMedico = new SelectorMedicoViewModel(servicioMedicos, usuarioActualId);
         _contexto = contexto;
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
@@ -128,7 +126,7 @@ public sealed partial class TratamientoViewModel : ViewModelBase
         }
 
         var datos = new DatosAltaTratamiento(
-            medicamento.Id, EnSpd, ProblemaSalud, MedicoId,
+            medicamento.Id, EnSpd, ProblemaSalud, SelectorMedico.Seleccionado?.Id,
             PautaD, PautaA, PautaC, PautaN, PautaTexto, DiasSemana, Via, Momento,
             DateOnly.FromDateTime(DateTime.Now), Tipo);
 
@@ -149,14 +147,7 @@ public sealed partial class TratamientoViewModel : ViewModelBase
 
     public sealed record TratamientoFila(int Id, string NombreMedicamento, Tratamiento Tratamiento);
 
-    /// <summary>FR-1542: el `MedicoId` que guarda el servicio se deriva de lo elegido en la lista;
-    /// el número deja de escribirse a mano y por tanto deja de poder equivocarse.</summary>
-    partial void OnMedicoSeleccionadoChanged(Medico? value) => MedicoId = value?.Id;
-
-    /// <summary>Y al revés: al abrir un tratamiento ya guardado, la lista se coloca en su médico.
-    /// Ambos sentidos comparan por valor, así que no se realimentan.</summary>
-    partial void OnMedicoIdChanged(int? value)
-        => MedicoSeleccionado = value is null
-            ? null
-            : System.Linq.Enumerable.FirstOrDefault(MedicosDisponibles, m => m.Id == value);
+    /// <summary>FR-032: el `MedicoId` que se guarda sale de lo elegido en el selector. Al abrir un
+    /// tratamiento existente se hace el camino inverso, para que el campo muestre a su prescriptor.</summary>
+    partial void OnMedicoIdChanged(int? value) => SelectorMedico.Establecer(value);
 }

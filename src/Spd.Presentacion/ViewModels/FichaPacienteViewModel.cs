@@ -61,11 +61,22 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
 
     public bool TieneAlergias => !string.IsNullOrWhiteSpace(Alergias);
 
-    public FichaPacienteViewModel(IServicioPacientes servicio, PacienteContexto contexto, int? usuarioActualId)
+    /// <summary>Médico de cabecera (FR-031). Hasta ahora la ficha no tenía dónde ponerlo: el alta
+    /// pasaba `MedicoId: null` siempre, así que ningún paciente llegaba a tener médico asignado.</summary>
+    public SelectorMedicoViewModel SelectorMedico { get; }
+
+    /// <summary>Contactos del paciente (FR-009/FR-020), dentro de esta misma pestaña.</summary>
+    public ContactosPacienteViewModel Contactos { get; }
+
+    public FichaPacienteViewModel(
+        IServicioPacientes servicio, IServicioMedicos servicioMedicos, IServicioContactos servicioContactos,
+        PacienteContexto contexto, int? usuarioActualId)
     {
         _servicio = servicio;
         _contexto = contexto;
         _usuarioActualId = usuarioActualId;
+        SelectorMedico = new SelectorMedicoViewModel(servicioMedicos, usuarioActualId);
+        Contactos = new ContactosPacienteViewModel(servicioContactos, contexto, usuarioActualId);
         Paciente = contexto.Paciente;
         if (Paciente is not null) CargarDesdePaciente(Paciente);
 
@@ -121,7 +132,8 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     private DatosAltaPaciente ConstruirDatosAlta() => new(
         Nombre, Apellidos, Sexo, Dni,
         FechaNacimiento is null ? null : DateOnly.FromDateTime(FechaNacimiento.Value.Date),
-        NumSs, Cip, Direccion, Cp, Poblacion, Telefono1, Telefono2, Email, MedicoId: null,
+        NumSs, Cip, Direccion, Cp, Poblacion, Telefono1, Telefono2, Email,
+        MedicoId: SelectorMedico.Seleccionado?.Id,
         EnfermedadesCronicas, Alergias, Observaciones, PictogramaComidas, IdentificadorVisual,
         DiaRetirada, NBlisteres, ConfirmarDuplicado: _pendienteConfirmarDuplicado);
 
@@ -140,6 +152,8 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
         paciente.Telefono1 = Telefono1;
         paciente.Telefono2 = Telefono2;
         paciente.Email = Email;
+        // FR-035: se guarda la referencia al médico, nunca una copia de sus datos.
+        paciente.MedicoId = SelectorMedico.Seleccionado?.Id;
         paciente.EnfermedadesCronicas = EnfermedadesCronicas;
         paciente.Alergias = Alergias;
         paciente.Observaciones = Observaciones;
@@ -164,6 +178,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
         Telefono1 = paciente.Telefono1;
         Telefono2 = paciente.Telefono2;
         Email = paciente.Email;
+        SelectorMedico.Establecer(paciente.MedicoId);
         EnfermedadesCronicas = paciente.EnfermedadesCronicas;
         Alergias = paciente.Alergias;
         Observaciones = paciente.Observaciones;

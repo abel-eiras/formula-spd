@@ -24,6 +24,7 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
         Seccion.Exportar => new ExportarPacientesViewModel(
             servicios.PerfilesImportacion, servicios.ExportacionPacientes, servicios.Pacientes),
         Seccion.Catalogo => CrearCatalogo(destino),
+        Seccion.Medicos => new CatalogoMedicosViewModel(servicios.Medicos, usuario.Id),
         Seccion.RevisionNomenclator => new RevisionNomenclatorViewModel(servicios.ImportacionNomenclator, usuario.Id),
         Seccion.Calidad => new RegistrosCalidadViewModel(servicios.RegistrosCalidad, usuario.Id),
         Seccion.ControlDocumental => new ControlDocumentalViewModel(servicios.ControlDocumental, usuario.Id),

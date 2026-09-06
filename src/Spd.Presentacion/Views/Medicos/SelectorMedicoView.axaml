@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
+             x:Class="Spd.Presentacion.Views.Medicos.SelectorMedicoView">
+  <!-- Spec 001 FR-032/FR-033. Sin x:DataType a propósito: bindings por reflexión, evita el patrón
+       frágil de $parent + cast con compiled bindings que cerró la aplicación en Spec 000. -->
+  <Grid>
+    <StackPanel Spacing="4">
+      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HaySeleccion}">
+        <c:Pastilla Variante="Acento" Texto="{Binding EtiquetaSeleccionado}" VerticalAlignment="Center" />
+        <Button Classes="enlace" Content="Cambiar" Command="{Binding LimpiarCommand}" />
+      </StackPanel>
+
+      <StackPanel Spacing="4" IsVisible="{Binding !HaySeleccion}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBox Text="{Binding Texto}" Width="280"
+                   Watermark="Apellidos, nombre o centro (mínimo 2 letras)…" />
+          <Button Classes="enlace" Content="Nuevo médico…" Command="{Binding AbrirNuevoCommand}" />
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Resultados}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button Classes="navegacion" HorizontalContentAlignment="Stretch"
+                      Command="{Binding DataContext.ElegirCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                      CommandParameter="{Binding}">
+                <StackPanel Spacing="1">
+                  <TextBlock>
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="{}{0}, {1}">
+                        <Binding Path="Apellidos" />
+                        <Binding Path="Nombre" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                  <TextBlock Text="{Binding Centro}" Classes="etiqueta" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <TextBlock Text="{Binding Mensaje}" Classes="suave" TextWrapping="Wrap"
+                 IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+
+    <!-- FR-033 con la corrección de la Spec 015: panel lateral, no diálogo. Lo que se estaba
+         rellenando se sigue viendo detrás. -->
+    <c:PanelLateral Titulo="Nuevo médico" IsVisible="{Binding PanelNuevoAbierto}"
+                    CerrarCommand="{Binding CerrarNuevoCommand}">
+      <StackPanel Spacing="6">
+        <TextBlock Text="Apellidos *" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoApellidos}" />
+        <TextBlock Text="Nombre *" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoNombre}" />
+        <TextBlock Text="Nº de colegiado" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoColegiado}" />
+        <TextBlock Text="Especialidad" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoEspecialidad}" Watermark="Medicina de familia" />
+        <TextBlock Text="Centro" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoCentro}" />
+        <TextBlock Text="Teléfono" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoTelefono}" />
+        <TextBlock Text="Email" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoEmail}" />
+        <Button Classes="primario" Content="Crear y seleccionar" Margin="0,10,0,0"
+                Command="{Binding CrearNuevoCommand}" />
+      </StackPanel>
+    </c:PanelLateral>
+  </Grid>
+</UserControl>

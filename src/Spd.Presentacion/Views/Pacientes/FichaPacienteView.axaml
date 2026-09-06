@@ -1,12 +1,15 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:medicos="using:Spd.Presentacion.Views.Medicos"
+             xmlns:pacientes="using:Spd.Presentacion.Views.Pacientes"
              x:Class="Spd.Presentacion.Views.Pacientes.FichaPacienteView">
   <!-- Spec 015 FR-1530: la cabecera (ficha, estado, alergias) ya no está aquí, es la cabecera fija
        del espacio del paciente, y los siete botones que abrían ventanas son ahora pestañas. Lo que
        queda son los datos, en dos columnas para que quepan sin desplazar tanto. -->
   <Grid RowDefinitions="*,Auto">
     <ScrollViewer Grid.Row="0">
-      <Grid ColumnDefinitions="*,*" Margin="24,20" ColumnSpacing="28">
+      <StackPanel Margin="24,20" Spacing="20">
+      <Grid ColumnDefinitions="*,*" ColumnSpacing="28">
 
         <StackPanel Grid.Column="0" Spacing="6">
           <TextBlock Text="Identificación" Classes="titulo" Margin="0,0,0,4" />
@@ -40,6 +43,11 @@
           <TextBox Text="{Binding Telefono2}" />
           <TextBlock Text="Email" Classes="etiqueta" />
           <TextBox Text="{Binding Email}" />
+
+          <!-- FR-031/FR-032: médico de cabecera por nombre. Antes la ficha no tenía este campo y
+               el alta guardaba siempre `MedicoId: null`. -->
+          <TextBlock Text="Médico de cabecera" Classes="etiqueta" Margin="0,10,0,0" />
+          <medicos:SelectorMedicoView DataContext="{Binding SelectorMedico}" />
         </StackPanel>
 
         <StackPanel Grid.Column="1" Spacing="6">
@@ -65,6 +73,11 @@
         </StackPanel>
 
       </Grid>
+
+      <!-- FR-009/FR-020: los contactos viven en esta misma pestaña, debajo de los datos. -->
+      <Border Classes="separador" />
+      <pacientes:ContactosPacienteView DataContext="{Binding Contactos}" />
+      </StackPanel>
     </ScrollViewer>
 
     <Border Grid.Row="1" Classes="panel" Margin="24,0,24,16"
