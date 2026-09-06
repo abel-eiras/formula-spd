@@ -44,6 +44,8 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     [ObservableProperty] private bool _checkEtiquetaFichaPaciente;
     [ObservableProperty] private bool _checkTrazabilidad;
     [ObservableProperty] private int? _verificadorId;
+    [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<Usuario> _verificadoresDisponibles = [];
+    [ObservableProperty] private Usuario? _verificadorSeleccionado;
     [ObservableProperty] private string? _excepcionMotivo;
 
     // Datos de entrega (FR-661/663): comunes a todos los blísteres que se entreguen juntos.
@@ -69,8 +71,11 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     public PreparacionViewModel(
         IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos,
         IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioComunicacionesMedico servicioComunicaciones,
-        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null)
+        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null, IServicioUsuarios? servicioUsuarios = null)
     {
+        // FR-1542: el verificador se elige de la lista de usuarios activos, no tecleando su id.
+        VerificadoresDisponibles = new System.Collections.ObjectModel.ObservableCollection<Usuario>(
+            servicioUsuarios?.ListarActivos() ?? []);
         _contexto = contexto;
         _servicio = servicio;
         _servicioMedicamentos = servicioMedicamentos;
@@ -83,10 +88,13 @@ public sealed partial class PreparacionViewModel : ViewModelBase
 
     private void Cargar()
     {
+        // El material se carga primero: el carril de pasos necesita saber si lo hay para poder decir
+        // que el llenado está bloqueado y por qué (FR-1540).
+        MaterialesDisponibles = new ObservableCollection<MaterialAcondicionamiento>(_servicio.ListarMaterialesActivos());
         var spds = _servicio.ListarPorFiltro(new FiltrosPreparaciones(PacienteId: _pacienteId));
         Blisteres = new ObservableCollection<BlisterFila>(
-            spds.OrderByDescending(s => s.Id).Select(s => new BlisterFila(s, _servicio.ListarLineas(s.Id))));
-        MaterialesDisponibles = new ObservableCollection<MaterialAcondicionamiento>(_servicio.ListarMaterialesActivos());
+            spds.OrderByDescending(s => s.Id)
+                .Select(s => new BlisterFila(s, _servicio.ListarLineas(s.Id), MaterialesDisponibles.Count > 0)));
     }
 
     [RelayCommand]
@@ -356,5 +364,33 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         }
     }
 
-    public sealed record BlisterFila(SPD Spd, IReadOnlyList<SpdLinea> Lineas);
+    /// <summary>Un blíster de la sesión. Además de sus datos lleva ya calculado lo que la pantalla
+    /// necesita mostrar: el carril de pasos (FR-1540) y la rejilla de alvéolos (FR-1541).</summary>
+    public sealed record BlisterFila(SPD Spd, IReadOnlyList<SpdLinea> Lineas, bool HayMaterial = true)
+    {
+        public IReadOnlyList<Preparacion.PasoPreparacion> Pasos { get; } =
+            Preparacion.PasoPreparacion.Derivar(Spd, HayMaterial);
+
+        public Preparacion.RejillaAlveolosDatos Rejilla { get; } =
+            Preparacion.MapaAlveolos.Rejilla(Lineas, Spd.ValidezDesde);
+
+        /// <summary>FR-1540 (H4.6): cada impresión se ofrece cuando su paso está disponible. Un
+        /// botón apagado con su motivo al lado dice más que uno encendido que devuelve un error.</summary>
+        public bool PuedeImprimirEtiquetas => !Paso(Preparacion.ClavePaso.Etiquetado).EstaBloqueado;
+        public bool PuedeImprimirInstrucciones => !Paso(Preparacion.ClavePaso.Instrucciones).EstaBloqueado;
+        public bool PuedeVerificar => Paso(Preparacion.ClavePaso.Verificacion).EsActual;
+        public bool PuedeCerrarLlenado => Paso(Preparacion.ClavePaso.Llenado).EsActual;
+
+        private Preparacion.PasoPreparacion Paso(Preparacion.ClavePaso clave)
+            => Pasos.First(p => p.Clave == clave);
+    }
+
+    /// <summary>FR-1542. Quién firma una verificación es dato legal (Art. II): elegirlo de una lista
+    /// de personas, y no tecleando un número, evita atribuir la firma a quien no verificó.</summary>
+    partial void OnVerificadorSeleccionadoChanged(Usuario? value) => VerificadorId = value?.Id;
+
+    partial void OnVerificadorIdChanged(int? value)
+        => VerificadorSeleccionado = value is null
+            ? null
+            : System.Linq.Enumerable.FirstOrDefault(VerificadoresDisponibles, u => u.Id == value);
 }

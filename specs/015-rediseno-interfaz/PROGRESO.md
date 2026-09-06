@@ -141,3 +141,35 @@ primera vista documentada que se encuentra es la de la pestaña abierta.
 
 **Pendiente de la prueba manual**: si siete pestañas caben cómodas en el monitor real y si el panel
 lateral de 380 px deja ver bastante depósito por detrás.
+
+## Fase 4 — Preparación como carril y rejilla de alvéolos (2026-09-06)
+
+Hecha y fusionada. **354 tests en verde** (68 Dominio + 227 Aplicación + 59 Presentación).
+
+- **Q2 resuelta sin consultar, y se dice**: 7 días × 4 tomas no es una elección de interfaz; es lo
+  que ya imponen `PautaD/A/C/N`, la máscara `DiasSemana` de siete caracteres y la validez del
+  blíster. Cualquier otro modelo exigiría cambiar el dominio. **Queda por confirmar contra el
+  dispositivo real de la farmacia en la prueba manual.**
+- **H4.1 Carril de pasos** (`Preparacion/PasoPreparacion`, `Controles/CarrilPasos`): llenado,
+  etiquetado, instrucciones, verificación y entrega, derivados del estado del blíster. Ningún paso
+  introduce reglas nuevas: cada bloqueo corresponde a una validación que el servicio ya aplica, y
+  **dice cuál** (Art. XI). Antes eso solo se descubría pulsando y recibiendo un error.
+- **H4.2 Rejilla de alvéolos** (`Preparacion/MapaAlveolos`, `Controles/RejillaAlveolos`): el blíster
+  como se ve, con la fracción y la inicial del medicamento en cada alvéolo. Se construye desde la
+  **instantánea** de la línea (Art. IV.3), no desde el catálogo actual. Las cabeceras salen de la
+  validez real: un blíster que empieza en jueves empieza en jueves, y la máscara de días —que siempre
+  arranca en lunes— se traslada a la columna que toca. Ese desfase es un error que un cálculo ingenuo
+  se come y que aquí tiene test propio.
+- **H4.3/H4.4**: las ocho preguntas del Anexo I.G ya llevaban su texto; lo que faltaba era el
+  **verificador por nombre**, ahora una lista de usuarios activos.
+- **H4.5 Selectores por nombre** (FR-1542): médico en tratamiento y comunicaciones, verificador en
+  preparación. Nadie sabe de memoria que la Dra. Vidal es el 7, y equivocarse de dígito atribuye la
+  firma de una verificación —dato legal, Art. II— a quien no verificó.
+  `SinIdentificadoresEnLaInterfazTests` recorre los `.axaml` de verdad, así que impide que vuelva a
+  colarse un campo así en una pantalla nueva.
+- **H4.6 Impresión desde el carril**: cerrar llenado, verificar, imprimir etiquetas e imprimir
+  instrucciones se apagan cuando su paso no está disponible, con el carril al lado explicando por qué.
+
+**Lo que queda es la prueba manual del propietario (T061)**, pendiente desde el inicio del proyecto:
+es lo único que puede confirmar la densidad, los colores, el modelo del dispositivo y el ciclo
+completo en pantalla real.

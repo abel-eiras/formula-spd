@@ -35,5 +35,6 @@ public sealed record ServiciosAplicacion(
     IServicioIdoneidadConsentimiento Idoneidad,
     IServicioAvisosInicio Avisos,
     IServicioBusquedaGlobal BusquedaGlobal,
+    IServicioMedicos Medicos,
     IServicioGeneracionLote Lote,
     IServicioPurga Purga);

@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Controles.RejillaAlveolos">
+  <!-- Spec 015 FR-1541: el blíster como se ve, no como lista de pautas. Cuatro filas (tomas) por
+       siete columnas (días), en el mismo orden en que se lee el dispositivo físico. Las cabeceras
+       salen de los datos, no fijas: un blíster que empieza en jueves empieza en jueves. -->
+  <Border Classes="tarjeta" Padding="10">
+    <Grid ColumnDefinitions="86,*" RowDefinitions="Auto,*">
+
+      <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Columnas}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="7" Rows="1" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding}" Classes="etiqueta" HorizontalAlignment="Center" Margin="0,0,0,6" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="*,*,*,*">
+        <TextBlock Grid.Row="0" Text="Desayuno" Classes="etiqueta" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="1" Text="Almuerzo" Classes="etiqueta" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="2" Text="Cena" Classes="etiqueta" VerticalAlignment="Center" />
+        <TextBlock Grid.Row="3" Text="Noche" Classes="etiqueta" VerticalAlignment="Center" />
+      </Grid>
+
+      <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Celdas}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="7" Rows="4" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border BorderBrush="{DynamicResource Linea}" BorderThickness="1" MinHeight="52" Margin="1"
+                    CornerRadius="4" ToolTip.Tip="{Binding Texto}">
+              <TextBlock Text="{Binding Texto}" Classes="datos" TextWrapping="Wrap"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4" />
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Grid>
+  </Border>
+</UserControl>

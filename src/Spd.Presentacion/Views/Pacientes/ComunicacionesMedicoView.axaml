@@ -39,7 +39,21 @@
         <TextBlock Text="Tipo" />
         <ComboBox ItemsSource="{Binding TiposDisponibles}" SelectedItem="{Binding Tipo}" />
         <TextBlock Text="Médico (id; vacío = médico de cabecera del paciente)" />
-        <NumericUpDown Value="{Binding MedicoId}" Minimum="0" />
+        <ComboBox ItemsSource="{Binding MedicosDisponibles}" SelectedItem="{Binding MedicoSeleccionado}"
+                  HorizontalAlignment="Stretch" PlaceholderText="Elige el médico…">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock>
+                <TextBlock.Text>
+                  <MultiBinding StringFormat="{}{0} {1}">
+                    <Binding Path="Nombre" />
+                    <Binding Path="Apellidos" />
+                  </MultiBinding>
+                </TextBlock.Text>
+              </TextBlock>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
         <TextBlock Text="Incidencias detectadas (obligatorio si Incidencia)" />
         <TextBox Text="{Binding IncidenciasDetectadas}" AcceptsReturn="True" Height="60" />
         <TextBlock Text="Propuesta del farmacéutico (obligatorio si Incidencia)" />

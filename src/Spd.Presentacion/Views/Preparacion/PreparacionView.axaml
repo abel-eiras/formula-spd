@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
              x:Class="Spd.Presentacion.Views.Preparacion.PreparacionView">
   <Grid RowDefinitions="Auto,*,Auto" Margin="16">
     <StackPanel Grid.Row="0" Spacing="6">
@@ -72,6 +73,14 @@
                       </MultiBinding>
                     </TextBlock.Text>
                   </TextBlock>
+                  <!-- FR-1540: el carril dice en qué paso va el blíster y, si algo está bloqueado,
+                       por qué; antes eso solo se descubría al pulsar y recibir un error. -->
+                  <c:CarrilPasos DataContext="{Binding Pasos}" Margin="0,8" />
+
+                  <!-- FR-1541: el blíster como se ve. Evita traducir mentalmente "½-0-1-0, de lunes
+                       a viernes" a la posición física de cada alvéolo, que es donde se falla. -->
+                  <c:RejillaAlveolos DataContext="{Binding Rejilla}" Margin="0,4,0,10" />
+
                   <ItemsControl ItemsSource="{Binding Lineas}">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
@@ -93,10 +102,10 @@
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
                   <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Button Content="Pasar a preparado" FontSize="11"
+                    <Button Content="Pasar a preparado" FontSize="11" IsEnabled="{Binding PuedeCerrarLlenado}"
                             Command="{Binding DataContext.PasarAPreparadoCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                             CommandParameter="{Binding}" />
-                    <Button Content="Verificar" FontSize="11"
+                    <Button Content="Verificar" FontSize="11" IsEnabled="{Binding PuedeVerificar}"
                             Command="{Binding DataContext.PrepararVerificacionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                             CommandParameter="{Binding}" />
                     <Button Content="Reelaborar" FontSize="11"
@@ -105,10 +114,10 @@
                     <Button Content="Imprimir ficha" FontSize="11"
                             Command="{Binding DataContext.ImprimirFichaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                             CommandParameter="{Binding}" />
-                    <Button Content="Imprimir etiquetas" FontSize="11"
+                    <Button Content="Imprimir etiquetas" FontSize="11" IsEnabled="{Binding PuedeImprimirEtiquetas}"
                             Command="{Binding DataContext.ImprimirEtiquetasCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                             CommandParameter="{Binding}" />
-                    <Button Content="Imprimir instrucciones" FontSize="11"
+                    <Button Content="Imprimir instrucciones" FontSize="11" IsEnabled="{Binding PuedeImprimirInstrucciones}"
                             Command="{Binding DataContext.ImprimirInstruccionesCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                             CommandParameter="{Binding}" />
                   </StackPanel>
@@ -129,7 +138,22 @@
             <CheckBox Content="6. ¿El DDP está identificado con su periodo de validez?" IsChecked="{Binding CheckEtiquetaValidez}" />
             <CheckBox Content="7. ¿Se cumplimentó la hoja de instrucciones según la normativa vigente?" IsChecked="{Binding CheckInstrucciones}" />
             <CheckBox Content="8. ¿Está libre de alteraciones visibles? (rotura, cartón arrugado, fallos en el cierre…)" IsChecked="{Binding CheckAspecto}" />
-            <NumericUpDown Value="{Binding VerificadorId}" Minimum="0" Watermark="Id del verificador" />
+            <ComboBox ItemsSource="{Binding VerificadoresDisponibles}" SelectedItem="{Binding VerificadorSeleccionado}"
+                      HorizontalAlignment="Stretch" PlaceholderText="Quién verifica…">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock>
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="{}{0} {1} · {2}">
+                        <Binding Path="Nombre" />
+                        <Binding Path="Apellidos" />
+                        <Binding Path="Rol" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
             <TextBox Watermark="Motivo de excepción (si verificador = elaborador)" Text="{Binding ExcepcionMotivo}" />
             <Button Content="Confirmar verificación" Command="{Binding ConfirmarVerificacionCommand}" />
           </StackPanel>

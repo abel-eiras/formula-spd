@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
+             x:Class="Spd.Presentacion.Controles.CarrilPasos">
+  <!-- Spec 015 FR-1540. El DataContext es la lista de PasoPreparacion. Un paso bloqueado dice por
+       qué lo está (Art. XI): el usuario se entera antes de intentarlo, no al recibir un error. -->
+  <ItemsControl ItemsSource="{Binding}">
+    <ItemsControl.ItemsPanel>
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Horizontal" Spacing="8" />
+      </ItemsPanelTemplate>
+    </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate>
+      <DataTemplate>
+        <Border Classes="tarjeta" Padding="12,8" MinWidth="150" ToolTip.Tip="{Binding MotivoBloqueo}">
+          <StackPanel Spacing="3">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <c:Pastilla Variante="Apto" Texto="hecho" IsVisible="{Binding EstaCompletado}" />
+              <c:Pastilla Variante="Acento" Texto="ahora" IsVisible="{Binding EsActual}" />
+              <c:Pastilla Variante="Bloqueo" Texto="bloqueado" IsVisible="{Binding EstaBloqueado}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Titulo}" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding MotivoBloqueo}" Classes="etiqueta" TextWrapping="Wrap"
+                       MaxWidth="220" IsVisible="{Binding EstaBloqueado}" />
+          </StackPanel>
+        </Border>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>
