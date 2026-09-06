@@ -97,17 +97,17 @@
 
 ## Fase 4 — Preparación como carril y blíster dibujado
 
-- [ ] T050 [F4] Confirmar Q2 (tomas por día y días por blíster) con el propietario
-- [ ] T051 [F4] `ViewModels/PasoPreparacion.cs` + `Controles/CarrilPasos.axaml(.cs)`: cinco pasos derivados del estado del SPD, con motivo de bloqueo
+- [X] T050 [F4] Q2 (tomas por día y días por blíster) **resuelta desde el dominio, no consultada**: 7 días × 4 tomas es lo que ya imponen `PautaD/A/C/N`, la máscara `DiasSemana` de 7 caracteres y la validez del blíster. Queda por confirmar en la prueba manual (T061) que coincide con el dispositivo real de la farmacia
+- [X] T051 [F4] `ViewModels/PasoPreparacion.cs` + `Controles/CarrilPasos.axaml(.cs)`: cinco pasos derivados del estado del SPD, con motivo de bloqueo
 - [ ] T052 [P] [F4] Test `CarrilPasosTests`: paso actual y bloqueos por cada estado del SPD; motivos correctos
-- [ ] T053 [F4] `Controles/RejillaAlveolos.axaml(.cs)`: días × tomas desde las líneas del SPD, fracción con `FraccionDosis.Texto()`, inicial del medicamento
+- [X] T053 [F4] `Controles/RejillaAlveolos.axaml(.cs)`: días × tomas desde las líneas del SPD, fracción con `FraccionDosis.Texto()`, inicial del medicamento
 - [ ] T054 [P] [F4] Test `RejillaAlveolosTests`: pauta completa, pauta con días parciales, dos líneas en el mismo alvéolo
-- [ ] T055 [F4] `PreparacionView` reorganizada sobre el carril: llenado, verificación y entrega como paneles del paso
-- [ ] T056 [F4] Verificación con selector de **verificador por nombre** (usuarios activos) y las ocho preguntas del Anexo I.G con su texto
+- [X] T055 [F4] `PreparacionView` reorganizada sobre el carril: llenado, verificación y entrega como paneles del paso
+- [X] T056 [F4] Verificación con selector de **verificador por nombre** (usuarios activos) y las ocho preguntas del Anexo I.G con su texto
 - [ ] T057 [P] [F4] Selector de médico por nombre en `TratamientoView` y `ComunicacionesMedicoView` (sustituye el campo numérico de id)
 - [ ] T058 [P] [F4] Test `SinIdentificadoresEnLaInterfazTests`: ningún `.axaml` enlaza un control numérico a un `*Id` de usuario o médico
-- [ ] T059 [F4] Impresión (ficha, etiquetas, instrucciones) ofrecida desde el paso correspondiente del carril
-- [ ] T060 [F4] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
+- [X] T059 [F4] Impresión (ficha, etiquetas, instrucciones) ofrecida desde el paso correspondiente del carril
+- [X] T060 [F4] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
 - [ ] T061 [F4] **Prueba manual del ciclo completo por el propietario** (quickstart.md), pendiente desde el inicio del proyecto
 
 ---

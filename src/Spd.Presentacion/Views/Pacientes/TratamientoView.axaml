@@ -31,7 +31,21 @@
         <TextBlock Text="Problema de salud / indicación" />
         <TextBox Text="{Binding ProblemaSalud}" />
         <TextBlock Text="Médico prescriptor (id)" />
-        <NumericUpDown Value="{Binding MedicoId}" Minimum="0" />
+        <ComboBox ItemsSource="{Binding MedicosDisponibles}" SelectedItem="{Binding MedicoSeleccionado}"
+                  HorizontalAlignment="Stretch" PlaceholderText="Elige el médico prescriptor…">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock>
+                <TextBlock.Text>
+                  <MultiBinding StringFormat="{}{0} {1}">
+                    <Binding Path="Nombre" />
+                    <Binding Path="Apellidos" />
+                  </MultiBinding>
+                </TextBlock.Text>
+              </TextBlock>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
         <TextBlock Text="Pauta D / A / C / N" />
         <StackPanel Orientation="Horizontal" Spacing="4">
           <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaD}" Width="80" />

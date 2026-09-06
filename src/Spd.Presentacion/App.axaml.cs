@@ -218,7 +218,7 @@ public partial class App : Application
             _servicioConsultaCima, _servicioRegistrosCalidad, _servicioControlDocumental, _servicioBackup,
             _servicioCifrado!, _servicioEnvases, _servicioListadoRetirada, _servicioImportacion, _servicioComunicaciones,
             _servicioPerfilesImportacion, _servicioExportacionPacientes, _servicioPreparacion,
-            _servicioGeneracionDocumentos, _servicioIdoneidad, _servicioAvisos, _servicioBusquedaGlobal,
+            _servicioGeneracionDocumentos, _servicioIdoneidad, _servicioAvisos, _servicioBusquedaGlobal, new ServicioMedicos(new RepositorioMedicos(_conexion!)),
             _servicioLote, _servicioPurga);
     }
 

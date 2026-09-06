@@ -18,6 +18,9 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly IServicioGeneracionDocumentos _servicioDocumentos;
     private readonly int _pacienteId;
+    [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<Medico> _medicosDisponibles = [];
+    [ObservableProperty] private Medico? _medicoSeleccionado;
+
     private readonly PacienteContexto? _contexto;
     private readonly int? _usuarioActualId;
     private int? _tratamientoIdEnEdicion;
@@ -46,8 +49,11 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     public TratamientoViewModel(
         IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioGeneracionDocumentos servicioDocumentos,
-        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null)
+        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null, IServicioMedicos? servicioMedicos = null)
     {
+        // FR-1542: el médico se elige por nombre, no tecleando su id.
+        MedicosDisponibles = new System.Collections.ObjectModel.ObservableCollection<Medico>(
+            servicioMedicos?.ListarActivos() ?? []);
         _contexto = contexto;
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
@@ -142,4 +148,15 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     }
 
     public sealed record TratamientoFila(int Id, string NombreMedicamento, Tratamiento Tratamiento);
+
+    /// <summary>FR-1542: el `MedicoId` que guarda el servicio se deriva de lo elegido en la lista;
+    /// el número deja de escribirse a mano y por tanto deja de poder equivocarse.</summary>
+    partial void OnMedicoSeleccionadoChanged(Medico? value) => MedicoId = value?.Id;
+
+    /// <summary>Y al revés: al abrir un tratamiento ya guardado, la lista se coloca en su médico.
+    /// Ambos sentidos comparan por valor, así que no se realimentan.</summary>
+    partial void OnMedicoIdChanged(int? value)
+        => MedicoSeleccionado = value is null
+            ? null
+            : System.Linq.Enumerable.FirstOrDefault(MedicosDisponibles, m => m.Id == value);
 }
