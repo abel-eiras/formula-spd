@@ -1,0 +1,138 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Preparacion.PreparacionView">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+      <Button Content="Nueva sesión de preparación" Command="{Binding NuevaSesionCommand}" />
+      <Button Content="Preparar siguiente" Command="{Binding PrepararSiguienteCommand}" />
+      <Button Content="Entregar todos los pendientes" Command="{Binding EntregarTodosLosPendientesCommand}" />
+      <TextBox Watermark="Entregado a" Text="{Binding EntregadoA}" Width="160" />
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+      <StackPanel Spacing="16">
+        <Border Padding="8" Background="#22808080">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Condiciones ambientales y material" FontWeight="Bold" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <NumericUpDown Value="{Binding Temperatura}" Watermark="Temp. °C" Width="130" />
+              <NumericUpDown Value="{Binding Humedad}" Watermark="Humedad %" Width="130" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <ComboBox ItemsSource="{Binding MaterialesDisponibles}" SelectedItem="{Binding MaterialSeleccionado}" Width="220">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Descripcion}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBox Watermark="Descripción material nuevo" Text="{Binding NuevoMaterialDescripcion}" />
+              <TextBox Watermark="Lote" Text="{Binding NuevoMaterialLote}" Width="100" />
+              <Button Content="Crear material" Command="{Binding CrearMaterialCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <ListBox ItemsSource="{Binding Blisteres}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Border Padding="8" Margin="0,4" BorderThickness="1" BorderBrush="#33808080">
+                <StackPanel Spacing="4">
+                  <TextBlock FontWeight="Bold">
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="{}{0} — {1} (v{2})">
+                        <Binding Path="Spd.NumRegistro" />
+                        <Binding Path="Spd.Estado" />
+                        <Binding Path="Spd.Version" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                  <TextBlock>
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="Validez: {0:d} — {1:d}">
+                        <Binding Path="Spd.ValidezDesde" />
+                        <Binding Path="Spd.ValidezHasta" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                  <ItemsControl ItemsSource="{Binding Lineas}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock FontSize="11">
+                            <TextBlock.Text>
+                              <MultiBinding StringFormat="{}{0} — {1} uds/envase ({2})">
+                                <Binding Path="SnapNombre" />
+                                <Binding Path="UnidadesEnvase" />
+                                <Binding Path="EstadoLinea" />
+                              </MultiBinding>
+                            </TextBlock.Text>
+                          </TextBlock>
+                          <Button Content="Registrar envase" FontSize="10"
+                                  Command="{Binding DataContext.PrepararRegistroEnvaseCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                  CommandParameter="{Binding}" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Pasar a preparado" FontSize="11"
+                            Command="{Binding DataContext.PasarAPreparadoCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                    <Button Content="Verificar" FontSize="11"
+                            Command="{Binding DataContext.PrepararVerificacionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                    <Button Content="Reelaborar" FontSize="11"
+                            Command="{Binding DataContext.PrepararReelaboracionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Border Padding="8" Background="#22808080" IsVisible="{Binding BlisterEnVerificacion, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Verificación (5 ítems obligatorios)" FontWeight="Bold" />
+            <CheckBox Content="Integridad del blíster" IsChecked="{Binding CheckAspecto}" />
+            <CheckBox Content="Etiqueta: datos coinciden con la ficha" IsChecked="{Binding CheckEtiquetaDatos}" />
+            <CheckBox Content="Etiqueta: periodo de validez" IsChecked="{Binding CheckEtiquetaValidez}" />
+            <CheckBox Content="Hoja de instrucciones preparada" IsChecked="{Binding CheckInstrucciones}" />
+            <CheckBox Content="Cada alveolo contiene lo que corresponde" IsChecked="{Binding CheckContenido}" />
+            <NumericUpDown Value="{Binding VerificadorId}" Minimum="0" Watermark="Id del verificador" />
+            <TextBox Watermark="Motivo de excepción (si verificador = elaborador)" Text="{Binding ExcepcionMotivo}" />
+            <Button Content="Confirmar verificación" Command="{Binding ConfirmarVerificacionCommand}" />
+          </StackPanel>
+        </Border>
+
+        <Border Padding="8" Background="#22808080" IsVisible="{Binding BlisterEnReelaboracion, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Reelaborar" FontWeight="Bold" />
+            <ComboBox ItemsSource="{Binding OrigenesDisponibles}" SelectedItem="{Binding OrigenReelaboracion}" />
+            <TextBox Watermark="Motivo" Text="{Binding MotivoReelaboracion}" />
+            <Button Content="Confirmar reelaboración" Command="{Binding ConfirmarReelaboracionCommand}" />
+          </StackPanel>
+        </Border>
+
+        <Border Padding="8" Background="#22808080" IsVisible="{Binding LineaParaRegistrarEnvase, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding LineaParaRegistrarEnvase.SnapNombre, StringFormat='Registrar envase: {0}'}" FontWeight="Bold" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBox Watermark="Serie" Text="{Binding EnvaseSerie}" />
+              <TextBox Watermark="Lote" Text="{Binding EnvaseLote}" />
+              <DatePicker SelectedDate="{Binding EnvaseCaducidad}" />
+              <NumericUpDown Value="{Binding EnvaseUnidadesIniciales}" Minimum="0" Watermark="Unidades" />
+              <Button Content="Guardar" Command="{Binding ConfirmarRegistroEnvaseCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

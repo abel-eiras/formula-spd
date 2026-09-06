@@ -17,6 +17,7 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
     private readonly IServicioEnvases _servicioEnvases;
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
+    private readonly IServicioPreparacion _servicioPreparacion;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private string _fragmento = string.Empty;
@@ -26,7 +27,7 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
     public BuscadorPacientesViewModel(
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
-        IServicioComunicacionesMedico servicioComunicaciones, int? usuarioActualId)
+        IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion, int? usuarioActualId)
     {
         _servicio = servicio;
         _servicioTratamientos = servicioTratamientos;
@@ -34,6 +35,7 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
         _servicioEnvases = servicioEnvases;
         _servicioImportacion = servicioImportacion;
         _servicioComunicaciones = servicioComunicaciones;
+        _servicioPreparacion = servicioPreparacion;
         _usuarioActualId = usuarioActualId;
         Buscar();
     }
@@ -51,13 +53,13 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
     private void AbrirPaciente(Paciente paciente)
         => new FichaPacienteWindow(
             _servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
-            _servicioComunicaciones, paciente, _usuarioActualId).Show();
+            _servicioComunicaciones, _servicioPreparacion, paciente, _usuarioActualId).Show();
 
     [RelayCommand]
     private void NuevoPaciente()
         => new FichaPacienteWindow(
             _servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
-            _servicioComunicaciones, null, _usuarioActualId).Show();
+            _servicioComunicaciones, _servicioPreparacion, null, _usuarioActualId).Show();
 
     partial void OnFragmentoChanged(string value) => Buscar();
 

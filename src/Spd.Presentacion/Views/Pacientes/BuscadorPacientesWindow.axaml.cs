@@ -9,11 +9,12 @@ public partial class BuscadorPacientesWindow : Window
     public BuscadorPacientesWindow(
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
-        IServicioComunicacionesMedico servicioComunicaciones, int? usuarioActualId)
+        IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion, int? usuarioActualId)
     {
         InitializeComponent();
         DataContext = new BuscadorPacientesViewModel(
-            servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion, servicioComunicaciones, usuarioActualId);
+            servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
+            servicioComunicaciones, servicioPreparacion, usuarioActualId);
     }
 
     // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.

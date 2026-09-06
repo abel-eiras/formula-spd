@@ -49,8 +49,19 @@ public sealed class BuscadorPacientesViewTests
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientos, auditoria);
         var servicioComunicaciones = new ServicioComunicacionesMedico(
             new RepositorioComunicacionesMedico(conexion), repositorioPacientes, new RepositorioTratamientos(conexion), auditoria);
+        var servicioListadoRetirada = new ServicioListadoRetirada(
+            repositorioPacientes, new RepositorioContactos(conexion), new RepositorioTratamientos(conexion),
+            new RepositorioMedicamentos(conexion), repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
+        var servicioPreparacion = new ServicioPreparacion(
+            new RepositorioSpd(conexion), new RepositorioSpdLineas(conexion), new RepositorioSpdLineaEnvases(conexion),
+            new RepositorioSpdVerificaciones(conexion), new RepositorioSpdModificaciones(conexion),
+            new RepositorioRegistrosAmbientales(conexion), new RepositorioMaterialAcondicionamiento(conexion),
+            repositorioPacientes, new RepositorioTratamientos(conexion), new RepositorioMedicamentos(conexion), repositorioEnvases,
+            repositorioFarmacia, new ServicioAsignacionEnvases(repositorioEnvases, new RepositorioTratamientos(conexion), auditoria),
+            servicioEnvases, servicioListadoRetirada, new ComprobadorIdoneidadYConsentimientoNulo(), auditoria);
         var ventana = new BuscadorPacientesWindow(
-            servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion, servicioComunicaciones, usuarioActualId: null);
+            servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
+            servicioComunicaciones, servicioPreparacion, usuarioActualId: null);
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el paciente recién creado.
         ventana.Show();
