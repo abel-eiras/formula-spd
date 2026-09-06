@@ -47,6 +47,7 @@ public partial class App : Application
     private IServicioExportacionPacientes? _servicioExportacionPacientes;
     private IServicioPreparacion? _servicioPreparacion;
     private IServicioGeneracionDocumentos? _servicioGeneracionDocumentos;
+    private IServicioIdoneidadConsentimiento? _servicioIdoneidad;
 
     public override void Initialize()
     {
@@ -169,15 +170,22 @@ public partial class App : Application
         _servicioPerfilesImportacion = new ServicioPerfilesImportacion(new RepositorioPerfilesImportacion(_conexion!), auditoria);
         _servicioExportacionPacientes = new ServicioExportacionPacientes();
 
-        // ComprobadorIdoneidadYConsentimientoNulo (research.md Decisión 1 de Spec 006): Spec 002
-        // no existe todavía en esta rama; sustituir por la implementación real al mergear esa spec.
+        // Spec 002 completa el punto de extensión que Spec 006 dejó documentado (research.md
+        // Decisión 1 de esa spec): el comprobador real sustituye al nulo — Art. I.3.
+        var repositorioEvaluaciones = new RepositorioEvaluacionesIdoneidad(_conexion!);
+        var repositorioConsentimientos = new RepositorioConsentimientos(_conexion!);
+        var comprobadorIdoneidad = new ComprobadorIdoneidadYConsentimientoReal(repositorioEvaluaciones, repositorioConsentimientos);
+        _servicioIdoneidad = new ServicioIdoneidadConsentimiento(
+            repositorioEvaluaciones, repositorioConsentimientos, new RepositorioContactos(_conexion!), repositorioPacientes,
+            _servicioPacientes!, auditoria);
+
         _servicioPreparacion = new ServicioPreparacion(
             repositorioSpd, new RepositorioSpdLineas(_conexion!), new RepositorioSpdLineaEnvases(_conexion!),
             new RepositorioSpdVerificaciones(_conexion!), new RepositorioSpdModificaciones(_conexion!),
             new RepositorioRegistrosAmbientales(_conexion!), new RepositorioMaterialAcondicionamiento(_conexion!),
             repositorioPacientes, new RepositorioTratamientos(_conexion!), repositorioMedicamentos, repositorioEnvases,
             repositorioFarmacia, new ServicioAsignacionEnvases(repositorioEnvases, new RepositorioTratamientos(_conexion!), auditoria),
-            _servicioEnvases, _servicioListadoRetirada, new ComprobadorIdoneidadYConsentimientoNulo(), auditoria);
+            _servicioEnvases, _servicioListadoRetirada, comprobadorIdoneidad, auditoria);
 
         // Motor de documentos (Spec 007): sustituye el punto de extensión
         // ServicioPreparacion.RegistrarImpresion por generación real de PDF con QuestPDF.
@@ -186,7 +194,8 @@ public partial class App : Application
             new RepositorioSpdVerificaciones(_conexion!), repositorioPacientes, new RepositorioContactos(_conexion!),
             new RepositorioMedicos(_conexion!), new RepositorioTratamientos(_conexion!), repositorioMedicamentos,
             repositorioUsuarios, new RepositorioMaterialAcondicionamiento(_conexion!),
-            new RepositorioRegistrosAmbientales(_conexion!), repositorioFarmacia, auditoria);
+            new RepositorioRegistrosAmbientales(_conexion!), repositorioEvaluaciones, repositorioConsentimientos,
+            repositorioFarmacia, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -253,7 +262,7 @@ public partial class App : Application
             _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
             _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!,
             _servicioPerfilesImportacion!, _servicioExportacionPacientes!, _servicioPreparacion!,
-            _servicioGeneracionDocumentos!, usuario);
+            _servicioGeneracionDocumentos!, _servicioIdoneidad!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;

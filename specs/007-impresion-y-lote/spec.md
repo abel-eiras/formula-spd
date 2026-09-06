@@ -122,8 +122,8 @@ que el fichero usa el formato corto (CA-701).
 | Hoja de instrucciones al paciente | `INSTR` | Por SPD (o por sesión si Spec 006 FR-682 lo permite) | Spec 006 | Sí |
 | Ficha del paciente (Anexo 2) | `FICHA-PAC` | Por paciente | Spec 001 | Sí |
 | Información sobre protección de datos (Anexo I.D) | `RGPD` | Por paciente | Este documento (corrección 2026-09-06) | Sí — desde la ficha del paciente |
-| Evaluación de idoneidad | `IDONEIDAD` | Por evaluación | Spec 002 | No — Spec 002 no existe |
-| Consentimiento informado (1a o 1b) | `CONSENT` | Por paciente | Spec 002 | No — Spec 002 no existe |
+| Evaluación de idoneidad | `IDONEIDAD` | Por evaluación | Spec 002 | Sin documento aparte: se imprime dentro de `FICHA-PAC` (Anexo I.E; Spec 002, 2026-09-06) |
+| Consentimiento informado (Anexo I.B, paciente o representante) | `CONSENT` | Por consentimiento | Spec 002 | Sí — desde la pantalla de idoneidad y consentimiento (2026-09-06) |
 | Carta de presentación al médico | `CARTA-PRES` | Por comunicación | Spec 008 | Diferido |
 | Carta de incidencias al médico | `CARTA-INC` | Por comunicación | Spec 008 | Diferido |
 | Listado de retirada de envases | `RETIRADA` | Por fecha de listado | Spec 005 | Diferido |
@@ -236,7 +236,7 @@ exactamente `1/3`, no `0,33` ni `0,3`.
   plantillas y el PNT reales que el propietario ha añadido para un análisis posterior (ver
   Assumptions) — construirlos ahora sin ese material sería el mismo riesgo de contenido que ya se
   evitó con el Anexo 9 de Spec 002.
-- `IDONEIDAD`/`CONSENT`: Spec 002 no existe en esta rama.
+- `IDONEIDAD`/`CONSENT`: Spec 002 no existía al escribir esto; construida el mismo día (ver catálogo FR-700 actualizado).
 - `CARTA-PRES`/`CARTA-INC`/`RETIRADA`/`REG-*`: sus servicios de origen (Specs 005/008/009) ya
   registran el punto de extensión de impresión (`RegistrarImpresion`/similar) pero esta iteración
   no construye su maquetación PDF concreta — se puede añadir en una sesión posterior reutilizando

@@ -19,6 +19,7 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly IServicioPreparacion _servicioPreparacion;
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
+    private readonly IServicioIdoneidadConsentimiento _servicioIdoneidad;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private string _fragmento = string.Empty;
@@ -29,8 +30,9 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion,
-        IServicioGeneracionDocumentos servicioGeneracionDocumentos, int? usuarioActualId)
+        IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioIdoneidadConsentimiento servicioIdoneidad, int? usuarioActualId)
     {
+        _servicioIdoneidad = servicioIdoneidad;
         _servicio = servicio;
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
@@ -56,13 +58,13 @@ public sealed partial class BuscadorPacientesViewModel : ViewModelBase
     private void AbrirPaciente(Paciente paciente)
         => new FichaPacienteWindow(
             _servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
-            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, paciente, _usuarioActualId).Show();
+            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, _servicioIdoneidad,paciente, _usuarioActualId).Show();
 
     [RelayCommand]
     private void NuevoPaciente()
         => new FichaPacienteWindow(
             _servicio, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
-            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, null, _usuarioActualId).Show();
+            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, _servicioIdoneidad,null, _usuarioActualId).Show();
 
     partial void OnFragmentoChanged(string value) => Buscar();
 

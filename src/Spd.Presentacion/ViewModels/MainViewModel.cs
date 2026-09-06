@@ -36,6 +36,7 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioExportacionPacientes _servicioExportacionPacientes;
     private readonly IServicioPreparacion _servicioPreparacion;
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
+    private readonly IServicioIdoneidadConsentimiento _servicioIdoneidad;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -69,8 +70,10 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioExportacionPacientes servicioExportacionPacientes,
         IServicioPreparacion servicioPreparacion,
         IServicioGeneracionDocumentos servicioGeneracionDocumentos,
+        IServicioIdoneidadConsentimiento servicioIdoneidad,
         Usuario usuarioActual)
     {
+        _servicioIdoneidad = servicioIdoneidad;
         _servicioUsuarios = servicioUsuarios;
         _servicioFarmacia = servicioFarmacia;
         _gestorLogo = gestorLogo;
@@ -103,7 +106,7 @@ public sealed partial class MainViewModel : ViewModelBase
     {
         var ventana = new BuscadorPacientesWindow(
             _servicioPacientes, _servicioTratamientos, _servicioMedicamentos, _servicioEnvases, _servicioImportacion,
-            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, UsuarioActual.Id);
+            _servicioComunicaciones, _servicioPreparacion, _servicioGeneracionDocumentos, _servicioIdoneidad, UsuarioActual.Id);
         ventana.Show();
     }
 

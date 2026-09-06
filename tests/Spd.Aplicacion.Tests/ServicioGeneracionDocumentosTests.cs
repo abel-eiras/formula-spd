@@ -23,7 +23,9 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
         if (Directory.Exists(_carpetaSalida)) Directory.Delete(_carpetaSalida, recursive: true);
     }
 
-    private sealed record Contexto(SqliteConnection Conexion, ServicioGeneracionDocumentos Servicio, int PacienteId, int SpdId);
+    private sealed record Contexto(
+        SqliteConnection Conexion, ServicioGeneracionDocumentos Servicio, int PacienteId, int SpdId,
+        int ConsentimientoPacienteId, int ConsentimientoRepresentanteId, RepositorioConsentimientos RepositorioConsentimientos);
 
     private Contexto Crear()
     {
@@ -60,6 +62,14 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
             PacienteId = paciente.Id, Tipo = TipoContacto.Cuidador, Nombre = "Xoán", Apellidos = "López Pérez",
             Telefono = "611222333", Email = "xoan@ejemplo.gal", EsPrincipal = true
         });
+        var representanteId = repositorioContactos.Crear(new Contacto
+        {
+            PacienteId = paciente.Id, Tipo = TipoContacto.RepresentanteLegal, Nombre = "Ana", Apellidos = "Vidal Souto", Dni = "87654321X"
+        });
+
+        // Spec 002: evaluación vigente APTO y dos consentimientos (paciente, firmado; representante, sin firmar).
+        var repositorioEvaluaciones = new RepositorioEvaluacionesIdoneidad(conexion);
+        var repositorioConsentimientos = new RepositorioConsentimientos(conexion);
 
         var repositorioMedicamentos = new RepositorioMedicamentos(conexion);
         var paracetamol = new Medicamento { Cn = "654321", Nombre = "Paracetamol 1g", DescTexto = "Comprimido blanco oblongo" };
@@ -136,12 +146,26 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
             VerifEtiquetaFichaPaciente = true, VerifTrazabilidad = true, Resultado = ResultadoVerificacion.Apto
         });
 
+        repositorioEvaluaciones.Crear(new EvaluacionIdoneidad
+        {
+            PacienteId = paciente.Id, Fecha = DateTime.UtcNow, FarmaceuticoId = elaborador.Id, Criterio1 = true, Criterio4 = true,
+            CondicionMotivacion = true, CondicionDestreza = true, Observaciones = "Buena disposición", Resultado = ResultadoIdoneidad.Apto
+        });
+        var consentimientoPacienteId = repositorioConsentimientos.Crear(new Consentimiento
+        {
+            PacienteId = paciente.Id, Tipo = TipoConsentimiento.Paciente, FechaCreacion = DateTime.UtcNow, FechaFirma = new DateOnly(2026, 9, 1)
+        });
+        var consentimientoRepresentanteId = repositorioConsentimientos.Crear(new Consentimiento
+        {
+            PacienteId = paciente.Id, Tipo = TipoConsentimiento.Representante, ContactoId = representanteId, FechaCreacion = DateTime.UtcNow
+        });
+
         var servicio = new ServicioGeneracionDocumentos(
             repositorioSpd, repositorioLineas, repositorioLineaEnvases, repositorioVerificaciones, repositorioPacientes,
             repositorioContactos, repositorioMedicos, repositorioTratamientos, repositorioMedicamentos, repositorioUsuarios,
-            repositorioMaterial, repositorioAmbiental, repositorioFarmacia, auditoria);
+            repositorioMaterial, repositorioAmbiental, repositorioEvaluaciones, repositorioConsentimientos, repositorioFarmacia, auditoria);
 
-        return new Contexto(conexion, servicio, paciente.Id, spd.Id);
+        return new Contexto(conexion, servicio, paciente.Id, spd.Id, consentimientoPacienteId, consentimientoRepresentanteId, repositorioConsentimientos);
     }
 
     private static string TextoDelPdf(string ruta)
@@ -250,7 +274,7 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
             "Xoán López Pérez", "611222333",                       // familiar o cuidador (contacto principal)
             "Rosa Ferreiro Castro", "986111111",                   // médico de familia
             "Hipertensión", "penicilina", "Vive sola",
-            "IDONEIDAD", "APTO",                                   // bloque de evaluación
+            "IDONEIDAD", "[X] Paciente polimedicado", "Buena disposición", "APTO [X]", "Elena Ruiz",   // evaluación vigente impresa (Spec 002)
             "incluidos en DDP", "Dolor", "crónico", "1/2 - 0 - 1 - 0", "01/03/2026",
             "no incluidos", "Jarabe Tos",
             "CONTROL ADHERENCIA", "07/09/2026", "F-000001");
@@ -277,6 +301,39 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
             "Recibí una copia");
         var registros = ctx.Conexion.Query<string>("SELECT detalle FROM Auditoria WHERE entidad = 'Paciente' AND accion = 'GENERAR_DOCUMENTO'");
         Assert.Contains(registros, d => d.Contains("tipo=RGPD"));
+    }
+
+    [Fact]
+    public void GenerarConsentimiento_del_paciente_contiene_los_elementos_del_Anexo_I_B_y_marca_impreso()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+
+        var resultado = ctx.Servicio.GenerarConsentimiento(ctx.ConsentimientoPacienteId, usuarioQueEjecutaId: 4);
+
+        Assert.StartsWith("Consentimiento informado", resultado.NombreFichero);
+        var texto = TextoDelPdf(resultado.RutaCompleta);
+        ContieneTodo(texto,
+            "María López Vidal", "12345678Z", "en nombre propio", "AUTORIZO a la farmacia", "Farmacia de Prueba",
+            "Conozco el servicio de SPD", "prescindir del servicio libremente", "quede en depósito en la farmacia",
+            "comprobar la adherencia", "Pontevedra, a 1 de septiembre de 2026",
+            "Firma del/de la paciente", "Firma del farmacéutico");
+        Assert.NotNull(ctx.RepositorioConsentimientos.ObtenerPorId(ctx.ConsentimientoPacienteId)!.ImpresoEn);
+        var registros = ctx.Conexion.Query<string>("SELECT detalle FROM Auditoria WHERE entidad = 'Paciente' AND accion = 'GENERAR_DOCUMENTO'");
+        Assert.Contains(registros, d => d.Contains("tipo=CONSENT"));
+    }
+
+    [Fact]
+    public void GenerarConsentimiento_por_representante_nombra_al_representante_y_al_paciente()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+
+        var texto = TextoDelPdf(ctx.Servicio.GenerarConsentimiento(ctx.ConsentimientoRepresentanteId, null).RutaCompleta);
+
+        ContieneTodo(texto, "Ana Vidal Souto", "87654321X", "como representante legal de", "María López Vidal", "12345678Z",
+            "a ______ de");   // sin firmar: fecha en blanco
+        Assert.DoesNotContain("en nombre propio", texto);
     }
 
     [Fact]

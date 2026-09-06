@@ -21,6 +21,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly IServicioPreparacion _servicioPreparacion;
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
+    private readonly IServicioIdoneidadConsentimiento _servicioIdoneidad;
     private readonly int? _usuarioActualId;
     private bool _pendienteConfirmarDuplicado;
 
@@ -81,9 +82,10 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion,
-        IServicioGeneracionDocumentos servicioGeneracionDocumentos,
+        IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioIdoneidadConsentimiento servicioIdoneidad,
         Paciente? pacienteExistente, int? usuarioActualId)
     {
+        _servicioIdoneidad = servicioIdoneidad;
         _servicio = servicio;
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
@@ -111,6 +113,11 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirComunicaciones()
         => new ComunicacionesMedicoWindow(_servicioComunicaciones, Paciente!.Id, _usuarioActualId).Show();
+
+    /// <summary>Spec 002: idoneidad y consentimiento; es lo que lleva al paciente de EVALUACION a ACTIVO.</summary>
+    [RelayCommand]
+    private void AbrirIdoneidad()
+        => new IdoneidadConsentimientoWindow(_servicioIdoneidad, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
 
     [RelayCommand]
     private void AbrirPreparacion()
