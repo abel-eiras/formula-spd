@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -12,7 +13,7 @@ namespace Spd.Presentacion.Tests;
 public sealed class ImportarTratamientoViewTests
 {
     [AvaloniaFact]
-    public void ImportarTratamientoWindow_se_construye_y_muestra_sin_lanzar()
+    public void ImportarTratamientoView_se_construye_y_muestra_sin_lanzar()
     {
         var conexion = new SqliteConnection("Data Source=:memory:");
         conexion.Open();
@@ -41,7 +42,10 @@ public sealed class ImportarTratamientoViewTests
             repositorioMedicamentos, repositorioTratamientos, repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientos, auditoria);
 
-        var ventana = new ImportarTratamientoWindow(servicioImportacion, paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new ImportarTratamientoView
+        {
+            DataContext = new ImportarTratamientoViewModel(servicioImportacion, paciente.Id, usuarioActualId: null)
+        });
 
         ventana.Show();
     }

@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
-using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.Pacientes;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -18,6 +18,7 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly IServicioGeneracionDocumentos _servicioDocumentos;
     private readonly int _pacienteId;
+    private readonly PacienteContexto? _contexto;
     private readonly int? _usuarioActualId;
     private int? _tratamientoIdEnEdicion;
 
@@ -45,8 +46,9 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     public TratamientoViewModel(
         IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioGeneracionDocumentos servicioDocumentos,
-        int pacienteId, int? usuarioActualId)
+        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null)
     {
+        _contexto = contexto;
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;
         _servicioComunicaciones = servicioComunicaciones;
@@ -61,7 +63,9 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     private void ComunicarIncidencia(TratamientoFila fila)
     {
         var prerrelleno = _servicioComunicaciones.PrepararDesdeTratamiento(fila.Tratamiento.Id);
-        new ComunicacionesMedicoWindow(_servicioComunicaciones, _servicioDocumentos, _pacienteId, _usuarioActualId, prerrelleno).Show();
+        // Spec 015 FR-1530: en vez de abrir una ventana, se cambia a la pestaña de comunicaciones
+        // con el formulario ya relleno; el tratamiento que la motiva se sigue viendo a un clic.
+        _contexto?.IrA(PestanaPaciente.Comunicaciones, prerrelleno);
     }
 
     private void CargarVigentes()

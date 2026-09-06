@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -15,7 +16,7 @@ namespace Spd.Presentacion.Tests;
 public sealed class DepositoViewTests
 {
     [AvaloniaFact]
-    public void DepositoWindow_se_construye_y_muestra_con_un_envase_real_sin_lanzar()
+    public void DepositoView_se_construye_y_muestra_con_un_envase_real_sin_lanzar()
     {
         var conexion = new SqliteConnection("Data Source=:memory:");
         conexion.Open();
@@ -60,7 +61,10 @@ public sealed class DepositoViewTests
         var servicioImportacion = new ServicioImportacionTratamientoEnvase(
             repositorioMedicamentos, repositorioTratamientos, repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientosParaImportacion, auditoria);
-        var ventana = new DepositoWindow(servicioEnvases, servicioMedicamentos, servicioImportacion, paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new DepositoView
+        {
+            DataContext = new DepositoViewModel(servicioEnvases, servicioMedicamentos, servicioImportacion, paciente.Id, usuarioActualId: null)
+        });
 
         ventana.Show();
     }

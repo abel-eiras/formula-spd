@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -14,7 +15,7 @@ namespace Spd.Presentacion.Tests;
 public sealed class TratamientoViewTests
 {
     [AvaloniaFact]
-    public void TratamientoWindow_se_construye_y_muestra_con_un_tratamiento_real_sin_lanzar()
+    public void TratamientoView_se_construye_y_muestra_con_un_tratamiento_real_sin_lanzar()
     {
         var conexion = new SqliteConnection("Data Source=:memory:");
         conexion.Open();
@@ -50,9 +51,12 @@ public sealed class TratamientoViewTests
 
         var servicioComunicaciones = new ServicioComunicacionesMedico(
             new RepositorioComunicacionesMedico(conexion), repositorioPacientes, new RepositorioTratamientos(conexion), auditoria);
-        var ventana = new TratamientoWindow(
-            servicioTratamientos, servicioMedicamentos, servicioComunicaciones, FabricaServiciosTest.GeneracionDocumentos(conexion),
-            paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new TratamientoView
+        {
+            DataContext = new TratamientoViewModel(
+                servicioTratamientos, servicioMedicamentos, servicioComunicaciones,
+                FabricaServiciosTest.GeneracionDocumentos(conexion), paciente.Id, usuarioActualId: null)
+        });
 
         ventana.Show();
     }

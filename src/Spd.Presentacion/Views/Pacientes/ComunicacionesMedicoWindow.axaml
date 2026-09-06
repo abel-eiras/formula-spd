@@ -1,8 +1,0 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:pacientes="using:Spd.Presentacion.Views.Pacientes"
-        x:Class="Spd.Presentacion.Views.Pacientes.ComunicacionesMedicoWindow"
-        Title="SPD — Comunicaciones al médico"
-        Width="820" Height="600">
-  <pacientes:ComunicacionesMedicoView />
-</Window>

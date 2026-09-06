@@ -1,6 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
+             xmlns:pacientes="using:Spd.Presentacion.Views.Pacientes"
              x:Class="Spd.Presentacion.Views.Pacientes.DepositoView">
+  <Grid>
   <Grid ColumnDefinitions="320,*" RowDefinitions="*,Auto" Margin="16">
     <StackPanel Grid.Column="0" Spacing="8">
       <TextBlock Text="Envases en custodia" FontSize="16" FontWeight="Bold" />
@@ -67,5 +70,14 @@
             IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
     </Border>
+  </Grid>
+
+    <!-- FR-1533: la importación por pegado era una ventana que tapaba justamente el depósito con el
+         que hay que comparar lo pegado. Como panel lateral, ambos se ven a la vez. -->
+    <c:PanelLateral Titulo="Importar tratamiento"
+                    IsVisible="{Binding PanelImportarAbierto}"
+                    CerrarCommand="{Binding CerrarPanelImportarCommand}">
+      <pacientes:ImportarTratamientoView DataContext="{Binding PanelImportar}" />
+    </c:PanelLateral>
   </Grid>
 </UserControl>

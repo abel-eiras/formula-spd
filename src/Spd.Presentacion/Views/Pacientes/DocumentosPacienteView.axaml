@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.DocumentosPacienteView">
+  <StackPanel Margin="24,20" Spacing="10" MaxWidth="640" HorizontalAlignment="Left">
+    <TextBlock Text="Documentos del paciente" Classes="titulo" />
+    <TextBlock Classes="suave" TextWrapping="Wrap"
+               Text="El consentimiento informado se genera en la pestaña de idoneidad y la ficha de preparación en la de preparación: cada documento se imprime donde se firma o se elabora, junto al acto que lo justifica." />
+
+    <Border Classes="tarjeta">
+      <StackPanel Spacing="6">
+        <TextBlock Text="Ficha del paciente" FontWeight="SemiBold" />
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="Datos identificativos, tratamiento en SPD y observaciones. Es el documento que acompaña al paciente en el servicio." />
+        <Button Content="Generar" Command="{Binding ImprimirFichaCommand}"
+                IsEnabled="{Binding PuedeGenerar}" HorizontalAlignment="Left" />
+      </StackPanel>
+    </Border>
+
+    <Border Classes="tarjeta">
+      <StackPanel Spacing="6">
+        <TextBlock Text="Información de protección de datos (RGPD)" FontWeight="SemiBold" />
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="Anexo I.D del PNT. Se entrega al paciente junto con el consentimiento informado; se rellena solo con los datos de la farmacia y del paciente." />
+        <Button Content="Generar" Command="{Binding ImprimirProteccionDatosCommand}"
+                IsEnabled="{Binding PuedeGenerar}" HorizontalAlignment="Left" />
+      </StackPanel>
+    </Border>
+
+    <Border Classes="panel" IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </StackPanel>
+</UserControl>

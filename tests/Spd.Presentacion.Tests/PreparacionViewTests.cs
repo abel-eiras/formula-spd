@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Preparacion;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -14,7 +15,7 @@ namespace Spd.Presentacion.Tests;
 public sealed class PreparacionViewTests
 {
     [AvaloniaFact]
-    public void PreparacionWindow_se_construye_y_muestra_con_un_spd_real_sin_lanzar()
+    public void PreparacionView_se_construye_y_muestra_con_un_spd_real_sin_lanzar()
     {
         var conexion = new SqliteConnection("Data Source=:memory:");
         conexion.Open();
@@ -83,8 +84,12 @@ public sealed class PreparacionViewTests
             new RepositorioConsentimientos(conexion), new RepositorioComunicacionesMedico(conexion), repositorioFarmacia, auditoria);
         var servicioComunicaciones = new ServicioComunicacionesMedico(
             new RepositorioComunicacionesMedico(conexion), repositorioPacientes, repositorioTratamientos, auditoria);
-        var ventana = new PreparacionWindow(
-            servicioPreparacion, servicioMedicamentos, servicioGeneracionDocumentos, servicioComunicaciones, paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new PreparacionView
+        {
+            DataContext = new PreparacionViewModel(
+                servicioPreparacion, servicioMedicamentos, servicioGeneracionDocumentos, servicioComunicaciones,
+                paciente.Id, usuarioActualId: null)
+        });
 
         ventana.Show();
     }

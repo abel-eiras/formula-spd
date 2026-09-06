@@ -143,6 +143,34 @@
   </Style>
 
   <!-- Controles propios: plantilla completa, aquí no hay nada de Fluent que romper -->
+  <!-- Spec 015 FR-1533: panel lateral en lugar de diálogo. Ocupa la banda derecha con su propio
+       fondo y una línea a la izquierda; lo de detrás se sigue viendo, que es justo por lo que
+       sustituye a una ventana modal. -->
+  <Style Selector="c|PanelLateral">
+    <Setter Property="Width" Value="380" />
+    <Setter Property="HorizontalAlignment" Value="Right" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{DynamicResource Superficie}"
+                BorderBrush="{DynamicResource Linea}" BorderThickness="1,0,0,0">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Padding="16,12"
+                    BorderBrush="{DynamicResource Linea}" BorderThickness="0,0,0,1">
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Classes="enlace" Content="Cerrar"
+                        Command="{TemplateBinding CerrarCommand}" />
+                <TextBlock Text="{TemplateBinding Titulo}" Classes="titulo" VerticalAlignment="Center" />
+              </DockPanel>
+            </Border>
+            <ScrollViewer>
+              <ContentPresenter Margin="16,14" Content="{TemplateBinding Content}" />
+            </ScrollViewer>
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
   <Style Selector="c|Pastilla">
     <Setter Property="Template">
       <ControlTemplate>

@@ -80,18 +80,18 @@
 
 ## Fase 3 — Espacio del paciente
 
-- [ ] T038 [F3] `src/Spd.Presentacion/Pacientes/PacienteContexto.cs` (research.md Decisión 5)
-- [ ] T039 [F3] `Views/Pacientes/CabeceraPacienteView.axaml(.cs)`: estado, alergias, idoneidad y consentimiento, retirada, blísteres, médico
-- [ ] T040 [F3] `ViewModels/PacienteWorkspaceViewModel.cs` + `Views/Pacientes/PacienteWorkspaceView.axaml(.cs)`: cabecera fija + siete pestañas alojando las vistas existentes
-- [ ] T041 [F3] Indicadores de pendiente por pestaña (idoneidad, depósito, preparación, comunicaciones)
-- [ ] T042 [F3] `Controles/PanelLateral.axaml(.cs)`
-- [ ] T043 [F3] Migrar a panel lateral: registrar envase (Preparación), alta de representante (Idoneidad), respuesta del médico (Comunicaciones)
-- [ ] T044 [F3] Migrar a panel lateral: importar tratamiento (Depósito), revocación (Idoneidad), reelaboración (Preparación)
-- [ ] T045 [F3] Todos los ViewModels de pestaña usan `PacienteContexto`; eliminar el parche `FichaPacienteViewModel.RecargarPaciente` y los `Closed +=`
-- [ ] T046 [F3] **Eliminar** `FichaPacienteWindow`, `TratamientoWindow`, `DepositoWindow`, `ComunicacionesMedicoWindow`, `IdoneidadConsentimientoWindow`, `PreparacionWindow`, `ImportarTratamientoWindow`
+- [X] T038 [F3] `src/Spd.Presentacion/Pacientes/PacienteContexto.cs` (research.md Decisión 5)
+- [X] T039 [F3] `Views/Pacientes/CabeceraPacienteView.axaml(.cs)`: estado, alergias, idoneidad y consentimiento, retirada, blísteres, médico
+- [X] T040 [F3] `ViewModels/PacienteWorkspaceViewModel.cs` + `Views/Pacientes/PacienteWorkspaceView.axaml(.cs)`: cabecera fija + siete pestañas alojando las vistas existentes
+- [X] T041 [F3] Indicadores de pendiente por pestaña (idoneidad, depósito, preparación, comunicaciones)
+- [X] T042 [F3] `Controles/PanelLateral.axaml(.cs)`
+- [X] T043 [F3] Migrar a panel lateral: registrar envase (Preparación), alta de representante (Idoneidad), respuesta del médico (Comunicaciones)
+- [X] T044 [F3] Migrar a panel lateral: importar tratamiento (Depósito), revocación (Idoneidad), reelaboración (Preparación)
+- [X] T045 [F3] Todos los ViewModels de pestaña usan `PacienteContexto`; eliminar el parche `FichaPacienteViewModel.RecargarPaciente` y los `Closed +=`
+- [X] T046 [F3] **Eliminar** `FichaPacienteWindow`, `TratamientoWindow`, `DepositoWindow`, `ComunicacionesMedicoWindow`, `IdoneidadConsentimientoWindow`, `PreparacionWindow`, `ImportarTratamientoWindow`
 - [ ] T047 [P] [F3] Tests `PacienteWorkspaceViewTests` (siete pestañas), `PacienteContextoTests` (activación en el momento), `PanelLateralTests`
 - [ ] T048 [P] [F3] Ayuda (Spec 014 FR-1525): reescribir `uso__030-ficha-paciente`, `uso__040-idoneidad-consentimiento`, `uso__050-tratamientos`, `uso__060-deposito`, `uso__070-preparacion`, `uso__080-comunicaciones-medico` a pestañas y paneles; `uso__010-inicio` al marco único
-- [ ] T049 [F3] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
+- [X] T049 [F3] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
 
 ---
 

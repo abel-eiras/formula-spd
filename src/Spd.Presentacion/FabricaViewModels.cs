@@ -1,6 +1,7 @@
 using Spd.Dominio;
 using Spd.Presentacion.Ayuda;
 using Spd.Presentacion.Navegacion;
+using Spd.Presentacion.Pacientes;
 using Spd.Presentacion.ViewModels;
 
 namespace Spd.Presentacion;
@@ -17,6 +18,7 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
     {
         Seccion.Inicio => new InicioViewModel(servicios.Avisos, navegador),
         Seccion.Pacientes => CrearPacientes(destino),
+        Seccion.Paciente => CrearEspacioDePaciente(destino),
         Seccion.Preparaciones => CrearPreparaciones(destino),
         Seccion.Retirada => CrearRetirada(destino),
         Seccion.Exportar => new ExportarPacientesViewModel(
@@ -39,11 +41,22 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
     /// puesto, que es lo que hace que el resultado "lleve" de verdad a lo buscado.</summary>
     private BuscadorPacientesViewModel CrearPacientes(Destino destino)
     {
-        var vm = new BuscadorPacientesViewModel(
-            servicios.Pacientes, servicios.Tratamientos, servicios.Medicamentos, servicios.Envases,
-            servicios.ImportacionTratamiento, servicios.Comunicaciones, servicios.Preparacion,
-            servicios.Documentos, servicios.Idoneidad, usuario.Id);
+        var vm = new BuscadorPacientesViewModel(servicios.Pacientes, navegador);
         if (destino.Detalle is { Length: > 0 } nombre) vm.Fragmento = nombre;
+        return vm;
+    }
+
+    /// <summary>El espacio del paciente (FR-1530). Sin `PacienteId` se abre en alta nueva; con él,
+    /// sobre el paciente ya guardado. `Detalle` puede nombrar la pestaña de entrada.</summary>
+    private PacienteWorkspaceViewModel CrearEspacioDePaciente(Destino destino)
+    {
+        var paciente = destino.PacienteId is { } id ? servicios.Pacientes.ObtenerPorId(id) : null;
+        var vm = new PacienteWorkspaceViewModel(servicios, paciente, usuario.Id);
+        if (destino.Detalle is { Length: > 0 } detalle
+            && System.Enum.TryParse<PestanaPaciente>(detalle, ignoreCase: true, out var pestana))
+        {
+            vm.Contexto.IrA(pestana);
+        }
         return vm;
     }
 
@@ -61,7 +74,7 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
     {
         var vm = new PreparacionesViewModel(
             servicios.Preparacion, servicios.Pacientes, servicios.Usuarios, servicios.Medicamentos,
-            servicios.Documentos, servicios.Comunicaciones, servicios.Lote, usuario.Id);
+            servicios.Documentos, servicios.Comunicaciones, servicios.Lote, navegador, usuario.Id);
         if (destino.Detalle is { Length: > 0 } nombre)
         {
             vm.FiltroPaciente = nombre;

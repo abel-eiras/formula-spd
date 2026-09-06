@@ -1,8 +1,0 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:preparacion="using:Spd.Presentacion.Views.Preparacion"
-        x:Class="Spd.Presentacion.Views.Preparacion.PreparacionWindow"
-        Title="SPD — Preparación, verificación y entrega"
-        Width="1000" Height="700">
-  <preparacion:PreparacionView />
-</Window>

@@ -8,3 +8,6 @@ Lista de pacientes con búsqueda por nombre, apellidos, DNI, CIP o número de fi
 El orden prioriza el estado: activos primero. Desde la ficha se accede a todo lo demás del paciente (idoneidad y consentimiento, tratamientos, depósito, comunicaciones, preparación, impresión).
 
 Procedimiento relacionado: [[procedimiento:ficha-y-tratamiento]].
+
+
+La lista es una tabla: se ordena pulsando en la cabecera de cualquier columna. **Abrir ficha** lleva al espacio del paciente ([[uso:ficha-paciente]]) dentro de la misma ventana; **Nuevo paciente** lo abre en blanco.

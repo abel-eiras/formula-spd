@@ -56,7 +56,10 @@ public sealed class AppShellTests
             Assert.Equal(entrada.Titulo, vm.TituloSeccion);
         }
 
-        // Las dos secciones que no están en el menú (se llega desde el catálogo y desde F1).
+        // Las tres secciones que no están en el menú (se llega desde el buscador de pacientes,
+        // desde el catálogo y desde F1).
+        navegador.Navegar(new Destino(Seccion.Paciente));
+        Assert.IsType<PacienteWorkspaceViewModel>(vm.Contenido);
         navegador.Navegar(new Destino(Seccion.RevisionNomenclator));
         Assert.IsType<RevisionNomenclatorViewModel>(vm.Contenido);
         navegador.Navegar(new Destino(Seccion.Ayuda, Detalle: "procedimiento:verificacion"));
@@ -150,7 +153,7 @@ public sealed class AppShellTests
 
         vm.AbrirResultadoCommand.Execute(resultado);
 
-        Assert.Equal(Seccion.Pacientes, navegador.Actual.Seccion);
+        Assert.Equal(Seccion.Pacientes, navegador.Actual!.Seccion);
         // Al elegir un resultado la lista se cierra y el campo queda limpio para la siguiente.
         Assert.False(vm.BusquedaAbierta);
         Assert.Equal(string.Empty, vm.TextoBusqueda);

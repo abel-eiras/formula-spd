@@ -1,8 +1,18 @@
 # Ficha del paciente
 
-## Cabecera
+Todo lo del paciente está en **un solo espacio**, con una cabecera fija y siete pestañas: Datos, Idoneidad y consentimiento, Tratamiento, Depósito, Preparación, Comunicaciones y Documentos. No se abre ninguna ventana: se cambia de pestaña, y la cabecera sigue delante en todas.
 
-Número de ficha (correlativo con el prefijo configurado; se asigna al guardar y no se edita), estado (EVALUACION → ACTIVO ↔ SUSPENDIDO; cualquiera → BAJA; BAJA → EVALUACION para reactivar), edad y un aviso rojo si hay alergias.
+## Cabecera fija
+
+Nombre, número de ficha (correlativo con el prefijo configurado; se asigna al guardar y no se edita), estado (EVALUACION → ACTIVO ↔ SUSPENDIDO; cualquiera → BAJA; BAJA → EVALUACION para reactivar), si la idoneidad y el consentimiento están en regla, día de retirada, blísteres por sesión, blísteres sin entregar y, en rojo y a la vista, las alergias.
+
+Está siempre visible, se esté en la pestaña que se esté: es lo que no se puede perder de vista mientras se trabaja con este paciente.
+
+## Pestañas
+
+Cada pestaña lleva un número cuando tiene algo pendiente: la idoneidad si no está en regla, el depósito si hay faltantes, la preparación si hay blísteres sin entregar y las comunicaciones si hay alguna sin respuesta del médico. Así se ve lo que falta sin entrar a mirar una por una.
+
+Lo que se hace en una pestaña se ve en el resto sin recargar nada: al registrar el consentimiento, la cabecera pasa a ACTIVO en el acto.
 
 ## Datos
 
@@ -10,14 +20,12 @@ Nombre y apellidos (obligatorios); sexo (obligatorio si hay CIP); DNI, fecha de 
 
 Es obligatorio al menos uno de: DNI, CIP o fecha de nacimiento. Si el DNI o el CIP coinciden con otro paciente, la aplicación avisa y te deja continuar pulsando Guardar de nuevo.
 
-## Botones
+**Guardar** crea o actualiza el paciente. Los cambios quedan en auditoría con el antes y el después.
 
-- **Guardar**: crea o actualiza. Los cambios quedan en auditoría con el antes y el después.
-- **Idoneidad y consentimiento**: [[uso:idoneidad-consentimiento]].
-- **Tratamientos**: [[uso:tratamientos]]. **Depósito**: [[uso:deposito]]. **Comunicaciones**: [[uso:comunicaciones-medico]]. **Preparación**: [[uso:preparacion]].
-- **Imprimir ficha**: genera la Ficha del paciente (Anexo I.E) con familiar/cuidador, médico, salud, evaluación de idoneidad vigente, medicamentos incluidos y no incluidos y control de adherencia.
-- **Imprimir información de protección de datos (RGPD)**: el documento que se entrega con el consentimiento.
+En un paciente nuevo solo está la pestaña de Datos: hasta que no se guarda no hay ficha a la que colgar tratamientos, envases ni preparaciones. Al guardar por primera vez aparecen las otras seis, sin cerrar ni volver a abrir nada.
 
-Los documentos se guardan en la carpeta configurada ([[uso:documentos-generados]]). Nada se elimina: la baja pide fecha y motivo y conserva todo.
+Las demás pestañas: [[uso:idoneidad-consentimiento]], [[uso:tratamientos]], [[uso:deposito]], [[uso:preparacion]], [[uso:comunicaciones-medico]] y **Documentos** (ficha del paciente e información de protección de datos, [[uso:documentos-generados]]).
+
+Nada se elimina: la baja pide fecha y motivo y conserva todo.
 
 Procedimiento relacionado: [[procedimiento:ficha-y-tratamiento]].

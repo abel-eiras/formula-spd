@@ -5,6 +5,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
+using Spd.Presentacion.Pacientes;
 using Spd.Dominio;
 
 namespace Spd.Presentacion.ViewModels;
@@ -19,6 +20,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly int _pacienteId;
+    private readonly PacienteContexto? _contexto;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private ObservableCollection<BlisterFila> _blisteres = [];
@@ -67,8 +69,9 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     public PreparacionViewModel(
         IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos,
         IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioComunicacionesMedico servicioComunicaciones,
-        int pacienteId, int? usuarioActualId)
+        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null)
     {
+        _contexto = contexto;
         _servicio = servicio;
         _servicioMedicamentos = servicioMedicamentos;
         _servicioGeneracionDocumentos = servicioGeneracionDocumentos;
@@ -207,7 +210,8 @@ public sealed partial class PreparacionViewModel : ViewModelBase
                 if (tratamientoId != 0)
                 {
                     var prerrelleno = _servicioComunicaciones.PrepararDesdeTratamiento(tratamientoId);
-                    new Views.Pacientes.ComunicacionesMedicoWindow(_servicioComunicaciones, _servicioGeneracionDocumentos, _pacienteId, _usuarioActualId, prerrelleno).Show();
+                    // Spec 015 FR-1530: pestaña de comunicaciones prerrellenada, sin ventana.
+                    _contexto?.IrA(PestanaPaciente.Comunicaciones, prerrelleno);
                 }
             }
             UnidadesNoAdministradas = ObservacionesAdherencia = null;

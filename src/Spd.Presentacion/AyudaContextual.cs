@@ -22,6 +22,7 @@ public static class AyudaContextual
         ["InicioView"] = "servicio-spd",
         ["BuscadorPacientesView"] = "ficha-y-tratamiento",
         ["FichaPacienteView"] = "ficha-y-tratamiento",
+        ["DocumentosPacienteView"] = "documentacion-y-conservacion",
         ["IdoneidadConsentimientoView"] = "idoneidad",
         ["TratamientoView"] = "ficha-y-tratamiento",
         ["DepositoView"] = "deposito-y-retirada",
@@ -50,6 +51,7 @@ public static class AyudaContextual
         ["InicioView"] = "inicio",
         ["BuscadorPacientesView"] = "pacientes",
         ["FichaPacienteView"] = "ficha-paciente",
+        ["DocumentosPacienteView"] = "documentos-generados",
         ["IdoneidadConsentimientoView"] = "idoneidad-consentimiento",
         ["TratamientoView"] = "tratamientos",
         ["DepositoView"] = "deposito",
@@ -83,19 +85,12 @@ public static class AyudaContextual
         Abrir("procedimiento", nombre is not null && SeccionPorVista.TryGetValue(nombre, out var id) ? id : null);
     }
 
-    /// <summary>F1 en una ventana: resuelve la vista que contiene y abre su apartado. Lo usan tanto
-    /// el marco como las ventanas que todavía no se han absorbido (fase 3).</summary>
-    public static void Registrar(Window ventana)
-        => ventana.KeyDown += (_, e) =>
-        {
-            if (e.Key != Key.F1) return;
-            e.Handled = true;
-            AbrirParaVista(VistaDe(ventana));
-        };
-
-    /// <summary>Primera vista de la jerarquía visual que esté en la tabla: en una pantalla con
-    /// vistas anidadas (registros de calidad, y las pestañas de la fase 3) la de fuera es la que
-    /// identifica la pantalla, salvo que no esté documentada.</summary>
+    /// <summary>Primera vista de la jerarquía visual que esté en la tabla.
+    ///
+    /// El marco del espacio del paciente (`PacienteWorkspaceView`) y su cabecera están deliberadamente
+    /// **fuera** de la tabla: si estuvieran, F1 daría siempre la misma ayuda genérica se esté en la
+    /// pestaña que se esté. Al no estarlo, la primera vista documentada que se encuentra es la de la
+    /// pestaña abierta, que es la ayuda que hace falta.</summary>
     public static Control? VistaDe(Visual? raiz)
         => raiz?.GetVisualDescendants()
             .OfType<UserControl>()

@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -14,7 +15,7 @@ namespace Spd.Presentacion.Tests;
 public sealed class ComunicacionesMedicoViewTests
 {
     [AvaloniaFact]
-    public void ComunicacionesMedicoWindow_se_construye_y_muestra_con_una_comunicacion_real_sin_lanzar()
+    public void ComunicacionesMedicoView_se_construye_y_muestra_con_una_comunicacion_real_sin_lanzar()
     {
         var conexion = new SqliteConnection("Data Source=:memory:");
         conexion.Open();
@@ -46,8 +47,11 @@ public sealed class ComunicacionesMedicoViewTests
             new RepositorioComunicacionesMedico(conexion), repositorioPacientes, repositorioTratamientos, auditoria);
         servicioComunicaciones.Crear(new DatosAltaComunicacionMedico(pacienteId, medicoId, TipoComunicacionMedico.Presentacion, null, null), null);
 
-        var ventana = new ComunicacionesMedicoWindow(
-            servicioComunicaciones, FabricaServiciosTest.GeneracionDocumentos(conexion), pacienteId, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new ComunicacionesMedicoView
+        {
+            DataContext = new ComunicacionesMedicoViewModel(
+                servicioComunicaciones, FabricaServiciosTest.GeneracionDocumentos(conexion), pacienteId, usuarioActualId: null)
+        });
 
         ventana.Show();
     }

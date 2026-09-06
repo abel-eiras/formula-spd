@@ -13,3 +13,8 @@ Envases del paciente en custodia, con medicamento, **serie**, **lote**, **caduci
 Desde un fichero CSV exportado por el programa de gestión, con un **perfil de importación** que indica qué columna es cada dato ([[uso:configuracion]]). La aplicación muestra qué líneas se crearán y cuáles tienen errores antes de confirmar.
 
 Procedimientos relacionados: [[procedimiento:deposito-y-retirada]], [[procedimiento:residuos]].
+
+
+## Importar tratamiento y envases
+
+El botón **Importar tratamiento (pegado/fichero)** abre un panel a la derecha, no una ventana: el depósito se sigue viendo mientras se pega, que es justo lo que hace falta para comprobar si un envase ya está en custodia. Al cerrar el panel, la lista se recalcula.

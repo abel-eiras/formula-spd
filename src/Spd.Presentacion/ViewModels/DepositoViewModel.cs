@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
-using Spd.Presentacion.Views.Pacientes;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -49,9 +48,28 @@ public sealed partial class DepositoViewModel : ViewModelBase
         Cargar();
     }
 
+    /// <summary>Spec 015 FR-1533: la importación por pegado deja de ser una ventana y pasa a un
+    /// panel lateral del propio depósito. Es lo que hace falta para poder comparar lo pegado con lo
+    /// que ya hay en custodia, que es exactamente lo que la ventana tapaba.</summary>
+    [ObservableProperty] private ImportarTratamientoViewModel? _panelImportar;
+
+    public bool PanelImportarAbierto => PanelImportar is not null;
+
     [RelayCommand]
     private void AbrirImportarTratamiento()
-        => new ImportarTratamientoWindow(_servicioImportacion, _pacienteId, _usuarioActualId).Show();
+    {
+        PanelImportar = new ImportarTratamientoViewModel(_servicioImportacion, _pacienteId, _usuarioActualId);
+        OnPropertyChanged(nameof(PanelImportarAbierto));
+    }
+
+    [RelayCommand]
+    private void CerrarPanelImportar()
+    {
+        PanelImportar = null;
+        OnPropertyChanged(nameof(PanelImportarAbierto));
+        // Lo importado son envases nuevos en custodia: la lista de detrás tiene que reflejarlo.
+        Cargar();
+    }
 
     private void Cargar()
     {
