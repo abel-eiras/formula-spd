@@ -54,3 +54,18 @@ numera `0005` sin colisión, siguiendo directamente a la 0004 de Spec 009.
 - FR-421 (disparo automático de PENDIENTE_REVISION desde Spec 006), FR-422 (propuesta SIGRE desde
   Spec 005) y el valor de referencia calculado de FR-430: implementables cuando existan esas specs.
 - Prueba manual real (`dotnet run`) por el usuario.
+
+
+## 2026-09-06 — Línea temporal del historial (T025)
+
+El `ListarHistorialDeMedicamento` llevaba semanas implementado y probado, pero sin pantalla; y sin
+pantalla no se podía responder a lo que pregunta un médico cuando llama: **qué tomaba este paciente y
+desde cuándo**. Como un cambio de pauta cierra el tratamiento anterior y abre otro (Art. III: nada se
+reescribe), esa respuesta solo está en el historial.
+
+**Ver historial** en cada tratamiento abre un panel lateral con los tramos del más reciente al más
+antiguo: periodo, pauta en formato desayuno-almuerzo-cena-noche, días de la semana, estado y el
+motivo por el que terminó. El tramo en vigor se marca en verde.
+
+Un test cubre el caso que importa: dos tramos del mismo medicamento con pautas y días distintos,
+comprobando que el orden, las fechas, la pauta de entonces y el motivo se leen tal cual se guardaron.

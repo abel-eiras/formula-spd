@@ -28,6 +28,13 @@ public sealed partial class TratamientoViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<TratamientoFila> _vigentes = [];
     [ObservableProperty] private string? _mensaje;
 
+    /// <summary>Línea temporal del historial de un medicamento en este paciente (Spec 004 FR-410,
+    /// CA-402). El servicio existía y estaba probado desde hace semanas; faltaba la pantalla.</summary>
+    [ObservableProperty] private ObservableCollection<HitoTratamiento> _historial = [];
+    [ObservableProperty] private string? _historialDe;
+
+    public bool HayHistorial => Historial.Count > 0;
+
     [ObservableProperty] private string _cn = string.Empty;
     [ObservableProperty] private bool _enSpd = true;
     [ObservableProperty] private string? _problemaSalud;
@@ -145,7 +152,66 @@ public sealed partial class TratamientoViewModel : ViewModelBase
         CargarVigentes();
     }
 
+    /// <summary>FR-410/CA-402: el historial de un medicamento en este paciente, del más reciente al
+    /// más antiguo. Un cambio de pauta cierra el tratamiento anterior y abre otro (Art. III: nada se
+    /// reescribe), así que el historial es la única forma de ver **qué tomaba y desde cuándo**, que
+    /// es justo lo que pregunta un médico cuando llama.</summary>
+    [RelayCommand]
+    private void VerHistorial(TratamientoFila? fila)
+    {
+        if (fila is null) return;
+
+        var historial = _servicioTratamientos
+            .ListarHistorialDeMedicamento(_pacienteId, fila.Tratamiento.MedicamentoId)
+            .OrderByDescending(t => t.FechaInicio)
+            .ThenByDescending(t => t.Id)
+            .ToList();
+
+        HistorialDe = fila.NombreMedicamento;
+        Historial = new ObservableCollection<HitoTratamiento>(
+            historial.Select((t, i) => new HitoTratamiento(t, EsVigente: i == 0 && t.FechaFin is null)));
+        OnPropertyChanged(nameof(HayHistorial));
+    }
+
+    [RelayCommand]
+    private void CerrarHistorial()
+    {
+        Historial = [];
+        HistorialDe = null;
+        OnPropertyChanged(nameof(HayHistorial));
+    }
+
     public sealed record TratamientoFila(int Id, string NombreMedicamento, Tratamiento Tratamiento);
+
+    /// <summary>Un tramo de la línea temporal: qué pauta estuvo vigente, entre qué fechas y por qué
+    /// terminó.</summary>
+    public sealed record HitoTratamiento(Tratamiento Tratamiento, bool EsVigente)
+    {
+        public string Periodo => Tratamiento.FechaFin is { } fin
+            ? $"{Tratamiento.FechaInicio:dd/MM/yyyy} — {fin:dd/MM/yyyy}"
+            : $"desde {Tratamiento.FechaInicio:dd/MM/yyyy}";
+
+        /// <summary>La pauta en el formato que se lee en el blíster: desayuno-almuerzo-cena-noche.</summary>
+        public string Pauta => Tratamiento.PautaTexto is { Length: > 0 } libre
+            ? libre
+            : string.Join("-", new[] { Tratamiento.PautaD, Tratamiento.PautaA, Tratamiento.PautaC, Tratamiento.PautaN }
+                .Select(f => f?.Texto() ?? "0"));
+
+        public string Dias => Tratamiento.DiasSemana == "1111111"
+            ? "todos los días"
+            : string.Join(" ", Spd.Dominio.DiasSemana.Codigos.Where((_, i) => i < Tratamiento.DiasSemana.Length && Tratamiento.DiasSemana[i] == '1'));
+
+        public string Estado => Tratamiento.Estado.ToString();
+
+        public Controles.VariantePastilla Variante => EsVigente
+            ? Controles.VariantePastilla.Apto
+            : Tratamiento.Estado == EstadoTratamiento.PendienteRevision
+                ? Controles.VariantePastilla.Aviso
+                : Controles.VariantePastilla.Neutra;
+
+        public string? Motivo => Tratamiento.Incidencias ?? Tratamiento.Intervencion;
+        public bool TieneMotivo => !string.IsNullOrWhiteSpace(Motivo);
+    }
 
     /// <summary>FR-032: el `MedicoId` que se guarda sale de lo elegido en el selector. Al abrir un
     /// tratamiento existente se hace el camino inverso, para que el campo muestre a su prescriptor.</summary>

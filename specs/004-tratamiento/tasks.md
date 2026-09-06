@@ -81,7 +81,7 @@ completo (CA-402); fijar y limpiar `ajuste_unidades_manual` (CA-405 parcial).
 
 - [X] T023 [US2] Implementar `CambiarPauta`/`ActualizarCamposNoClinicos`/`CambiarEstado`/`ListarHistorialDeMedicamento` en `ServicioTratamientos` (depende de T013)
 - [X] T024 [US2] Añadir a `TratamientoViewModel`/vista: botón "Cambiar pauta" (precarga el formulario con la versión seleccionada) y campo de ajuste manual con "usar cálculo automático" (vía `ActualizarCamposNoClinicos`, sin botón dedicado todavía en la vista)
-- [ ] T025 [P] [US2] Vista de línea temporal del historial (`ListarHistorialDeMedicamento` ya implementado y testeado a nivel de servicio — CA-402 — pero sin pantalla propia todavía; pendiente de una sesión posterior) + su test Avalonia.Headless
+- [X] T025 [P] [US2] Vista de línea temporal del historial (`ListarHistorialDeMedicamento` ya implementado y testeado a nivel de servicio — CA-402 — pero sin pantalla propia todavía; pendiente de una sesión posterior) + su test Avalonia.Headless
 
 **Checkpoint**: US1 + US2 funcionales de forma independiente.
 

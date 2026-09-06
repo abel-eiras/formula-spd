@@ -31,7 +31,7 @@
 - [X] T005 [F1] Aplicar los tres diccionarios en `src/Spd.Presentacion/App.axaml`, después de `FluentTheme`
 - [X] T006 [P] [F1] `src/Spd.Presentacion/Controles/Pastilla.axaml(.cs)` con las cinco variantes
 - [X] T007 [P] [F1] `src/Spd.Presentacion/Controles/FranjaSeveridad.axaml(.cs)`
-- [ ] T008 [P] [F1] **No hecho**: `src/Spd.Presentacion/Controles/BarraMensaje.axaml(.cs)`: mensaje + "¿Por qué?" que abre el apartado indicado (sustituye el `Border` + `Button` repetido hoy en Preparación e Idoneidad)
+- [X] T008 [P] [F1] `src/Spd.Presentacion/Controles/BarraMensaje.cs` (plantilla en `Estilos/Controles.axaml`, no `.axaml` propio, como el resto de controles del tema): mensaje + "¿Por qué?" que abre el apartado indicado (sustituye el `Border` + `Button` repetido hoy en Preparación e Idoneidad)
 - [X] T009 [P] [F1] Test `tests/Spd.Presentacion.Tests/TemaTests.cs`: toda clave de color existe en ambas variantes; las dos fuentes embebidas se resuelven
 
 ### Marco y navegación (H1.3, H1.4)
