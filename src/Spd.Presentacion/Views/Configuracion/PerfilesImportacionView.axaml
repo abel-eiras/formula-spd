@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Configuracion.PerfilesImportacionView">
+  <Grid ColumnDefinitions="280,*" RowDefinitions="*,Auto" Margin="16">
+    <StackPanel Grid.Column="0" Spacing="8">
+      <TextBlock Text="Perfiles de importación/exportación" FontSize="16" FontWeight="Bold" />
+      <ComboBox ItemsSource="{Binding TiposDisponibles}" SelectedItem="{Binding FiltroTipo}" />
+      <Button Content="Nuevo perfil" Command="{Binding NuevoPerfilCommand}" />
+      <ListBox ItemsSource="{Binding Perfiles}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding Nombre}" FontWeight="Bold" />
+              <Button Content="Editar" FontSize="11"
+                      Command="{Binding DataContext.PrepararEdicionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                      CommandParameter="{Binding}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Nombre *" />
+        <TextBox Text="{Binding Nombre}" />
+        <TextBlock Text="Tipo" />
+        <ComboBox ItemsSource="{Binding TiposDisponibles}" SelectedItem="{Binding Tipo}" />
+        <TextBlock Text="Separador" />
+        <TextBox Text="{Binding Separador}" />
+        <TextBlock Text="Codificación" />
+        <TextBox Text="{Binding Codificacion}" />
+        <CheckBox Content="Tiene cabecera" IsChecked="{Binding TieneCabecera}" />
+        <TextBlock Text="Mapeo (una línea por par, formato campo=columna)" />
+        <TextBox Text="{Binding MapeoTexto}" AcceptsReturn="True" Height="120" />
+        <TextBlock Text="Regex de unidades por envase (solo perfiles NOMENCLATOR)" />
+        <TextBox Text="{Binding RegexUnidadesEnvase}" />
+        <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,8,0,0" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

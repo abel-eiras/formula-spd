@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Pacientes.ExportarPacientesView">
+  <StackPanel Margin="16" Spacing="8">
+    <TextBlock Text="Exportar pacientes activos" FontSize="16" FontWeight="Bold" />
+    <TextBlock Text="Perfil de exportación" />
+    <ComboBox ItemsSource="{Binding PerfilesDisponibles}" SelectedItem="{Binding PerfilSeleccionado}">
+      <ComboBox.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding Nombre}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+    <Button Content="Generar CSV" Command="{Binding ExportarCommand}" />
+
+    <TextBlock Text="{Binding Mensaje}" IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+    <TextBlock Text="Resultado (copiar y guardar como .csv)" IsVisible="{Binding CsvGenerado, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <TextBox Text="{Binding CsvGenerado}" IsReadOnly="True" AcceptsReturn="True" Height="300"
+             IsVisible="{Binding CsvGenerado, Converter={x:Static ObjectConverters.IsNotNull}}" />
+  </StackPanel>
+</UserControl>
