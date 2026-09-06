@@ -32,6 +32,8 @@ public sealed partial class MainViewModel : ViewModelBase
     private readonly IServicioListadoRetirada _servicioListadoRetirada;
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
+    private readonly IServicioPerfilesImportacion _servicioPerfilesImportacion;
+    private readonly IServicioExportacionPacientes _servicioExportacionPacientes;
 
     [ObservableProperty] private string _greeting;
     [ObservableProperty] private Usuario _usuarioActual;
@@ -61,6 +63,8 @@ public sealed partial class MainViewModel : ViewModelBase
         IServicioListadoRetirada servicioListadoRetirada,
         IServicioImportacionTratamientoEnvase servicioImportacion,
         IServicioComunicacionesMedico servicioComunicaciones,
+        IServicioPerfilesImportacion servicioPerfilesImportacion,
+        IServicioExportacionPacientes servicioExportacionPacientes,
         Usuario usuarioActual)
     {
         _servicioUsuarios = servicioUsuarios;
@@ -81,6 +85,8 @@ public sealed partial class MainViewModel : ViewModelBase
         _servicioListadoRetirada = servicioListadoRetirada;
         _servicioImportacion = servicioImportacion;
         _servicioComunicaciones = servicioComunicaciones;
+        _servicioPerfilesImportacion = servicioPerfilesImportacion;
+        _servicioExportacionPacientes = servicioExportacionPacientes;
         _usuarioActual = usuarioActual;
         _greeting = $"Bienvenido/a, {usuarioActual.Nombre}";
     }
@@ -162,6 +168,23 @@ public sealed partial class MainViewModel : ViewModelBase
     private void AbrirSeguridad()
     {
         var ventana = new SeguridadWindow(_servicioCifrado, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    /// <summary>Solo Administrador, igual que el resto de Configuración (FR-1100 lo describe como
+    /// tarea de administración de perfiles).</summary>
+    [RelayCommand]
+    private void AbrirPerfilesImportacion()
+    {
+        var ventana = new PerfilesImportacionWindow(_servicioPerfilesImportacion, UsuarioActual.Id);
+        ventana.Show();
+    }
+
+    /// <summary>Cualquier Elaborador o Administrador puede exportar, igual que Pacientes (FR-040).</summary>
+    [RelayCommand]
+    private void AbrirExportarPacientes()
+    {
+        var ventana = new ExportarPacientesWindow(_servicioPerfilesImportacion, _servicioExportacionPacientes, _servicioPacientes);
         ventana.Show();
     }
 

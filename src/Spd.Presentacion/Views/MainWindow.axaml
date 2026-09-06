@@ -13,6 +13,7 @@
         <TextBlock Text="{Binding Greeting}" FontSize="18" />
         <Button Content="Pacientes" Command="{Binding AbrirPacientesCommand}" />
         <Button Content="Retirada de envases" Command="{Binding AbrirRetiradaEnvasesCommand}" />
+        <Button Content="Exportar pacientes" Command="{Binding AbrirExportarPacientesCommand}" />
         <Button Content="Catálogo de medicamentos" Command="{Binding AbrirCatalogoMedicamentosCommand}" />
         <Button Content="Registros de calidad" Command="{Binding AbrirRegistrosCalidadCommand}" />
         <Button Content="Configuración de usuarios" Command="{Binding AbrirUsuariosCommand}"
@@ -26,6 +27,8 @@
         <Button Content="Control documental" Command="{Binding AbrirControlDocumentalCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
         <Button Content="Seguridad" Command="{Binding AbrirSeguridadCommand}"
+                IsVisible="{Binding PuedeAccederAConfiguracion}" />
+        <Button Content="Perfiles de importación" Command="{Binding AbrirPerfilesImportacionCommand}"
                 IsVisible="{Binding PuedeAccederAConfiguracion}" />
         <Button Content="Cerrar sesión" Command="{Binding CerrarSesionCommand}" Margin="0,16,0,0" />
     </StackPanel>

@@ -43,6 +43,8 @@ public partial class App : Application
     private IServicioListadoRetirada? _servicioListadoRetirada;
     private IServicioImportacionTratamientoEnvase? _servicioImportacion;
     private IServicioComunicacionesMedico? _servicioComunicaciones;
+    private IServicioPerfilesImportacion? _servicioPerfilesImportacion;
+    private IServicioExportacionPacientes? _servicioExportacionPacientes;
 
     public override void Initialize()
     {
@@ -161,6 +163,8 @@ public partial class App : Application
             new RepositorioPerfilesImportacionTratamiento(_conexion!), _servicioTratamientos!, auditoria);
         _servicioComunicaciones = new ServicioComunicacionesMedico(
             new RepositorioComunicacionesMedico(_conexion!), repositorioPacientes, new RepositorioTratamientos(_conexion!), auditoria);
+        _servicioPerfilesImportacion = new ServicioPerfilesImportacion(new RepositorioPerfilesImportacion(_conexion!), auditoria);
+        _servicioExportacionPacientes = new ServicioExportacionPacientes();
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -225,7 +229,8 @@ public partial class App : Application
             _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!, _servicioTratamientos!,
             _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
             _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
-            _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!, usuario);
+            _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!,
+            _servicioPerfilesImportacion!, _servicioExportacionPacientes!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
