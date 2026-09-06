@@ -20,6 +20,8 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
         <StyleInclude Source="avares://Spd.Presentacion/Estilos/Controles.axaml" />
+        <StyleInclude Source="avares://Spd.Presentacion/Estilos/Tabla.axaml" />
     </Application.Styles>
 </Application>

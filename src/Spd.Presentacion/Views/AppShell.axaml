@@ -63,11 +63,44 @@
         <DockPanel>
           <Button DockPanel.Dock="Left" Classes="enlace" Content="← Atrás" Margin="0,0,12,0"
                   Command="{Binding AtrasCommand}" IsVisible="{Binding PuedeVolver}" />
+
+          <!-- FR-1520: la búsqueda global vive en la cabecera, disponible desde cualquier sección. -->
+          <TextBox DockPanel.Dock="Right" Width="300" Name="CampoBusqueda"
+                   Text="{Binding TextoBusqueda}"
+                   Watermark="Buscar paciente, medicamento o blíster…" />
+
           <TextBlock Text="{Binding TituloSeccion}" Classes="titulo" VerticalAlignment="Center" />
         </DockPanel>
       </Border>
 
-      <ContentControl Grid.Row="1" Name="RegionContenido" Content="{Binding Contenido}" />
+      <Grid Grid.Row="1">
+        <ContentControl Name="RegionContenido" Content="{Binding Contenido}" />
+
+        <!-- FR-1521/1522: los resultados se despliegan sobre el contenido, sin ventana ni cambio
+             de sección, y solo mientras hay algo que mostrar. -->
+        <Border IsVisible="{Binding BusquedaAbierta}" Classes="tarjeta"
+                HorizontalAlignment="Right" VerticalAlignment="Top" Width="380"
+                Margin="0,6,24,0" Padding="0" ZIndex="10">
+          <StackPanel>
+            <ItemsControl ItemsSource="{Binding ResultadosBusqueda}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Classes="navegacion" HorizontalContentAlignment="Stretch"
+                          Command="{Binding DataContext.AbrirResultadoCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                          CommandParameter="{Binding}">
+                    <StackPanel Spacing="1">
+                      <TextBlock Text="{Binding Titulo}" />
+                      <TextBlock Text="{Binding Detalle}" Classes="etiqueta" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Classes="enlace" Content="Cerrar" Margin="12,4,12,8"
+                    Command="{Binding CerrarBusquedaCommand}" />
+          </StackPanel>
+        </Border>
+      </Grid>
     </Grid>
 
   </Grid>

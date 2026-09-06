@@ -1,33 +1,35 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Spd.Presentacion.Views.Pacientes.BuscadorPacientesView">
-  <Grid RowDefinitions="Auto,*" Margin="16">
-    <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,8">
-      <TextBlock Text="Pacientes" FontSize="18" FontWeight="Bold" />
+  <Grid RowDefinitions="Auto,*" Margin="24,20">
+    <StackPanel Grid.Row="0" Spacing="8">
       <StackPanel Orientation="Horizontal" Spacing="8">
-        <TextBox Text="{Binding Fragmento}" Watermark="Nombre, apellidos, DNI, CIP o nº de ficha…" Width="320" />
-        <Button Content="Nuevo paciente" Command="{Binding NuevoPacienteCommand}" />
+        <TextBox Text="{Binding Fragmento}" Watermark="Nombre, apellidos, DNI, CIP o nº de ficha…" Width="360" />
+        <Button Classes="primario" Content="Nuevo paciente" Command="{Binding NuevoPacienteCommand}" />
       </StackPanel>
       <CheckBox Content="Mostrar solo activos y en evaluación" IsChecked="{Binding MostrarSoloActivosYEvaluacion}" />
     </StackPanel>
 
-    <ListBox Grid.Row="1" ItemsSource="{Binding Resultados}">
-      <ListBox.ItemTemplate>
-        <!-- Sin x:DataType a propósito: bindings por reflexión, evita el patrón fragil de
-             $parent + cast de tipo con compiled bindings que provocó un cierre inesperado en
-             Spec 000 (UsuariosView). -->
-        <DataTemplate>
-          <StackPanel Margin="0,4" Spacing="2">
-            <TextBlock Text="{Binding NumFicha}" FontWeight="Bold" />
-            <TextBlock Text="{Binding Apellidos}" />
-            <TextBlock Text="{Binding Nombre}" />
-            <TextBlock Text="{Binding Estado}" Foreground="Gray" FontSize="11" />
-            <Button Content="Abrir ficha" FontSize="11"
-                    Command="{Binding DataContext.AbrirPacienteCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                    CommandParameter="{Binding}" />
-          </StackPanel>
-        </DataTemplate>
-      </ListBox.ItemTemplate>
-    </ListBox>
+    <!-- FR-1512. Sin x:DataType a propósito: bindings por reflexión, evita el patrón frágil de
+         $parent + cast de tipo con compiled bindings que provocó un cierre inesperado en
+         Spec 000 (UsuariosView). -->
+    <DataGrid Grid.Row="1" Margin="0,12,0,0" ItemsSource="{Binding Resultados}"
+              AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Ficha" Binding="{Binding NumFicha}" Width="100" />
+        <DataGridTextColumn Header="Apellidos" Binding="{Binding Apellidos}" Width="2*" />
+        <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*" />
+        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="140" />
+        <DataGridTemplateColumn Header="" Width="120" CanUserSort="False">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Classes="enlace" Content="Abrir ficha" VerticalAlignment="Center"
+                      Command="{Binding DataContext.AbrirPacienteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                      CommandParameter="{Binding}" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
   </Grid>
 </UserControl>

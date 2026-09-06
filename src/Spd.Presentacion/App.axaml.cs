@@ -50,6 +50,7 @@ public partial class App : Application
     private IServicioGeneracionDocumentos? _servicioGeneracionDocumentos;
     private IServicioIdoneidadConsentimiento? _servicioIdoneidad;
     private IServicioAvisosInicio? _servicioAvisos;
+    private IServicioBusquedaGlobal? _servicioBusquedaGlobal;
     private ServiciosAplicacion? _servicios;
     private IServicioGeneracionLote? _servicioLote;
     private IServicioPurga? _servicioPurga;
@@ -204,6 +205,7 @@ public partial class App : Application
 
         // Panel de inicio (Spec 006 FR-691), lote (Spec 007 FR-720..725) y purga manual (Spec 010 §4.3).
         _servicioAvisos = new ServicioAvisosInicio(_servicioListadoRetirada, repositorioSpd, repositorioPacientes, new RepositorioRegistrosAmbientales(_conexion!));
+        _servicioBusquedaGlobal = new ServicioBusquedaGlobal(_servicioPacientes, _servicioMedicamentos, repositorioSpd, repositorioPacientes);
         _servicioLote = new ServicioGeneracionLote(_servicioPreparacion, _servicioGeneracionDocumentos, repositorioSpd, repositorioPacientes);
         _servicioPurga = new ServicioPurga(
             repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia, new RepositorioPurga(_conexion!), auditoria);
@@ -214,9 +216,10 @@ public partial class App : Application
             _servicioUsuarios, _servicioFarmacia, _gestorLogo, _servicioActualizaciones, _servicioNomenclator,
             _servicioPacientes, _servicioTratamientos, _servicioMedicamentos, _servicioImportacionNomenclator,
             _servicioConsultaCima, _servicioRegistrosCalidad, _servicioControlDocumental, _servicioBackup,
-            _servicioCifrado, _servicioEnvases, _servicioListadoRetirada, _servicioImportacion, _servicioComunicaciones,
+            _servicioCifrado!, _servicioEnvases, _servicioListadoRetirada, _servicioImportacion, _servicioComunicaciones,
             _servicioPerfilesImportacion, _servicioExportacionPacientes, _servicioPreparacion,
-            _servicioGeneracionDocumentos, _servicioIdoneidad, _servicioAvisos, _servicioLote, _servicioPurga);
+            _servicioGeneracionDocumentos, _servicioIdoneidad, _servicioAvisos, _servicioBusquedaGlobal,
+            _servicioLote, _servicioPurga);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -284,7 +287,7 @@ public partial class App : Application
         AyudaContextual.Abridor = (seccion, apartado) =>
             navegador.Navegar(new Destino(Seccion.Ayuda, Detalle: apartado is null ? null : $"{seccion}:{apartado}"));
 
-        var mainViewModel = new AppShellViewModel(fabrica, navegador, _servicioAvisos!, usuario);
+        var mainViewModel = new AppShellViewModel(fabrica, navegador, _servicioAvisos!, _servicioBusquedaGlobal!, usuario);
         var ventanaPrincipal = new AppShell { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;

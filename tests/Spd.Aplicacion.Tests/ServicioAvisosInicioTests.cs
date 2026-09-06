@@ -6,7 +6,9 @@ using Xunit;
 
 namespace Spd.Aplicacion.Tests;
 
-/// <summary>Spec 006 FR-691 y Spec 009 FR-950: los cuatro tipos de aviso del panel de inicio.</summary>
+/// <summary>Spec 006 FR-691 y Spec 009 FR-950: los cuatro tipos de aviso del panel de inicio.
+/// Spec 015 FR-1510/1511: cada aviso lleva además el área donde se resuelve, y los indicadores de
+/// la cabecera se derivan de esos mismos avisos.</summary>
 public sealed class ServicioAvisosInicioTests
 {
     [Fact]
@@ -71,5 +73,28 @@ public sealed class ServicioAvisosInicioTests
         Assert.Contains(avisos, a => a.Tipo == "Sin entregar" && a.Texto.Contains("F-1"));
         Assert.Contains(avisos, a => a.Tipo == "Sesión a medias" && a.Texto.Contains("Luis Sesiones"));
         Assert.Contains(avisos, a => a.Tipo == "Ambiental");
+
+        // FR-1511: cada aviso sabe dónde se arregla. Un faltante se resuelve en el listado de
+        // retirada; un blíster sin entregar o una sesión a medias, en preparaciones; la lectura
+        // ambiental, en los registros de calidad.
+        Assert.Equal(AreaAviso.Retirada, avisos.Single(a => a.Tipo == "Faltantes").Area);
+        Assert.Equal(AreaAviso.Preparaciones, avisos.First(a => a.Tipo == "Sin entregar").Area);
+        Assert.Equal(AreaAviso.Preparaciones, avisos.First(a => a.Tipo == "Sesión a medias").Area);
+        Assert.Equal(AreaAviso.Calidad, avisos.Single(a => a.Tipo == "Ambiental").Area);
+
+        // Los avisos de paciente llevan su identificador y su nombre, que es lo que permite abrir
+        // la pantalla de destino ya centrada en él en vez de en la lista entera.
+        var faltante = avisos.Single(a => a.Tipo == "Faltantes");
+        Assert.Equal(conFaltantes.Id, faltante.PacienteId);
+        Assert.Equal("Ana Faltantes", faltante.NombrePaciente);
+        Assert.Null(avisos.Single(a => a.Tipo == "Ambiental").PacienteId);
+
+        // FR-1510: el indicador y las líneas que el usuario ve debajo no pueden discrepar.
+        var indicadores = servicio.ObtenerIndicadores(hoy);
+        Assert.Equal(avisos.Count(a => a.Tipo == "Faltantes"), indicadores.Faltantes);
+        Assert.Equal(avisos.Count(a => a.Tipo == "Sin entregar"), indicadores.SinEntregar);
+        Assert.Equal(avisos.Count(a => a.Tipo == "Sesión a medias"), indicadores.SesionesAMedias);
+        // Sin ninguna lectura registrada se informa del umbral, no de un número sin sentido.
+        Assert.Equal(ServicioAvisosInicio.DiasSinLecturaAmbiental, indicadores.DiasSinLecturaAmbiental);
     }
 }

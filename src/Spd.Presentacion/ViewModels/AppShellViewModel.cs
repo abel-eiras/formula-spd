@@ -17,10 +17,17 @@ public sealed partial class AppShellViewModel : ViewModelBase
     private readonly FabricaViewModels _fabrica;
     private readonly Navegador _navegador;
     private readonly IServicioAvisosInicio _servicioAvisos;
+    private readonly IServicioBusquedaGlobal _servicioBusqueda;
 
     [ObservableProperty] private object? _contenido;
     [ObservableProperty] private string _tituloSeccion = string.Empty;
     [ObservableProperty] private bool _puedeVolver;
+
+    /// <summary>Búsqueda global (FR-1520..1522): un campo en la cabecera que encuentra pacientes,
+    /// medicamentos y blísteres sin tener que acertar antes la pantalla.</summary>
+    [ObservableProperty] private string _textoBusqueda = string.Empty;
+    [ObservableProperty] private ObservableCollection<ResultadoBusqueda> _resultadosBusqueda = [];
+    [ObservableProperty] private bool _busquedaAbierta;
 
     public Usuario UsuarioActual { get; }
     public string Saludo => $"{UsuarioActual.Nombre} {UsuarioActual.Apellidos} · {UsuarioActual.Rol}";
@@ -32,11 +39,17 @@ public sealed partial class AppShellViewModel : ViewModelBase
     /// <summary>"Cerrar sesión" vuelve al login sin apagar la aplicación (Spec 000).</summary>
     public event Action? CerrarSesionSolicitado;
 
-    public AppShellViewModel(FabricaViewModels fabrica, Navegador navegador, IServicioAvisosInicio servicioAvisos, Usuario usuario)
+    public AppShellViewModel(
+        FabricaViewModels fabrica,
+        Navegador navegador,
+        IServicioAvisosInicio servicioAvisos,
+        IServicioBusquedaGlobal servicioBusqueda,
+        Usuario usuario)
     {
         _fabrica = fabrica;
         _navegador = navegador;
         _servicioAvisos = servicioAvisos;
+        _servicioBusqueda = servicioBusqueda;
         UsuarioActual = usuario;
 
         ItemsTrabajo = new ObservableCollection<ItemNavegacion>(Items(EntradaNavegacion.GrupoTrabajo));
@@ -93,6 +106,41 @@ public sealed partial class AppShellViewModel : ViewModelBase
 
     [RelayCommand]
     private void CerrarSesion() => CerrarSesionSolicitado?.Invoke();
+
+    /// <summary>FR-1521: la lista se rehace a cada tecla; el servicio ya devuelve vacío por debajo
+    /// del mínimo de caracteres, así que no hace falta condicionarlo aquí.</summary>
+    partial void OnTextoBusquedaChanged(string value)
+    {
+        ResultadosBusqueda = new ObservableCollection<ResultadoBusqueda>(_servicioBusqueda.Buscar(value));
+        BusquedaAbierta = ResultadosBusqueda.Count > 0;
+    }
+
+    /// <summary>FR-1522: elegir un resultado lleva a su pantalla, ya centrada en él.</summary>
+    [RelayCommand]
+    private void AbrirResultado(ResultadoBusqueda? resultado)
+    {
+        if (resultado is null) return;
+
+        var destino = resultado.Tipo switch
+        {
+            TipoResultadoBusqueda.Paciente => new Destino(Seccion.Pacientes, resultado.PacienteId, resultado.NombrePaciente),
+            TipoResultadoBusqueda.Medicamento => new Destino(Seccion.Catalogo, null, resultado.Titulo),
+            TipoResultadoBusqueda.Blister => new Destino(Seccion.Preparaciones, resultado.PacienteId, resultado.NombrePaciente),
+            _ => new Destino(Seccion.Inicio)
+        };
+
+        CerrarBusqueda();
+        _navegador.Navegar(destino);
+    }
+
+    [RelayCommand]
+    private void CerrarBusqueda()
+    {
+        // Vaciar el texto ya deja la lista vacía (el servicio no devuelve nada por debajo del
+        // mínimo de caracteres); cerrar después evita depender del orden de las notificaciones.
+        TextoBusqueda = string.Empty;
+        BusquedaAbierta = false;
+    }
 
     /// <summary>Una entrada del menú, con su estado visual.</summary>
     public sealed partial class ItemNavegacion(EntradaNavegacion entrada) : ObservableObject

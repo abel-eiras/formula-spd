@@ -81,6 +81,7 @@ internal static class FabricaServiciosTest
                 repositorioEvaluaciones, repositorioConsentimientos, new RepositorioContactos(conexion),
                 repositorioPacientes, servicioPacientes, auditoria),
             new ServicioAvisosInicio(servicioListadoRetirada, repositorioSpd, repositorioPacientes, new RepositorioRegistrosAmbientales(conexion)),
+            new ServicioBusquedaGlobal(servicioPacientes, new ServicioMedicamentos(repositorioMedicamentos, auditoria), repositorioSpd, repositorioPacientes),
             new ServicioGeneracionLote(servicioPreparacion, documentos, repositorioSpd, repositorioPacientes),
             new ServicioPurga(
                 repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia,

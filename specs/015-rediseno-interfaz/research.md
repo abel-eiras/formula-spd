@@ -54,6 +54,18 @@ compartidos (`SharedSizeGroup`), con ordenación resuelta en el ViewModel. Es m�
 virtualización de columnas, pero no añade ningún paquete y cubre lo que estos listados necesitan
 (decenas de filas, no miles).
 
+### Resuelto en la fase 2 (2026-09-06): se adopta `DataGrid`, en la versión 11.3.13
+
+Al añadirlo apareció un detalle que la decisión daba por supuesto y no era cierto: **no existe
+`Avalonia.Controls.DataGrid` 11.3.20**. El paquete no se publica en cada versión del núcleo; su rama
+11.3 termina en la 11.3.13, y la siguiente publicada es ya la 12.0.0, que exige Avalonia 12 y por
+tanto degradaría el núcleo fijado (el `restore` falla con NU1605, no en silencio).
+
+Se fija **11.3.13**, que declara `Avalonia >= 11.3.13` y queda satisfecha por el 11.3.20 ya fijado:
+misma rama del mismo fabricante, sin tocar la versión del núcleo. Esto **no** relaja el Art. VIII.2;
+lo que se anota es que la regla "misma versión que Avalonia" no se puede cumplir literalmente para
+este paquete, y que la comprobación correcta es "misma rama y sin degradar el núcleo".
+
 ## Decisión 5 — `PacienteContexto`: una carga, muchos suscriptores
 
 Hoy cada ventana de paciente relee el paciente por su cuenta, y por eso la ficha se queda obsoleta

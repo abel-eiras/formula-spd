@@ -15,19 +15,13 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
 {
     public object? Crear(Destino destino) => destino.Seccion switch
     {
-        Seccion.Inicio => new InicioViewModel(servicios.Avisos),
-        Seccion.Pacientes => new BuscadorPacientesViewModel(
-            servicios.Pacientes, servicios.Tratamientos, servicios.Medicamentos, servicios.Envases,
-            servicios.ImportacionTratamiento, servicios.Comunicaciones, servicios.Preparacion,
-            servicios.Documentos, servicios.Idoneidad, usuario.Id),
-        Seccion.Preparaciones => new PreparacionesViewModel(
-            servicios.Preparacion, servicios.Pacientes, servicios.Usuarios, servicios.Medicamentos,
-            servicios.Documentos, servicios.Comunicaciones, servicios.Lote, usuario.Id),
-        Seccion.Retirada => new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, usuario.Id),
+        Seccion.Inicio => new InicioViewModel(servicios.Avisos, navegador),
+        Seccion.Pacientes => CrearPacientes(destino),
+        Seccion.Preparaciones => CrearPreparaciones(destino),
+        Seccion.Retirada => CrearRetirada(destino),
         Seccion.Exportar => new ExportarPacientesViewModel(
             servicios.PerfilesImportacion, servicios.ExportacionPacientes, servicios.Pacientes),
-        Seccion.Catalogo => new CatalogoMedicamentosViewModel(
-            servicios.Medicamentos, servicios.ImportacionNomenclator, servicios.ConsultaCima, navegador, usuario.Id),
+        Seccion.Catalogo => CrearCatalogo(destino),
         Seccion.RevisionNomenclator => new RevisionNomenclatorViewModel(servicios.ImportacionNomenclator, usuario.Id),
         Seccion.Calidad => new RegistrosCalidadViewModel(servicios.RegistrosCalidad, usuario.Id),
         Seccion.ControlDocumental => new ControlDocumentalViewModel(servicios.ControlDocumental, usuario.Id),
@@ -40,6 +34,49 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
         Seccion.Ayuda => CrearAyuda(destino.Detalle),
         _ => null
     };
+
+    /// <summary>FR-1522: llegando desde la búsqueda global, la pantalla se abre con el texto ya
+    /// puesto, que es lo que hace que el resultado "lleve" de verdad a lo buscado.</summary>
+    private BuscadorPacientesViewModel CrearPacientes(Destino destino)
+    {
+        var vm = new BuscadorPacientesViewModel(
+            servicios.Pacientes, servicios.Tratamientos, servicios.Medicamentos, servicios.Envases,
+            servicios.ImportacionTratamiento, servicios.Comunicaciones, servicios.Preparacion,
+            servicios.Documentos, servicios.Idoneidad, usuario.Id);
+        if (destino.Detalle is { Length: > 0 } nombre) vm.Fragmento = nombre;
+        return vm;
+    }
+
+    private CatalogoMedicamentosViewModel CrearCatalogo(Destino destino)
+    {
+        var vm = new CatalogoMedicamentosViewModel(
+            servicios.Medicamentos, servicios.ImportacionNomenclator, servicios.ConsultaCima, navegador, usuario.Id);
+        if (destino.Detalle is { Length: > 0 } texto) vm.Fragmento = texto;
+        return vm;
+    }
+
+    /// <summary>FR-1511: si se llega desde un aviso, la pantalla se abre ya filtrada por ese
+    /// paciente en vez de obligar a buscarlo entre todos.</summary>
+    private PreparacionesViewModel CrearPreparaciones(Destino destino)
+    {
+        var vm = new PreparacionesViewModel(
+            servicios.Preparacion, servicios.Pacientes, servicios.Usuarios, servicios.Medicamentos,
+            servicios.Documentos, servicios.Comunicaciones, servicios.Lote, usuario.Id);
+        if (destino.Detalle is { Length: > 0 } nombre)
+        {
+            vm.FiltroPaciente = nombre;
+            vm.SoloPendientes = false;
+            vm.CargarCommand.Execute(null);
+        }
+        return vm;
+    }
+
+    private RetiradaEnvasesViewModel CrearRetirada(Destino destino)
+    {
+        var vm = new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, usuario.Id);
+        if (destino.PacienteId is { } id) vm.CentrarEnPaciente(id, destino.Detalle);
+        return vm;
+    }
 
     /// <summary>`Detalle` llega como "seccion:apartado" desde F1 y desde los botones "¿Por qué?".</summary>
     private static AyudaViewModel CrearAyuda(string? detalle)

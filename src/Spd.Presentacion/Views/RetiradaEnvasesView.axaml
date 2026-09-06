@@ -1,51 +1,64 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
              x:Class="Spd.Presentacion.Views.RetiradaEnvasesView">
-  <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="16">
+  <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Margin="24,20">
     <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
       <CheckBox Content="Solo pacientes con faltantes" IsChecked="{Binding SoloConFaltantes}" />
       <Button Content="Recalcular" Command="{Binding RecalcularCommand}" />
       <Button Content="Imprimir" Command="{Binding ImprimirCommand}" />
     </StackPanel>
 
-    <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
-      <StackPanel Spacing="4">
-        <ListBox ItemsSource="{Binding Filas}">
-          <ListBox.ItemTemplate>
-            <DataTemplate>
-              <Grid ColumnDefinitions="200,90,70,70,70,70,70,110,Auto" Margin="0,2">
-                <TextBlock Grid.Column="0" Text="{Binding Apellidos}" FontWeight="Bold" />
-                <TextBlock Grid.Column="1" Text="{Binding DniRetirada}" />
-                <TextBlock Grid.Column="2" Text="{Binding MedicamentoNombre}" />
-                <TextBlock Grid.Column="3" Text="{Binding Necesarias}" />
-                <TextBlock Grid.Column="4" Text="{Binding Disponibles}" />
-                <TextBlock Grid.Column="5" Text="{Binding Faltan}" />
-                <TextBlock Grid.Column="6" Text="{Binding EnvasesARetirar}" />
-                <TextBlock Grid.Column="7" Text="{Binding ProximaRetirada, StringFormat='{}{0:d}'}" />
-                <Button Grid.Column="8" Content="Registrar envase" FontSize="11"
-                        Command="{Binding DataContext.PrepararRegistroCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                        CommandParameter="{Binding}" />
-              </Grid>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
+    <!-- FR-1511: al llegar desde un aviso de faltantes el listado se abre centrado en ese
+         paciente; se dice en pantalla y se puede quitar, para que nadie crea que faltan filas. -->
+    <Border Grid.Row="1" Classes="panel" Margin="0,10,0,0" IsVisible="{Binding HayFiltroDePaciente}">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <c:Pastilla Variante="Acento" Texto="{Binding NombrePacienteFiltrado}" VerticalAlignment="Center" />
+        <TextBlock Text="Se muestran solo las líneas de este paciente." Classes="suave" VerticalAlignment="Center" />
+        <Button Classes="enlace" Content="Ver todo el listado" Command="{Binding QuitarFiltroDePacienteCommand}" />
       </StackPanel>
-    </ScrollViewer>
+    </Border>
 
-    <Border Grid.Row="2" Padding="8" Background="#22808080" IsVisible="{Binding FilaSeleccionadaParaRegistrar, Converter={x:Static ObjectConverters.IsNotNull}}">
-      <StackPanel Spacing="4">
-        <TextBlock Text="{Binding FilaSeleccionadaParaRegistrar.MedicamentoNombre, StringFormat='Registrar envase: {0}'}" FontWeight="Bold" />
+    <DataGrid Grid.Row="2" Margin="0,12,0,0" ItemsSource="{Binding Filas}"
+              AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Apellidos" Binding="{Binding Apellidos}" Width="2*" />
+        <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*" />
+        <DataGridTextColumn Header="DNI retirada" Binding="{Binding DniRetirada}" Width="120" />
+        <DataGridTextColumn Header="Medicamento" Binding="{Binding MedicamentoNombre}" Width="2*" />
+        <DataGridTextColumn Header="Necesarias" Binding="{Binding Necesarias}" Width="100" CellStyleClasses="cifra" />
+        <DataGridTextColumn Header="Disponibles" Binding="{Binding Disponibles}" Width="100" CellStyleClasses="cifra" />
+        <DataGridTextColumn Header="Faltan" Binding="{Binding Faltan}" Width="80" CellStyleClasses="cifra" />
+        <DataGridTextColumn Header="Envases" Binding="{Binding EnvasesARetirar}" Width="90" CellStyleClasses="cifra" />
+        <DataGridTextColumn Header="Retirada" Binding="{Binding ProximaRetirada, StringFormat='{}{0:dd/MM/yyyy}'}" Width="120" />
+        <DataGridTemplateColumn Header="" Width="150" CanUserSort="False">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Classes="enlace" Content="Registrar envase" VerticalAlignment="Center"
+                      Command="{Binding DataContext.PrepararRegistroCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                      CommandParameter="{Binding}" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <Border Grid.Row="3" Classes="panel" Margin="0,12,0,0"
+            IsVisible="{Binding FilaSeleccionadaParaRegistrar, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <StackPanel Spacing="6">
+        <TextBlock Text="{Binding FilaSeleccionadaParaRegistrar.MedicamentoNombre, StringFormat='Registrar envase: {0}'}"
+                   Classes="etiqueta" />
         <StackPanel Orientation="Horizontal" Spacing="8">
           <TextBox Watermark="Serie" Text="{Binding Serie}" />
           <TextBox Watermark="Lote" Text="{Binding Lote}" />
           <DatePicker SelectedDate="{Binding Caducidad}" />
           <NumericUpDown Value="{Binding UnidadesIniciales}" Minimum="0" Watermark="Unidades" />
-          <Button Content="Guardar" Command="{Binding ConfirmarRegistroCommand}" />
+          <Button Classes="primario" Content="Guardar" Command="{Binding ConfirmarRegistroCommand}" />
         </StackPanel>
       </StackPanel>
     </Border>
 
-    <Border Grid.Row="3" Padding="16,8" Background="#22808080"
+    <Border Grid.Row="4" Classes="panel" Margin="0,12,0,0"
             IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
     </Border>

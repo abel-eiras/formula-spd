@@ -1,0 +1,61 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Spec 015 H2.3 (FR-1512). Igual que en Controles.axaml se estilan propiedades y no se
+       reescribe la plantilla del DataGrid (research.md Decisión 10): una plantilla rota no da
+       error, da una tabla invisible, y aquí no hay pantalla con la que comprobarlo.
+
+       Lo que sí es decisión de diseño y no adorno:
+       · cifras tabulares en las celdas, para que las columnas de números y fechas se lean en
+         vertical sin que los dígitos bailen;
+       · filas de 30 px y rejilla solo horizontal: más filas visibles por pantalla, que es lo que
+         pidió el usuario, sin que la cuadrícula compita con los datos. -->
+
+  <Style Selector="DataGrid">
+    <Setter Property="Background" Value="{DynamicResource Superficie}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="FontFamily" Value="{DynamicResource FuenteInterfaz}" />
+    <Setter Property="FontSize" Value="{DynamicResource TamanoBase}" />
+    <Setter Property="GridLinesVisibility" Value="Horizontal" />
+    <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="RowBackground" Value="Transparent" />
+    <Setter Property="HeadersVisibility" Value="Column" />
+    <Setter Property="CanUserResizeColumns" Value="True" />
+    <Setter Property="CanUserSortColumns" Value="True" />
+    <Setter Property="RowHeight" Value="30" />
+  </Style>
+
+  <Style Selector="DataGridColumnHeader">
+    <Setter Property="Background" Value="{DynamicResource SuperficieAlterna}" />
+    <Setter Property="Foreground" Value="{DynamicResource TintaSuave}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="FontSize" Value="{DynamicResource TamanoEtiqueta}" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="SeparatorBrush" Value="{DynamicResource Linea}" />
+  </Style>
+
+  <Style Selector="DataGridCell">
+    <Setter Property="Padding" Value="10,0" />
+    <Setter Property="Foreground" Value="{DynamicResource Tinta}" />
+    <Setter Property="FontFeatures" Value="+tnum" />
+  </Style>
+
+  <!-- Bandas alternas: leer una fila larga de izquierda a derecha sin perderse es justo lo que
+       falla en una tabla densa y sin bandas. -->
+  <Style Selector="DataGridRow:nth-child(2n)">
+    <Setter Property="Background" Value="{DynamicResource SuperficieAlterna}" />
+  </Style>
+
+  <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+    <Setter Property="Fill" Value="{DynamicResource AcentoSuave}" />
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+
+  <!-- La columna de una tabla que contiene cifras se marca con esta clase. -->
+  <Style Selector="DataGridCell.cifra TextBlock">
+    <Setter Property="HorizontalAlignment" Value="Right" />
+  </Style>
+
+</Styles>
