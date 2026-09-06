@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Spd.Presentacion.Views.RegistrosCalidad.ControlDocumentalView">
+  <Grid ColumnDefinitions="*,*" RowDefinitions="*,Auto" Margin="16">
+    <StackPanel Grid.Row="0" Grid.Column="0" Spacing="4" Margin="0,0,8,0">
+      <TextBlock Text="Control de cambios del PNT" FontSize="16" FontWeight="Bold" />
+      <TextBlock Text="Documento *" />
+      <TextBox Text="{Binding DocumentoCambio}" />
+      <TextBlock Text="Versión *" />
+      <TextBox Text="{Binding Version}" />
+      <TextBlock Text="Descripción del cambio *" />
+      <TextBox Text="{Binding DescripcionCambio}" AcceptsReturn="True" Height="60" />
+      <Button Content="Registrar cambio" Command="{Binding RegistrarCambioCommand}" Margin="0,8,0,0" />
+      <ListBox ItemsSource="{Binding Cambios}" Height="200">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding Documento}" FontWeight="Bold" />
+              <TextBlock Text="{Binding Version}" />
+              <TextBlock Text="{Binding DescripcionCambio}" Foreground="Gray" FontSize="11" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <StackPanel Grid.Row="0" Grid.Column="1" Spacing="4" Margin="8,0,0,0">
+      <TextBlock Text="Control de copias" FontSize="16" FontWeight="Bold" />
+      <TextBlock Text="Documento *" />
+      <TextBox Text="{Binding DocumentoCopia}" />
+      <TextBlock Text="Nº de copia" />
+      <NumericUpDown Value="{Binding NumCopia}" Minimum="1" />
+      <Button Content="Registrar copia" Command="{Binding RegistrarCopiaCommand}" Margin="0,8,0,0" />
+      <ListBox ItemsSource="{Binding Copias}" Height="200">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4" Spacing="2">
+              <TextBlock Text="{Binding Documento}" FontWeight="Bold" />
+              <TextBlock Text="{Binding NumCopia, StringFormat='Copia nº {0}'}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

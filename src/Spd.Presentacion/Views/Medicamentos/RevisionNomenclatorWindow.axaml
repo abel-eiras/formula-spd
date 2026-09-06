@@ -1,8 +1,0 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:medicamentos="using:Spd.Presentacion.Views.Medicamentos"
-        x:Class="Spd.Presentacion.Views.Medicamentos.RevisionNomenclatorWindow"
-        Title="SPD — Revisión del nomenclátor"
-        Width="720" Height="560">
-  <medicamentos:RevisionNomenclatorView />
-</Window>

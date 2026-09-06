@@ -9,6 +9,7 @@ using Spd.Aplicacion;
 using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
+using Spd.Presentacion.Navegacion;
 using Spd.Presentacion.ViewModels;
 using Spd.Presentacion.Views;
 using Spd.Presentacion.Views.Asistente;
@@ -49,6 +50,7 @@ public partial class App : Application
     private IServicioGeneracionDocumentos? _servicioGeneracionDocumentos;
     private IServicioIdoneidadConsentimiento? _servicioIdoneidad;
     private IServicioAvisosInicio? _servicioAvisos;
+    private ServiciosAplicacion? _servicios;
     private IServicioGeneracionLote? _servicioLote;
     private IServicioPurga? _servicioPurga;
 
@@ -205,6 +207,16 @@ public partial class App : Application
         _servicioLote = new ServicioGeneracionLote(_servicioPreparacion, _servicioGeneracionDocumentos, repositorioSpd, repositorioPacientes);
         _servicioPurga = new ServicioPurga(
             repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia, new RepositorioPurga(_conexion!), auditoria);
+
+        // Spec 015 H1.4: los servicios se reúnen aquí una vez; a partir de este punto las pantallas
+        // se construyen desde `FabricaViewModels`, sin encadenar constructores entre ventanas.
+        _servicios = new ServiciosAplicacion(
+            _servicioUsuarios, _servicioFarmacia, _gestorLogo, _servicioActualizaciones, _servicioNomenclator,
+            _servicioPacientes, _servicioTratamientos, _servicioMedicamentos, _servicioImportacionNomenclator,
+            _servicioConsultaCima, _servicioRegistrosCalidad, _servicioControlDocumental, _servicioBackup,
+            _servicioCifrado, _servicioEnvases, _servicioListadoRetirada, _servicioImportacion, _servicioComunicaciones,
+            _servicioPerfilesImportacion, _servicioExportacionPacientes, _servicioPreparacion,
+            _servicioGeneracionDocumentos, _servicioIdoneidad, _servicioAvisos, _servicioLote, _servicioPurga);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -264,15 +276,16 @@ public partial class App : Application
     private void AbrirVentanaPrincipal(
         IClassicDesktopStyleApplicationLifetime desktop, Window ventanaAnterior, Usuario usuario)
     {
-        var mainViewModel = new MainViewModel(
-            _servicioUsuarios!, _servicioFarmacia!, _gestorLogo!,
-            _servicioActualizaciones!, _servicioNomenclator!, _servicioPacientes!, _servicioTratamientos!,
-            _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
-            _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
-            _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!,
-            _servicioPerfilesImportacion!, _servicioExportacionPacientes!, _servicioPreparacion!,
-            _servicioGeneracionDocumentos!, _servicioIdoneidad!, _servicioAvisos!, _servicioLote!, _servicioPurga!, usuario);
-        var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
+        // Spec 015: una sola ventana de trabajo. El navegador se comparte con las pantallas que
+        // necesitan llevar al usuario a otra sección, y la ayuda contextual (F1, "¿Por qué?") pasa a
+        // navegar en vez de abrir su propia ventana.
+        var navegador = new Navegador(usuario.Rol == Rol.Administrador);
+        var fabrica = new FabricaViewModels(_servicios!, navegador, usuario);
+        AyudaContextual.Abridor = (seccion, apartado) =>
+            navegador.Navegar(new Destino(Seccion.Ayuda, Detalle: apartado is null ? null : $"{seccion}:{apartado}"));
+
+        var mainViewModel = new AppShellViewModel(fabrica, navegador, _servicioAvisos!, usuario);
+        var ventanaPrincipal = new AppShell { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
         // cerrarla de cualquier otra forma (X, Alt+F4) sí debe salir (única ventana de la sesión).

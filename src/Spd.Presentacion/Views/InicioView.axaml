@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.InicioView">
+  <Grid RowDefinitions="Auto,*" Margin="24,20">
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10">
+      <TextBlock Text="Avisos del día" Classes="titulo" VerticalAlignment="Center" />
+      <Button Content="Actualizar" Classes="enlace" Command="{Binding RecargarCommand}" />
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" Margin="0,14,0,0">
+      <StackPanel Spacing="8">
+        <Border Classes="tarjeta" IsVisible="{Binding !HayAvisos}">
+          <TextBlock Text="Sin avisos: no hay nada pendiente." Classes="suave" />
+        </Border>
+        <ItemsControl ItemsSource="{Binding Avisos}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="tarjeta" Margin="0,0,0,8" Padding="14">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="{Binding Tipo}" Classes="etiqueta" />
+                  <TextBlock Text="{Binding Texto}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

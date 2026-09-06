@@ -33,15 +33,20 @@ public sealed class IndiceAyudaTests
                 Assert.True(Indice.Obtener(seccion, id) is not null, $"{entrada.Seccion}:{entrada.Id} enlaza a {seccion}:{id}, que no existe");
     }
 
+    /// <summary>Con el marco único (Spec 015) la tabla se indexa por vista, no por ventana; la
+    /// garantía es la misma: ninguna pantalla queda sin documentar.</summary>
     [Fact]
-    public void Toda_ventana_registrada_tiene_apartado_de_procedimiento_y_de_uso_FR_1401_1412()
+    public void Toda_vista_registrada_tiene_apartado_de_procedimiento_y_de_uso_FR_1401_1412()
     {
-        foreach (var (ventana, id) in AyudaContextual.SeccionPorVentana)
-            Assert.True(Indice.Obtener("procedimiento", id) is not null, $"{ventana} → procedimiento:{id}");
-        foreach (var (ventana, id) in AyudaContextual.UsoPorVentana)
-            Assert.True(Indice.Obtener("uso", id) is not null, $"{ventana} → uso:{id}");
-        Assert.Equal(AyudaContextual.SeccionPorVentana.Keys.OrderBy(k => k), AyudaContextual.UsoPorVentana.Keys.OrderBy(k => k));
+        foreach (var (vista, id) in AyudaContextual.SeccionPorVista)
+            Assert.True(Indice.Obtener("procedimiento", id) is not null, $"{vista} → procedimiento:{id}");
+        foreach (var (vista, id) in AyudaContextual.UsoPorVista)
+            Assert.True(Indice.Obtener("uso", id) is not null, $"{vista} → uso:{id}");
+        Assert.Equal(AyudaContextual.SeccionPorVista.Keys.OrderBy(k => k), AyudaContextual.UsoPorVista.Keys.OrderBy(k => k));
     }
+
+    // Que toda vista alcanzable desde el marco esté en estas tablas lo comprueba `AppShellTests`,
+    // que es donde se resuelve de verdad la vista de cada sección.
 
     [Fact]
     public void Cada_apartado_de_procedimiento_tiene_los_tres_bloques_FR_1411_o_es_un_indice()

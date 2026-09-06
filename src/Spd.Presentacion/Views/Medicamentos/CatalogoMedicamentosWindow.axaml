@@ -1,8 +1,0 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:medicamentos="using:Spd.Presentacion.Views.Medicamentos"
-        x:Class="Spd.Presentacion.Views.Medicamentos.CatalogoMedicamentosWindow"
-        Title="SPD — Catálogo de medicamentos"
-        Width="820" Height="680">
-  <medicamentos:CatalogoMedicamentosView />
-</Window>

@@ -9,5 +9,6 @@ public partial class PreparacionView : UserControl
 
     // Spec 014 FR-1402: los bloqueos de esta pantalla (idoneidad, faltantes, verificador =
     // elaborador, estado del SPD…) tienen razón normativa; el botón abre su explicación.
-    private void Porque_Click(object? sender, RoutedEventArgs e) => AyudaWindow.Abrir("procedimiento", "porque-de-los-bloqueos");
+    private void Porque_Click(object? sender, RoutedEventArgs e)
+        => AyudaContextual.Abrir("procedimiento", "porque-de-los-bloqueos");
 }

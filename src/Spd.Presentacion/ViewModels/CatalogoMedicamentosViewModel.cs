@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Spd.Aplicacion;
 using Spd.Dominio;
-using Spd.Presentacion.Views.Medicamentos;
+using Spd.Presentacion.Navegacion;
 
 namespace Spd.Presentacion.ViewModels;
 
@@ -17,6 +17,7 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     private readonly IServicioMedicamentos _servicio;
     private readonly IServicioImportacionNomenclator _servicioImportacion;
     private readonly IServicioConsultaCima _servicioConsultaCima;
+    private readonly Navegador _navegador;
     private readonly int? _usuarioActualId;
     private int? _medicamentoIdEnEdicion;
 
@@ -47,11 +48,12 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
 
     public CatalogoMedicamentosViewModel(
         IServicioMedicamentos servicio, IServicioImportacionNomenclator servicioImportacion,
-        IServicioConsultaCima servicioConsultaCima, int? usuarioActualId)
+        IServicioConsultaCima servicioConsultaCima, Navegador navegador, int? usuarioActualId)
     {
         _servicio = servicio;
         _servicioImportacion = servicioImportacion;
         _servicioConsultaCima = servicioConsultaCima;
+        _navegador = navegador;
         _usuarioActualId = usuarioActualId;
         Buscar();
     }
@@ -59,9 +61,9 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     [RelayCommand]
     private void Buscar() => Resultados = new ObservableCollection<Medicamento>(_servicio.Buscar(Fragmento));
 
+    // Spec 015 FR-1502: navegar a la sección, no abrir una ventana encima.
     [RelayCommand]
-    private void RevisarNomenclator()
-        => new RevisionNomenclatorWindow(_servicioImportacion, _usuarioActualId).Show();
+    private void RevisarNomenclator() => _navegador.Navegar(new Destino(Seccion.RevisionNomenclator));
 
     // Alternativa a cargar el catálogo completo del nomenclátor: consulta puntual por CN al
     // CIMA REST API público de la AEMPS, en el momento del alta (escaneado o tecleado). Nunca

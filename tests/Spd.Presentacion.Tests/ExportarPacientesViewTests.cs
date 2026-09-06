@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -36,7 +37,7 @@ public sealed class ExportarPacientesViewTests
                 [new ParCampoColumna("Nombre", "Nombre")], null),
             null);
 
-        var ventana = new ExportarPacientesWindow(servicioPerfiles, new ServicioExportacionPacientes(), servicioPacientes);
+        var ventana = AnfitrionDeVista.Anfitrion(new ExportarPacientesView { DataContext = new ExportarPacientesViewModel(servicioPerfiles, new ServicioExportacionPacientes(), servicioPacientes) });
 
         ventana.Show();
     }

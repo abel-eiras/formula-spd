@@ -3,13 +3,23 @@
              x:Class="Spd.Presentacion.App"
              xmlns:local="using:Spd.Presentacion"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             <!-- "Default" sigue la variante del sistema: la paleta define clara y oscura. -->
 
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Spd.Presentacion/Estilos/Paleta.axaml" />
+                <ResourceInclude Source="avares://Spd.Presentacion/Estilos/Tipografia.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Spd.Presentacion/Estilos/Controles.axaml" />
     </Application.Styles>
 </Application>

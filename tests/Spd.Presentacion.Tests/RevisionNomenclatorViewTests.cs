@@ -4,6 +4,7 @@ using Spd.Aplicacion;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Medicamentos;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -31,7 +32,7 @@ public sealed class RevisionNomenclatorViewTests
             "CN,Nombre\n111111,Nombre nuevo del laboratorio\n222222,Ibuprofeno 600mg\n");
 
         var servicioImportacion = new ServicioImportacionNomenclator(new LectorNomenclatorCsv(), repositorio, auditoria);
-        var ventana = new RevisionNomenclatorWindow(servicioImportacion, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new RevisionNomenclatorView { DataContext = new RevisionNomenclatorViewModel(servicioImportacion, usuarioActualId: null) });
 
         // Show() fuerza la realización del ItemTemplate de ambos ListBox con filas reales.
         ventana.Show();
