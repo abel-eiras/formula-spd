@@ -11,12 +11,13 @@ public partial class FichaPacienteWindow : Window
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion,
+        IServicioGeneracionDocumentos servicioGeneracionDocumentos,
         Paciente? pacienteExistente, int? usuarioActualId)
     {
         InitializeComponent();
         DataContext = new FichaPacienteViewModel(
             servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
-            servicioComunicaciones, servicioPreparacion, pacienteExistente, usuarioActualId);
+            servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, pacienteExistente, usuarioActualId);
     }
 
     // Constructor sin parámetros exigido por el compilador de XAML del previsualizador.

@@ -74,7 +74,11 @@ public sealed class PreparacionViewTests
 
         servicioPreparacion.CrearSesion(paciente.Id, elaborador.Id);
 
-        var ventana = new PreparacionWindow(servicioPreparacion, servicioMedicamentos, paciente.Id, usuarioActualId: null);
+        var servicioGeneracionDocumentos = new ServicioGeneracionDocumentos(
+            new RepositorioSpd(conexion), new RepositorioSpdLineas(conexion), new RepositorioSpdLineaEnvases(conexion),
+            repositorioPacientes, repositorioFarmacia, auditoria);
+        var ventana = new PreparacionWindow(
+            servicioPreparacion, servicioMedicamentos, servicioGeneracionDocumentos, paciente.Id, usuarioActualId: null);
 
         ventana.Show();
     }

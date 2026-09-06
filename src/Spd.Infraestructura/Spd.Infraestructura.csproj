@@ -20,6 +20,10 @@
          una regresión reproducida en 10.0.11 que ignora silenciosamente un SQLite3Provider_e_sqlcipher
          registrado a mano, cayendo a SQLite normal sin cifrado real y sin ningún error visible. -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
+    <!-- Motor único de generación de documentos (Constitución Art. VIII.2, Spec 007). Licencia
+         Community declarada en el arranque (Spd.Presentacion/Program.cs): farmacia individual,
+         software libre de la aplicación, sin fin comercial de terceros. -->
+    <PackageReference Include="QuestPDF" Version="2026.8.0" />
     <PackageReference Include="Serilog" Version="4.4.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.11" />
