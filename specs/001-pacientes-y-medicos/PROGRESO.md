@@ -181,3 +181,30 @@ aplicación y manda por ser posterior. Anotado en `spec.md` como corrección, no
 
 Dos apartados nuevos: `uso__025-medicos` y `uso__026-contactos`, con lo que tiene consecuencias
 reales (las dos marcas de contacto, cuándo el DNI es obligatorio, por qué una baja no borra).
+
+
+## 2026-09-06 — Revisión del Art. XI.6 (T058)
+
+`Spd.Dominio` está limpio: ninguna clase pasa de 300 líneas de código ni ningún método de 40.
+
+En `Spd.Aplicacion` hay ocho excesos. Se dejan **como están**, a propósito, y se explica por qué:
+
+| Elemento | Líneas | Valoración |
+|---|---|---|
+| `ServicioPreparacion` (clase) | 476 | Es el ciclo completo de un blíster: sesión, llenado, verificación, entrega y reelaboración. Partirla en varias clases repartiría un invariante que hoy se lee de un tirón |
+| `ServicioPreparacion.PrepararSiguiente` | 81 | Compara la sesión anterior con el tratamiento actual y clasifica cada línea en modificada, nueva, eliminada o sin envase. La longitud es el número de casos, no complejidad escondida |
+| `ServicioPreparacion.Reelaborar` | 80 | Igual: crea la nueva versión copiando la instantánea (Art. IV.3) y deja traza del origen y del motivo |
+| `ServicioGeneracionLote.Generar` | 62 | Un paciente por iteración, con su exclusión y su fallo aislados para que uno no detenga al resto (FR-722..724) |
+| `ServicioImportacionTratamientoEnvase.Importar` | 56 | Una rama por columna del pegado y su error correspondiente |
+| `ServicioPacientes.Crear` | 49 | Validaciones del FR-003 más la detección de duplicado |
+| `ServicioPreparacion.CrearSesion` | 43 | Las cinco precondiciones del FR-602, cada una con su mensaje |
+| `ServicioListadoRetirada.ObtenerListado` | 42 | El cálculo de necesarias, disponibles y faltantes |
+
+**Por qué no se tocan ahora**: el Art. XI.6 dice «~40» y «~300», con tilde: es una guía de legibilidad,
+no un invariante como el Art. III. Estos ocho son el núcleo con el que se elabora un blíster para una
+persona, están cubiertos por tests, y trocearlos sin supervisión —y sin que la prueba manual del
+ciclo completo se haya ejecutado nunca— cambiaría un riesgo real por una ganancia cosmética.
+
+Queda anotado como candidato a limpieza **después** de la prueba manual, empezando por
+`PrepararSiguiente` y `Reelaborar`, que son los dos únicos donde la longitud sí esconde varias
+responsabilidades (comparar, clasificar y persistir).
