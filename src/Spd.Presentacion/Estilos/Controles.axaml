@@ -146,6 +146,25 @@
   <!-- Spec 015 FR-1533: panel lateral en lugar de diálogo. Ocupa la banda derecha con su propio
        fondo y una línea a la izquierda; lo de detrás se sigue viendo, que es justo por lo que
        sustituye a una ventana modal. -->
+  <!-- Spec 015 FR-1503: donde la aplicación contesta. El botón «¿Por qué?» solo aparece cuando hay
+       un apartado que abrir; ofrecer una explicación que no existe es peor que no ofrecerla. -->
+  <Style Selector="c|BarraMensaje">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{DynamicResource SuperficieAlterna}" BorderBrush="{DynamicResource Linea}"
+                BorderThickness="1" CornerRadius="6" Padding="14,10">
+          <DockPanel>
+            <Button Name="BotonPorque" DockPanel.Dock="Right" Classes="enlace"
+                    Content="¿Por qué? (F1)" Margin="10,0,0,0"
+                    IsVisible="{TemplateBinding HayApartado}" />
+            <TextBlock Text="{TemplateBinding Texto}" TextWrapping="Wrap" VerticalAlignment="Center"
+                       Foreground="{DynamicResource Tinta}" />
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
   <Style Selector="c|PanelLateral">
     <Setter Property="Width" Value="380" />
     <Setter Property="HorizontalAlignment" Value="Right" />

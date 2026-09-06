@@ -1,7 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:medicos="using:Spd.Presentacion.Views.Medicos"
+             xmlns:c="using:Spd.Presentacion.Controles"
              x:Class="Spd.Presentacion.Views.Pacientes.TratamientoView">
+  <Grid>
   <Grid ColumnDefinitions="280,*" RowDefinitions="*,Auto" Margin="16">
     <StackPanel Grid.Column="0" Spacing="8">
       <TextBlock Text="Tratamientos vigentes" FontSize="16" FontWeight="Bold" />
@@ -16,6 +18,11 @@
                       CommandParameter="{Binding}" />
               <Button Content="Comunicar incidencia" FontSize="11"
                       Command="{Binding DataContext.ComunicarIncidenciaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                      CommandParameter="{Binding}" />
+              <!-- Spec 004 FR-410/CA-402: qué tomaba y desde cuándo. Un cambio de pauta cierra el
+                   tratamiento y abre otro, así que esta es la única forma de verlo entero. -->
+              <Button Content="Ver historial" FontSize="11"
+                      Command="{Binding DataContext.VerHistorialCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                       CommandParameter="{Binding}" />
             </StackPanel>
           </DataTemplate>
@@ -59,5 +66,35 @@
             IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
     </Border>
+  </Grid>
+
+    <c:PanelLateral Titulo="{Binding HistorialDe}" IsVisible="{Binding HayHistorial}"
+                    CerrarCommand="{Binding CerrarHistorialCommand}">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="Historial completo de este medicamento en el paciente, del más reciente al más antiguo. Cada cambio de pauta cierra un tramo y abre otro: nada se reescribe." />
+        <ItemsControl ItemsSource="{Binding Historial}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="tarjeta" Margin="0,0,0,8" Padding="0">
+                <DockPanel>
+                  <Border DockPanel.Dock="Left" Width="3" Background="{DynamicResource Linea}" />
+                  <StackPanel Margin="12,10" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="{Binding Periodo}" FontWeight="SemiBold" />
+                      <c:Pastilla Texto="{Binding Estado}" Variante="{Binding Variante}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Classes="datos" Text="{Binding Pauta}" />
+                    <TextBlock Classes="etiqueta" Text="{Binding Dias}" />
+                    <TextBlock Classes="suave" TextWrapping="Wrap" Text="{Binding Motivo}"
+                               IsVisible="{Binding TieneMotivo}" />
+                  </StackPanel>
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </c:PanelLateral>
   </Grid>
 </UserControl>

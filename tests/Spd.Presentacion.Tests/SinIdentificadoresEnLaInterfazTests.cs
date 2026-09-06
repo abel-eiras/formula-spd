@@ -53,6 +53,8 @@ public sealed class SinIdentificadoresEnLaInterfazTests
 
     /// <summary>Sube desde el directorio de ejecución hasta encontrar el proyecto de presentación:
     /// los `.axaml` no se copian a la salida, así que hay que leerlos del repositorio.</summary>
+    internal static string RaizDePresentacion() => LocalizarProyectoDePresentacion();
+
     private static string LocalizarProyectoDePresentacion()
     {
         var directorio = new DirectoryInfo(AppContext.BaseDirectory);
