@@ -208,20 +208,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
                 CambiosMedicacionPreguntado: true, null, CambiosMedicacionReferidos);
             var entregados = _servicio.RegistrarEntrega(datos, pendientes, _usuarioActualId);
             Mensaje = $"{pendientes.Count} blíster(es) entregado(s).";
-            if (CambiosMedicacionReferidos)
-            {
-                // FR-663 + Spec 008 FR-805: el tratamiento queda pendiente de revisión y se abre la
-                // comunicación al médico prerrellenada, con el texto en blanco para redactar.
-                Mensaje += " Cambios de medicación referidos: el tratamiento queda pendiente de revisión; redacte la comunicación al médico.";
-                var tratamientoId = Blisteres.Where(b => entregados.Any(e => e.Id == b.Spd.Id))
-                    .SelectMany(b => b.Lineas).Select(l => l.TratamientoId).FirstOrDefault();
-                if (tratamientoId != 0)
-                {
-                    var prerrelleno = _servicioComunicaciones.PrepararDesdeTratamiento(tratamientoId);
-                    // Spec 015 FR-1530: pestaña de comunicaciones prerrellenada, sin ventana.
-                    _contexto?.IrA(PestanaPaciente.Comunicaciones, prerrelleno);
-                }
-            }
+            if (CambiosMedicacionReferidos) AbrirComunicacionPorCambioReferido(entregados);
             UnidadesNoAdministradas = ObservacionesAdherencia = null;
             CambiosMedicacionReferidos = false;
             Cargar();
@@ -230,6 +217,39 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         {
             Mensaje = ex.Message;
         }
+    }
+
+    /// <summary>Spec 008 FR-805 y Spec 006 FR-663: si en la entrega el paciente refiere cambios de
+    /// medicación, sus tratamientos en SPD quedan pendientes de revisión y se abre la comunicación
+    /// al médico ya preparada.
+    ///
+    /// El destinatario es el **médico de cabecera del paciente**, que es de quien habla el FR-805: el
+    /// paciente refiere un cambio suyo, no de un medicamento concreto. Antes se cogía el prescriptor
+    /// de la primera línea que apareciera, que con varios tratamientos de médicos distintos podía ser
+    /// cualquiera. Si el paciente no tiene médico de cabecera se cae a ese prescriptor, y si tampoco
+    /// lo hay se abre la pestaña vacía para elegirlo a mano: nunca se adivina.</summary>
+    private void AbrirComunicacionPorCambioReferido(IReadOnlyList<SPD> entregados)
+    {
+        Mensaje += " Cambios de medicación referidos: el tratamiento queda pendiente de revisión; redacte la comunicación al médico.";
+
+        var medicoDeCabecera = _contexto?.Paciente?.MedicoId;
+        if (medicoDeCabecera is { } medicoId)
+        {
+            var prerrelleno = _servicioComunicaciones.PrepararDesdeAvisoCambioReferido(_pacienteId, medicoId)
+                with { IncidenciasDetectadas = $"El paciente refiere cambios en su medicación en la entrega del {DateTime.Today:dd/MM/yyyy}." };
+            _contexto?.IrA(PestanaPaciente.Comunicaciones, prerrelleno);
+            return;
+        }
+
+        var tratamientoId = Blisteres.Where(b => entregados.Any(e => e.Id == b.Spd.Id))
+            .SelectMany(b => b.Lineas).Select(l => l.TratamientoId).FirstOrDefault();
+        if (tratamientoId != 0)
+        {
+            _contexto?.IrA(PestanaPaciente.Comunicaciones, _servicioComunicaciones.PrepararDesdeTratamiento(tratamientoId));
+            return;
+        }
+
+        _contexto?.IrA(PestanaPaciente.Comunicaciones);
     }
 
     [RelayCommand]
