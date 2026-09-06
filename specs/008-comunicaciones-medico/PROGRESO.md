@@ -59,3 +59,22 @@ detectadas y la propuesta del farmacéutico. Una comunicación telefónica sigue
 (`EsImprimible`). Botón "Imprimir carta" en cada comunicación imprimible; la ventana recibe el
 servicio de documentos también desde la ficha de tratamiento (FR-804). Tests de presencia de
 elementos por extracción de texto del PDF. FR-805 sigue pendiente.
+
+
+## 2026-09-06 — FR-805 enganchado, y corregido de paso
+
+El circuito existía a medias: al referir cambios en la entrega ya se abría la comunicación, pero
+tomaba el médico con `PrepararDesdeTratamiento` sobre **la primera línea que apareciera**. Con dos
+tratamientos de médicos distintos, el destinatario podía ser cualquiera de los dos; y en la práctica
+`PrepararDesdeAvisoCambioReferido` no lo invocaba nadie.
+
+Ahora el destinatario es el **médico de cabecera del paciente**, que es de quien habla el FR-805: el
+paciente refiere un cambio suyo, no de un medicamento concreto. Si no tiene médico de cabecera se
+cae al prescriptor del tratamiento, y si tampoco lo hay se abre la pestaña vacía para elegirlo a
+mano. Nunca se adivina.
+
+Esto solo es posible desde hoy: hasta que la Spec 001 US2 no construyó el catálogo de médicos y la
+ficha no ganó su campo de cabecera, `Paciente.MedicoId` era siempre nulo.
+
+Dos tests nuevos en `AvisoCambioReferidoTests`, uno por rama, con un tratamiento prescrito
+deliberadamente por **otro** médico para que un fallo de destinatario salte.
