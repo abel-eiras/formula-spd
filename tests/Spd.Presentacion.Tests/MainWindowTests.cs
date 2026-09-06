@@ -71,13 +71,17 @@ public sealed class MainWindowTests
             repositorioPacientes, new RepositorioTratamientos(conexion), repositorioMedicamentos, repositorioEnvases,
             repositorioFarmacia, new ServicioAsignacionEnvases(repositorioEnvases, new RepositorioTratamientos(conexion), auditoria),
             servicioEnvases, servicioListadoRetirada, new ComprobadorIdoneidadYConsentimientoNulo(), auditoria);
+        var servicioGeneracionDocumentos = new ServicioGeneracionDocumentos(
+            new RepositorioSpd(conexion), new RepositorioSpdLineas(conexion), new RepositorioSpdLineaEnvases(conexion),
+            repositorioPacientes, repositorioFarmacia, auditoria);
 
         var viewModel = new MainViewModel(
             servicioUsuarios, servicioFarmacia, gestorLogo, servicioActualizaciones, servicioNomenclator,
             servicioPacientes, servicioTratamientos, servicioMedicamentos, servicioImportacionNomenclator, servicioConsultaCima,
             servicioRegistrosCalidad, servicioControlDocumental, servicioBackup, servicioCifrado,
             servicioEnvases, servicioListadoRetirada, servicioImportacion, servicioComunicaciones,
-            servicioPerfilesImportacion, servicioExportacionPacientes, servicioPreparacion, administrador);
+            servicioPerfilesImportacion, servicioExportacionPacientes, servicioPreparacion,
+            servicioGeneracionDocumentos, administrador);
         var ventana = new MainWindow { DataContext = viewModel };
 
         ventana.Show();

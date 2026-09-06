@@ -16,6 +16,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
 {
     private readonly IServicioPreparacion _servicio;
     private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
 
@@ -52,10 +53,13 @@ public sealed partial class PreparacionViewModel : ViewModelBase
 
     public OrigenSolicitudReelaboracion[] OrigenesDisponibles { get; } = Enum.GetValues<OrigenSolicitudReelaboracion>();
 
-    public PreparacionViewModel(IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos, int pacienteId, int? usuarioActualId)
+    public PreparacionViewModel(
+        IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos,
+        IServicioGeneracionDocumentos servicioGeneracionDocumentos, int pacienteId, int? usuarioActualId)
     {
         _servicio = servicio;
         _servicioMedicamentos = servicioMedicamentos;
+        _servicioGeneracionDocumentos = servicioGeneracionDocumentos;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
         Cargar();
@@ -227,6 +231,58 @@ public sealed partial class PreparacionViewModel : ViewModelBase
             _servicio.RegistrarEnvaseDesdeLinea(LineaParaRegistrarEnvase.Id, datos, _usuarioActualId);
             Mensaje = "Envase registrado. La línea ya puede pasar a PREPARADO.";
             LineaParaRegistrarEnvase = null;
+            Cargar();
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
+
+    /// <summary>Genera el PDF (Spec 007) y registra `impreso_ficha_en` (Spec 006 FR-680/681) —
+    /// las pantallas llaman primero a la generación real y después al registro de auditoría
+    /// (contracts/servicios-aplicacion.md de la Spec 007).</summary>
+    [RelayCommand]
+    private void ImprimirFicha(BlisterFila fila)
+    {
+        try
+        {
+            var resultado = _servicioGeneracionDocumentos.GenerarFichaSpd(fila.Spd.Id, _usuarioActualId);
+            _servicio.RegistrarImpresion(fila.Spd.Id, TipoDocumentoSpd.Ficha, _usuarioActualId);
+            Mensaje = $"Ficha generada: {resultado.RutaCompleta}";
+            Cargar();
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private void ImprimirEtiquetas(BlisterFila fila)
+    {
+        try
+        {
+            var anverso = _servicioGeneracionDocumentos.GenerarEtiquetaAnverso(fila.Spd.Id, _usuarioActualId);
+            var reverso = _servicioGeneracionDocumentos.GenerarEtiquetaReverso(fila.Spd.Id, _usuarioActualId);
+            _servicio.RegistrarImpresion(fila.Spd.Id, TipoDocumentoSpd.Etiquetas, _usuarioActualId);
+            Mensaje = $"Etiquetas generadas: {anverso.RutaCompleta}; {reverso.RutaCompleta}";
+            Cargar();
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private void ImprimirInstrucciones(BlisterFila fila)
+    {
+        try
+        {
+            var resultado = _servicioGeneracionDocumentos.GenerarInstrucciones(fila.Spd.Id, _usuarioActualId);
+            _servicio.RegistrarImpresion(fila.Spd.Id, TipoDocumentoSpd.Instrucciones, _usuarioActualId);
+            Mensaje = $"Instrucciones generadas: {resultado.RutaCompleta}";
             Cargar();
         }
         catch (ErrorValidacionException ex)

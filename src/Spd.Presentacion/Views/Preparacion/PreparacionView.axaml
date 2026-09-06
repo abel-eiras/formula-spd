@@ -85,6 +85,15 @@
                     <Button Content="Reelaborar" FontSize="11"
                             Command="{Binding DataContext.PrepararReelaboracionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                             CommandParameter="{Binding}" />
+                    <Button Content="Imprimir ficha" FontSize="11"
+                            Command="{Binding DataContext.ImprimirFichaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                    <Button Content="Imprimir etiquetas" FontSize="11"
+                            Command="{Binding DataContext.ImprimirEtiquetasCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
+                    <Button Content="Imprimir instrucciones" FontSize="11"
+                            Command="{Binding DataContext.ImprimirInstruccionesCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
                   </StackPanel>
                 </StackPanel>
               </Border>

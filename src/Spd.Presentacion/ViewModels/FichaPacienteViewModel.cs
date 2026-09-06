@@ -20,6 +20,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly IServicioPreparacion _servicioPreparacion;
+    private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
     private readonly int? _usuarioActualId;
     private bool _pendienteConfirmarDuplicado;
 
@@ -73,10 +74,14 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
     /// <summary>La preparación exige un paciente ya creado (FR-600 referencia `paciente_id`).</summary>
     public bool PuedeAbrirPreparacion => Paciente is not null;
 
+    /// <summary>La ficha del paciente exige un paciente ya creado (FR-700 `FICHA-PAC`).</summary>
+    public bool PuedeImprimirFicha => Paciente is not null;
+
     public FichaPacienteViewModel(
         IServicioPacientes servicio, IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioEnvases servicioEnvases, IServicioImportacionTratamientoEnvase servicioImportacion,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioPreparacion servicioPreparacion,
+        IServicioGeneracionDocumentos servicioGeneracionDocumentos,
         Paciente? pacienteExistente, int? usuarioActualId)
     {
         _servicio = servicio;
@@ -86,6 +91,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
         _servicioImportacion = servicioImportacion;
         _servicioComunicaciones = servicioComunicaciones;
         _servicioPreparacion = servicioPreparacion;
+        _servicioGeneracionDocumentos = servicioGeneracionDocumentos;
         _usuarioActualId = usuarioActualId;
         Paciente = pacienteExistente;
         if (pacienteExistente is not null)
@@ -108,7 +114,14 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirPreparacion()
-        => new PreparacionWindow(_servicioPreparacion, _servicioMedicamentos, Paciente!.Id, _usuarioActualId).Show();
+        => new PreparacionWindow(_servicioPreparacion, _servicioMedicamentos, _servicioGeneracionDocumentos, Paciente!.Id, _usuarioActualId).Show();
+
+    [RelayCommand]
+    private void ImprimirFicha()
+    {
+        var resultado = _servicioGeneracionDocumentos.GenerarFichaPaciente(Paciente!.Id, _usuarioActualId);
+        Mensaje = $"Ficha del paciente generada: {resultado.RutaCompleta}";
+    }
 
     [RelayCommand]
     private void Guardar()
@@ -134,6 +147,7 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
             OnPropertyChanged(nameof(PuedeAbrirDeposito));
             OnPropertyChanged(nameof(PuedeAbrirComunicaciones));
             OnPropertyChanged(nameof(PuedeAbrirPreparacion));
+            OnPropertyChanged(nameof(PuedeImprimirFicha));
         }
         catch (PacienteDuplicadoException ex)
         {

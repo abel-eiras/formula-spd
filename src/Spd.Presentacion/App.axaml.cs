@@ -46,6 +46,7 @@ public partial class App : Application
     private IServicioPerfilesImportacion? _servicioPerfilesImportacion;
     private IServicioExportacionPacientes? _servicioExportacionPacientes;
     private IServicioPreparacion? _servicioPreparacion;
+    private IServicioGeneracionDocumentos? _servicioGeneracionDocumentos;
 
     public override void Initialize()
     {
@@ -177,6 +178,12 @@ public partial class App : Application
             repositorioPacientes, new RepositorioTratamientos(_conexion!), repositorioMedicamentos, repositorioEnvases,
             repositorioFarmacia, new ServicioAsignacionEnvases(repositorioEnvases, new RepositorioTratamientos(_conexion!), auditoria),
             _servicioEnvases, _servicioListadoRetirada, new ComprobadorIdoneidadYConsentimientoNulo(), auditoria);
+
+        // Motor de documentos (Spec 007): sustituye el punto de extensión
+        // ServicioPreparacion.RegistrarImpresion por generación real de PDF con QuestPDF.
+        _servicioGeneracionDocumentos = new ServicioGeneracionDocumentos(
+            repositorioSpd, new RepositorioSpdLineas(_conexion!), new RepositorioSpdLineaEnvases(_conexion!),
+            repositorioPacientes, repositorioFarmacia, auditoria);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)
@@ -242,7 +249,8 @@ public partial class App : Application
             _servicioMedicamentos!, _servicioImportacionNomenclator!, _servicioConsultaCima!,
             _servicioRegistrosCalidad!, _servicioControlDocumental!, _servicioBackup!, _servicioCifrado!,
             _servicioEnvases!, _servicioListadoRetirada!, _servicioImportacion!, _servicioComunicaciones!,
-            _servicioPerfilesImportacion!, _servicioExportacionPacientes!, _servicioPreparacion!, usuario);
+            _servicioPerfilesImportacion!, _servicioExportacionPacientes!, _servicioPreparacion!,
+            _servicioGeneracionDocumentos!, usuario);
         var ventanaPrincipal = new MainWindow { DataContext = mainViewModel };
 
         // "Cerrar sesión" cierra esta ventana para volver al login, sin salir de la aplicación;
