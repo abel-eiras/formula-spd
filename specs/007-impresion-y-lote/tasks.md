@@ -73,3 +73,18 @@
 ## Phase 5: Polish
 
 - [X] T022 Ejecutar `dotnet build` y `dotnet test` completos sobre la rama; corregir regresiones en `MainWindow`/tests de otras specs si la nueva wiring los toca
+
+---
+
+## Phase 6: Corrección 2026-09-06 — elementos mínimos de cada anexo (Art. I.2) y documento RGPD
+
+Origen: `docs/analisis-resources.md` §2.3/§2.4/§2.8 y decisión del propietario (solo `RGPD` como documento nuevo).
+
+- [X] T023 Migración `0010_documentos_minimos_pnt.sql`: `Farmacia.dpo_nombre/dpo_contacto`; `SPD_Verificacion` +3 preguntas del Anexo I.G
+- [X] T024 `ChecklistVerificacion` con las 8 preguntas del Anexo I.G; `SpdVerificacion`, repositorio, `ServicioPreparacion.Verificar`, `PreparacionView`/ViewModel (trazabilidad e instrucciones pre-marcadas por la app)
+- [X] T025 `FICHA` (Anexo I.G): CN, lote, caducidad, serie por envase, material y lote, temperatura/humedad, control de adherencia, 8 preguntas de verificación, elaborado/verificado/entregado por con fecha, leyenda D/A/C/N
+- [X] T026 `ETQ-A`/`ETQ-R` (Anexo I.F): dirección y teléfono de la farmacia, fecha de preparación, teléfono del paciente, "recuerde que además hay que administrar" (tratamientos no incluidos), CN/posología/aspectos físicos por envase, advertencias literales
+- [X] T027 `INSTR` (Anexo I.H): cabecera de farmacia, nº registro y fecha, CN, médico prescriptor, fecha de prescripción/última modificación, tabla de medicamentos no incluidos, advertencias literales
+- [X] T028 `FICHA-PAC` (Anexo I.E): fecha, Nº SS, teléfonos, e-mail, familiar/cuidador (contacto principal), médico de familia, observaciones, bloque de evaluación de idoneidad (a mano hasta Spec 002), tablas de medicamentos incluidos/no incluidos con problema de salud, prescriptor, fechas, PRM/RNM e intervención, control de adherencia desde las entregas
+- [X] T029 `RGPD` (Anexo I.D): `GenerarInformacionProteccionDatos`, texto literal con responsable, plazos, base jurídica, derechos y DPO; botón en `FichaPacienteView`; campos de protección de datos en `FarmaciaView`
+- [X] T030 Tests de presencia de elementos por documento (PdfPig extrae el texto del PDF generado) en `ServicioGeneracionDocumentosTests`

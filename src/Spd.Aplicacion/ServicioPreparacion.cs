@@ -232,7 +232,9 @@ public sealed class ServicioPreparacion(
             SpdId = spdId, VerificadorId = verificadorId, Fecha = DateTime.UtcNow,
             VerifAspecto = checklist.Aspecto, VerifEtiquetaDatos = checklist.EtiquetaDatos,
             VerifEtiquetaValidez = checklist.EtiquetaValidez, VerifInstrucciones = checklist.Instrucciones,
-            VerifContenido = checklist.Contenido, Resultado = resultado, ExcepcionMotivo = motivoRegistrado
+            VerifContenido = checklist.Contenido, VerifFabricantePnt = checklist.FabricanteYPnt,
+            VerifEtiquetaFichaPaciente = checklist.EtiquetaFichaPaciente, VerifTrazabilidad = checklist.Trazabilidad,
+            Resultado = resultado, ExcepcionMotivo = motivoRegistrado
         });
 
         spd.VerificadorId = verificadorId;

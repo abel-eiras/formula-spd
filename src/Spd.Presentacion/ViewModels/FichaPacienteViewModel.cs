@@ -123,6 +123,14 @@ public sealed partial class FichaPacienteViewModel : ViewModelBase
         Mensaje = $"Ficha del paciente generada: {resultado.RutaCompleta}";
     }
 
+    /// <summary>Anexo I.D del PNT I: se entrega al paciente con el consentimiento informado.</summary>
+    [RelayCommand]
+    private void ImprimirProteccionDatos()
+    {
+        var resultado = _servicioGeneracionDocumentos.GenerarInformacionProteccionDatos(Paciente!.Id, _usuarioActualId);
+        Mensaje = $"Información de protección de datos generada: {resultado.RutaCompleta}";
+    }
+
     [RelayCommand]
     private void Guardar()
     {

@@ -70,3 +70,30 @@ recursos todavía.
   ahora solo verificado con tests headless (Avalonia) y de generación de PDF (existencia de
   fichero, prefijo/sufijo del nombre, entradas de auditoría), sin inspección visual del PDF
   resultante.
+
+## Corrección 2026-09-06 (tarde) — elementos mínimos de cada anexo y documento RGPD
+
+Tras el cribado de `resources/` (`docs/analisis-resources.md`) quedó claro que los cinco documentos
+generados eran esqueletos que no cumplían el Art. I.2. Con los anexos del PNT I del COF de A Coruña
+delante, se completan campo a campo (§2.3 del análisis) y cada uno gana un test que **extrae el
+texto del PDF** (PdfPig, solo en tests) y comprueba la presencia de los elementos obligatorios
+(Art. IX.3) — hasta ahora los tests solo comprobaban que el fichero existía.
+
+- **Único documento nuevo, por decisión del propietario: `RGPD`** (Anexo I.D). Se descartó añadir
+  calibración, incidencia ambiental, recepción de DDP, organigrama o firmas: con el modelo oficial
+  del Colegio en papel es suficiente. `Farmacia` gana `dpo_nombre`/`dpo_contacto` y la pantalla de
+  configuración expone por fin `responsable_datos`/`direccion_derechos`/`email_derechos` (existían
+  en la tabla desde Spec 000 sin campo en la interfaz).
+- **Verificación: 8 preguntas, no 5.** Spec 006 FR-651 se quedó corta frente al Anexo I.G; el PNT
+  manda (Art. I.1). Migración 0010 con `DEFAULT 0` para las tres nuevas: las verificaciones
+  anteriores conservan su registro sin reinterpretación (Art. III). La app pre-marca dos de ellas
+  (trazabilidad, garantizada por construcción; hoja de instrucciones, si consta generada) y el
+  verificador puede desmarcarlas.
+- **Hallazgo de test**: PdfPig devuelve las palabras de una tabla fila a fila, de modo que una celda
+  partida en dos líneas se entremezcla con sus vecinas ("Dolor … crónico"). No es un defecto del
+  documento; las aserciones comprueban tokens, no frases que puedan partirse. El texto extraído se
+  vuelca a un fichero temporal cuando falla una aserción, para leerlo entero.
+- El bloque de idoneidad del Anexo I.E se imprime con casillas en blanco para cubrirlo a mano hasta
+  que exista Spec 002 (Art. II: el papel es la base legal).
+
+**59 (Dominio) + 17 (Presentación) + 197 (Aplicación) = 273 tests en verde.**

@@ -194,6 +194,12 @@ línea sin cambios no mueve envases (CA-6121) y que una línea eliminada devuelv
 - **FR-651** Checklist de cinco ítems: integridad del blíster; datos de la etiqueta coinciden con
   la ficha; periodo de validez en la etiqueta; hoja de instrucciones preparada; cada alveolo
   contiene lo que le corresponde. Los cinco obligatorios, por blíster.
+  > **Corrección 2026-09-06 (el PNT manda, Art. I.1)**: el Anexo I.G del PNT I (COF A Coruña,
+  > Decreto 87/2022; ver `docs/analisis-resources.md` §2.8) fija **ocho** preguntas SÍ/NO, no
+  > cinco. Se añaden: instrucciones del fabricante y PNT seguidas; etiqueta coincide con la ficha
+  > del paciente a fecha de hoy; trazabilidad envase original → DDP. Las ocho obligatorias
+  > (`ChecklistVerificacion`, migración 0010). La app pre-marca trazabilidad (garantizada por
+  > construcción) y hoja de instrucciones (si consta generada); el verificador puede desmarcarlas.
 - **FR-652** Verificador = elaborador de ese blíster ⇒ motivo de excepción obligatorio (≥10
   caracteres), registrado en la ficha y en auditoría.
 - **FR-653** El resultado y el checklist se guardan por blíster; verificar el blíster 1 no verifica

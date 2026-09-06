@@ -36,6 +36,10 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     [ObservableProperty] private bool _checkEtiquetaValidez;
     [ObservableProperty] private bool _checkInstrucciones;
     [ObservableProperty] private bool _checkContenido;
+    // Las tres preguntas del Anexo I.G que faltaban (corrección 2026-09-06, ChecklistVerificacion).
+    [ObservableProperty] private bool _checkFabricantePnt;
+    [ObservableProperty] private bool _checkEtiquetaFichaPaciente;
+    [ObservableProperty] private bool _checkTrazabilidad;
     [ObservableProperty] private int? _verificadorId;
     [ObservableProperty] private string? _excepcionMotivo;
 
@@ -136,7 +140,13 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     private void PrepararVerificacion(BlisterFila fila)
     {
         BlisterEnVerificacion = fila;
-        CheckAspecto = CheckEtiquetaDatos = CheckEtiquetaValidez = CheckInstrucciones = CheckContenido = false;
+        CheckAspecto = CheckEtiquetaDatos = CheckEtiquetaValidez = CheckContenido =
+            CheckFabricantePnt = CheckEtiquetaFichaPaciente = false;
+        // Dos preguntas las puede responder la propia aplicación: la trazabilidad envase→DDP
+        // está garantizada por construcción (SPD_Linea_Envase) y la hoja de instrucciones
+        // consta como generada si tiene impreso_instrucciones_en. El verificador puede desmarcarlas.
+        CheckTrazabilidad = true;
+        CheckInstrucciones = fila.Spd.ImpresoInstruccionesEn is not null;
         ExcepcionMotivo = null;
     }
 
@@ -146,7 +156,9 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         if (BlisterEnVerificacion is null || VerificadorId is null) return;
         try
         {
-            var checklist = new ChecklistVerificacion(CheckAspecto, CheckEtiquetaDatos, CheckEtiquetaValidez, CheckInstrucciones, CheckContenido);
+            var checklist = new ChecklistVerificacion(
+                CheckContenido, CheckFabricantePnt, CheckEtiquetaDatos, CheckEtiquetaFichaPaciente,
+                CheckTrazabilidad, CheckEtiquetaValidez, CheckInstrucciones, CheckAspecto);
             _servicio.Verificar(BlisterEnVerificacion.Spd.Id, VerificadorId.Value, checklist, ExcepcionMotivo, _usuarioActualId);
             Mensaje = "Verificación registrada.";
             BlisterEnVerificacion = null;

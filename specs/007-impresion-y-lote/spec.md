@@ -41,6 +41,18 @@ FR-720..733 (lote y documentación base) y el resto del catálogo (`CARTA-PRES`/
 008, `RETIRADA` de Spec 005, `REG-*` de Spec 009, `IDONEIDAD`/`CONSENT` de Spec 002) quedan
 diferidos — ver Fuera de alcance y Assumptions.
 
+**Corrección 2026-09-06 (tras el cribado de `resources/`, ver `docs/analisis-resources.md`)**: la
+primera implementación de `FICHA`, `ETQ-A`, `ETQ-R`, `INSTR` y `FICHA-PAC` era un esqueleto que no
+contenía los elementos mínimos de sus anexos (Art. I.2). Con los PNT del COF de A Coruña (Decreto
+87/2022) ya disponibles, los cinco se completan campo a campo según los Anexos I.G, I.F, I.H y I.E
+del PNT I, y cada uno lleva un test que extrae el texto del PDF generado y comprueba la presencia
+de esos elementos (Art. IX.3). Se añade un único documento nuevo al catálogo, `RGPD` (Anexo I.D,
+información de protección de datos), por decisión del propietario: es el único de los anexos no
+contemplados que la aplicación puede rellenar automáticamente con datos propios (farmacia y
+paciente); el resto (calibración, incidencia ambiental, recepción de DDP, organigrama, firmas)
+se cubre con el modelo oficial del Colegio en papel y **no** entra en el catálogo. Para el `RGPD`
+se añaden a `Farmacia` los campos `dpo_nombre`/`dpo_contacto` (migración 0010).
+
 ---
 
 ## Clarifications
@@ -109,6 +121,7 @@ que el fichero usa el formato corto (CA-701).
 | Etiqueta reverso | `ETQ-R` | Por SPD | Spec 006 | Sí |
 | Hoja de instrucciones al paciente | `INSTR` | Por SPD (o por sesión si Spec 006 FR-682 lo permite) | Spec 006 | Sí |
 | Ficha del paciente (Anexo 2) | `FICHA-PAC` | Por paciente | Spec 001 | Sí |
+| Información sobre protección de datos (Anexo I.D) | `RGPD` | Por paciente | Este documento (corrección 2026-09-06) | Sí — desde la ficha del paciente |
 | Evaluación de idoneidad | `IDONEIDAD` | Por evaluación | Spec 002 | No — Spec 002 no existe |
 | Consentimiento informado (1a o 1b) | `CONSENT` | Por paciente | Spec 002 | No — Spec 002 no existe |
 | Carta de presentación al médico | `CARTA-PRES` | Por comunicación | Spec 008 | Diferido |

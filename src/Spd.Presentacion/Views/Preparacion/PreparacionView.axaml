@@ -103,12 +103,15 @@
 
         <Border Padding="8" Background="#22808080" IsVisible="{Binding BlisterEnVerificacion, Converter={x:Static ObjectConverters.IsNotNull}}">
           <StackPanel Spacing="4">
-            <TextBlock Text="Verificación (5 ítems obligatorios)" FontWeight="Bold" />
-            <CheckBox Content="Integridad del blíster" IsChecked="{Binding CheckAspecto}" />
-            <CheckBox Content="Etiqueta: datos coinciden con la ficha" IsChecked="{Binding CheckEtiquetaDatos}" />
-            <CheckBox Content="Etiqueta: periodo de validez" IsChecked="{Binding CheckEtiquetaValidez}" />
-            <CheckBox Content="Hoja de instrucciones preparada" IsChecked="{Binding CheckInstrucciones}" />
-            <CheckBox Content="Cada alveolo contiene lo que corresponde" IsChecked="{Binding CheckContenido}" />
+            <TextBlock Text="Verificación final del SPD (8 preguntas del Anexo I.G, todas obligatorias)" FontWeight="Bold" />
+            <CheckBox Content="1. ¿El contenido del DDP es correcto? (comprobar con la ficha del paciente)" IsChecked="{Binding CheckContenido}" />
+            <CheckBox Content="2. ¿Se siguieron las instrucciones del fabricante y los PNT durante todo el proceso?" IsChecked="{Binding CheckFabricantePnt}" />
+            <CheckBox Content="3. ¿Coinciden los datos del DDP de la etiqueta con la ficha de preparación, control y entrega?" IsChecked="{Binding CheckEtiquetaDatos}" />
+            <CheckBox Content="4. ¿Coinciden los datos de la etiqueta y la ficha del paciente a fecha de hoy?" IsChecked="{Binding CheckEtiquetaFichaPaciente}" />
+            <CheckBox Content="5. ¿Se garantizó la trazabilidad entre el envase original y el DDP acondicionado?" IsChecked="{Binding CheckTrazabilidad}" />
+            <CheckBox Content="6. ¿El DDP está identificado con su periodo de validez?" IsChecked="{Binding CheckEtiquetaValidez}" />
+            <CheckBox Content="7. ¿Se cumplimentó la hoja de instrucciones según la normativa vigente?" IsChecked="{Binding CheckInstrucciones}" />
+            <CheckBox Content="8. ¿Está libre de alteraciones visibles? (rotura, cartón arrugado, fallos en el cierre…)" IsChecked="{Binding CheckAspecto}" />
             <NumericUpDown Value="{Binding VerificadorId}" Minimum="0" Watermark="Id del verificador" />
             <TextBox Watermark="Motivo de excepción (si verificador = elaborador)" Text="{Binding ExcepcionMotivo}" />
             <Button Content="Confirmar verificación" Command="{Binding ConfirmarVerificacionCommand}" />

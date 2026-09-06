@@ -243,7 +243,7 @@ public sealed class ServicioPreparacionTests
             ctx.Servicio.PasarAPreparado(s.Id, CrearLecturaAmbiental(ctx), ctx.ElaboradorId);
         }
 
-        ctx.Servicio.Verificar(spds[0].Id, ctx.VerificadorId, new ChecklistVerificacion(true, true, true, true, true), null, ctx.VerificadorId);
+        ctx.Servicio.Verificar(spds[0].Id, ctx.VerificadorId, ChecklistVerificacion.TodoConforme, null, ctx.VerificadorId);
 
         Assert.Equal(EstadoSpd.Verificado, ctx.RepositorioSpd.ObtenerPorId(spds[0].Id)!.Estado);
         Assert.Equal(EstadoSpd.Preparado, ctx.RepositorioSpd.ObtenerPorId(spds[1].Id)!.Estado);
@@ -260,9 +260,9 @@ public sealed class ServicioPreparacionTests
         ctx.Servicio.PasarAPreparado(spd.Id, CrearLecturaAmbiental(ctx), ctx.ElaboradorId);
 
         Assert.Throws<ErrorValidacionException>(() =>
-            ctx.Servicio.Verificar(spd.Id, ctx.ElaboradorId, new ChecklistVerificacion(true, true, true, true, true), null, ctx.ElaboradorId));
+            ctx.Servicio.Verificar(spd.Id, ctx.ElaboradorId, ChecklistVerificacion.TodoConforme, null, ctx.ElaboradorId));
 
-        ctx.Servicio.Verificar(spd.Id, ctx.ElaboradorId, new ChecklistVerificacion(true, true, true, true, true), "Solo hay un usuario disponible hoy", ctx.ElaboradorId);
+        ctx.Servicio.Verificar(spd.Id, ctx.ElaboradorId, ChecklistVerificacion.TodoConforme, "Solo hay un usuario disponible hoy", ctx.ElaboradorId);
         Assert.Equal(EstadoSpd.Verificado, ctx.RepositorioSpd.ObtenerPorId(spd.Id)!.Estado);
     }
 
@@ -275,14 +275,14 @@ public sealed class ServicioPreparacionTests
         var spd = ctx.Servicio.CrearSesion(ctx.PacienteId, ctx.ElaboradorId).Single();
 
         Assert.Throws<ErrorValidacionException>(() =>
-            ctx.Servicio.Verificar(spd.Id, ctx.VerificadorId, new ChecklistVerificacion(true, true, true, true, true), null, ctx.VerificadorId));
+            ctx.Servicio.Verificar(spd.Id, ctx.VerificadorId, ChecklistVerificacion.TodoConforme, null, ctx.VerificadorId));
     }
 
     private static SPD PrepararYVerificar(Contexto ctx, int spdId)
     {
         ctx.Servicio.AsignarMaterial(spdId, CrearMaterial(ctx));
         ctx.Servicio.PasarAPreparado(spdId, CrearLecturaAmbiental(ctx), ctx.ElaboradorId);
-        return ctx.Servicio.Verificar(spdId, ctx.VerificadorId, new ChecklistVerificacion(true, true, true, true, true), null, ctx.VerificadorId);
+        return ctx.Servicio.Verificar(spdId, ctx.VerificadorId, ChecklistVerificacion.TodoConforme, null, ctx.VerificadorId);
     }
 
     [Fact]

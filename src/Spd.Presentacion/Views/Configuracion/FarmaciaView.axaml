@@ -29,6 +29,19 @@
       <TextBox Text="{Binding Whatsapp}" />
 
       <Separator Margin="0,8" />
+      <TextBlock Text="Protección de datos (documento RGPD)" FontSize="18" FontWeight="Bold" />
+      <TextBlock Text="Responsable del tratamiento (si es distinto del nombre de la farmacia)" />
+      <TextBox Text="{Binding ResponsableDatos}" />
+      <TextBlock Text="Dirección para ejercer derechos (si es distinta de la general)" />
+      <TextBox Text="{Binding DireccionDerechos}" />
+      <TextBlock Text="Email para ejercer derechos (si es distinto del general)" />
+      <TextBox Text="{Binding EmailDerechos}" />
+      <TextBlock Text="Delegado de Protección de Datos (nombre, normalmente el del Colegio)" />
+      <TextBox Text="{Binding DpoNombre}" />
+      <TextBlock Text="Contacto del Delegado de Protección de Datos (teléfono y/o email)" />
+      <TextBox Text="{Binding DpoContacto}" />
+
+      <Separator Margin="0,8" />
       <TextBlock Text="Logo" FontSize="18" FontWeight="Bold" />
       <TextBlock Text="{Binding Logo}" Foreground="Gray" />
       <TextBlock Text="Ruta del nuevo logo" />

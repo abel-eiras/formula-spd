@@ -16,7 +16,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
             INSERT INTO Farmacia (
                 id, codigo_sanitario, logo, nombre, titular_o_comunidad_bienes, cif,
                 titular_colegiado, direccion, cp, poblacion, provincia, telefono, fax, email,
-                whatsapp, responsable_datos, direccion_derechos, email_derechos,
+                whatsapp, responsable_datos, direccion_derechos, email_derechos, dpo_nombre, dpo_contacto,
                 prefijo_num_ficha, prefijo_num_spd, ruta_backup, ruta_documentos_generados,
                 url_nomenclator, umbral_reutilizacion_lectura_ambiental_horas,
                 temp_min, temp_max, hr_min, hr_max, dia_retirada_defecto, n_blisteres_defecto,
@@ -24,7 +24,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
             ) VALUES (
                 1, @CodigoSanitario, @Logo, @Nombre, @TitularOComunidadBienes, @Cif,
                 @TitularColegiado, @Direccion, @Cp, @Poblacion, @Provincia, @Telefono, @Fax, @Email,
-                @Whatsapp, @ResponsableDatos, @DireccionDerechos, @EmailDerechos,
+                @Whatsapp, @ResponsableDatos, @DireccionDerechos, @EmailDerechos, @DpoNombre, @DpoContacto,
                 @PrefijoNumFicha, @PrefijoNumSpd, @RutaBackup, @RutaDocumentosGenerados,
                 @UrlNomenclator, @UmbralReutilizacionLecturaAmbientalHoras,
                 @TempMin, @TempMax, @HrMin, @HrMax, @DiaRetiradaDefecto, @NBlisteresDefecto,
@@ -43,6 +43,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 poblacion = @Poblacion, provincia = @Provincia, telefono = @Telefono, fax = @Fax,
                 email = @Email, whatsapp = @Whatsapp, responsable_datos = @ResponsableDatos,
                 direccion_derechos = @DireccionDerechos, email_derechos = @EmailDerechos,
+                dpo_nombre = @DpoNombre, dpo_contacto = @DpoContacto,
                 prefijo_num_ficha = @PrefijoNumFicha, prefijo_num_spd = @PrefijoNumSpd,
                 ruta_backup = @RutaBackup, ruta_documentos_generados = @RutaDocumentosGenerados,
                 url_nomenclator = @UrlNomenclator,
@@ -60,6 +61,7 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 farmacia.Direccion, farmacia.Cp, farmacia.Poblacion, farmacia.Provincia,
                 farmacia.Telefono, farmacia.Fax, farmacia.Email, farmacia.Whatsapp,
                 farmacia.ResponsableDatos, farmacia.DireccionDerechos, farmacia.EmailDerechos,
+                farmacia.DpoNombre, farmacia.DpoContacto,
                 farmacia.PrefijoNumFicha, farmacia.PrefijoNumSpd, farmacia.RutaBackup,
                 farmacia.RutaDocumentosGenerados, farmacia.UrlNomenclator,
                 farmacia.UmbralReutilizacionLecturaAmbientalHoras, farmacia.TempMin,
