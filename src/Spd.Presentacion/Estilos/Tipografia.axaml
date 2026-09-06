@@ -1,0 +1,25 @@
+<!--
+  Spec 015 H1.1 — Tipografías y escala.
+
+  IBM Plex va embebida en la aplicación (Assets/Fuentes, SIL OFL 1.1): el Art. VI exige que toda la
+  instalación sea una carpeta, así que no se depende de lo que tenga instalado el equipo.
+  `FuenteInterfaz` para todo el texto; `FuenteDatos` (monoespaciada) para lo que se compara a ojo o
+  se copia: nº de registro, código nacional, serie, lote y pautas.
+
+  Escala: 11 (etiqueta) · 13 (base) · 15 (destacado) · 18 (título de sección) · 22 (título de página).
+  13 px de base según la decisión Q3 (monitor de 1366×768 o mayor).
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+
+  <FontFamily x:Key="FuenteInterfaz">avares://Spd.Presentacion/Assets/Fuentes#IBM Plex Sans</FontFamily>
+  <FontFamily x:Key="FuenteDatos">avares://Spd.Presentacion/Assets/Fuentes#IBM Plex Mono</FontFamily>
+
+  <sys:Double x:Key="TamanoEtiqueta">11</sys:Double>
+  <sys:Double x:Key="TamanoBase">13</sys:Double>
+  <sys:Double x:Key="TamanoDestacado">15</sys:Double>
+  <sys:Double x:Key="TamanoSeccion">18</sys:Double>
+  <sys:Double x:Key="TamanoPagina">22</sys:Double>
+
+</ResourceDictionary>

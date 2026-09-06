@@ -1,0 +1,13 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:registros="using:Spd.Presentacion.Views.RegistrosCalidad"
+             x:Class="Spd.Presentacion.Views.RegistrosCalidad.RegistrosCalidadView">
+  <TabControl Margin="16,8">
+    <TabItem Header="Formación">
+      <registros:FormacionPersonalView DataContext="{Binding Formacion}" />
+    </TabItem>
+    <TabItem Header="Residuos">
+      <registros:RecogidaResiduosView DataContext="{Binding Residuos}" />
+    </TabItem>
+  </TabControl>
+</UserControl>

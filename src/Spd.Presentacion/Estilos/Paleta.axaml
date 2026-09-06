@@ -1,0 +1,71 @@
+<!--
+  Spec 015 H1.1 — Paleta de la aplicación, en variante clara y oscura.
+
+  Toda clave definida aquí existe en las dos variantes: un color que solo estuviera en una deja
+  texto de un tema sobre fondo del otro. `ClavesTema.Colores` enumera las claves y el test
+  `TemaTests` comprueba que ninguna falta (CA-1502).
+
+  El acento es un verdigrís de botica; verde, ámbar y rojo se reservan para estados (apto, aviso,
+  bloqueo) y nunca decoran.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="Fondo">#F6F8F7</SolidColorBrush>
+      <SolidColorBrush x:Key="Superficie">#FFFFFF</SolidColorBrush>
+      <SolidColorBrush x:Key="SuperficieAlterna">#EFF3F2</SolidColorBrush>
+      <SolidColorBrush x:Key="Tinta">#1B2A2F</SolidColorBrush>
+      <SolidColorBrush x:Key="TintaSuave">#5B6B70</SolidColorBrush>
+      <SolidColorBrush x:Key="Linea">#D5DDDB</SolidColorBrush>
+      <SolidColorBrush x:Key="Acento">#1F7A8C</SolidColorBrush>
+      <SolidColorBrush x:Key="AcentoSuave">#E3F0F3</SolidColorBrush>
+      <SolidColorBrush x:Key="AcentoTexto">#FFFFFF</SolidColorBrush>
+      <SolidColorBrush x:Key="Apto">#2E8B57</SolidColorBrush>
+      <SolidColorBrush x:Key="AptoSuave">#E4F2EA</SolidColorBrush>
+      <SolidColorBrush x:Key="Aviso">#C9861F</SolidColorBrush>
+      <SolidColorBrush x:Key="AvisoSuave">#FAEFD9</SolidColorBrush>
+      <SolidColorBrush x:Key="Bloqueo">#B3402F</SolidColorBrush>
+      <SolidColorBrush x:Key="BloqueoSuave">#F7E3DF</SolidColorBrush>
+
+      <!-- El tema Fluent deriva de estas claves sus acentos (selección, foco, marcas de
+           verificación). Sobrescribirlas es lo que hace que los controles estándar adopten la
+           paleta sin reescribir sus plantillas (research.md Decisión 10). -->
+      <Color x:Key="SystemAccentColor">#1F7A8C</Color>
+      <Color x:Key="SystemAccentColorLight1">#2E93A6</Color>
+      <Color x:Key="SystemAccentColorLight2">#4FB0C2</Color>
+      <Color x:Key="SystemAccentColorLight3">#7FCAD8</Color>
+      <Color x:Key="SystemAccentColorDark1">#186273</Color>
+      <Color x:Key="SystemAccentColorDark2">#124A59</Color>
+      <Color x:Key="SystemAccentColorDark3">#0C3340</Color>
+    </ResourceDictionary>
+
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="Fondo">#101819</SolidColorBrush>
+      <SolidColorBrush x:Key="Superficie">#172224</SolidColorBrush>
+      <SolidColorBrush x:Key="SuperficieAlterna">#1D2A2C</SolidColorBrush>
+      <SolidColorBrush x:Key="Tinta">#E6ECEA</SolidColorBrush>
+      <SolidColorBrush x:Key="TintaSuave">#9AA9AB</SolidColorBrush>
+      <SolidColorBrush x:Key="Linea">#2A3739</SolidColorBrush>
+      <SolidColorBrush x:Key="Acento">#5FB4C4</SolidColorBrush>
+      <SolidColorBrush x:Key="AcentoSuave">#1B3238</SolidColorBrush>
+      <SolidColorBrush x:Key="AcentoTexto">#0B1214</SolidColorBrush>
+      <SolidColorBrush x:Key="Apto">#5FBF85</SolidColorBrush>
+      <SolidColorBrush x:Key="AptoSuave">#1B3226</SolidColorBrush>
+      <SolidColorBrush x:Key="Aviso">#E0A94A</SolidColorBrush>
+      <SolidColorBrush x:Key="AvisoSuave">#3A2E15</SolidColorBrush>
+      <SolidColorBrush x:Key="Bloqueo">#E07A66</SolidColorBrush>
+      <SolidColorBrush x:Key="BloqueoSuave">#3B2220</SolidColorBrush>
+
+      <Color x:Key="SystemAccentColor">#5FB4C4</Color>
+      <Color x:Key="SystemAccentColorLight1">#7FC6D4</Color>
+      <Color x:Key="SystemAccentColorLight2">#9ED7E2</Color>
+      <Color x:Key="SystemAccentColorLight3">#BEE8F0</Color>
+      <Color x:Key="SystemAccentColorDark1">#4A99A8</Color>
+      <Color x:Key="SystemAccentColorDark2">#377C8A</Color>
+      <Color x:Key="SystemAccentColorDark3">#255F6B</Color>
+    </ResourceDictionary>
+
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

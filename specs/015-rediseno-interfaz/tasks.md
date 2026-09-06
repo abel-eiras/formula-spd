@@ -24,11 +24,11 @@
 
 ### Tema y componentes (H1.1, H1.2)
 
-- [ ] T001 [F1] Descargar e incorporar IBM Plex Sans e IBM Plex Mono (SIL OFL 1.1) a `src/Spd.Presentacion/Assets/Fuentes/` y declararlas en el csproj como `AvaloniaResource`
-- [ ] T002 [F1] `src/Spd.Presentacion/Estilos/Paleta.axaml`: las 14 claves de color de `data-model.md` en variante clara y oscura (`ResourceDictionary.ThemeDictionaries`)
+- [X] T001 [F1] Descargar e incorporar IBM Plex Sans e IBM Plex Mono (SIL OFL 1.1) a `src/Spd.Presentacion/Assets/Fuentes/` y declararlas en el csproj como `AvaloniaResource`
+- [X] T002 [F1] `src/Spd.Presentacion/Estilos/Paleta.axaml`: las 14 claves de color de `data-model.md` en variante clara y oscura (`ResourceDictionary.ThemeDictionaries`)
 - [ ] T003 [P] [F1] `src/Spd.Presentacion/Estilos/Tipografia.axaml`: `FuenteInterfaz`, `FuenteDatos` y la escala tipográfica (11/13/15/18/22)
 - [ ] T004 [P] [F1] `src/Spd.Presentacion/Estilos/Controles.axaml`: estilos de `Button` (primario, secundario, enlace), `TextBox`, `ComboBox`, `CheckBox`, `ListBox`, `TabControl`, `Separator`
-- [ ] T005 [F1] Aplicar los tres diccionarios en `src/Spd.Presentacion/App.axaml`, después de `FluentTheme`
+- [X] T005 [F1] Aplicar los tres diccionarios en `src/Spd.Presentacion/App.axaml`, después de `FluentTheme`
 - [ ] T006 [P] [F1] `src/Spd.Presentacion/Controles/Pastilla.axaml(.cs)` con las cinco variantes
 - [ ] T007 [P] [F1] `src/Spd.Presentacion/Controles/FranjaSeveridad.axaml(.cs)`
 - [ ] T008 [P] [F1] `src/Spd.Presentacion/Controles/BarraMensaje.axaml(.cs)`: mensaje + "¿Por qué?" que abre el apartado indicado (sustituye el `Border` + `Button` repetido hoy en Preparación e Idoneidad)
@@ -36,27 +36,27 @@
 
 ### Marco y navegación (H1.3, H1.4)
 
-- [ ] T010 [F1] `src/Spd.Presentacion/Navegacion/Seccion.cs`, `Destino.cs`, `EntradaNavegacion.cs`, `Navegador.cs` según `contracts/navegacion-y-tema.md`
-- [ ] T011 [F1] `src/Spd.Presentacion/FabricaViewModels.cs`: recibe los servicios una vez y construye cada ViewModel a demanda
-- [ ] T012 [F1] `src/Spd.Presentacion/Views/AppShell.axaml(.cs)` y `ViewModels/AppShellViewModel.cs`: navegación lateral con grupos, contadores, usuario y cierre de sesión; región de contenido resuelta por el `ViewLocator` existente
-- [ ] T013 [F1] `src/Spd.Presentacion/App.axaml.cs`: al iniciar sesión se abre `AppShell` en lugar de `MainWindow`; se conserva el backup de cierre y el apagado explícito
-- [ ] T014 [F1] Contadores de la navegación desde `IServicioAvisosInicio` (retirada y preparaciones)
+- [X] T010 [F1] `src/Spd.Presentacion/Navegacion/Seccion.cs`, `Destino.cs`, `EntradaNavegacion.cs`, `Navegador.cs` según `contracts/navegacion-y-tema.md`
+- [X] T011 [F1] `src/Spd.Presentacion/FabricaViewModels.cs`: recibe los servicios una vez y construye cada ViewModel a demanda
+- [X] T012 [F1] `src/Spd.Presentacion/Views/AppShell.axaml(.cs)` y `ViewModels/AppShellViewModel.cs`: navegación lateral con grupos, contadores, usuario y cierre de sesión; región de contenido resuelta por el `ViewLocator` existente
+- [X] T013 [F1] `src/Spd.Presentacion/App.axaml.cs`: al iniciar sesión se abre `AppShell` en lugar de `MainWindow`; se conserva el backup de cierre y el apagado explícito
+- [X] T014 [F1] Contadores de la navegación desde `IServicioAvisosInicio` (retirada y preparaciones)
 
 ### Migración de secciones (H1.5)
 
-- [ ] T015 [F1] Migrar a la región de contenido y **eliminar** `BuscadorPacientesWindow`, `PreparacionesWindow`, `RetiradaEnvasesWindow`, `ExportarPacientesWindow`
-- [ ] T016 [F1] Ídem `CatalogoMedicamentosWindow`, `RevisionNomenclatorWindow`, `RegistrosCalidadWindow`, `ControlDocumentalWindow`
-- [ ] T017 [F1] Ídem `FarmaciaWindow`, `UsuariosWindow`, `ActualizacionesWindow`, `NomenclatorWindow`, `SeguridadWindow`, `PerfilesImportacionWindow`
-- [ ] T018 [F1] `AyudaWindow` pasa a sección del marco; `AyudaWindow.Abrir` se sustituye por `Navegador.Navegar(Seccion.Ayuda, apartado)`
-- [ ] T019 [F1] **Eliminar** `MainWindow.axaml(.cs)` y `MainViewModel` (sus comandos pasan a la navegación); conservar `AvisoWindow` como diálogo modal
+- [X] T015 [F1] Migrar a la región de contenido y **eliminar** `BuscadorPacientesWindow`, `PreparacionesWindow`, `RetiradaEnvasesWindow`, `ExportarPacientesWindow`
+- [X] T016 [F1] Ídem `CatalogoMedicamentosWindow`, `RevisionNomenclatorWindow`, `RegistrosCalidadWindow`, `ControlDocumentalWindow`
+- [X] T017 [F1] Ídem `FarmaciaWindow`, `UsuariosWindow`, `ActualizacionesWindow`, `NomenclatorWindow`, `SeguridadWindow`, `PerfilesImportacionWindow`
+- [X] T018 [F1] `AyudaWindow` pasa a sección del marco; `AyudaWindow.Abrir` se sustituye por `Navegador.Navegar(Seccion.Ayuda, apartado)`
+- [X] T019 [F1] **Eliminar** `MainWindow.axaml(.cs)` y `MainViewModel` (sus comandos pasan a la navegación); conservar `AvisoWindow` como diálogo modal
 
 ### Ayuda y tests (H1.6)
 
-- [ ] T020 [F1] `AyudaContextual`: tablas por **vista** en vez de por ventana; F1 resuelto sobre la vista activa del shell
-- [ ] T021 [F1] `tests/Spd.Presentacion.Tests/AnfitrionDeVista.cs`: `Mostrar(Control vista)` crea ventana anfitriona, asigna contenido y muestra (conserva la regresión F5)
-- [ ] T022 [F1] Migrar los 24 ficheros de test de Presentación al anfitrión; actualizar `IndiceAyudaTests` a las tablas por vista
-- [ ] T023 [F1] Tests `tests/Spd.Presentacion.Tests/AppShellTests.cs`: navegación a cada sección, visibilidad por rol, contadores
-- [ ] T024 [F1] `dotnet build` + `dotnet test` completos; actualizar `PROGRESO.md`; fusionar a `main`
+- [X] T020 [F1] `AyudaContextual`: tablas por **vista** en vez de por ventana; F1 resuelto sobre la vista activa del shell
+- [X] T021 [F1] `tests/Spd.Presentacion.Tests/AnfitrionDeVista.cs`: `Mostrar(Control vista)` crea ventana anfitriona, asigna contenido y muestra (conserva la regresión F5)
+- [X] T022 [F1] Migrar los 24 ficheros de test de Presentación al anfitrión; actualizar `IndiceAyudaTests` a las tablas por vista
+- [X] T023 [F1] Tests `tests/Spd.Presentacion.Tests/AppShellTests.cs`: navegación a cada sección, visibilidad por rol, contadores
+- [X] T024 [F1] `dotnet build` + `dotnet test` completos; actualizar `PROGRESO.md`; fusionar a `main`
 
 ---
 

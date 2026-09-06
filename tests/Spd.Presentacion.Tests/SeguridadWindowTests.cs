@@ -4,6 +4,7 @@ using Spd.Aplicacion;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Configuracion;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -26,7 +27,7 @@ public sealed class SeguridadWindowTests
         var servicioPurga = new ServicioPurga(
             new RepositorioPacientes(conexion), new RepositorioEnvases(conexion), new RepositorioUsuarios(conexion), new HasheadorArgon2id(),
             new RepositorioFarmacia(conexion), new RepositorioPurga(conexion), auditoria);
-        var ventana = new SeguridadWindow(servicioCifrado, servicioPurga, administradorActualId: 1);
+        var ventana = AnfitrionDeVista.Anfitrion(new SeguridadView { DataContext = new SeguridadViewModel(servicioCifrado, servicioPurga, administradorActualId: 1) });
 
         ventana.Show();
     }

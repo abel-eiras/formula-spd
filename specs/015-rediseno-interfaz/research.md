@@ -94,6 +94,40 @@ a mano el resultado de cada fase antes de seguir.
 Riesgo aceptado y vigilado: durante ese intervalo hay dos patrones de navegación conviviendo. Se acota
 documentándolo aquí y cerrándolo en la fase 3, no dejándolo indefinido.
 
+## Decisión 10 — Se estilan propiedades, no se reescriben plantillas de controles estándar
+
+Añadida durante la fase 1. Hay dos formas de aplicar un tema propio en Avalonia: ajustar propiedades
+(color, tipo, radio, espaciado) con `Style`, o sustituir el `ControlTheme` completo de cada control.
+La segunda da control total sobre los estados (hover, pulsado, foco), pero un error en una plantilla
+no produce un fallo: produce un control **invisible**, y esta sesión no tiene pantalla con la que
+comprobarlo. Se elige la primera, más otras dos palancas:
+
+- **Sobrescribir `SystemAccentColor` y sus seis derivados** en la paleta: es de donde Fluent saca
+  selecciones, focos y marcas de verificación, así que los controles estándar adoptan el acento de la
+  farmacia sin tocar sus plantillas.
+- **Plantilla propia solo para los controles propios** (`Pastilla`, `FranjaSeveridad`), donde no hay
+  nada de Fluent que romper.
+
+Consecuencia asumida y anotada para la prueba manual: los estados de hover y pulsado de los botones
+siguen derivando de los colores de Fluent hasta que se validen en pantalla. Es un matiz, no un
+defecto; y es reversible sin tocar nada más que `Estilos/Controles.axaml`.
+
+## Decisión 11 — Los tests headless renderizan con Skia
+
+El dibujo simulado de `Avalonia.Headless` (`UseHeadlessDrawing = true`, el valor por defecto) no carga
+fuentes embebidas: en cuanto la aplicación pasó a usar IBM Plex, **todas** las vistas fallaban con
+"Could not create glyphTypeface", por una limitación del entorno de prueba y no por un defecto del
+código. `TestAppBuilder` pasa a `UseSkia()` con `UseHeadlessDrawing = false`, con lo que los tests
+ejercitan el mismo camino de texto que el usuario.
+
+Dos detalles aprendidos por el camino, que conviene no volver a descubrir:
+
+- Avalonia **no sintetiza pesos** en una familia embebida: si el XAML usa `FontWeight="Bold"` y el
+  fichero Bold no está, falla. Hay que embeber cada peso y estilo que se use (aquí: Regular, Medium,
+  SemiBold, Bold e Italic de Sans; Regular, Medium, SemiBold y Bold de Mono).
+- La carpeta que se referencia como familia (`avares://…/Assets/Fuentes#IBM Plex Sans`) debe contener
+  **solo** ficheros de fuente; la licencia se guarda en `Assets/IBM-Plex-LICENSE.txt`, fuera.
+
 ## Decisión 9 — Sin animaciones más allá de las transiciones del propio tema
 
 El propietario ha pedido fluidez, que en una herramienta de trabajo significa que no haya esperas ni

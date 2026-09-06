@@ -9,5 +9,6 @@ public partial class IdoneidadConsentimientoView : UserControl
 
     // Spec 014 FR-1402: observaciones obligatorias, representante con DNI, firma futura… tienen
     // razón normativa; el botón abre su explicación.
-    private void Porque_Click(object? sender, RoutedEventArgs e) => AyudaWindow.Abrir("procedimiento", "porque-de-los-bloqueos");
+    private void Porque_Click(object? sender, RoutedEventArgs e)
+        => AyudaContextual.Abrir("procedimiento", "porque-de-los-bloqueos");
 }

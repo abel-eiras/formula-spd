@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Configuracion;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -28,7 +29,7 @@ public sealed class PerfilesImportacionViewTests
                 [new ParCampoColumna("Nombre", "0")], null),
             null);
 
-        var ventana = new PerfilesImportacionWindow(servicio, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new PerfilesImportacionView { DataContext = new PerfilesImportacionViewModel(servicio, usuarioActualId: null) });
 
         ventana.Show();
     }

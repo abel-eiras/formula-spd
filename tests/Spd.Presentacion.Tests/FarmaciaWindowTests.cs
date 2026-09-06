@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Configuracion;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -29,7 +30,7 @@ public sealed class FarmaciaWindowTests
         var servicioFarmacia = new ServicioConfiguracionFarmacia(repositorioFarmacia, auditoria);
         var servicioBackup = new ServicioBackup(conexion, repositorioFarmacia, auditoria);
 
-        var ventana = new FarmaciaWindow(servicioFarmacia, new GestorLogoFarmacia(), servicioBackup, administradorActualId: 1);
+        var ventana = AnfitrionDeVista.Anfitrion(new FarmaciaView { DataContext = new FarmaciaViewModel(servicioFarmacia, new GestorLogoFarmacia(), servicioBackup, administradorActualId: 1) });
 
         ventana.Show();
     }

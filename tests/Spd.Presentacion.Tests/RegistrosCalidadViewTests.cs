@@ -4,6 +4,7 @@ using Spd.Aplicacion;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.RegistrosCalidad;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -30,7 +31,7 @@ public sealed class RegistrosCalidadViewTests
         servicio.RegistrarRecogidaResiduos(
             new DatosRecogidaResiduos(DateOnly.FromDateTime(DateTime.Today), "Gestora S.L.", null), usuarioId);
 
-        var ventana = new RegistrosCalidadWindow(servicio, usuarioId);
+        var ventana = AnfitrionDeVista.Anfitrion(new RegistrosCalidadView { DataContext = new RegistrosCalidadViewModel(servicio, usuarioId) });
 
         // Show() fuerza la realización del ItemTemplate de ambas pestañas con datos reales.
         ventana.Show();

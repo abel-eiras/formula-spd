@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.RegistrosCalidad;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -32,7 +33,7 @@ public sealed class ControlDocumentalViewTests
             administradorId);
         servicio.RegistrarCopia(new DatosCopia("PNT-SPD", 1, administradorId, DateOnly.FromDateTime(DateTime.Today)), administradorId);
 
-        var ventana = new ControlDocumentalWindow(servicio, administradorId);
+        var ventana = AnfitrionDeVista.Anfitrion(new ControlDocumentalView { DataContext = new ControlDocumentalViewModel(servicio, administradorId) });
 
         // Show() fuerza la realización del ItemTemplate de ambos listados con datos reales.
         ventana.Show();

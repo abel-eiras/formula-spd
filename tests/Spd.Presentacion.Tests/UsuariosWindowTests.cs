@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Configuracion;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -28,7 +29,7 @@ public sealed class UsuariosWindowTests
             new DatosAltaUsuario("Ana", "Administradora", "ana.admin", "contraseña-inicial", Rol.Administrador, null, null),
             administradorQueEjecutaId: null);
 
-        var ventana = new UsuariosWindow(servicio, administrador.Usuario.Id);
+        var ventana = AnfitrionDeVista.Anfitrion(new UsuariosView { DataContext = new UsuariosViewModel(servicio, administrador.Usuario.Id) });
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el usuario recién creado
         // — es exactamente el paso en el que se producía el cierre inesperado.

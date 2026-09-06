@@ -1,0 +1,206 @@
+<!--
+  Spec 015 H1.1/H1.2 — Estilos de la aplicación.
+
+  Criterio (research.md Decisión 10): se estilan **propiedades**, no se reescriben las plantillas de
+  los controles estándar. Sustituir una plantilla de Fluent sin poder verla en pantalla es la vía
+  rápida a un control invisible; ajustar color, tipo, radio y espaciado transforma el aspecto sin ese
+  riesgo. Las plantillas propias se reservan para los controles propios (Pastilla, FranjaSeveridad),
+  donde no hay nada que romper.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Spd.Presentacion.Controles">
+
+  <!-- Tipografía y fondo heredados por toda la interfaz -->
+  <Style Selector="Window">
+    <Setter Property="FontFamily" Value="{DynamicResource FuenteInterfaz}" />
+    <Setter Property="FontSize" Value="{DynamicResource TamanoBase}" />
+    <Setter Property="Foreground" Value="{DynamicResource Tinta}" />
+    <Setter Property="Background" Value="{DynamicResource Fondo}" />
+  </Style>
+
+  <Style Selector="UserControl">
+    <Setter Property="FontFamily" Value="{DynamicResource FuenteInterfaz}" />
+    <Setter Property="FontSize" Value="{DynamicResource TamanoBase}" />
+  </Style>
+
+  <!-- Texto -->
+  <Style Selector="TextBlock.pagina">
+    <Setter Property="FontSize" Value="{DynamicResource TamanoPagina}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.titulo">
+    <Setter Property="FontSize" Value="{DynamicResource TamanoSeccion}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.etiqueta">
+    <Setter Property="FontSize" Value="{DynamicResource TamanoEtiqueta}" />
+    <Setter Property="FontWeight" Value="Medium" />
+    <Setter Property="Foreground" Value="{DynamicResource TintaSuave}" />
+  </Style>
+  <Style Selector="TextBlock.suave">
+    <Setter Property="Foreground" Value="{DynamicResource TintaSuave}" />
+  </Style>
+  <!-- Lo que se compara a ojo o se copia: nº de registro, CN, serie, lote, pauta -->
+  <Style Selector="TextBlock.datos">
+    <Setter Property="FontFamily" Value="{DynamicResource FuenteDatos}" />
+    <Setter Property="FontSize" Value="{DynamicResource TamanoEtiqueta}" />
+  </Style>
+
+  <!-- Superficies -->
+  <Style Selector="Border.tarjeta">
+    <Setter Property="Background" Value="{DynamicResource Superficie}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Padding" Value="16" />
+  </Style>
+  <Style Selector="Border.panel">
+    <Setter Property="Background" Value="{DynamicResource SuperficieAlterna}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Padding" Value="12" />
+  </Style>
+  <Style Selector="Border.separador">
+    <Setter Property="Background" Value="{DynamicResource Linea}" />
+    <Setter Property="Height" Value="1" />
+  </Style>
+
+  <!-- Botones: color y forma; los estados de Fluent derivan del acento sobrescrito en la paleta -->
+  <Style Selector="Button">
+    <Setter Property="Background" Value="{DynamicResource Superficie}" />
+    <Setter Property="Foreground" Value="{DynamicResource Tinta}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Padding" Value="12,6" />
+    <Setter Property="FontSize" Value="{DynamicResource TamanoBase}" />
+  </Style>
+  <Style Selector="Button.primario">
+    <Setter Property="Background" Value="{DynamicResource Acento}" />
+    <Setter Property="Foreground" Value="{DynamicResource AcentoTexto}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Acento}" />
+    <Setter Property="FontWeight" Value="Medium" />
+  </Style>
+  <Style Selector="Button.enlace">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource Acento}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="8,4" />
+  </Style>
+  <!-- Entradas de la navegación lateral -->
+  <Style Selector="Button.navegacion">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Padding" Value="10,7" />
+    <Setter Property="CornerRadius" Value="7" />
+  </Style>
+  <Style Selector="Button.navegacion.activa">
+    <Setter Property="Background" Value="{DynamicResource AcentoSuave}" />
+    <Setter Property="Foreground" Value="{DynamicResource Acento}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <!-- Campos -->
+  <Style Selector="TextBox">
+    <Setter Property="Background" Value="{DynamicResource Superficie}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="MinHeight" Value="30" />
+  </Style>
+  <Style Selector="ComboBox">
+    <Setter Property="Background" Value="{DynamicResource Superficie}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="MinHeight" Value="30" />
+  </Style>
+  <Style Selector="NumericUpDown">
+    <Setter Property="Background" Value="{DynamicResource Superficie}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="MinHeight" Value="30" />
+  </Style>
+  <Style Selector="DatePicker">
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="MinHeight" Value="30" />
+  </Style>
+
+  <!-- Listas y pestañas -->
+  <Style Selector="ListBox">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Linea}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="9" />
+  </Style>
+  <Style Selector="TabItem">
+    <Setter Property="FontSize" Value="{DynamicResource TamanoBase}" />
+    <Setter Property="Padding" Value="14,8" />
+    <Setter Property="MinHeight" Value="0" />
+  </Style>
+
+  <!-- Controles propios: plantilla completa, aquí no hay nada de Fluent que romper -->
+  <Style Selector="c|Pastilla">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="fondo" Background="{DynamicResource SuperficieAlterna}"
+                BorderBrush="{DynamicResource Linea}" BorderThickness="1"
+                CornerRadius="10" Padding="8,1" VerticalAlignment="Center">
+          <TextBlock Name="texto" Text="{TemplateBinding Texto}"
+                     FontSize="{DynamicResource TamanoEtiqueta}" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TintaSuave}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Acento] /template/ Border#fondo">
+    <Setter Property="Background" Value="{DynamicResource AcentoSuave}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AcentoSuave}" />
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Acento] /template/ TextBlock#texto">
+    <Setter Property="Foreground" Value="{DynamicResource Acento}" />
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Apto] /template/ Border#fondo">
+    <Setter Property="Background" Value="{DynamicResource AptoSuave}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AptoSuave}" />
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Apto] /template/ TextBlock#texto">
+    <Setter Property="Foreground" Value="{DynamicResource Apto}" />
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Aviso] /template/ Border#fondo">
+    <Setter Property="Background" Value="{DynamicResource AvisoSuave}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AvisoSuave}" />
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Aviso] /template/ TextBlock#texto">
+    <Setter Property="Foreground" Value="{DynamicResource Aviso}" />
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Bloqueo] /template/ Border#fondo">
+    <Setter Property="Background" Value="{DynamicResource BloqueoSuave}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BloqueoSuave}" />
+  </Style>
+  <Style Selector="c|Pastilla[Variante=Bloqueo] /template/ TextBlock#texto">
+    <Setter Property="Foreground" Value="{DynamicResource Bloqueo}" />
+  </Style>
+
+  <Style Selector="c|FranjaSeveridad">
+    <Setter Property="Width" Value="4" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="franja" Background="Transparent" CornerRadius="2" />
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="c|FranjaSeveridad[Severidad=Apto] /template/ Border#franja">
+    <Setter Property="Background" Value="{DynamicResource Apto}" />
+  </Style>
+  <Style Selector="c|FranjaSeveridad[Severidad=Aviso] /template/ Border#franja">
+    <Setter Property="Background" Value="{DynamicResource Aviso}" />
+  </Style>
+  <Style Selector="c|FranjaSeveridad[Severidad=Bloqueo] /template/ Border#franja">
+    <Setter Property="Background" Value="{DynamicResource Bloqueo}" />
+  </Style>
+
+</Styles>

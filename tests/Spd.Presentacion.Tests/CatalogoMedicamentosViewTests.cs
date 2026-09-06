@@ -4,6 +4,8 @@ using Spd.Aplicacion;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Medicamentos;
+using Spd.Presentacion.Navegacion;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -27,7 +29,7 @@ public sealed class CatalogoMedicamentosViewTests
         var servicioImportacion = new ServicioImportacionNomenclator(new LectorNomenclatorCsv(), repositorio, auditoria);
         var servicioConsultaCima = new ServicioConsultaCima(new HttpClient(), auditoria);
 
-        var ventana = new CatalogoMedicamentosWindow(servicio, servicioImportacion, servicioConsultaCima, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new CatalogoMedicamentosView { DataContext = new CatalogoMedicamentosViewModel(servicio, servicioImportacion, servicioConsultaCima, new Navegador(true), usuarioActualId: null) });
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el medicamento recién creado.
         ventana.Show();

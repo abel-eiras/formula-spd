@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Pacientes;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -69,9 +70,9 @@ public sealed class BuscadorPacientesViewTests
         var servicioIdoneidad = new ServicioIdoneidadConsentimiento(
             new RepositorioEvaluacionesIdoneidad(conexion), new RepositorioConsentimientos(conexion),
             new RepositorioContactos(conexion), repositorioPacientes, servicio, auditoria);
-        var ventana = new BuscadorPacientesWindow(
+        var ventana = AnfitrionDeVista.Anfitrion(new BuscadorPacientesView { DataContext = new BuscadorPacientesViewModel(
             servicio, servicioTratamientos, servicioMedicamentos, servicioEnvases, servicioImportacion,
-            servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, servicioIdoneidad, usuarioActualId: null);
+            servicioComunicaciones, servicioPreparacion, servicioGeneracionDocumentos, servicioIdoneidad, usuarioActualId: null) });
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el paciente recién creado.
         ventana.Show();

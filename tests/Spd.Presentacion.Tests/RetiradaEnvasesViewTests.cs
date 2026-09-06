@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -55,7 +56,7 @@ public sealed class RetiradaEnvasesViewTests
             repositorioPacientes, new RepositorioContactos(conexion), repositorioTratamientos, repositorioMedicamentos,
             repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
 
-        var ventana = new RetiradaEnvasesWindow(servicioListadoRetirada, servicioEnvases, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new RetiradaEnvasesView { DataContext = new RetiradaEnvasesViewModel(servicioListadoRetirada, servicioEnvases, usuarioActualId: null) });
 
         ventana.Show();
     }

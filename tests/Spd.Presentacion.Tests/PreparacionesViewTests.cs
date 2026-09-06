@@ -5,6 +5,7 @@ using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Preparacion;
+using Spd.Presentacion.ViewModels;
 using Xunit;
 
 namespace Spd.Presentacion.Tests;
@@ -63,9 +64,9 @@ public sealed class PreparacionesViewTests
         var comunicaciones = new ServicioComunicacionesMedico(new RepositorioComunicacionesMedico(conexion), repositorioPacientes, repositorioTratamientos, auditoria);
         var lote = new ServicioGeneracionLote(servicioPreparacion, documentos, repositorioSpd, repositorioPacientes);
 
-        var ventana = new PreparacionesWindow(
+        var ventana = AnfitrionDeVista.Anfitrion(new PreparacionesView { DataContext = new PreparacionesViewModel(
             servicioPreparacion, servicioPacientes, servicioUsuarios, new ServicioMedicamentos(repositorioMedicamentos, auditoria),
-            documentos, comunicaciones, lote, usuarioActualId: elaborador.Id);
+            documentos, comunicaciones, lote, usuarioActualId: elaborador.Id) });
 
         ventana.Show();
     }
