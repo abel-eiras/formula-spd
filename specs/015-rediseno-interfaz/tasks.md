@@ -26,13 +26,13 @@
 
 - [X] T001 [F1] Descargar e incorporar IBM Plex Sans e IBM Plex Mono (SIL OFL 1.1) a `src/Spd.Presentacion/Assets/Fuentes/` y declararlas en el csproj como `AvaloniaResource`
 - [X] T002 [F1] `src/Spd.Presentacion/Estilos/Paleta.axaml`: las 14 claves de color de `data-model.md` en variante clara y oscura (`ResourceDictionary.ThemeDictionaries`)
-- [ ] T003 [P] [F1] `src/Spd.Presentacion/Estilos/Tipografia.axaml`: `FuenteInterfaz`, `FuenteDatos` y la escala tipográfica (11/13/15/18/22)
-- [ ] T004 [P] [F1] `src/Spd.Presentacion/Estilos/Controles.axaml`: estilos de `Button` (primario, secundario, enlace), `TextBox`, `ComboBox`, `CheckBox`, `ListBox`, `TabControl`, `Separator`
+- [X] T003 [P] [F1] `src/Spd.Presentacion/Estilos/Tipografia.axaml`: `FuenteInterfaz`, `FuenteDatos` y la escala tipográfica (11/13/15/18/22)
+- [X] T004 [P] [F1] `src/Spd.Presentacion/Estilos/Controles.axaml`: estilos de `Button` (primario, secundario, enlace), `TextBox`, `ComboBox`, `CheckBox`, `ListBox`, `TabControl`, `Separator`
 - [X] T005 [F1] Aplicar los tres diccionarios en `src/Spd.Presentacion/App.axaml`, después de `FluentTheme`
-- [ ] T006 [P] [F1] `src/Spd.Presentacion/Controles/Pastilla.axaml(.cs)` con las cinco variantes
-- [ ] T007 [P] [F1] `src/Spd.Presentacion/Controles/FranjaSeveridad.axaml(.cs)`
-- [ ] T008 [P] [F1] `src/Spd.Presentacion/Controles/BarraMensaje.axaml(.cs)`: mensaje + "¿Por qué?" que abre el apartado indicado (sustituye el `Border` + `Button` repetido hoy en Preparación e Idoneidad)
-- [ ] T009 [P] [F1] Test `tests/Spd.Presentacion.Tests/TemaTests.cs`: toda clave de color existe en ambas variantes; las dos fuentes embebidas se resuelven
+- [X] T006 [P] [F1] `src/Spd.Presentacion/Controles/Pastilla.axaml(.cs)` con las cinco variantes
+- [X] T007 [P] [F1] `src/Spd.Presentacion/Controles/FranjaSeveridad.axaml(.cs)`
+- [ ] T008 [P] [F1] **No hecho**: `src/Spd.Presentacion/Controles/BarraMensaje.axaml(.cs)`: mensaje + "¿Por qué?" que abre el apartado indicado (sustituye el `Border` + `Button` repetido hoy en Preparación e Idoneidad)
+- [X] T009 [P] [F1] Test `tests/Spd.Presentacion.Tests/TemaTests.cs`: toda clave de color existe en ambas variantes; las dos fuentes embebidas se resuelven
 
 ### Marco y navegación (H1.3, H1.4)
 
@@ -64,16 +64,16 @@
 
 - [X] T025 [F2] `AvisoInicio` gana `Destino` en `src/Spd.Aplicacion/IServicioAvisosInicio.cs` y `ServicioAvisosInicio.cs` (sección + paciente + pestaña)
 - [X] T026 [F2] `ViewModels/InicioViewModel.cs` y `Views/InicioView.axaml(.cs)`: cuatro indicadores + lista de avisos accionables + acciones rápidas
-- [ ] T027 [P] [F2] Test `tests/Spd.Aplicacion.Tests/ServicioAvisosInicioTests.cs` (ampliado): cada aviso lleva su destino
-- [ ] T028 [P] [F2] Test `tests/Spd.Presentacion.Tests/InicioViewTests.cs`: la vista se realiza con los cuatro tipos de aviso
+- [X] T027 [P] [F2] Test `tests/Spd.Aplicacion.Tests/ServicioAvisosInicioTests.cs` (ampliado): cada aviso lleva su destino
+- [X] T028 [P] [F2] Test `tests/Spd.Presentacion.Tests/InicioViewTests.cs`: la vista se realiza con los cuatro tipos de aviso
 - [X] T029 [F2] Decidir Q4 y, según la respuesta, añadir `Avalonia.Controls.DataGrid` 11.3.20 + su tema, o implementar la alternativa de `ItemsControl` con anchos compartidos (research.md Decisión 4)
 - [X] T030 [F2] `Estilos/Tabla.axaml` y conversión de `PreparacionesView` a tabla ordenable con selección múltiple
-- [ ] T031 [P] [F2] Conversión de `RetiradaEnvasesView` a tabla
-- [ ] T032 [P] [F2] Conversión de `BuscadorPacientesView` a tabla
-- [ ] T033 [P] [F2] Conversión de `CatalogoMedicamentosView` a tabla
+- [X] T031 [P] [F2] Conversión de `RetiradaEnvasesView` a tabla
+- [X] T032 [P] [F2] Conversión de `BuscadorPacientesView` a tabla
+- [X] T033 [P] [F2] Conversión de `CatalogoMedicamentosView` a tabla
 - [X] T034 [F2] `src/Spd.Aplicacion/IServicioBusquedaGlobal.cs` + `ServicioBusquedaGlobal.cs`: pacientes, medicamentos y blísteres, normalizados
 - [X] T035 [F2] Búsqueda global en la cabecera del shell (`AppShellViewModel`), con navegación al resultado
-- [ ] T036 [P] [F2] Tests `ServicioBusquedaGlobalTests` y `PreparacionesViewModelTests.Ordenar_conserva_la_seleccion`
+- [X] T036 [P] [F2] Tests `ServicioBusquedaGlobalTests` y `PreparacionesViewModelTests.Ordenar_conserva_la_seleccion`
 - [X] T037 [F2] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
 
 ---
@@ -89,8 +89,8 @@
 - [X] T044 [F3] Migrar a panel lateral: importar tratamiento (Depósito), revocación (Idoneidad), reelaboración (Preparación)
 - [X] T045 [F3] Todos los ViewModels de pestaña usan `PacienteContexto`; eliminar el parche `FichaPacienteViewModel.RecargarPaciente` y los `Closed +=`
 - [X] T046 [F3] **Eliminar** `FichaPacienteWindow`, `TratamientoWindow`, `DepositoWindow`, `ComunicacionesMedicoWindow`, `IdoneidadConsentimientoWindow`, `PreparacionWindow`, `ImportarTratamientoWindow`
-- [ ] T047 [P] [F3] Tests `PacienteWorkspaceViewTests` (siete pestañas), `PacienteContextoTests` (activación en el momento), `PanelLateralTests`
-- [ ] T048 [P] [F3] Ayuda (Spec 014 FR-1525): reescribir `uso__030-ficha-paciente`, `uso__040-idoneidad-consentimiento`, `uso__050-tratamientos`, `uso__060-deposito`, `uso__070-preparacion`, `uso__080-comunicaciones-medico` a pestañas y paneles; `uso__010-inicio` al marco único
+- [X] T047 [P] [F3] Tests `PacienteWorkspaceViewTests` (siete pestañas), `PacienteContextoTests` (activación en el momento), `PanelLateralTests`
+- [ ] T048 [P] [F3] Ayuda (Spec 014 FR-1525) — **a medias**: reescritos `uso__010-inicio` (marco único, búsqueda global, avisos accionables), `uso__020-pacientes` (tabla), `uso__030-ficha-paciente` (cabecera fija y pestañas) y `uso__060-deposito` (panel lateral). **Faltan** `uso__040-idoneidad-consentimiento`, `uso__050-tratamientos`, `uso__070-preparacion` (carril y rejilla) y `uso__080-comunicaciones-medico` (selector de médico por nombre)
 - [X] T049 [F3] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
 
 ---
@@ -99,13 +99,13 @@
 
 - [X] T050 [F4] Q2 (tomas por día y días por blíster) **resuelta desde el dominio, no consultada**: 7 días × 4 tomas es lo que ya imponen `PautaD/A/C/N`, la máscara `DiasSemana` de 7 caracteres y la validez del blíster. Queda por confirmar en la prueba manual (T061) que coincide con el dispositivo real de la farmacia
 - [X] T051 [F4] `ViewModels/PasoPreparacion.cs` + `Controles/CarrilPasos.axaml(.cs)`: cinco pasos derivados del estado del SPD, con motivo de bloqueo
-- [ ] T052 [P] [F4] Test `CarrilPasosTests`: paso actual y bloqueos por cada estado del SPD; motivos correctos
+- [X] T052 [P] [F4] Test `CarrilPasosTests`: paso actual y bloqueos por cada estado del SPD; motivos correctos
 - [X] T053 [F4] `Controles/RejillaAlveolos.axaml(.cs)`: días × tomas desde las líneas del SPD, fracción con `FraccionDosis.Texto()`, inicial del medicamento
-- [ ] T054 [P] [F4] Test `RejillaAlveolosTests`: pauta completa, pauta con días parciales, dos líneas en el mismo alvéolo
+- [X] T054 [P] [F4] Test `RejillaAlveolosTests`: pauta completa, pauta con días parciales, dos líneas en el mismo alvéolo
 - [X] T055 [F4] `PreparacionView` reorganizada sobre el carril: llenado, verificación y entrega como paneles del paso
 - [X] T056 [F4] Verificación con selector de **verificador por nombre** (usuarios activos) y las ocho preguntas del Anexo I.G con su texto
-- [ ] T057 [P] [F4] Selector de médico por nombre en `TratamientoView` y `ComunicacionesMedicoView` (sustituye el campo numérico de id)
-- [ ] T058 [P] [F4] Test `SinIdentificadoresEnLaInterfazTests`: ningún `.axaml` enlaza un control numérico a un `*Id` de usuario o médico
+- [X] T057 [P] [F4] Selector de médico por nombre en `TratamientoView` y `ComunicacionesMedicoView` (sustituye el campo numérico de id)
+- [X] T058 [P] [F4] Test `SinIdentificadoresEnLaInterfazTests`: ningún `.axaml` enlaza un control numérico a un `*Id` de usuario o médico
 - [X] T059 [F4] Impresión (ficha, etiquetas, instrucciones) ofrecida desde el paso correspondiente del carril
 - [X] T060 [F4] `dotnet build` + `dotnet test`; `PROGRESO.md`; fusionar a `main`
 - [ ] T061 [F4] **Prueba manual del ciclo completo por el propietario** (quickstart.md), pendiente desde el inicio del proyecto

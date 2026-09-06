@@ -131,7 +131,7 @@ multi-envase correcto.
 
 - [X] T051 [P] Implementar `ListarPorFiltro` (FR-690) en `ServicioPreparacion`
 - [X] T052 [P] Implementar `RegistrarImpresion` (FR-680/681, research.md Decisión 8) — solo timestamp + auditoría
-- [ ] T053 Implementar pantalla "Preparaciones" (listado con filtros) en `src/Spd.Presentacion/Views/Preparacion/`
+- [X] T053 Implementar pantalla "Preparaciones" (listado con filtros) en `src/Spd.Presentacion/Views/Preparacion/`
 
 ## Phase 9: Polish
 
