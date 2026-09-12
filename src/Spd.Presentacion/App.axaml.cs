@@ -336,7 +336,16 @@ public partial class App : Application
 
     // Art. IX.4: arranque completo hasta pantalla de login/asistente < 2 s en PC de gama media.
     private static void RegistrarTiempoDeArranque(string pantalla)
-        => Log.Information(
-            "Arranque hasta pantalla de {Pantalla} en {Milisegundos} ms",
-            pantalla, Program.CronometroArranque.ElapsedMilliseconds);
+    {
+        var transcurrido = Program.TiempoDesdeElArranque();
+        if (transcurrido == TimeSpan.Zero)
+        {
+            Log.Warning("Arranque hasta pantalla de {Pantalla}: no se pudo medir el tiempo de proceso", pantalla);
+            return;
+        }
+
+        Log.Information(
+            "Arranque hasta pantalla de {Pantalla} en {Milisegundos} ms (límite del Art. IX.4: 2000 ms)",
+            pantalla, (long)transcurrido.TotalMilliseconds);
+    }
 }
