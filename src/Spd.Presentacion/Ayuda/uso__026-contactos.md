@@ -2,6 +2,8 @@
 
 Están en la pestaña **Datos** del paciente, debajo de sus datos. No son un listín de teléfonos: dos de las marcas tienen consecuencias reales.
 
+En un paciente **nuevo**, el botón «Añadir contacto» está apagado hasta que pulses **Guardar** una primera vez. No es un fallo: un contacto cuelga de una ficha, y hasta ese momento la ficha todavía no existe. En cuanto guardas, los contactos se añaden ahí mismo, sin cambiar de pantalla. El **médico de cabecera** no tiene esa espera: se puede buscar y dar de alta desde el primer momento, antes de guardar ([[uso:medicos]]).
+
 ## Las dos marcas que importan
 
 - **Contacto principal**: es el que se imprime como «Familiar próximo» en el Anexo. Solo puede haber uno; marcar a otro desmarca al anterior, que es precisamente la forma de cambiarlo.
