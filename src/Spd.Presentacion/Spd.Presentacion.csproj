@@ -12,6 +12,16 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Las licencias viajan como ficheros legibles en la carpeta de publicación, no solo embebidas
+         en el binario. La SIL Open Font License de IBM Plex **exige** distribuirla junto a las
+         fuentes, y embebida dentro del ejecutable no hay forma de que quien recibe el programa la
+         lea. Art. VI: la instalación es una carpeta, y sus licencias van dentro. -->
+    <None Include="Assets\IBM-Plex-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" Link="licencias\IBM-Plex-LICENSE.txt" />
+    <None Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="licencias\LICENSE.txt" />
+    <None Include="..\..\AVISOS-DE-TERCEROS.md" CopyToOutputDirectory="PreserveNewest" Link="licencias\AVISOS-DE-TERCEROS.md" />
     <!-- Spec 014 FR-1405: la ayuda es documentación versionada con el código (Art. XI.5) -->
     <EmbeddedResource Include="Ayuda\*.md" />
   </ItemGroup>
