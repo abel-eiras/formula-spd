@@ -2,6 +2,9 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Fuente única de la versión: la lee el comprobador de actualizaciones del ensamblado, y es la
+         que debe coincidir con la etiqueta de la release en GitHub (con o sin `v` delante). -->
+    <Version>0.1.0</Version>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>

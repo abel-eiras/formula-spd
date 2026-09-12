@@ -23,7 +23,7 @@ public sealed class ServicioActualizaciones(HttpClient httpClient, IRegistradorA
             respuesta.EnsureSuccessStatusCode();
             var release = await respuesta.Content.ReadFromJsonAsync<ReleaseGitHub>();
 
-            var hayNueva = release?.TagName is not null && release.TagName != versionInstalada;
+            var hayNueva = EsMasNueva(release?.TagName, versionInstalada);
             Registrar(administradorQueEjecutaId, $"hayNueva={hayNueva}");
             return new ResultadoComprobacionActualizacion(
                 true, hayNueva, release?.TagName, release?.HtmlUrl, null, DateTime.UtcNow);
@@ -33,6 +33,40 @@ public sealed class ServicioActualizaciones(HttpClient httpClient, IRegistradorA
             Registrar(administradorQueEjecutaId, $"fallo={ex.Message}");
             return new ResultadoComprobacionActualizacion(false, false, null, null, ex.Message, DateTime.UtcNow);
         }
+    }
+
+    /// <summary>¿La release publicada es **posterior** a la instalada?
+    ///
+    /// Antes esto era `tagName != versionInstalada`, que es distinto y peor: cualquier etiqueta que no
+    /// coincidiera carácter a carácter contaba como novedad. Con la etiqueta `v0.1.0` y la versión
+    /// instalada `0.1.0` —la forma habitual de etiquetar en GitHub— la aplicación habría ofrecido
+    /// actualizarse a su propia versión, para siempre. Y una etiqueta *anterior* también se habría
+    /// anunciado como nueva.
+    ///
+    /// Se admite la `v` inicial de las etiquetas y se comparan como versiones. Si alguna no se puede
+    /// interpretar (una etiqueta como `beta-gallega`), se cae a la comparación textual anterior: es
+    /// menos preciso, pero es honesto y no se inventa un orden que no existe.</summary>
+    public static bool EsMasNueva(string? etiquetaRelease, string? versionInstalada)
+    {
+        if (string.IsNullOrWhiteSpace(etiquetaRelease)) return false;
+        if (string.IsNullOrWhiteSpace(versionInstalada)) return true;
+
+        if (Version.TryParse(Normalizar(etiquetaRelease), out var deLaRelease)
+            && Version.TryParse(Normalizar(versionInstalada), out var instalada))
+        {
+            return deLaRelease > instalada;
+        }
+
+        return !string.Equals(etiquetaRelease.Trim(), versionInstalada.Trim(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Quita la `v` de las etiquetas y lo que venga tras `+` o `-` (metadatos de compilación
+    /// y sufijos de preliberación), que `Version` no sabe interpretar.</summary>
+    private static string Normalizar(string valor)
+    {
+        var limpio = valor.Trim().TrimStart('v', 'V');
+        var corte = limpio.IndexOfAny(['+', '-']);
+        return corte >= 0 ? limpio[..corte] : limpio;
     }
 
     private void Registrar(int? administradorId, string detalle)
