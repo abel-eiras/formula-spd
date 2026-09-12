@@ -482,3 +482,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Carpeta de recursos extra de documentación y PNTs
+resources
