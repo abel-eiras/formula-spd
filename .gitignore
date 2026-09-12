@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 
 # Carpeta de recursos extra de documentación y PNTs
 resources
+# Paquetes de publicación (Art. VI: la instalación es una carpeta; no se versiona)
+publicar/
