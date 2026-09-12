@@ -153,7 +153,7 @@ mismo paciente.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T057 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md`
+- [ ] T057 [P] Ejecutar íntegramente [quickstart.md](./quickstart.md) y registrar el resultado en `PROGRESO.md` — **pendiente del propietario**. Los pasos de US2 (médicos) y US3 (contactos) están además añadidos al guion de la Spec 015, para poder probar todo en una sola pasada
 - [X] T058 Revisar que ningún método de `Spd.Dominio`/`Spd.Aplicacion` supere ~40 líneas ni ninguna clase ~300 (Art. XI.6) — revisión hecha 2026-09-06; siete métodos y una clase por encima, listados en `PROGRESO.md` con su valoración. **No se refactoriza sin supervisión**: son el núcleo de la preparación
 - [ ] T059 [P] Actualizar `PROGRESO.md` marcando cada CA-001..CA-015 como validado, con el test que lo confirma
 
