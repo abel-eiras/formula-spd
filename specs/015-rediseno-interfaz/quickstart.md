@@ -25,42 +25,55 @@ dotnet run --project src/Spd.Presentacion
 4. Seleccionar tres pacientes al día y generar el lote desde la tabla.
 5. Buscar en la cabecera: apellido de un paciente, nº de un blíster, CN de un medicamento.
 
-## Antes del recorrido — médicos y contactos (Spec 001 US2/US3)
-
-Se construyeron después de escribir este guion, y el médico de cabecera es ahora parte de la ficha.
-
-1. **Catálogo de médicos** (menú lateral, trabajo diario). Dar de alta dos médicos. **Comprobar**: con
-   nombre y apellidos basta; la columna "Pacientes" empieza en 0.
-2. Crear un tercer médico con los mismos nombre y apellidos que el primero. **Comprobar**: avisa del
-   posible duplicado **y lo crea igualmente** (FR-034); el aviso no bloquea.
-3. En la ficha de un paciente, campo **Médico de cabecera**: escribir dos letras del apellido.
-   **Comprobar**: encuentra sin tildes ni mayúsculas; "Cambiar" lo suelta.
-4. Escribir un apellido que no existe y pulsar **"Nuevo médico…"**. **Comprobar**: se abre un panel a la
-   derecha con el apellido ya puesto, **la ficha de detrás se sigue viendo**, y al guardar queda
-   seleccionado sin haber perdido nada de lo que estabas rellenando.
-5. Volver al catálogo e intentar dar de baja al médico de cabecera de ese paciente. **Comprobar**: lo
-   rechaza **diciendo a qué paciente hay que reasignar** (FR-036), no con un "no se puede" a secas.
-6. **Contactos** (en la pestaña Datos del paciente, debajo de los datos). Añadir un familiar sin DNI:
-   entra. Marcarlo como "retira la medicación": **comprobar** que exige DNI (FR-021c).
-7. Añadir un segundo contacto y marcarlo también como quien retira. **Comprobar**: el primero se
-   desmarca solo; solo puede haber uno.
-8. Sin nadie marcado como quien retira, **comprobar** que la pantalla avisa de que se usará el DNI del
-   propio paciente, y que la columna "DNI retirada" del listado de retirada lo refleja.
-9. Dar de baja un contacto y marcar **"Ver histórico"**. **Comprobar**: sigue ahí con su fecha de baja y
-   ha perdido las marcas de principal y de retirada.
-
 ## Tras la fase 3 — Espacio del paciente
 
-1. Alta de paciente → idoneidad → consentimiento → tratamiento → depósito → preparación.
-   **Comprobar**: no se abre ninguna ventana en todo el recorrido.
-2. Registrar la firma del consentimiento. **Comprobar**: la cabecera pasa a ACTIVO en el momento.
-3. Paciente con faltantes. **Comprobar**: la pestaña de Depósito aparece marcada como pendiente.
-4. Registrar un envase desde una línea del blíster. **Comprobar**: el panel se cierra y la línea ya lo
-   muestra.
-5. En la pestaña Tratamiento, cambiar la pauta de un medicamento y pulsar **"Ver historial"**.
-   **Comprobar**: aparecen los dos tramos, el vigente marcado, cada uno con la pauta y los días que
-   estuvieron en vigor y el motivo por el que terminó el anterior.
-6. F1 en cuatro pestañas distintas.
+El recorrido empieza **por el paciente**, que es el orden en que ocurre en el mostrador. El médico y
+los contactos se dan de alta cuando hacen falta, sin salir de su ficha: no son un paso previo.
+
+1. **Nuevo paciente**. Rellenar nombre, apellidos y DNI. Todavía no guardar.
+2. Campo **Médico de cabecera**: escribir dos letras del apellido de un médico que no existe.
+   **Comprobar**: no lo encuentra, pero ofrece **"Nuevo médico…"**.
+3. Pulsar **"Nuevo médico…"**. **Comprobar**: se abre un panel a la derecha con el apellido ya escrito,
+   **la ficha de detrás se sigue viendo**, y al crearlo queda seleccionado en el campo **sin que se
+   haya perdido nada de lo que llevabas tecleado** ni haya hecho falta guardar antes.
+4. **Guardar** el paciente. **Comprobar**: la cabecera muestra su nº de ficha y el médico quedó
+   asignado en el mismo gesto.
+5. **Contactos** (en esta misma pestaña Datos, debajo de los datos). Antes de guardar el botón estaba
+   apagado —un contacto cuelga de una ficha que aún no existía—; ahora ya se pueden añadir.
+   **Comprobar**: no hay que cambiar de pantalla.
+6. Añadir un familiar sin DNI: entra. Marcarlo como **"retira la medicación"**: **comprobar** que
+   entonces sí exige DNI (FR-021c).
+7. Añadir un segundo contacto y marcarlo también como quien retira. **Comprobar**: el primero se
+   desmarca solo; solo puede haber uno (FR-021b).
+8. Quitar la marca a los dos. **Comprobar**: la pantalla avisa de que se usará el DNI del propio
+   paciente, y la columna "DNI retirada" del listado de retirada lo refleja.
+9. Dar de baja un contacto y marcar **"Ver histórico"**. **Comprobar**: sigue ahí con su fecha de baja y
+   ha perdido las marcas de principal y de retirada.
+10. Seguir el recorrido: idoneidad → consentimiento → tratamiento → depósito → preparación.
+    **Comprobar**: no se abre ninguna ventana en todo el trayecto.
+11. Registrar la firma del consentimiento. **Comprobar**: la cabecera pasa a ACTIVO en el momento.
+12. Paciente con faltantes. **Comprobar**: la pestaña de Depósito aparece marcada como pendiente.
+13. Registrar un envase desde una línea del blíster. **Comprobar**: el panel se cierra y la línea ya lo
+    muestra.
+14. En la pestaña Tratamiento, cambiar la pauta de un medicamento y pulsar **"Ver historial"**.
+    **Comprobar**: aparecen los dos tramos, el vigente marcado, cada uno con la pauta y los días que
+    estuvieron en vigor y el motivo por el que terminó el anterior.
+15. F1 en cuatro pestañas distintas.
+
+## Mantenimiento del catálogo de médicos
+
+Esto **no** hace falta para dar de alta a nadie: es la pantalla a la que se va de vez en cuando a
+corregir datos o a limpiar. Se prueba después del recorrido, con médicos ya creados desde las fichas.
+
+1. **Catálogo de médicos** (menú lateral). **Comprobar**: están los que diste de alta desde las fichas,
+   y la columna "Pacientes" cuenta los que los tienen de cabecera.
+2. Crear un médico con los mismos nombre y apellidos que uno existente. **Comprobar**: avisa del
+   posible duplicado **y lo crea igualmente** (FR-034) — pueden ser dos personas distintas, o la misma
+   en dos centros.
+3. Corregir el centro de un médico ya asignado a un paciente. **Comprobar**: el cambio se ve en la
+   ficha del paciente sin tocarla (FR-035: referencia, no copia).
+4. Intentar dar de baja al médico de cabecera de un paciente activo. **Comprobar**: lo rechaza
+   **diciendo a qué paciente hay que reasignar** (FR-036), no con un "no se puede" a secas.
 
 ## Tras la fase 4 — Preparación
 
