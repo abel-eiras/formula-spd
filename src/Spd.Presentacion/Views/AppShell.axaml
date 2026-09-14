@@ -1,9 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="using:Spd.Presentacion.Controles"
+        xmlns:p="using:Spd.Presentacion"
         x:Class="Spd.Presentacion.Views.AppShell"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="SPD — Sistemas Personalizados de Dosificación"
+        Icon="/Assets/formula-spd.ico"
+        Title="{x:Static p:VersionAplicacion.TituloPrincipal}"
         Width="1180" Height="760" MinWidth="900" MinHeight="600">
 
   <Grid ColumnDefinitions="230,*">
@@ -12,7 +13,7 @@
             BorderBrush="{DynamicResource Linea}" BorderThickness="0,0,1,0">
       <DockPanel Margin="10,12">
         <StackPanel DockPanel.Dock="Top">
-          <TextBlock Text="SPD" Classes="pagina" Margin="10,0,10,2" />
+          <TextBlock Text="{x:Static p:VersionAplicacion.Nombre}" Classes="pagina" Margin="10,0,10,2" />
           <TextBlock Text="{Binding Saludo}" Classes="etiqueta" Margin="10,0,10,14" TextWrapping="Wrap" />
         </StackPanel>
 

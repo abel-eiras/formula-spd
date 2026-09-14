@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Spd.Presentacion.Views.LoginView">
+  <Grid>
   <StackPanel Spacing="12" Margin="32" VerticalAlignment="Center" Width="320">
     <TextBlock Text="Iniciar sesión" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" />
     <TextBlock Text="Usuario" />
@@ -11,4 +12,9 @@
     <TextBlock Text="{Binding MensajeError}" Foreground="Red" TextWrapping="Wrap"
                IsVisible="{Binding MensajeError, Converter={x:Static ObjectConverters.IsNotNull}}" />
   </StackPanel>
+    <!-- Marca de Fórmula farma en la portada, abajo a la derecha. -->
+    <Border Width="44" Height="44" Margin="0,0,14,12" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+          Background="{DynamicResource LogoFormulaFarma}" IsHitTestVisible="False"
+          ToolTip.Tip="Fórmula farma" AutomationProperties.Name="Logotipo de Fórmula farma" />
+  </Grid>
 </UserControl>

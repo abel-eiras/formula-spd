@@ -36,13 +36,45 @@ public sealed class ServicioActualizacionesTests
     public async Task ComprobarActualizaciones_detecta_una_version_nueva()
     {
         var (servicio, _, handler) = Crear();
-        handler.RespuestaJson = """{"tag_name": "2.0.0", "html_url": "https://github.com/abel-eiras/spd/releases/tag/2.0.0"}""";
+        handler.RespuestaJson = """[{"tag_name": "2.0.0", "html_url": "https://github.com/abel-eiras/formula-spd/releases/tag/2.0.0", "draft": false}]""";
 
         var resultado = await servicio.ComprobarActualizacionesAsync("1.0.0", administradorQueEjecutaId: 1);
 
         Assert.True(resultado.Exito);
         Assert.True(resultado.HayNueva);
         Assert.Equal("2.0.0", resultado.VersionDisponible);
+    }
+
+    /// <summary>Las primeras versiones son betas: `releases/latest` las omite, así que se mira la lista y se
+    /// elige la más alta. Los borradores no cuentan.</summary>
+    [Fact]
+    public async Task ComprobarActualizaciones_ve_la_beta_siguiente_e_ignora_los_borradores()
+    {
+        var (servicio, _, handler) = Crear();
+        handler.RespuestaJson = """
+            [{"tag_name": "v0.1.0-beta", "html_url": "u1", "draft": false},
+             {"tag_name": "v0.3.0", "html_url": "u3", "draft": true},
+             {"tag_name": "v0.1.0-beta.2", "html_url": "u2", "draft": false}]
+            """;
+
+        var resultado = await servicio.ComprobarActualizacionesAsync("0.1.0-beta", administradorQueEjecutaId: 1);
+
+        Assert.True(resultado.Exito);
+        Assert.True(resultado.HayNueva);
+        Assert.Equal("v0.1.0-beta.2", resultado.VersionDisponible);
+        Assert.Equal("u2", resultado.UrlDescarga);
+    }
+
+    [Fact]
+    public async Task ComprobarActualizaciones_sin_releases_publicadas_no_hay_novedad_ni_error()
+    {
+        var (servicio, _, handler) = Crear();
+        handler.RespuestaJson = "[]";
+
+        var resultado = await servicio.ComprobarActualizacionesAsync("0.1.0-beta", administradorQueEjecutaId: 1);
+
+        Assert.True(resultado.Exito);
+        Assert.False(resultado.HayNueva);
     }
 
     [Fact]

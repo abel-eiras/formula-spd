@@ -7,7 +7,7 @@ public static class ClavesTema
 {
     public static readonly string[] Colores =
     [
-        "Fondo", "Superficie", "SuperficieAlterna", "Tinta", "TintaSuave", "Linea",
+        "Fondo", "LogoFormulaFarma", "Superficie", "SuperficieAlterna", "Tinta", "TintaSuave", "Linea",
         "Acento", "AcentoSuave", "AcentoTexto",
         "Apto", "AptoSuave", "Aviso", "AvisoSuave", "Bloqueo", "BloqueoSuave",
     ];

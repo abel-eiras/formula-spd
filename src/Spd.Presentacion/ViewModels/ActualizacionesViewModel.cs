@@ -11,17 +11,11 @@ namespace Spd.Presentacion.ViewModels;
 public sealed partial class ActualizacionesViewModel(IServicioActualizaciones servicio, int? administradorActualId)
     : ViewModelBase
 {
-    // Sin esquema formal de versión todavía (fuera de alcance de esta spec); placeholder explícito.
-    /// <summary>Se lee del ensamblado en vez de estar escrita a mano. Clavada en el código, un
-    /// binario recién actualizado seguía diciendo que era la 0.1.0 y volvía a ofrecer la misma
-    /// actualización una y otra vez; ahora la versión que se compara es la que realmente se ejecuta.
-    /// La declara `<Version>` en el .csproj.</summary>
-    private static string VersionInstalada =>
-        System.Reflection.Assembly.GetEntryAssembly()?
-            .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?
-            .InformationalVersion.Split('+')[0]
-        ?? System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)
-        ?? "0.0.0";
+    /// <summary>La versión que realmente se ejecuta, no una escrita a mano: clavada en el código, un binario
+    /// recién actualizado seguía diciendo que era la anterior y volvía a ofrecer la misma actualización.</summary>
+    private static string VersionInstalada => VersionAplicacion.Texto;
+
+    public string VersionInstaladaTexto => $"Versión instalada: {VersionInstalada}";
 
     [ObservableProperty] private string? _mensaje;
     [ObservableProperty] private bool _comprobando;

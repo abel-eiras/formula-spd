@@ -26,6 +26,16 @@ public sealed class ComparacionDeVersionesTests
     // Sufijos de preliberación y metadatos de compilación no rompen la comparación.
     [InlineData("v0.2.0-beta", "0.1.0", true)]
     [InlineData("v0.1.0+abc123", "0.1.0", false)]
+    // Betas (SemVer): una preliberación va antes que su versión final y que las betas siguientes.
+    [InlineData("v0.1.0", "0.1.0-beta", true)]
+    [InlineData("v0.1.0-beta", "0.1.0-beta", false)]
+    [InlineData("v0.1.0-beta", "0.1.0-beta+67504d6", false)]
+    [InlineData("v0.1.0-beta", "0.1.0", false)]
+    [InlineData("v0.1.0-beta.2", "0.1.0-beta", true)]
+    [InlineData("v0.1.0-beta.10", "0.1.0-beta.9", true)]
+    [InlineData("v0.1.0-beta.9", "0.1.0-beta.10", false)]
+    [InlineData("v0.1.0-rc.1", "0.1.0-beta.3", true)]
+    [InlineData("v0.2.0-beta", "0.1.0-beta.7", true)]
     public void Solo_una_version_posterior_cuenta_como_novedad(string etiqueta, string instalada, bool esperado)
         => Assert.Equal(esperado, ServicioActualizaciones.EsMasNueva(etiqueta, instalada));
 

@@ -16,7 +16,7 @@ Alta con nombre, apellidos, usuario, contraseña inicial (debe cambiarla al entr
 
 ## Actualizaciones
 
-Comprueba si hay una versión nueva de la aplicación (necesita conexión) y la descarga; la instalación es manual.
+Muestra la versión instalada y comprueba si hay una más nueva, **incluidas las betas** (necesita conexión). La instalación es manual: descarga el paquete de tu sistema, haz antes una copia de seguridad y sustituye el ejecutable de la carpeta por el nuevo. La base de datos, la configuración y las copias se quedan donde están, y la aplicación actualiza su base sola al arrancar.
 
 ## Nomenclátor
 

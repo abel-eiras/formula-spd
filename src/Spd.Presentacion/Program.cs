@@ -100,7 +100,7 @@ sealed class Program
             ?? "desconocida";
 
         Log.Information(
-            "Arranque de SPD {Version} · {SistemaOperativo} · .NET {Runtime} · {Arquitectura} · carpeta {Carpeta}",
+            "Arranque de Fórmula SPD {Version} · {SistemaOperativo} · .NET {Runtime} · {Arquitectura} · carpeta {Carpeta}",
             version,
             System.Runtime.InteropServices.RuntimeInformation.OSDescription,
             Environment.Version,

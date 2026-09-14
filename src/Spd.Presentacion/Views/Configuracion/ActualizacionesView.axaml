@@ -3,8 +3,9 @@
              x:Class="Spd.Presentacion.Views.Configuracion.ActualizacionesView">
   <StackPanel Spacing="12" Margin="24" Width="360">
     <TextBlock Text="Actualizaciones" FontSize="18" FontWeight="Bold" />
+    <TextBlock Text="{Binding VersionInstaladaTexto}" Classes="datos" />
     <TextBlock TextWrapping="Wrap"
-               Text="Comprueba si hay una versión nueva del software. Nunca se comprueba automáticamente." />
+               Text="Comprueba si hay una versión nueva del software, incluidas las betas. Nunca se comprueba automáticamente. Para actualizar, descarga el paquete y sustituye el ejecutable: los datos de la carpeta se conservan." />
     <Button Content="Comprobar actualizaciones" Command="{Binding ComprobarCommand}"
             IsEnabled="{Binding !Comprobando}" />
     <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"

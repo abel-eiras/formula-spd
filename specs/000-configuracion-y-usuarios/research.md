@@ -36,7 +36,7 @@ ambas cumplen; se elige la de uso más extendido para minimizar riesgo de manten
 
 ## Decisión 3 — Comprobación de actualizaciones (FR-050, resuelto a GitHub Releases en `/speckit-clarify`)
 
-**Decisión**: `GET https://api.github.com/repos/abel-eiras/spd/releases/latest` sin autenticación
+**Decisión**: `GET https://api.github.com/repos/abel-eiras/spd/releases/latest` sin autenticación *(revisado el 2026-09-14: repositorio renombrado a `abel-eiras/formula-spd` y lista de releases en vez de `latest`, que omite las betas; ver PROGRESO.md)*
 (API pública, límite de tasa suficiente para una comprobación manual ocasional). Se compara
 `tag_name` con la versión instalada; si es mayor, se muestra el enlace de descarga del asset
 correspondiente. Nunca se llama al arrancar (Art. VI.3): solo al pulsar "Comprobar

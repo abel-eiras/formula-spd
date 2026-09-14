@@ -2,7 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:asistente="using:Spd.Presentacion.Views.Asistente"
         x:Class="Spd.Presentacion.Views.Asistente.AsistentePrimerArranqueWindow"
-        Title="SPD — Configuración inicial"
+        Title="Fórmula SPD — Configuración inicial"
+        Icon="/Assets/formula-spd.ico"
         Width="640" Height="520"
         CanResize="False">
   <asistente:AsistentePrimerArranqueView />

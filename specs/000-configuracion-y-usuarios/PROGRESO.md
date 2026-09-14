@@ -327,3 +327,18 @@ que `MainWindow` se construye y muestra sin lanzar, dado el precedente de bugs q
 mostrar una ventana real. 39/39 tests en verde. Ejecución real de `dotnet run` sin excepciones —
 **pendiente de que el usuario confirme** que "Cerrar sesión" funciona y vuelve al login sin cerrar
 la aplicación.
+
+- **2026-09-14 — Primera release (0.1.0-beta).** FR-050 revisado antes de publicar nada: el
+  comprobador leía `releases/latest`, que omite las preliberaciones, así que una farmacia con una
+  beta nunca habría visto la siguiente; ahora lee la lista, ignora borradores y compara como SemVer
+  (una beta va antes que su versión final: con la comparación anterior `0.1.0-beta` y `0.1.0`
+  resultaban iguales). También envía el `User-Agent` que exige la API de GitHub. La versión se ve en
+  el título de las ventanas y en Actualizaciones. Empaquetado portable por plataforma en
+  `publicar/empaquetar.sh` y workflow de release en `.github/workflows/publicar.yml`.
+
+- **2026-09-14 — Marca «Fórmula SPD».** Decisión del propietario antes de la primera release: la
+  aplicación se llama Fórmula SPD (títulos, barra lateral, log, paquetes `FormulaSPD-…`), lleva el
+  logotipo de Fórmula farma abajo a la derecha en el inicio de sesión y en Inicio (negro en tema claro,
+  blanco en oscuro, vía `LogoFormulaFarma` en la paleta) y como icono de ventanas, del ejecutable de
+  Windows y del acceso directo de Linux. El repositorio pasa a `abel-eiras/formula-spd`. El logotipo
+  queda fuera de la licencia MIT (README y AVISOS-DE-TERCEROS).
