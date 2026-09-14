@@ -1,0 +1,31 @@
+Fórmula SPD {VERSION} — Sistemas Personalizados de Dosificación
+===============================================================
+
+ESTA ES UNA VERSIÓN BETA. Está en pruebas en un grupo reducido de farmacias. Puede tener
+errores: no la uses todavía como único registro del servicio SPD y haz copias de seguridad.
+
+Qué hay en esta carpeta
+-----------------------
+- El programa: un único ejecutable. No necesita instalar nada más.
+- licencias/: la licencia MIT del programa y las de los componentes de terceros.
+- Al usarlo se crean aquí mismo la base de datos (spd.db), los logs (logs/) y los documentos.
+  Toda la instalación es esta carpeta: copiarla a otro ordenador es una restauración completa.
+
+Dónde ponerla
+-------------
+En una carpeta tuya donde puedas escribir (por ejemplo, Documentos\SPD), no en
+"Archivos de programa" ni en una carpeta de solo lectura. Configura desde el principio una
+ruta de copias de seguridad en otro disco o una unidad externa.
+
+Si algo falla
+-------------
+Anota qué estabas haciendo, qué esperabas y qué pasó, y envía el fichero más reciente de la
+carpeta logs/ a quien te facilitó la beta. La primera línea del log identifica la versión y el
+sistema.
+
+Actualizar a una versión nueva
+------------------------------
+Configuración → Actualizaciones → "Comprobar actualizaciones". Para instalarla: haz una copia
+de seguridad, descarga el paquete y sustituye SOLO el ejecutable de esta carpeta por el nuevo.
+Los datos se conservan y la base de datos se actualiza sola al arrancar.
+
