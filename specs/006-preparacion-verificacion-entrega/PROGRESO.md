@@ -93,3 +93,10 @@ ahora.
 - **FR-682** resuelto por el PNT I §4.4.1 (la hoja es "en cada entrega"): botón "Imprimir
   instrucciones de la sesión" — una hoja para los blísteres de la sesión si su contenido es idéntico,
   con el periodo de validez completo; si difieren, se imprime una por blíster.
+- **2026-09-14 — FR-692 y FR-690b.** Aptitud para SPD sin confirmar: aviso en la preparación con los
+  medicamentos de blísteres en BORRADOR o PREPARADO y un único botón que los confirma todos
+  (`ServicioMedicamentos.ConfirmarAptitudSpd`: solo vacío→apto, nunca vuelca un «no apto», una traza
+  por medicamento). No bloquea. «Nueva preparación…» en la lista: buscar paciente, sesión nueva o
+  preparar siguiente, y navegar a su pestaña; si no se puede, el motivo queda en el panel. CA-613 y
+  CA-614. De paso, la tabla de retirada de envases (Spec 005 FR-532) enseña el CIP, que ya venía en la
+  fila pero faltaba en la vista.

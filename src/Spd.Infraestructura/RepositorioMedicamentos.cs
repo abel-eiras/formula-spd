@@ -22,16 +22,71 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
         => conexion.QuerySingleOrDefault<MedicamentoFila>($"SELECT {Columnas} FROM Medicamento WHERE cn = @cn", new { cn })
             ?.AMedicamento();
 
-    public IReadOnlyList<Medicamento> Buscar(string fragmento, string fragmentoNormalizado)
+    /// <summary>Con el nomenclátor entero cargado son más de 15.000 filas: siempre con límite. Primero el
+    /// CN exacto, después los activos, y por nombre.</summary>
+    public IReadOnlyList<Medicamento> Buscar(string fragmento, string fragmentoNormalizado, int limite)
         => conexion.Query<MedicamentoFila>(
                 $"""
                 SELECT {Columnas} FROM Medicamento
                 WHERE cn = @fragmento OR nombre_normalizado LIKE @patron
-                ORDER BY nombre
+                ORDER BY (cn = @fragmento) DESC, activo DESC, nombre
+                LIMIT @limite
                 """,
-                new { fragmento, patron = $"%{fragmentoNormalizado}%" })
+                new { fragmento, patron = $"%{fragmentoNormalizado}%", limite })
             .Select(f => f.AMedicamento())
             .ToList();
+
+    public IReadOnlySet<string> ListarCns()
+        => conexion.Query<string>("SELECT cn FROM Medicamento").ToHashSet(StringComparer.Ordinal);
+
+    /// <summary>Alta masiva en **una sola transacción** (importación del nomenclátor): o entran todas o
+    /// ninguna, y 15.000 inserciones tardan milisegundos en vez de minutos. Cada fila guarda quién la
+    /// creó en <c>creado_por</c>.</summary>
+    public void CrearEnLote(IReadOnlyList<Medicamento> medicamentos, int? creadoPor)
+    {
+        if (medicamentos.Count == 0) return;
+
+        using var transaccion = conexion.BeginTransaction();
+        conexion.Execute(
+            """
+            INSERT INTO Medicamento (
+                cn, nombre, nombre_normalizado, principio_activo, laboratorio, forma_farmaceutica,
+                apto_spd, motivo_no_apto, fraccionable, unidades_envase, unidades_envase_origen,
+                desc_forma, desc_color, desc_ranura, desc_serigrafia, desc_tamano, desc_texto,
+                desc_vigente_desde, gtin, activo, creado_por
+            ) VALUES (
+                @Cn, @Nombre, @NombreNormalizado, @PrincipioActivo, @Laboratorio, @FormaFarmaceutica,
+                @AptoSpd, @MotivoNoApto, @Fraccionable, @UnidadesEnvase, @UnidadesEnvaseOrigen,
+                @DescForma, @DescColor, @DescRanura, @DescSerigrafia, @DescTamano, @DescTexto,
+                @DescVigenteDesde, @Gtin, @Activo, @CreadoPor
+            )
+            """,
+            medicamentos.Select(m => AParametros(m, creadoPor)),
+            transaccion);
+        transaccion.Commit();
+    }
+
+    /// <summary>Marca como aptos los medicamentos indicados **que estén sin confirmar**, y devuelve cuáles.
+    /// Un «no apto» explícito no se toca: es una decisión clínica, no un dato pendiente.</summary>
+    public IReadOnlyList<int> ConfirmarAptitud(IReadOnlyCollection<int> medicamentoIds)
+    {
+        if (medicamentoIds.Count == 0) return [];
+
+        using var transaccion = conexion.BeginTransaction();
+        var pendientes = conexion.Query<long>(
+                "SELECT id FROM Medicamento WHERE id IN @ids AND apto_spd IS NULL",
+                new { ids = medicamentoIds }, transaccion)
+            .Select(id => (int)id)
+            .ToList();
+        if (pendientes.Count > 0)
+        {
+            conexion.Execute(
+                "UPDATE Medicamento SET apto_spd = 1, modificado_en = @ahora WHERE id IN @ids",
+                new { ids = pendientes, ahora = DateTime.UtcNow.ToString("o") }, transaccion);
+        }
+        transaccion.Commit();
+        return pendientes;
+    }
 
     public int Crear(Medicamento medicamento)
         => conexion.ExecuteScalar<int>(
@@ -96,15 +151,15 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
             .Select(f => f.AVersion())
             .ToList();
 
-    private static object AParametros(Medicamento m) => new
+    private static object AParametros(Medicamento m, int? creadoPor = null) => new
     {
         m.Id, m.Cn, m.Nombre, m.NombreNormalizado, m.PrincipioActivo, m.Laboratorio,
         FormaFarmaceutica = m.FormaFarmaceutica is null ? null : TextoForma(m.FormaFarmaceutica.Value),
-        AptoSpd = m.AptoSpd ? 1 : 0, m.MotivoNoApto, Fraccionable = m.Fraccionable ? 1 : 0,
+        AptoSpd = m.AptoSpd is null ? (int?)null : m.AptoSpd.Value ? 1 : 0, m.MotivoNoApto, Fraccionable = m.Fraccionable ? 1 : 0,
         m.UnidadesEnvase, UnidadesEnvaseOrigen = TextoOrigen(m.UnidadesEnvaseOrigen),
         m.DescForma, m.DescColor, m.DescRanura, m.DescSerigrafia, m.DescTamano, m.DescTexto,
         DescVigenteDesde = m.DescVigenteDesde.ToString("o"), m.Gtin, Activo = m.Activo ? 1 : 0,
-        ModificadoEn = DateTime.UtcNow.ToString("o")
+        CreadoPor = creadoPor, ModificadoEn = DateTime.UtcNow.ToString("o")
     };
 
     private static string TextoForma(FormaFarmaceutica forma) => forma switch
@@ -144,7 +199,7 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
     /// automática de Dapper para los enums y los booleanos (mismo motivo que UsuarioFila en Spec 000).</summary>
     private sealed record MedicamentoFila(
         long Id, string Cn, string Nombre, string NombreNormalizado, string? PrincipioActivo,
-        string? Laboratorio, string? FormaFarmaceutica, long AptoSpd, string? MotivoNoApto,
+        string? Laboratorio, string? FormaFarmaceutica, long? AptoSpd, string? MotivoNoApto,
         long Fraccionable, long? UnidadesEnvase, string UnidadesEnvaseOrigen, string? DescForma,
         string? DescColor, string? DescRanura, string? DescSerigrafia, string? DescTamano,
         string? DescTexto, string DescVigenteDesde, string? Gtin, long Activo)
@@ -158,7 +213,7 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
             PrincipioActivo = PrincipioActivo,
             Laboratorio = Laboratorio,
             FormaFarmaceutica = TextoAForma(FormaFarmaceutica),
-            AptoSpd = AptoSpd == 1,
+            AptoSpd = AptoSpd is null ? null : AptoSpd == 1,
             MotivoNoApto = MotivoNoApto,
             Fraccionable = Fraccionable == 1,
             UnidadesEnvase = UnidadesEnvase is null ? null : (int)UnidadesEnvase,

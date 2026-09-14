@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:medicos="using:Spd.Presentacion.Views.Medicos"
+             xmlns:medicamentos="using:Spd.Presentacion.Views.Medicamentos"
              xmlns:c="using:Spd.Presentacion.Controles"
              x:Class="Spd.Presentacion.Views.Pacientes.TratamientoView">
   <Grid>
@@ -33,20 +34,29 @@
     <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
       <StackPanel Spacing="8">
         <TextBlock Text="{Binding EsCambioDePauta, StringFormat='Cambio de pauta: {0}'}" FontWeight="Bold" />
-        <TextBlock Text="CN del medicamento *" />
-        <TextBox Text="{Binding Cn}" />
+        <TextBlock Text="Medicamento *" />
+        <medicamentos:SelectorMedicamentoView DataContext="{Binding SelectorMedicamento}" />
         <CheckBox Content="En el blíster (SPD)" IsChecked="{Binding EnSpd}" />
         <TextBlock Text="Problema de salud / indicación" />
         <TextBox Text="{Binding ProblemaSalud}" />
-        <TextBlock Text="Médico prescriptor (id)" />
+        <TextBlock Text="Médico prescriptor" />
         <medicos:SelectorMedicoView DataContext="{Binding SelectorMedico}" />
-        <TextBlock Text="Pauta D / A / C / N" />
-        <StackPanel Orientation="Horizontal" Spacing="4">
-          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaD}" Width="80" />
-          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaA}" Width="80" />
-          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaC}" Width="80" />
-          <ComboBox ItemsSource="{Binding FraccionesDisponibles}" SelectedItem="{Binding PautaN}" Width="80" />
-        </StackPanel>
+        <!-- Spec 004 FR-402 (revisado 2026-09-14): la dosis se teclea, con vocabulario cerrado. -->
+        <TextBlock Text="Pauta" Classes="etiqueta" />
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+          <TextBlock Grid.Column="0" Text="Desayuno" Classes="etiqueta" />
+          <TextBlock Grid.Column="1" Text="Almuerzo" Classes="etiqueta" />
+          <TextBlock Grid.Column="2" Text="Cena" Classes="etiqueta" />
+          <TextBlock Grid.Column="3" Text="Noche" Classes="etiqueta" />
+          <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding PautaD}" Width="72" Classes="datos" />
+          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PautaA}" Width="72" Classes="datos" />
+          <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding PautaC}" Width="72" Classes="datos" />
+          <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding PautaN}" Width="72" Classes="datos" />
+        </Grid>
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="{Binding ValoresAdmitidos, StringFormat='Admite: {0}. Vacío si no hay toma.'}" />
+        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Bloqueo}" IsVisible="{Binding HayPautaErronea}"
+                   Text="Alguna dosis no está entre los valores admitidos: no se podrá guardar así." />
         <TextBlock Text="Pauta en texto libre (solo si no va en el blíster)" />
         <TextBox Text="{Binding PautaTexto}" />
         <TextBlock Text="Días de la semana (LMXJVSD, 1=sí)" />

@@ -66,9 +66,9 @@ Como elaborador, cuando la entrega de un SPD (Spec 006) señala cambios de medic
 
 ### 4.1 Alta y reutilización
 
-- **FR-400** Campos: medicamento (selector sobre Spec 003, con alta rápida inline si no existe), `en_spd` (sí/no), problema de salud/indicación, médico prescriptor (selector sobre Spec 001, prerrellenado con el médico de cabecera del paciente), pauta D/A/C/N, días de la semana, vía, momento de administración, fecha de inicio, fecha de fin, tipo (crónico/esporádico).
+- **FR-400** Campos: medicamento (selector sobre Spec 003 por nombre o CN, con alta rápida inline si no existe —CN y nombre, con «Consultar CIMA»— en un panel lateral, sin salir de la ficha; elegir uno de baja lo reactiva, Spec 003 CA-305), `en_spd` (sí/no), problema de salud/indicación, médico prescriptor (selector sobre Spec 001, prerrellenado con el médico de cabecera del paciente), pauta D/A/C/N, días de la semana, vía, momento de administración, fecha de inicio, fecha de fin, tipo (crónico/esporádico).
 - **FR-401** Si `en_spd = 0`, la posología puede introducirse como texto libre (`pauta_texto`) en vez de D/A/C/N, para pautas que no encajan en cuatro tomas diarias (p. ej. "cada 12 horas", "a demanda si dolor").
-- **FR-402** Selector de dosis (D, A, C, N) restringido al vocabulario cerrado de fracciones definido en Spec 007 FR-741 (`0, 1/4, 1/3, 1/2, 2/3, 3/4, 1, 1 1/4, 1 1/2…`), nunca un campo de texto libre para números — así la impresión en fracción (Spec 007) es siempre exacta.
+- **FR-402** Dosis (D, A, C, N) **tecleada** y restringida al vocabulario cerrado de Spec 007 FR-741: `0, 1, 2, 3, 1/4, 1/2, 1/3, 3/4, 2/3, 1+1/2, 1+1/4, 1+1/3, 1+2/3, 1+3/4` (revisado el 2026-09-14; antes era una lista desplegable). Vacío es «sin toma». Cualquier otro texto —un decimal, «0,5»— se advierte mientras se escribe y no se guarda, con un mensaje que dice la toma, lo tecleado y los valores admitidos. Así la impresión en fracción (Spec 007) sigue siendo siempre exacta.
 - **FR-403** Días de la semana: selector de checkboxes L-M-X-J-V-S-D, todos marcados por defecto.
 
 ### 4.2 Inmutabilidad
@@ -104,8 +104,11 @@ Dado un tratamiento activo con pauta 1-0-0-0, cuando lo cambio a 1-0-1-0, entonc
 **CA-402 Historial consultable**
 Dado un medicamento con tres versiones de pauta a lo largo del tiempo, cuando abro su línea temporal, entonces veo las tres con sus fechas de vigencia, ninguna oculta.
 
-**CA-403 Selector de fracciones, no decimal libre**
-Dado el campo de dosis de desayuno, cuando lo abro, entonces solo puedo elegir de la lista cerrada de fracciones, no escribir un número arbitrario.
+**CA-403 Dosis tecleada con vocabulario cerrado, no decimal libre**
+Dado el campo de dosis de desayuno, cuando escribo `1+1/2` se guarda la fracción exacta; cuando escribo `0,5` se me avisa con los valores admitidos y el tratamiento no se guarda.
+
+**CA-407 Alta del medicamento desde el tratamiento**
+Dado un medicamento que no está en el catálogo, cuando en el tratamiento lo busco, no aparece y pulso «Nuevo medicamento…», entonces lo doy de alta con CN y nombre sin salir de la ficha, queda elegido y el tratamiento se guarda con él.
 
 **CA-404 Pendiente de revisión bloquea preparación** ⚠️ DIFERIDO (Spec 006 no existe en esta rama; se deja el estado y su efecto de bloqueo consultable, no el disparo automático desde la entrega)
 Dado un tratamiento en PENDIENTE_REVISION, cuando se intenta crear una sesión de preparación para ese paciente (Spec 006), entonces el sistema lo impide indicando el motivo.
@@ -140,9 +143,10 @@ requieren decisión del usuario.
 
 ## Assumptions
 
-- El vocabulario cerrado de fracciones (FR-402) se implementa directamente con los valores ya
-  enumerados literalmente en esta spec (`0, 1/4, 1/3, 1/2, 2/3, 3/4, 1, 1 1/4, 1 1/2`), sin esperar
-  a Spec 007: son los mismos valores, ya decididos, no una interpretación nueva.
+- El vocabulario cerrado de fracciones (FR-402) se implementó con los valores enumerados en esta
+  spec (`0, 1/4, 1/3, 1/2, 2/3, 3/4, 1, 1 1/4, 1 1/2`) y el 2026-09-14 el propietario lo amplió a
+  catorce (`2, 3, 1+1/3, 1+2/3, 1+3/4`). Los valores se guardan por nombre, así que solo se añaden,
+  nunca se renombran; la suma semanal se hace en doceavos para que tres tercios sumen exactamente uno.
 - FR-421/FR-422/FR-430 se implementan hasta donde sus datos y estados lo permiten sin Spec 005/006
   (campos, estados, UI), documentando explícitamente el punto de extensión donde esas specs
   futuras engancharán su lógica, sin inventar una versión provisional de esa lógica.

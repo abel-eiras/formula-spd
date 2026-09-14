@@ -24,6 +24,8 @@
       <DataGrid.Columns>
         <DataGridTextColumn Header="Apellidos" Binding="{Binding Apellidos}" Width="2*" />
         <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*" />
+        <!-- FR-532: el CIP estaba en la fila pero no en la tabla. -->
+        <DataGridTextColumn Header="CIP" Binding="{Binding Cip}" Width="140" />
         <DataGridTextColumn Header="DNI retirada" Binding="{Binding DniRetirada}" Width="120" />
         <DataGridTextColumn Header="Medicamento" Binding="{Binding MedicamentoNombre}" Width="2*" />
         <DataGridTextColumn Header="Necesarias" Binding="{Binding Necesarias}" Width="100" CellStyleClasses="cifra" />

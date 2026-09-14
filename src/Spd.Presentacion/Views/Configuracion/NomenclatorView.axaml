@@ -8,6 +8,10 @@
     <Button Content="Guardar URL" Command="{Binding GuardarUrlCommand}" />
     <Button Content="Descargar ahora" Command="{Binding DescargarCommand}"
             IsEnabled="{Binding !Descargando}" />
+    <TextBlock Classes="suave" TextWrapping="Wrap"
+               Text="Al descargar, los medicamentos que no estén en el catálogo se dan de alta (los de baja, inactivos). Los que ya están no se tocan. Efectos y accesorios no se importan." />
+    <Button Content="Importar al catálogo el último fichero descargado" Command="{Binding ImportarDescargadoCommand}"
+            IsEnabled="{Binding !Importando}" />
     <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
                IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
   </StackPanel>

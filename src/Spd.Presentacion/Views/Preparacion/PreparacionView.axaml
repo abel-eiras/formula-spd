@@ -9,6 +9,21 @@
         <Button Content="Preparar siguiente" Command="{Binding PrepararSiguienteCommand}" />
         <Button Content="Imprimir instrucciones de la sesión" Command="{Binding ImprimirInstruccionesSesionCommand}" />
       </StackPanel>
+      <!-- Art. I.3 (enmienda 3.0.0): aviso, nunca bloqueo. Una confirmación para todos. -->
+      <Border Classes="panel" IsVisible="{Binding HayAptitudSinConfirmar}">
+        <StackPanel Spacing="6">
+          <TextBlock FontWeight="SemiBold" Text="Aptitud para SPD sin confirmar" />
+          <TextBlock TextWrapping="Wrap" Text="{Binding MedicamentosSinConfirmar}" />
+          <TextBlock Classes="suave" TextWrapping="Wrap"
+                     Text="El nomenclátor no indica si un medicamento puede acondicionarse en SPD. Asegurarlo antes de emblistar es responsabilidad del farmacéutico. Confirmarlo no cambia nada más y queda registrado quién lo confirmó." />
+          <Button Classes="primario" HorizontalAlignment="Left" Content="Confirmo que todos son aptos para SPD"
+                  Command="{Binding ConfirmarAptitudSpdCommand}" />
+        </StackPanel>
+      </Border>
+      <Border Classes="panel" IsVisible="{Binding HayNoAptos}">
+        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Bloqueo}"
+                   Text="{Binding MedicamentosNoAptos, StringFormat='Marcados como NO aptos para SPD en el catálogo: {0}. Revísalo antes de emblistar.'}" />
+      </Border>
       <Border Padding="8" Background="#22808080">
         <StackPanel Spacing="4">
           <TextBlock Text="Entrega (los datos se aplican a todos los blísteres VERIFICADOS)" FontWeight="Bold" />

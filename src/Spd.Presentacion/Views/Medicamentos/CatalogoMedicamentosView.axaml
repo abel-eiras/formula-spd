@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:Spd.Presentacion.Convertidores"
              x:Class="Spd.Presentacion.Views.Medicamentos.CatalogoMedicamentosView">
   <Grid ColumnDefinitions="1.6*,*" Margin="24,20" RowDefinitions="*,Auto">
     <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
@@ -9,6 +10,10 @@
         <Button Content="Nuevo" Command="{Binding NuevoMedicamentoCommand}" />
       </StackPanel>
       <Button Content="Revisar nomenclátor" Command="{Binding RevisarNomenclatorCommand}" />
+      <TextBlock Classes="suave" TextWrapping="Wrap" IsVisible="{Binding FaltaBusqueda}"
+                 Text="Escribe al menos dos letras del nombre, o el CN. El catálogo incluye todo el nomenclátor." />
+      <TextBlock Classes="suave" TextWrapping="Wrap" IsVisible="{Binding HayMasResultados}"
+                 Text="Se muestran los 50 primeros: afina la búsqueda para encontrar el que buscas." />
       <!-- FR-1512. Sin x:DataType a propósito: bindings por reflexión, evita el patrón frágil de
            $parent + cast de tipo con compiled bindings que provocó un cierre inesperado en
            Spec 000 (UsuariosView). -->
@@ -18,10 +23,10 @@
           <DataGridTextColumn Header="CN" Binding="{Binding Cn}" Width="90" />
           <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*" />
           <DataGridTextColumn Header="Principio activo" Binding="{Binding PrincipioActivo}" Width="*" />
-          <DataGridTemplateColumn Header="SPD" Width="70" CanUserSort="False">
+          <DataGridTemplateColumn Header="SPD" Width="110" CanUserSort="False">
             <DataGridTemplateColumn.CellTemplate>
               <DataTemplate>
-                <TextBlock Text="{Binding AptoSpd}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding AptoSpd, Converter={x:Static conv:AptitudSpdConvertidor.Texto}}" VerticalAlignment="Center" />
               </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
           </DataGridTemplateColumn>
@@ -62,7 +67,7 @@
         <CheckBox Content="Fraccionable" IsChecked="{Binding Fraccionable}" />
         <TextBlock Text="GTIN" />
         <TextBox Text="{Binding Gtin}" />
-        <CheckBox Content="Apto para SPD" IsChecked="{Binding AptoSpd}" />
+        <CheckBox Content="Apto para SPD (en blanco: sin confirmar)" IsThreeState="True" IsChecked="{Binding AptoSpd}" />
         <TextBlock Text="Motivo (obligatorio si la aptitud no coincide con la derivada de la forma)" />
         <TextBox Text="{Binding MotivoNoApto}" />
         <TextBlock Text="Unidades por envase" />

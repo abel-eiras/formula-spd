@@ -77,7 +77,7 @@ public sealed class ServicioImportacionNomenclatorTests
         var actual = medicamentos.ObtenerPorId(medicamento.Id)!;
         Assert.Equal("Paracetamol 1g (nomenclátor)", actual.Nombre);
         Assert.Equal("comprimido blanco", actual.DescTexto); // no tocado (FR-321, CA-304)
-        Assert.True(actual.AptoSpd); // no tocado
+        Assert.Null(actual.AptoSpd); // no tocado: sigue sin confirmar
     }
 
     [Fact]
@@ -92,5 +92,77 @@ public sealed class ServicioImportacionNomenclatorTests
         var acciones = conexion.Query<string>("SELECT accion FROM Auditoria WHERE entidad = 'Medicamento' ORDER BY id").ToList();
         Assert.Contains("ALTA_DESDE_NOMENCLATOR", acciones);
         Assert.Contains("NOMBRE_DESDE_NOMENCLATOR", acciones);
+    }
+
+    /// <summary>FR-320..FR-322 revisados el 2026-09-14: al descargar el nomenclátor se da de alta entero.
+    /// Los nombres son copia literal del fichero de septiembre de 2026.</summary>
+    [Fact]
+    public void ImportarCompleto_da_de_alta_los_medicamentos_nuevos_y_no_toca_nada_de_lo_existente()
+    {
+        var (servicio, medicamentos, conexion) = CrearServicio();
+        // Un medicamento que ya estaba, con decisiones clínicas tomadas: nada de esto debe cambiar.
+        var existente = medicamentos.Crear(new DatosAltaMedicamento("654321", "Paracetamol 1g"), null);
+        existente = medicamentos.ObtenerPorId(existente.Id)!;
+        existente.AptoSpd = false;
+        existente.MotivoNoApto = "Decisión del farmacéutico.";
+        medicamentos.ActualizarDatos(existente, null);
+
+        var ruta = EscribirCsvTemporal(
+            "Código Nacional,Nombre del producto farmacéutico,Tipo de fármaco,Nombre genérico efecto y accesorio,Estado\n" +
+            "650004,\"DEPAKINE 500 mg comprimidos gastrorresistentes, 20 comprimidos\",Medicamento Etica,,ALTA\n" +
+            "700001,LAMOTRIGINA KERN PHARMA 100MG 56 COMPR DISPER EFG,Medicamento Generico,,BAJA GENERAL\n" +
+            "700002,AMOXICILINA NORMON 250MG/5ML 120ML SUSP EXTEMP EFG,Medicamento Generico,,SUSPENSION TEMPORAL GENERAL\n" +
+            "400011,MODERMA FLEX ABIERTA PLANA MINI OPACA 15-55MM 30U,,BOLSAS ILEOST RES SINT MIC FIL,ALTA\n" +
+            "654321,PARACETAMOL CON OTRO NOMBRE EN EL NOMENCLATOR,Medicamento Generico,,ALTA\n");
+
+        var resultado = servicio.ImportarCompleto(ruta, usuarioQueEjecutaId: 7);
+
+        Assert.True(resultado.Exito);
+        Assert.Equal(2, resultado.AltasActivas);      // alta y suspensión temporal
+        Assert.Equal(1, resultado.AltasDeBaja);
+        Assert.Equal(1, resultado.YaExistian);
+        Assert.Equal(1, resultado.NoSonMedicamentos); // la bolsa de ostomía
+
+        // Todo lo nuevo entra sin aptitud confirmada: el nomenclátor no dice si es apto.
+        var depakine = medicamentos.ObtenerPorCn("650004")!;
+        Assert.Null(depakine.AptoSpd);
+        Assert.True(depakine.Activo);
+        Assert.False(medicamentos.ObtenerPorCn("700001")!.Activo);   // de baja: entra inactivo
+        Assert.True(medicamentos.ObtenerPorCn("700002")!.Activo);    // suspensión temporal: activo
+        Assert.Null(medicamentos.ObtenerPorCn("400011"));            // accesorio: fuera
+        Assert.Equal(7, conexion.ExecuteScalar<int>("SELECT creado_por FROM Medicamento WHERE cn = '650004'"));
+
+        // FR-321: lo existente, intacto — ni el nombre, ni la aptitud, ni su motivo.
+        var trasImportar = medicamentos.ObtenerPorCn("654321")!;
+        Assert.Equal("Paracetamol 1g", trasImportar.Nombre);
+        Assert.False(trasImportar.AptoSpd);
+        Assert.Equal("Decisión del farmacéutico.", trasImportar.MotivoNoApto);
+
+        // Art. VII.6: la importación queda trazada con su recuento.
+        var traza = Assert.Single(conexion.Query<string>(
+            "SELECT detalle FROM Auditoria WHERE accion = 'IMPORTACION_NOMENCLATOR'"));
+        Assert.Contains("2 altas activas", traza);
+        Assert.Contains("1 de baja", traza);
+
+        // El cambio de nombre del existente sigue en la revisión, para decidirlo aparte.
+        var comparacion = servicio.CompararConNomenclator(ruta);
+        Assert.Empty(comparacion.Nuevos);   // el accesorio ya no se propone como alta
+        Assert.Contains(comparacion.ConNombreDistinto, c => c.Existente.Cn == "654321");
+    }
+
+    [Fact]
+    public void ImportarCompleto_dos_veces_no_duplica_nada()
+    {
+        var (servicio, _, conexion) = CrearServicio();
+        var ruta = EscribirCsvTemporal(
+            "Código Nacional,Nombre del producto farmacéutico,Tipo de fármaco,Estado\n" +
+            "650004,DEPAKINE 500 mg,Medicamento Etica,ALTA\n700001,LAMOTRIGINA 100MG,Medicamento Generico,BAJA GENERAL\n");
+
+        servicio.ImportarCompleto(ruta, null);
+        var segunda = servicio.ImportarCompleto(ruta, null);
+
+        Assert.Equal(0, segunda.TotalAltas);
+        Assert.Equal(2, segunda.YaExistian);
+        Assert.Equal(2, conexion.ExecuteScalar<int>("SELECT COUNT(*) FROM Medicamento"));
     }
 }

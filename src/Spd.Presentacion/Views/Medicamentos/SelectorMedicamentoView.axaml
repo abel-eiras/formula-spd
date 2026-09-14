@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
+             x:Class="Spd.Presentacion.Views.Medicamentos.SelectorMedicamentoView">
+  <!-- Spec 004 FR-400 (revisado 2026-09-14). Sin x:DataType a propósito, igual que el selector de
+       médico: bindings por reflexión. -->
+  <Grid>
+    <StackPanel Spacing="4">
+      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding HaySeleccion}">
+        <c:Pastilla Variante="Acento" Texto="{Binding EtiquetaSeleccionado}" VerticalAlignment="Center" />
+        <Button Classes="enlace" Content="Cambiar" Command="{Binding LimpiarCommand}" />
+      </StackPanel>
+      <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Bloqueo}" IsVisible="{Binding SeleccionadoNoApto}"
+                 Text="Marcado como NO apto para SPD en el catálogo. Si va en el blíster, revísalo antes de preparar." />
+
+      <StackPanel Spacing="4" IsVisible="{Binding !HaySeleccion}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBox Text="{Binding Texto}" Width="320"
+                   Watermark="Nombre o CN (mínimo 2 caracteres)…" />
+          <Button Classes="enlace" Content="Nuevo medicamento…" Command="{Binding AbrirNuevoCommand}" />
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Resultados}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button Classes="navegacion" HorizontalContentAlignment="Stretch"
+                      Command="{Binding DataContext.ElegirCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                      CommandParameter="{Binding}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding Nombre}" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Cn, StringFormat='CN {0}'}" Classes="etiqueta" VerticalAlignment="Center" />
+                  <c:Pastilla Texto="de baja: se reactivará" Variante="Neutra" IsVisible="{Binding !Activo}" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <TextBlock Text="{Binding Mensaje}" Classes="suave" TextWrapping="Wrap"
+                 IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+
+    <c:PanelLateral Titulo="Nuevo medicamento" IsVisible="{Binding PanelNuevoAbierto}"
+                    CerrarCommand="{Binding CerrarNuevoCommand}">
+      <StackPanel Spacing="6">
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="Para lo que no está en el catálogo, como una fórmula magistral. Entra con la aptitud para SPD sin confirmar: se confirma al preparar." />
+        <TextBlock Text="CN *" Classes="etiqueta" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBox Text="{Binding NuevoCn}" Width="140" Classes="datos" />
+          <Button Content="Consultar CIMA" Command="{Binding ConsultarCimaCommand}"
+                  IsVisible="{Binding PuedeConsultarCima}" IsEnabled="{Binding !ConsultandoCima}" />
+        </StackPanel>
+        <TextBlock Text="Nombre *" Classes="etiqueta" />
+        <TextBox Text="{Binding NuevoNombre}" />
+        <TextBlock Text="{Binding Mensaje}" Classes="suave" TextWrapping="Wrap"
+                   IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <Button Classes="primario" Content="Crear y seleccionar" Margin="0,10,0,0"
+                Command="{Binding CrearNuevoCommand}" />
+      </StackPanel>
+    </c:PanelLateral>
+  </Grid>
+</UserControl>

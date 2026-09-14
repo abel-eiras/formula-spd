@@ -20,7 +20,7 @@ Comprueba si hay una versión nueva de la aplicación (necesita conexión) y la 
 
 ## Nomenclátor
 
-URL del fichero de la AEMPS e importación al catálogo; los cambios se revisan en [[uso:catalogo-medicamentos]].
+URL del fichero de la AEMPS. **Descargar ahora** trae el fichero y da de alta en el catálogo todos los medicamentos que no estén: los de baja quedan inactivos, los efectos y accesorios no entran y lo que ya existía no se toca. Todo entra con la aptitud para SPD sin confirmar. **Importar al catálogo el último fichero descargado** repite la carga sin volver a descargar. Los cambios de nombre de lo que ya existía se revisan en [[uso:catalogo-medicamentos]].
 
 ## Perfiles de importación y exportar pacientes
 

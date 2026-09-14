@@ -264,11 +264,23 @@ línea sin cambios no mueve envases (CA-6121) y que una línea eliminada devuelv
 
 - **FR-690** Pantalla "Preparaciones" con filtro por sesión (agrupa los blísteres de un mismo
   paciente y misma fecha de creación), paciente, elaborador, estado.
+- **FR-690b** (2026-09-14, petición del propietario) Desde "Preparaciones", «Nueva preparación…» abre
+  un panel lateral para buscar al paciente (mínimo dos letras) y, sin pasar por su ficha, abrir una
+  sesión nueva o preparar la siguiente desde la última entregada (FR-6120). Cada candidato muestra su
+  última preparación. Si la sesión no se puede abrir (FR-602), el motivo se queda en el panel y no se
+  navega; si se abre, se va a la pestaña de preparación del paciente.
 - **FR-691** Avisos de inicio: pacientes con faltantes en el listado de retirada antes de su
   próxima sesión (enlaza a Spec 005); SPD verificados sin entregar con validez ya iniciada;
   sesiones a medias (un blíster ENTREGADO y el otro no, más de 3 días).
 
 ### 4.11 Auditoría
+
+- **FR-692** (2026-09-14, Constitución 3.0.0 Art. I.3) En la preparación de un paciente, si algún
+  medicamento de un blíster en BORRADOR o PREPARADO tiene la aptitud SPD **sin confirmar**, se muestra
+  un aviso con sus nombres y un único botón «Confirmo que todos son aptos para SPD», que los marca aptos
+  a la vez, con una traza de auditoría por medicamento y el usuario que confirma. Solo cambia los que
+  estaban sin confirmar: un «no apto» explícito no se toca y se muestra aparte como advertencia. **Nunca
+  bloquea** ningún paso de la preparación: asegurar la aptitud es obligación del farmacéutico.
 
 - **FR-695** Cada transición de estado, alta de envase desde preparación, verificación, entrega e
   impresión deja traza por blíster (SPD_id) en auditoría.
@@ -382,6 +394,16 @@ demás líneas están listas sin intervención.
 Dado un envase que se agotó en la sesión anterior sin sustituto en custodia, cuando genero la
 sesión siguiente, entonces esa línea aparece como ENVASE_PENDIENTE y bloquea solo esa línea, no
 las demás.
+
+**CA-613 Aptitud sin confirmar: aviso y confirmación en bloque**
+Dada una sesión en BORRADOR con medicamentos de aptitud sin confirmar, cuando abro la preparación veo el
+aviso con sus nombres; cuando pulso «Confirmo que todos son aptos para SPD» quedan aptos y el aviso
+desaparece. Un medicamento marcado «no apto» se advierte, no se ofrece confirmar y no cambia.
+
+**CA-614 Nueva preparación desde la lista**
+Dado un paciente activo sin sesión abierta, cuando en "Preparaciones" pulso «Nueva preparación…», lo
+busco y pulso «Sesión nueva», entonces se crea la sesión y estoy en su pestaña de preparación. Si la
+sesión no puede abrirse, el motivo aparece en el panel y sigo en la lista.
 
 **CA-611 Sesión no crea entidad de negocio espuria**
 Dado que reviso el modelo de datos, cuando busco la sesión como entidad, entonces no existe una

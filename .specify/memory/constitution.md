@@ -1,6 +1,6 @@
 <!--
 Sync Impact Report
-- Version change: [PROJECT_NAME] Constitution (template, unversioned) → 2.1.0
+- Version change: 2.1.0 → 3.0.0 (MAJOR, 2026-09-14). Historial previo: template → 2.1.0
 - Modified principles: N/A (template placeholders replaced wholesale with the
   project's own pre-written constitution, supplied verbatim by the product owner)
 - Added sections: Artículo I–XI (Base normativa, El papel es la base legal, Nada se
@@ -10,14 +10,17 @@ Sync Impact Report
 - Removed sections: template's generic Core Principles / Section 2 / Section 3 /
   Governance placeholders (superseded by the project's own structure)
 - Ratification date: 2026-09-04 (v1.0.0, per Enmiendas table)
-- Last amended date: 2026-09-04 (v2.1.0, per Enmiendas table)
+- Last amended date: 2026-09-14 (v3.0.0, per Enmiendas table)
+- 3.0.0 modified principles: Artículo I.3 (aptitud SPD: confirmación del farmacéutico, sin bloqueo),
+  Artículo IX.1 (dónde se prueba esa regla), Artículo XI.1 (licencia MIT)
+- 3.0.0 specs reviewed: 003, 004, 006, 007 updated; 000, 002, 005, 010 reviewed (see Enmiendas)
 - Follow-up TODOs: none — content supplied complete and used literally, no
   placeholders deferred.
 -->
 
 # Constitución del proyecto SPD
 
-**Versión 2.1.0 — 4 de septiembre de 2026**
+**Versión 3.0.0 — 14 de septiembre de 2026**
 **Ratificada por:** Abel (propietario del producto)
 **Ámbito:** aplicación de escritorio para la gestión del servicio de Sistemas Personalizados de Dosificación en oficinas de farmacia de Galicia.
 
@@ -32,7 +35,7 @@ Esta constitución prevalece sobre cualquier spec, plan o tarea. Una spec que co
 3. Las siguientes reglas del PNT son invariantes del dominio y se implementan en la capa de Dominio con test unitario:
    - Un SPD tiene un periodo de validez ≤ 14 días y nunca posterior a la caducidad más próxima de los envases incluidos.
    - No se prepara un SPD para un paciente sin consentimiento vigente y evaluación de idoneidad APTO.
-   - Solo entran en el blíster medicamentos marcados como aptos para SPD.
+   - Solo entran en el blíster medicamentos aptos para SPD. **Asegurarlo es obligación del farmacéutico**, no un dato que el sistema pueda conocer: el nomenclátor no lo trae, así que un medicamento puede estar *sin confirmar*. Al preparar, el sistema muestra los que están sin confirmar y el farmacéutico los confirma **todos a la vez**; queda registrado quién lo confirmó. No bloquea la elaboración. Un «no apto» explícito se muestra como advertencia y ninguna confirmación en bloque lo cambia.
    - El verificador es distinto del elaborador; toda excepción exige motivo registrado. Esta regla se aplica por usuario, no por categoría profesional: la aplicación no distingue farmacéutico de técnico (Artículo VII).
    - Toda preparación registra temperatura y humedad de la zona en el momento de preparar.
    - La documentación de un paciente se conserva como mínimo un año después de su baja.
@@ -93,7 +96,7 @@ Esta constitución prevalece sobre cualquier spec, plan o tarea. Una spec que co
 
 ## Artículo IX — Calidad
 
-1. Toda regla del Artículo I.3 y del Artículo IV tiene tests unitarios en Dominio antes de considerarse implementada.
+1. Toda regla del Artículo I.3 y del Artículo IV tiene tests unitarios en Dominio antes de considerarse implementada. La de aptitud para SPD, que desde la 3.0.0 es una confirmación y no un invariante, se prueba en Aplicación (la confirmación nunca vuelca un «no apto») y en Presentación (el aviso aparece al preparar).
 2. Cada spec define criterios de aceptación en formato Dado/Cuando/Entonces; una funcionalidad está terminada cuando todos sus criterios pasan, no antes.
 3. Generación de documentos: cada plantilla tiene un test que genera el PDF con datos de ejemplo y comprueba la presencia de los elementos obligatorios del Artículo I.2.
 4. Rendimiento: arranque completo hasta pantalla de login < 2 s en un PC de gama media; ninguna acción de la pantalla de preparación tarda más de 200 ms en responder.
@@ -107,7 +110,7 @@ Esta constitución prevalece sobre cualquier spec, plan o tarea. Una spec que co
 
 ## Artículo XI — Software libre y legibilidad humana
 
-1. El código se publica bajo licencia **GPLv3**. Toda distribución de una versión modificada, incluida a farmacias clientes, debe ir acompañada del código fuente correspondiente bajo la misma licencia.
+1. El código se publica bajo licencia **MIT**. Toda copia conserva el aviso de copyright y el texto de la licencia; las licencias de los componentes de terceros viajan con la aplicación en `AVISOS-DE-TERCEROS.md`.
 2. Prioridad explícita: legibilidad humana por encima de la abstracción prematura o la elegancia técnica. Un mantenedor nuevo en el proyecto debe poder entender un módulo leyéndolo, sin necesitar explicación oral. Se prefiere código explícito y algo repetitivo a una abstracción genérica que ahorra líneas pero exige seguir la pista a varias capas de indirección.
 3. Nombres de variables, métodos y clases en castellano cuando nombran conceptos del dominio del PNT (`Paciente`, `SPD`, `EvaluacionIdoneidad`, `unidadesRestantes`), en inglés cuando son mecánica técnica genérica sin equivalente de dominio (`Repository`, `ILogger`). No se mezclan los dos idiomas dentro del mismo nombre.
 4. Cada clase de Dominio y cada servicio de Aplicación lleva un comentario de cabecera que explica su propósito en una o dos frases. Toda regla de negocio no evidente a partir del código lleva un comentario que explica el **porqué**, citando el artículo del PNT o de esta constitución del que procede, no el qué (el código ya dice el qué).
@@ -127,3 +130,4 @@ Esta constitución prevalece sobre cualquier spec, plan o tarea. Una spec que co
 | 1.0.0 | 2026-09-04 | Ratificación inicial |
 | 2.0.0 | 2026-09-04 | MAJOR. Artículo VI: se sustituye el aislamiento total de red por dos excepciones tasadas (actualizaciones del software, descarga del nomenclátor). Artículo VII: roles simplificados a Administrador/Elaborador (cambio de principio ya aplicado a las specs afectadas). Nuevo Artículo XI: software libre y legibilidad humana. |
 | 2.1.0 | 2026-09-04 | MINOR. Artículo III.4: se permite reelaborar un SPD no entregado (reemblistado por cambio solicitado), siempre versionado, nunca entregado sin nueva verificación. Artículo XI.1: licencia fijada en GPLv3. |
+| 3.0.0 | 2026-09-14 | MAJOR, decisión del propietario. **Artículo I.3**: la aptitud para SPD deja de ser un dato que el sistema exige y pasa a ser responsabilidad del farmacéutico. Motivo: al cargar el nomenclátor entero (Spec 003 FR-320) no hay de dónde obtener la aptitud, y marcarla uno a uno en miles de medicamentos es inviable. Nace *sin confirmar*; al preparar se confirma en bloque, con traza de quién; nunca bloquea; un «no apto» explícito solo se advierte. **Artículo IX.1**: esa regla se prueba en Aplicación y Presentación. **Artículo XI.1**: licencia MIT en lugar de GPLv3, al preparar la publicación del repositorio. Specs revisadas: 003 (FR-301, FR-305, FR-320..322), 004 (FR-400, FR-402), 006 (FR-692) y 007 (FR-741) actualizadas; 000, 002, 005 y 010 revisadas sin cambios de requisitos. |

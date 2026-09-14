@@ -66,6 +66,8 @@ BLOQUES = [
    "Reactiva el registro existente en vez de crear un duplicado.", ["CA-305"]),
   ("Tras entregar un blíster (bloque 13): cambiar aquí la descripción física de un medicamento que iba en él y consultar ese blíster",
    "El blíster entregado sigue mostrando la descripción de cuando se elaboró. **Art. IV.3: es lo más importante de todo el catálogo.**", ["CA-301"]),
+  ("Configuración → Nomenclátor → «Descargar ahora» (o «Importar al catálogo el último fichero descargado»). Buscar luego en el catálogo un medicamento que no hubieras dado de alta, uno de baja y uno de los que creaste a mano",
+   "El mensaje da el recuento. El nuevo está, con aptitud «Sin confirmar»; el de baja está inactivo; los tuyos conservan su nombre, aptitud y motivo. Un efecto o accesorio (p. ej. una bolsa de ostomía) no aparece. Buscar con una sola letra no lista nada.", ["CA-308"]),
   ("Importar un nomenclátor que incluya un medicamento con descripción física ya completa",
    "La descripción física no cambia sin confirmación explícita.", ["CA-304"]),
  ]),
@@ -144,8 +146,10 @@ BLOQUES = [
  "Tercera pestaña. Dejar el paciente con al menos dos tratamientos en SPD, uno de ellos con pauta fraccionada.",
  [("Crear un tratamiento nuevo en un paciente que tiene médico de cabecera",
    "El campo prescriptor aparece prerrellenado con ese médico, y es editable.", ["CA-400"]),
-  ("Abrir el campo de dosis del desayuno",
-   "Solo se puede elegir de la lista cerrada de fracciones; no se puede escribir un número arbitrario.", ["CA-403"]),
+  ("Teclear en desayuno `1+1/2`, en cena `1/3` y guardar; después teclear `0,5` en almuerzo",
+   "Lo primero se guarda y se ve igual al cambiar la pauta. Con `0,5` aparece el aviso en rojo al escribir y al guardar dice la toma, lo tecleado y los catorce valores admitidos; no se guarda.", ["CA-403"]),
+  ("En el tratamiento, buscar un medicamento que no esté (un CN inventado) y pulsar «Nuevo medicamento…»; darlo de alta y guardar el tratamiento",
+   "Se da de alta sin salir de la ficha, queda elegido y el tratamiento se guarda con él. Elegir uno marcado «de baja» lo reactiva.", ["CA-407"]),
   ("Cambiar la pauta de 1-0-0-0 a 1-0-1-0",
    "La fila original queda FINALIZADO con fecha de fin de hoy, y hay una nueva ACTIVO con fecha de inicio de hoy y la pauta nueva.", ["CA-401"]),
   ("Cambiar la pauta una tercera vez y pulsar «Ver historial»",
@@ -198,6 +202,10 @@ BLOQUES = [
  "Quinta pestaña del paciente. **Aquí es donde quiero que compares la rejilla con un blíster real.**",
  [("Paciente con faltantes pendientes: intentar abrir sesión",
    "No crea nada y enlaza al listado de retirada.", ["CA-601"]),
+  ("Preparaciones → «Nueva preparación…»: buscar a un paciente activo sin sesión y pulsar «Sesión nueva»; repetir con uno que ya tenga una sesión abierta",
+   "El primero abre la sesión y lleva a su pestaña de preparación. El segundo deja el motivo en el panel y no navega.", ["CA-614"]),
+  ("Abrir la preparación de un paciente cuyos medicamentos llegaron del nomenclátor",
+   "Aviso «Aptitud para SPD sin confirmar» con sus nombres. «Confirmo que todos son aptos para SPD» lo quita y no vuelve. Un medicamento marcado «no apto» en el catálogo se advierte en rojo y no se ofrece confirmar. Nada de esto impide seguir preparando.", ["CA-613"]),
   ("Resolver los faltantes y abrir «Nueva sesión de preparación» en un paciente con 2 blísteres",
    "Crea dos SPD con números correlativos y validez consecutiva.", ["CA-600"]),
   ("Mirar el carril de pasos de un blíster recién creado",
@@ -381,3 +389,103 @@ NO_APLICAN = [
  ("CA-1102", "Perfiles de fábrica (Farmatic, Nixfarma, Unycop) no existen: esperan una fila real de cada programa que no tenemos. No hay nada que editar todavía."),
  ("CA-1502", "Además de la comprobación visual del bloque 3, está cubierto por `TemaTests`, que recorre todas las claves de color en ambas variantes. Un ojo humano no puede garantizar que ninguna falte."),
 ]
+
+# --------------------------------------------------------------------------- generación del .md
+import re as _re
+import sys as _sys
+import unicodedata as _ud
+from pathlib import Path as _Path
+
+
+def _ancla(titulo):
+    sin_tildes = "".join(c for c in _ud.normalize("NFD", titulo.lower()) if _ud.category(c) != "Mn")
+    return _re.sub(r"\s+", "-", _re.sub(r"[^a-z0-9\s-]", "", sin_tildes).strip())
+
+
+def _criterios_citados():
+    citados = {c for _, _, pasos in BLOQUES for _, _, cas in pasos for c in cas}
+    return citados | {x.strip() for grupo, _ in NO_APLICAN for x in grupo.split(",")}
+
+
+def renderizar():
+    pasos = sum(len(p) for _, _, p in BLOQUES)
+    ultimo = "Lo que no se comprueba aquí, y por qué"
+    lineas = [
+        "# Pruebas de aceptación — recorrido manual completo",
+        "",
+        f"Los **{len(_criterios_citados())} criterios de aceptación** de las catorce especificaciones, ordenados en el orden en que",
+        "se ejecutan de verdad, no por número de spec. Generado desde una única fuente para que ningún",
+        "criterio se quede fuera: la comprobación de cobertura falla si alguno no aparece.",
+        "",
+        f"**{pasos} pasos en {len(BLOQUES)} bloques.** No hace falta hacerlo de una sentada, pero el orden importa:",
+        "cada bloque deja el sistema en el estado que necesita el siguiente. Los tres últimos son",
+        "destructivos y van al final por eso.",
+        "",
+        "Cuando algo falle, anota **el paso, lo que esperabas y lo que pasó**, y adjunta",
+        "`logs/log-*.txt`: desde la corrección del 12-09 ahí queda cualquier caída con su traza, y la",
+        "primera línea identifica la compilación y el sistema.",
+        "",
+        "## Índice",
+        "",
+    ]
+    lineas += [f"- [{t}](#{_ancla(t)}) — {len(p)} pasos" for t, _, p in BLOQUES]
+    lineas += [f"- [{ultimo}](#{_ancla(ultimo)})", ""]
+    for titulo, nota, filas in BLOQUES:
+        lineas += [f"## {titulo}", "", nota, "", "| ✓ | Qué hacer | Qué debe pasar | Criterio |", "|---|---|---|---|"]
+        for paso, comprobar, cas in filas:
+            criterio = ", ".join(f"`{c}`" for c in cas) if cas else "—"
+            lineas.append(f"| ☐ | {paso} | {comprobar} | {criterio} |")
+        lineas.append("")
+    lineas += [
+        f"## {ultimo}",
+        "",
+        "No se omite nada por descuido. Estos criterios no son comprobables a mano hoy, y conviene saberlo",
+        "para no perder tiempo buscándolos:",
+        "",
+    ]
+    lineas += [f"- **{grupo}** — {motivo}" for grupo, motivo in NO_APLICAN]
+    lineas += [
+        "",
+        "## Cuando termines",
+        "",
+        "Anota el resultado en `specs/001-pacientes-y-medicos/PROGRESO.md` (T057) y en",
+        "`specs/015-rediseno-interfaz/PROGRESO.md` (T061), que son las dos tareas que esta prueba cierra.",
+        "Después ya tiene sentido el paquete de Windows y la primera release.",
+    ]
+    return "\n".join(lineas) + "\n"
+
+
+def criterios_sin_cubrir(raiz):
+    """Todo `**CA-…**` de cada spec debe aparecer en el plan. Un número repetido en dos specs se cita
+    con la spec entre paréntesis («CA-001 (000)») para la que no es su dueña natural."""
+    citados = set(_criterios_citados())
+    for cita in list(citados):
+        rango = _re.fullmatch(r"CA-(\d+)…(\d+)", cita)
+        if rango:
+            citados |= {f"CA-{n}" for n in range(int(rango.group(1)), int(rango.group(2)) + 1)}
+    por_id = {}
+    for spec in sorted(_Path(raiz, "specs").glob("[0-9][0-9][0-9]-*/spec.md")):
+        numero = spec.parent.name[:3]
+        for ca in set(_re.findall(r"^\*\*(CA-\d+)", spec.read_text(encoding="utf-8"), _re.M)):
+            por_id.setdefault(ca, []).append(numero)
+    faltan = []
+    for ca, specs in sorted(por_id.items()):
+        for numero in specs:
+            con_spec = f"{ca} ({numero})" in citados
+            # Sin paréntesis vale para un número que solo existe en una spec, o para la spec dueña del
+            # rango cuando se repite (la 000 comparte CA-000..CA-006 con la 001 y se cita con «(000)»).
+            sin_spec = ca in citados and (len(specs) == 1 or numero != "000")
+            if not (con_spec or sin_spec):
+                faltan.append(f"{ca} ({numero})")
+    return faltan
+
+
+if __name__ == "__main__":
+    raiz = _Path(__file__).resolve().parent.parent
+    faltan = criterios_sin_cubrir(raiz)
+    if faltan:
+        print("Criterios sin cubrir: " + ", ".join(faltan))
+    destino = raiz / "specs" / "PRUEBAS-ACEPTACION.md"
+    destino.write_text(renderizar(), encoding="utf-8")
+    print(f"Escrito {destino.relative_to(raiz)}")
+    _sys.exit(1 if faltan else 0)

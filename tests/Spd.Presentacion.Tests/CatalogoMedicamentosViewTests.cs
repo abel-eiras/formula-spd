@@ -29,7 +29,7 @@ public sealed class CatalogoMedicamentosViewTests
         var servicioImportacion = new ServicioImportacionNomenclator(new LectorNomenclatorCsv(), repositorio, auditoria);
         var servicioConsultaCima = new ServicioConsultaCima(new HttpClient(), auditoria);
 
-        var ventana = AnfitrionDeVista.Anfitrion(new CatalogoMedicamentosView { DataContext = new CatalogoMedicamentosViewModel(servicio, servicioImportacion, servicioConsultaCima, new Navegador(true), usuarioActualId: null) });
+        var ventana = AnfitrionDeVista.Anfitrion(new CatalogoMedicamentosView { DataContext = new CatalogoMedicamentosViewModel(servicio, servicioImportacion, servicioConsultaCima, new Navegador(true), usuarioActualId: null) { Fragmento = "654321" } });
 
         // Show() fuerza la realización del ItemTemplate del ListBox para el medicamento recién creado.
         ventana.Show();

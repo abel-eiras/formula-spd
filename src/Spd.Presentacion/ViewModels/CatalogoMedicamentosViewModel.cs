@@ -32,7 +32,9 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     [ObservableProperty] private string? _formaFarmaceutica;
     [ObservableProperty] private bool _fraccionable;
     [ObservableProperty] private string? _gtin;
-    [ObservableProperty] private bool _aptoSpd = true;
+    /// <summary>FR-301, revisado el 2026-09-14: la casilla tiene tres estados. En blanco es **sin confirmar**:
+    /// nadie ha decidido aún si es apto, y lo confirma el farmacéutico al elaborar (Spec 006).</summary>
+    [ObservableProperty] private bool? _aptoSpd;
     [ObservableProperty] private string? _motivoNoApto;
     [ObservableProperty] private int? _unidadesEnvase;
     [ObservableProperty] private string? _descForma;
@@ -45,6 +47,12 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
 
     public string[] FormasDisponibles { get; } = Enum.GetNames<FormaFarmaceutica>();
     public bool EsAltaNueva => _medicamentoIdEnEdicion is null;
+
+    /// <summary>Con el nomenclátor entero en el catálogo, sin nada escrito no se lista nada: cargar 15.000
+    /// filas no ayuda a encontrar ninguna.</summary>
+    public bool FaltaBusqueda => (Fragmento?.Trim().Length ?? 0) < ServicioMedicamentos.MinimoCaracteres;
+
+    public bool HayMasResultados => Resultados.Count >= ServicioMedicamentos.LimitePorDefecto;
 
     public CatalogoMedicamentosViewModel(
         IServicioMedicamentos servicio, IServicioImportacionNomenclator servicioImportacion,
@@ -59,15 +67,20 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Buscar() => Resultados = new ObservableCollection<Medicamento>(_servicio.Buscar(Fragmento));
+    private void Buscar()
+    {
+        Resultados = new ObservableCollection<Medicamento>(_servicio.Buscar(Fragmento));
+        OnPropertyChanged(nameof(FaltaBusqueda));
+        OnPropertyChanged(nameof(HayMasResultados));
+    }
 
     // Spec 015 FR-1502: navegar a la sección, no abrir una ventana encima.
     [RelayCommand]
     private void RevisarNomenclator() => _navegador.Navegar(new Destino(Seccion.RevisionNomenclator));
 
-    // Alternativa a cargar el catálogo completo del nomenclátor: consulta puntual por CN al
-    // CIMA REST API público de la AEMPS, en el momento del alta (escaneado o tecleado). Nunca
-    // rellena aptitud SPD ni descripción física (Art. I.2/I.3): eso sigue siendo manual.
+    // Consulta puntual por CN al CIMA REST API público de la AEMPS, en el momento del alta: sirve para
+    // lo que no está en el nomenclátor y para completar la forma farmacéutica, que el nomenclátor no
+    // trae. Nunca rellena aptitud SPD ni descripción física (Art. I.2/I.3).
     [RelayCommand]
     private async Task ConsultarCimaAsync()
     {
@@ -205,7 +218,7 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
         FormaFarmaceutica = null;
         Fraccionable = false;
         Gtin = null;
-        AptoSpd = true;
+        AptoSpd = null;
         MotivoNoApto = null;
         UnidadesEnvase = null;
         DescForma = null;

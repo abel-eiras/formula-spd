@@ -96,7 +96,7 @@ public static class MapaAlveolos
                 {
                     if (pautas[t] is not { } fraccion || fraccion == FraccionDosis.Cero) continue;
                     acumulado[d, t].Add(new ContenidoAlveolo(
-                        linea.SnapNombre, Inicial(linea.SnapNombre), fraccion.Texto()));
+                        linea.SnapNombre, Inicial(linea.SnapNombre), fraccion.TextoEntrada()));
                 }
             }
         }

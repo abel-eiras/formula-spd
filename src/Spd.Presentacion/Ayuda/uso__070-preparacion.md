@@ -4,6 +4,8 @@
 
 Una **tabla** con todos los blísteres de todos los pacientes: se ordena pulsando en la cabecera de cualquier columna, y hay filtro por paciente y estado y la casilla «solo pendientes». Lo que marques para el lote **no se pierde al reordenar**: la selección va con la fila, no con su posición. Cada fila indica **envases al día**: SÍ cuando la próxima sesión del paciente puede prepararse sin intervención (activo, con idoneidad, tratamiento revisado y saldo suficiente); si NO, el motivo. «Abrir» lleva a la pestaña de preparación de ese paciente.
 
+**Nueva preparación…** abre un panel para buscar al paciente (dos letras bastan) sin pasar por su ficha. Cada paciente encontrado muestra su última preparación; **Preparar siguiente (desde la última)** aparece cuando la última está entregada, y **Sesión nueva** abre una en blanco. Si la sesión se abre, vas directamente a su pestaña de preparación; si no se puede (paciente no activo, sin consentimiento, sin tratamiento en SPD, faltantes…), el motivo se queda en el panel.
+
 **Lote**: marca los pacientes (o "Seleccionar los que están al día"), elige ficha, etiquetas e instrucciones, y "Generar documentos": para cada paciente la aplicación localiza su sesión pendiente o crea una nueva, la pasa a PREPARADO con el primer material activo y la última lectura ambiental reciente, y genera los documentos. El resumen indica generados, excluidos (con el motivo) y fallidos; un fallo no detiene al resto.
 
 ## Preparación del paciente
@@ -19,6 +21,10 @@ Cada blíster lleva encima un carril con sus cinco pasos: **llenado, etiquetado,
 Debajo, el blíster **como se ve**: cuatro filas (desayuno, almuerzo, cena y noche) por siete columnas, una por día. En cada alvéolo, la inicial del medicamento y su fracción (`E 1/2`). Es lo que evita traducir mentalmente «½-0-1-0, de lunes a viernes» a la posición física de cada hueco, que es justo donde se equivoca una persona cansada.
 
 Las columnas son los **días reales de validez del blíster**, con su fecha: si empieza en jueves, la primera columna es el jueves. Un tratamiento de «solo lunes» aparece en la columna del lunes, no en la primera.
+
+## Aptitud para SPD sin confirmar
+
+Si algún medicamento de un blíster que todavía se va a emblistar tiene la aptitud **sin confirmar** —lo normal en los que llegan del nomenclátor, que no trae ese dato—, arriba aparece un aviso con sus nombres. **Confirmo que todos son aptos para SPD** los marca aptos a la vez y deja registrado quién lo confirmó. Asegurar que lo que se emblista es apto es responsabilidad del farmacéutico: el aviso **no bloquea** nada. Un medicamento marcado «no apto» en el catálogo se advierte aparte, en rojo, y no se cambia desde aquí.
 
 ## Barra superior
 

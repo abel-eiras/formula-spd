@@ -18,6 +18,8 @@ public sealed class LectorNomenclatorCsv : ILectorNomenclator
     private static readonly string[] CabecerasNombre = ["Nombre", "Nombre del producto farmacéutico"];
     private static readonly string[] CabecerasPrincipioActivo = ["Principio activo o asociación de principios activos"];
     private static readonly string[] CabecerasLaboratorio = ["Nombre del laboratorio ofertante"];
+    private static readonly string[] CabecerasTipo = ["Tipo de fármaco"];
+    private static readonly string[] CabecerasEstado = ["Estado"];
 
     public ResultadoLecturaNomenclator Leer(string rutaFichero)
     {
@@ -39,6 +41,8 @@ public sealed class LectorNomenclatorCsv : ILectorNomenclator
 
         var indicePrincipioActivo = IndiceDeCualquiera(cabecera, CabecerasPrincipioActivo);
         var indiceLaboratorio = IndiceDeCualquiera(cabecera, CabecerasLaboratorio);
+        var indiceTipo = IndiceDeCualquiera(cabecera, CabecerasTipo);
+        var indiceEstado = IndiceDeCualquiera(cabecera, CabecerasEstado);
         var indiceMaximoRequerido = Math.Max(indiceCn, indiceNombre);
 
         var filas = lineas.Skip(1)
@@ -49,7 +53,9 @@ public sealed class LectorNomenclatorCsv : ILectorNomenclator
                 campos[indiceCn].Trim(),
                 campos[indiceNombre].Trim(),
                 ValorOpcional(campos, indicePrincipioActivo),
-                ValorOpcional(campos, indiceLaboratorio)))
+                ValorOpcional(campos, indiceLaboratorio),
+                CeldaSiExisteLaColumna(campos, indiceTipo),
+                CeldaSiExisteLaColumna(campos, indiceEstado)))
             .ToList();
 
         return ResultadoLecturaNomenclator.Exitoso(filas);
@@ -59,6 +65,12 @@ public sealed class LectorNomenclatorCsv : ILectorNomenclator
         => indice >= 0 && indice < campos.Length && !string.IsNullOrWhiteSpace(campos[indice])
             ? campos[indice].Trim()
             : null;
+
+    /// <summary>A diferencia de <see cref="ValorOpcional"/>, distingue «no hay columna» (<c>null</c>) de
+    /// «hay columna y la celda está vacía» (cadena vacía): un tipo de fármaco vacío en el fichero real
+    /// significa efecto o accesorio, y confundirlo con «sin columna» los metería en el catálogo.</summary>
+    private static string? CeldaSiExisteLaColumna(string[] campos, int indice)
+        => indice < 0 ? null : indice < campos.Length ? campos[indice].Trim() : string.Empty;
 
     private static int IndiceDeCualquiera(string[] cabecera, string[] nombresPosibles)
         => nombresPosibles.Select(nombre => Array.IndexOf(cabecera, nombre)).FirstOrDefault(i => i >= 0, -1);

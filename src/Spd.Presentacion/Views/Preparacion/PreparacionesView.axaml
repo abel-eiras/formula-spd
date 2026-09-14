@@ -1,10 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Spd.Presentacion.Controles"
              x:Class="Spd.Presentacion.Views.Preparacion.PreparacionesView">
+  <Grid>
   <Grid RowDefinitions="Auto,*,Auto" Margin="24,20">
     <StackPanel Grid.Row="0" Spacing="8">
       <StackPanel Orientation="Horizontal" Spacing="8">
-        <TextBox Watermark="Paciente" Text="{Binding FiltroPaciente}" Width="220" />
+        <Button Classes="primario" Content="Nueva preparación…" Command="{Binding AbrirNuevaPreparacionCommand}" />
+        <TextBox Watermark="Filtrar por paciente" Text="{Binding FiltroPaciente}" Width="220" />
         <TextBlock Text="Estado:" Classes="etiqueta" VerticalAlignment="Center" />
         <ComboBox ItemsSource="{Binding EstadosDisponibles}" SelectedItem="{Binding FiltroEstado}" Width="150" />
         <CheckBox Content="Solo pendientes" IsChecked="{Binding SoloPendientes}" />
@@ -61,5 +64,39 @@
             IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
       <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
     </Border>
+  </Grid>
+
+    <c:PanelLateral Titulo="Nueva preparación" IsVisible="{Binding PanelNuevaAbierto}"
+                    CerrarCommand="{Binding CerrarNuevaPreparacionCommand}">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="suave" TextWrapping="Wrap"
+                   Text="Busca al paciente. Se abre su sesión y vas directamente a su preparación." />
+        <TextBox Text="{Binding BusquedaPaciente}" Watermark="Paciente (mínimo 2 letras)…" />
+        <ItemsControl ItemsSource="{Binding Candidatos}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="tarjeta" Margin="0,0,0,8" Padding="12,10">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{Binding Etiqueta}" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Detalle}" Classes="etiqueta" />
+                  <TextBlock Text="{Binding UltimaTexto}" Classes="suave" TextWrapping="Wrap" />
+                  <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                    <Button Classes="primario" Content="Preparar siguiente (desde la última)"
+                            IsVisible="{Binding PuedePrepararSiguiente}"
+                            Command="{Binding DataContext.PrepararSiguienteParaCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}" />
+                    <Button Content="Sesión nueva"
+                            Command="{Binding DataContext.CrearSesionParaCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Text="{Binding MensajeNueva}" TextWrapping="Wrap" Foreground="{DynamicResource Bloqueo}"
+                   IsVisible="{Binding MensajeNueva, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      </StackPanel>
+    </c:PanelLateral>
   </Grid>
 </UserControl>

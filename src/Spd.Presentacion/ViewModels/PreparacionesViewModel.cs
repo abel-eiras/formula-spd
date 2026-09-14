@@ -34,6 +34,13 @@ public sealed partial class PreparacionesViewModel : ViewModelBase
     [ObservableProperty] private bool _loteEtiquetas = true;
     [ObservableProperty] private bool _loteInstrucciones = true;
 
+    /// <summary>«Nueva preparación» desde la lista (petición del propietario, 2026-09-14): buscar al paciente
+    /// y abrir su sesión sin pasar antes por la ficha.</summary>
+    [ObservableProperty] private bool _panelNuevaAbierto;
+    [ObservableProperty] private string _busquedaPaciente = string.Empty;
+    [ObservableProperty] private ObservableCollection<CandidatoPreparacion> _candidatos = [];
+    [ObservableProperty] private string? _mensajeNueva;
+
     public EstadoSpd?[] EstadosDisponibles { get; } = [null, EstadoSpd.Borrador, EstadoSpd.Preparado, EstadoSpd.Verificado, EstadoSpd.Entregado, EstadoSpd.Anulado];
 
     public PreparacionesViewModel(
@@ -91,6 +98,67 @@ public sealed partial class PreparacionesViewModel : ViewModelBase
     partial void OnSoloPendientesChanged(bool value) => Cargar();
 
     [RelayCommand]
+    private void AbrirNuevaPreparacion()
+    {
+        BusquedaPaciente = string.Empty;
+        Candidatos = [];
+        MensajeNueva = null;
+        PanelNuevaAbierto = true;
+    }
+
+    [RelayCommand]
+    private void CerrarNuevaPreparacion() => PanelNuevaAbierto = false;
+
+    partial void OnBusquedaPacienteChanged(string value)
+    {
+        MensajeNueva = null;
+        var texto = value?.Trim() ?? string.Empty;
+        if (texto.Length < 2)
+        {
+            Candidatos = [];
+            return;
+        }
+
+        Candidatos = new ObservableCollection<CandidatoPreparacion>(
+            _servicioPacientes.Buscar(texto, null, null)
+                .Take(20)
+                .Select(p => new CandidatoPreparacion(p,
+                    _servicioPreparacion.ListarPorFiltro(new FiltrosPreparaciones(PacienteId: p.Id))
+                        .OrderByDescending(s => s.Id)
+                        .FirstOrDefault())));
+    }
+
+    /// <summary>Continuidad (FR-6120): parte de la última preparación entregada.</summary>
+    [RelayCommand]
+    private void PrepararSiguientePara(CandidatoPreparacion? candidato) => AbrirSesion(candidato, siguiente: true);
+
+    [RelayCommand]
+    private void CrearSesionPara(CandidatoPreparacion? candidato) => AbrirSesion(candidato, siguiente: false);
+
+    /// <summary>Si la sesión no se puede abrir (paciente no activo, sin consentimiento, sin tratamientos…),
+    /// el motivo se queda en el panel y no se navega a ningún sitio.</summary>
+    private void AbrirSesion(CandidatoPreparacion? candidato, bool siguiente)
+    {
+        if (candidato is null) return;
+
+        try
+        {
+            if (siguiente)
+                _servicioPreparacion.PrepararSiguiente(candidato.Paciente.Id, _usuarioActualId ?? 0, out _);
+            else
+                _servicioPreparacion.CrearSesion(candidato.Paciente.Id, _usuarioActualId ?? 0);
+
+            PanelNuevaAbierto = false;
+            _navegador.Navegar(new Navegacion.Destino(
+                Navegacion.Seccion.Paciente, candidato.Paciente.Id, nameof(Pacientes.PestanaPaciente.Preparacion)));
+        }
+        catch (ErrorValidacionException ex)
+        {
+            MensajeNueva = ex.Message;
+        }
+    }
+
+    [RelayCommand]
     private void AbrirPreparacion(FilaPreparacion fila)
         // Spec 015 FR-1530: la preparación es una pestaña del espacio del paciente, no una ventana.
         => _navegador.Navegar(new Navegacion.Destino(
@@ -125,6 +193,24 @@ public sealed partial class PreparacionesViewModel : ViewModelBase
         {
             Mensaje = ex.Message;
         }
+    }
+
+    public sealed record CandidatoPreparacion(Paciente Paciente, SPD? Ultima)
+    {
+        public string Etiqueta => $"{Paciente.Apellidos}, {Paciente.Nombre}";
+
+        public string Detalle => string.Join(" · ", new[]
+        {
+            string.IsNullOrEmpty(Paciente.NumFicha) ? null : $"Ficha {Paciente.NumFicha}",
+            string.IsNullOrEmpty(Paciente.Cip) ? null : $"CIP {Paciente.Cip}",
+            Paciente.Estado.ToString()
+        }.Where(t => t is not null));
+
+        public string UltimaTexto => Ultima is null
+            ? "Sin preparaciones anteriores"
+            : $"Última: {Ultima.NumRegistro} v{Ultima.Version} — {Ultima.Estado}, validez {Ultima.ValidezDesde:dd/MM} a {Ultima.ValidezHasta:dd/MM}";
+
+        public bool PuedePrepararSiguiente => Ultima?.Estado == EstadoSpd.Entregado;
     }
 
     public sealed partial class FilaPreparacion(SPD spd, string paciente, string numFicha, string elaborador, string verificador, bool envasesAlDia, string envasesAlDiaTexto)

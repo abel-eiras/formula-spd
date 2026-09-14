@@ -54,7 +54,7 @@ public sealed class InfraestructuraMedicamentosFundamentosTests
 
         Assert.NotNull(obtenido);
         Assert.Equal("Paracetamol 1g", obtenido!.Nombre);
-        Assert.True(obtenido.AptoSpd);
+        Assert.Null(obtenido.AptoSpd); // FR-301 revisado: todo medicamento nuevo nace sin confirmar
         Assert.True(obtenido.Activo);
     }
 }
