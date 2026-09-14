@@ -1,0 +1,11 @@
+macOS (EXPERIMENTAL: aún no se ha probado en un Mac)
+----------------------------------------------------
+Usa el paquete "apple-silicon" en Macs con chip M1 o posterior, y "intel" en los anteriores.
+
+1. Descomprime el .zip y mueve la carpeta a Documentos (no la dejes en Descargas).
+2. El programa no está firmado por Apple, así que macOS lo bloquea la primera vez. Para
+   permitirlo: clic derecho sobre "Abrir FormulaSPD.command" → "Abrir" → "Abrir". Ese script quita el
+   bloqueo de toda la carpeta y arranca Fórmula SPD. Las siguientes veces basta con doble clic.
+3. Si aun así no arranca, abre Terminal y escribe (arrastrando la carpeta para poner la ruta):
+       xattr -dr com.apple.quarantine /ruta/a/la/carpeta
+       /ruta/a/la/carpeta/FormulaSPD

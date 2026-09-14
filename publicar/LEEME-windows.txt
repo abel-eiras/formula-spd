@@ -1,0 +1,8 @@
+Windows
+-------
+1. Descomprime el .zip (clic derecho → "Extraer todo"). No lo ejecutes desde dentro del zip.
+2. Abre FormulaSPD.exe.
+3. La primera vez Windows puede avisar con "Windows protegió su PC", porque el programa no
+   está firmado con un certificado comercial: pulsa "Más información" → "Ejecutar de todas formas".
+4. Para tenerlo a mano: clic derecho sobre FormulaSPD.exe → "Mostrar más opciones" → "Enviar a" →
+   "Escritorio (crear acceso directo)".

@@ -1,0 +1,6 @@
+Linux
+-----
+1. Descomprime: tar -xzf FormulaSPD-{VERSION}-linux-x64.tar.gz
+2. Abre el programa: ./FormulaSPD (o doble clic en el fichero FormulaSPD).
+3. Opcional: ./crear-acceso-directo.sh añade Fórmula SPD al menú de aplicaciones. Si mueves la carpeta,
+   vuelve a ejecutarlo.
