@@ -180,9 +180,10 @@ que el fichero usa el formato corto (CA-701).
   decimales. Ejemplo: medio comprimido en desayuno y en cena se imprime `1/2 - 0 - 1/2 - 0`, no
   `0,5 - 0 - 0,5 - 0`.
 - **FR-741** El vocabulario de fracciones admitido es cerrado (Spec 004, `FraccionDosis`), no una
-  conversión decimal→fracción por aproximación. Ya implementado desde Spec 004: `Cero, UnCuarto,
-  UnTercio, Media, DosTercios, TresCuartos, Uno, UnoYCuarto, UnoYMedio`, con `Texto()` devolviendo
-  la representación exacta ("1/2", "1 1/4", …).
+  conversión decimal→fracción por aproximación: `Cero, UnCuarto, UnTercio, Media, DosTercios,
+  TresCuartos, Uno, UnoYCuarto, UnoYMedio` desde Spec 004, ampliado el 2026-09-14 con `UnoYTercio,
+  UnoYDosTercios, UnoYTresCuartos, Dos, Tres`. `Texto()` da la notación **impresa**, que no cambia
+  ("1/2", "1 1/4", "1 2/3", "2"…); en pantalla se teclea y se muestra con «+» ("1+1/4").
 - **FR-742** Internamente el sistema guarda el valor numérico equivalente (Spec 004
   `FraccionDosis.Valor()`) para poder sumar y calcular unidades semanales (Spec 005 FR-522), pero
   la interfaz de introducción de dosis (Spec 004) ya es un selector sobre el vocabulario cerrado.

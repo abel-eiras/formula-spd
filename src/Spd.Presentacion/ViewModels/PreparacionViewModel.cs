@@ -68,6 +68,17 @@ public sealed partial class PreparacionViewModel : ViewModelBase
 
     public OrigenSolicitudReelaboracion[] OrigenesDisponibles { get; } = Enum.GetValues<OrigenSolicitudReelaboracion>();
 
+    /// <summary>Art. I.3 (enmienda 3.0.0, decisión del propietario del 2026-09-14): el nomenclátor no dice si
+    /// un medicamento es apto para SPD, así que al preparar se enseñan los que están sin confirmar y el
+    /// farmacéutico los confirma **todos a la vez**. Es un aviso, nunca un bloqueo: asegurar que lo que se
+    /// emblista es apto es obligación del farmacéutico.</summary>
+    [ObservableProperty] private string? _medicamentosSinConfirmar;
+    [ObservableProperty] private string? _medicamentosNoAptos;
+    private IReadOnlyList<int> _idsSinConfirmar = [];
+
+    public bool HayAptitudSinConfirmar => _idsSinConfirmar.Count > 0;
+    public bool HayNoAptos => MedicamentosNoAptos is not null;
+
     public PreparacionViewModel(
         IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos,
         IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioComunicacionesMedico servicioComunicaciones,
@@ -95,6 +106,43 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         Blisteres = new ObservableCollection<BlisterFila>(
             spds.OrderByDescending(s => s.Id)
                 .Select(s => new BlisterFila(s, _servicio.ListarLineas(s.Id), MaterialesDisponibles.Count > 0)));
+        ComprobarAptitud();
+    }
+
+    /// <summary>Solo cuenta lo que todavía se va a emblistar: un blíster verificado o entregado ya pasó por
+    /// el farmacéutico.</summary>
+    private void ComprobarAptitud()
+    {
+        var aEmblistar = Blisteres
+            .Where(b => b.Spd.Estado is EstadoSpd.Borrador or EstadoSpd.Preparado)
+            .SelectMany(b => b.Lineas)
+            .Select(l => l.MedicamentoId)
+            .Distinct()
+            .Select(_servicioMedicamentos.ObtenerPorId)
+            .OfType<Medicamento>()
+            .ToList();
+
+        var sinConfirmar = aEmblistar.Where(m => m.AptoSpd is null).OrderBy(m => m.Nombre).ToList();
+        _idsSinConfirmar = sinConfirmar.Select(m => m.Id).ToList();
+        MedicamentosSinConfirmar = sinConfirmar.Count == 0 ? null : string.Join(" · ", sinConfirmar.Select(m => m.Nombre));
+
+        var noAptos = aEmblistar.Where(m => m.AptoSpd == false).Select(m => m.Nombre).OrderBy(n => n).ToList();
+        MedicamentosNoAptos = noAptos.Count == 0 ? null : string.Join(" · ", noAptos);
+
+        OnPropertyChanged(nameof(HayAptitudSinConfirmar));
+        OnPropertyChanged(nameof(HayNoAptos));
+    }
+
+    /// <summary>Una sola confirmación para todos, no una por medicamento. Solo marca los que estaban sin
+    /// confirmar: un «no apto» explícito no se toca. Cada uno queda en auditoría con quién lo confirmó.</summary>
+    [RelayCommand]
+    private void ConfirmarAptitudSpd()
+    {
+        if (_idsSinConfirmar.Count == 0) return;
+
+        var confirmados = _servicioMedicamentos.ConfirmarAptitudSpd(_idsSinConfirmar, _usuarioActualId);
+        Mensaje = $"Aptitud para SPD confirmada en {confirmados} medicamento(s). Queda registrado quién lo ha confirmado.";
+        ComprobarAptitud();
     }
 
     [RelayCommand]

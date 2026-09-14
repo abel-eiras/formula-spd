@@ -2,12 +2,58 @@ using Spd.Dominio;
 
 namespace Spd.Aplicacion;
 
-/// <summary>Revisión y aplicación fila a fila del nomenclátor sobre el catálogo (FR-320..FR-322).
+/// <summary>Importación del nomenclátor sobre el catálogo (FR-320..FR-322, revisados el 2026-09-14).
 /// Toda escritura registra en auditoría (Art. VII.6).</summary>
 public sealed class ServicioImportacionNomenclator(
     ILectorNomenclator lector, IRepositorioMedicamentos repositorio, IRegistradorAuditoria auditoria)
     : IServicioImportacionNomenclator
 {
+    public ResultadoImportacionNomenclator ImportarCompleto(string rutaFicheroDescargado, int? usuarioQueEjecutaId)
+    {
+        var lectura = lector.Leer(rutaFicheroDescargado);
+        if (!lectura.Exito) return ResultadoImportacionNomenclator.Fallido(lectura.Error!);
+
+        // Los CN existentes se cargan una vez: 15.000 consultas sueltas serían 15.000 idas a la base.
+        var existentes = repositorio.ListarCns();
+        var vistos = new HashSet<string>(StringComparer.Ordinal);
+        var nuevos = new List<Medicamento>();
+        int yaExistian = 0, noSonMedicamentos = 0, deBaja = 0;
+
+        foreach (var fila in lectura.Filas)
+        {
+            if (!fila.EsMedicamento) { noSonMedicamentos++; continue; }
+            if (!vistos.Add(fila.Cn)) continue;
+
+            // FR-321: lo que ya está en el catálogo no se toca — ni nombre, ni descripción, ni aptitud.
+            if (existentes.Contains(fila.Cn)) { yaExistian++; continue; }
+
+            if (fila.EstaDeBaja) deBaja++;
+            nuevos.Add(new Medicamento
+            {
+                Cn = fila.Cn,
+                Nombre = fila.Nombre,
+                NombreNormalizado = Normalizador.QuitarTildesYMayusculas(fila.Nombre),
+                PrincipioActivo = fila.PrincipioActivo,
+                Laboratorio = fila.Laboratorio,
+                // El nomenclátor no dice si es apto para SPD: queda sin confirmar (FR-301 revisado).
+                AptoSpd = null,
+                Activo = !fila.EstaDeBaja
+            });
+        }
+
+        repositorio.CrearEnLote(nuevos, usuarioQueEjecutaId);
+
+        // Art. VII.6: la importación deja traza con su recuento. Cada medicamento creado lleva además su
+        // autor en creado_por; una traza por fila no cabe en la transacción del alta en bloque.
+        var resultado = new ResultadoImportacionNomenclator(
+            true, null, nuevos.Count - deBaja, deBaja, yaExistian, noSonMedicamentos);
+        auditoria.Registrar(usuarioQueEjecutaId, "IMPORTACION_NOMENCLATOR", "Medicamento", null,
+            $"{Path.GetFileName(rutaFicheroDescargado)}: {resultado.AltasActivas} altas activas, " +
+            $"{resultado.AltasDeBaja} de baja (inactivas), {resultado.YaExistian} ya existían y no se han tocado, " +
+            $"{resultado.NoSonMedicamentos} filas descartadas por no ser medicamentos.");
+        return resultado;
+    }
+
     public ResultadoComparacionNomenclator CompararConNomenclator(string rutaFicheroDescargado)
     {
         var lectura = lector.Leer(rutaFicheroDescargado);
@@ -22,6 +68,9 @@ public sealed class ServicioImportacionNomenclator(
 
         foreach (var fila in lectura.Filas)
         {
+            // Los efectos y accesorios no son medicamentos: no se proponen como altas.
+            if (!fila.EsMedicamento) continue;
+
             var existente = repositorio.ObtenerPorCn(fila.Cn);
             if (existente is null)
             {
@@ -48,7 +97,8 @@ public sealed class ServicioImportacionNomenclator(
             Nombre = fila.Nombre,
             NombreNormalizado = Normalizador.QuitarTildesYMayusculas(fila.Nombre),
             PrincipioActivo = fila.PrincipioActivo,
-            Laboratorio = fila.Laboratorio
+            Laboratorio = fila.Laboratorio,
+            Activo = !fila.EstaDeBaja
         };
         medicamento.Id = repositorio.Crear(medicamento);
 

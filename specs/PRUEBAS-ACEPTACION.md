@@ -1,10 +1,10 @@
 # Pruebas de aceptación — recorrido manual completo
 
-Los **130 criterios de aceptación** de las catorce especificaciones, ordenados en el orden en que
+Los **134 criterios de aceptación** de las catorce especificaciones, ordenados en el orden en que
 se ejecutan de verdad, no por número de spec. Generado desde una única fuente para que ningún
 criterio se quede fuera: la comprobación de cobertura falla si alguno no aparece.
 
-**139 pasos en 24 bloques.** No hace falta hacerlo de una sentada, pero el orden importa:
+**143 pasos en 24 bloques.** No hace falta hacerlo de una sentada, pero el orden importa:
 cada bloque deja el sistema en el estado que necesita el siguiente. Los tres últimos son
 destructivos y van al final por eso.
 
@@ -18,14 +18,14 @@ primera línea identifica la compilación y el sistema.
 - [1. Farmacia y valores por defecto](#1-farmacia-y-valores-por-defecto) — 3 pasos
 - [2. Usuarios y sesión](#2-usuarios-y-sesion) — 5 pasos
 - [3. Marco único, tema y ayuda](#3-marco-unico-tema-y-ayuda) — 6 pasos
-- [4. Catálogo de medicamentos](#4-catalogo-de-medicamentos) — 8 pasos
+- [4. Catálogo de medicamentos](#4-catalogo-de-medicamentos) — 9 pasos
 - [5. Paciente nuevo, con su médico nuevo](#5-paciente-nuevo-con-su-medico-nuevo) — 10 pasos
 - [5b. Mantenimiento del catálogo de médicos](#5b-mantenimiento-del-catalogo-de-medicos) — 5 pasos
 - [6. Contactos del paciente](#6-contactos-del-paciente) — 7 pasos
 - [7. Idoneidad y consentimiento](#7-idoneidad-y-consentimiento) — 5 pasos
-- [8. Tratamiento](#8-tratamiento) — 7 pasos
+- [8. Tratamiento](#8-tratamiento) — 8 pasos
 - [9. Depósito y retirada de envases](#9-deposito-y-retirada-de-envases) — 16 pasos
-- [10. Preparación: sesión, carril y rejilla](#10-preparacion-sesion-carril-y-rejilla) — 10 pasos
+- [10. Preparación: sesión, carril y rejilla](#10-preparacion-sesion-carril-y-rejilla) — 12 pasos
 - [11. Verificación](#11-verificacion) — 4 pasos
 - [12. Entrega](#12-entrega) — 3 pasos
 - [13. Continuidad y reelaboración](#13-continuidad-y-reelaboracion) — 10 pasos
@@ -97,6 +97,7 @@ Crear al menos tres medicamentos: uno fraccionable, uno no apto y uno sin unidad
 | ☐ | Coger un medicamento cuya forma lo marca apto y marcarlo como no apto | Exige un motivo antes de guardar. | `CA-302` |
 | ☐ | Dar de baja un medicamento y luego volver a necesitar ese mismo CN | Reactiva el registro existente en vez de crear un duplicado. | `CA-305` |
 | ☐ | Tras entregar un blíster (bloque 13): cambiar aquí la descripción física de un medicamento que iba en él y consultar ese blíster | El blíster entregado sigue mostrando la descripción de cuando se elaboró. **Art. IV.3: es lo más importante de todo el catálogo.** | `CA-301` |
+| ☐ | Configuración → Nomenclátor → «Descargar ahora» (o «Importar al catálogo el último fichero descargado»). Buscar luego en el catálogo un medicamento que no hubieras dado de alta, uno de baja y uno de los que creaste a mano | El mensaje da el recuento. El nuevo está, con aptitud «Sin confirmar»; el de baja está inactivo; los tuyos conservan su nombre, aptitud y motivo. Un efecto o accesorio (p. ej. una bolsa de ostomía) no aparece. Buscar con una sola letra no lista nada. | `CA-308` |
 | ☐ | Importar un nomenclátor que incluya un medicamento con descripción física ya completa | La descripción física no cambia sin confirmación explícita. | `CA-304` |
 
 ## 5. Paciente nuevo, con su médico nuevo
@@ -161,7 +162,8 @@ Tercera pestaña. Dejar el paciente con al menos dos tratamientos en SPD, uno de
 | ✓ | Qué hacer | Qué debe pasar | Criterio |
 |---|---|---|---|
 | ☐ | Crear un tratamiento nuevo en un paciente que tiene médico de cabecera | El campo prescriptor aparece prerrellenado con ese médico, y es editable. | `CA-400` |
-| ☐ | Abrir el campo de dosis del desayuno | Solo se puede elegir de la lista cerrada de fracciones; no se puede escribir un número arbitrario. | `CA-403` |
+| ☐ | Teclear en desayuno `1+1/2`, en cena `1/3` y guardar; después teclear `0,5` en almuerzo | Lo primero se guarda y se ve igual al cambiar la pauta. Con `0,5` aparece el aviso en rojo al escribir y al guardar dice la toma, lo tecleado y los catorce valores admitidos; no se guarda. | `CA-403` |
+| ☐ | En el tratamiento, buscar un medicamento que no esté (un CN inventado) y pulsar «Nuevo medicamento…»; darlo de alta y guardar el tratamiento | Se da de alta sin salir de la ficha, queda elegido y el tratamiento se guarda con él. Elegir uno marcado «de baja» lo reactiva. | `CA-407` |
 | ☐ | Cambiar la pauta de 1-0-0-0 a 1-0-1-0 | La fila original queda FINALIZADO con fecha de fin de hoy, y hay una nueva ACTIVO con fecha de inicio de hoy y la pauta nueva. | `CA-401` |
 | ☐ | Cambiar la pauta una tercera vez y pulsar «Ver historial» | Se ven los tres tramos con sus fechas de vigencia; ninguno oculto. | `CA-402` |
 | ☐ | Poner un tratamiento en PENDIENTE_REVISION e intentar abrir sesión de preparación | Lo impide. | `CA-404` |
@@ -198,6 +200,8 @@ Quinta pestaña del paciente. **Aquí es donde quiero que compares la rejilla co
 | ✓ | Qué hacer | Qué debe pasar | Criterio |
 |---|---|---|---|
 | ☐ | Paciente con faltantes pendientes: intentar abrir sesión | No crea nada y enlaza al listado de retirada. | `CA-601` |
+| ☐ | Preparaciones → «Nueva preparación…»: buscar a un paciente activo sin sesión y pulsar «Sesión nueva»; repetir con uno que ya tenga una sesión abierta | El primero abre la sesión y lleva a su pestaña de preparación. El segundo deja el motivo en el panel y no navega. | `CA-614` |
+| ☐ | Abrir la preparación de un paciente cuyos medicamentos llegaron del nomenclátor | Aviso «Aptitud para SPD sin confirmar» con sus nombres. «Confirmo que todos son aptos para SPD» lo quita y no vuelve. Un medicamento marcado «no apto» en el catálogo se advierte en rojo y no se ofrece confirmar. Nada de esto impide seguir preparando. | `CA-613` |
 | ☐ | Resolver los faltantes y abrir «Nueva sesión de preparación» en un paciente con 2 blísteres | Crea dos SPD con números correlativos y validez consecutiva. | `CA-600` |
 | ☐ | Mirar el carril de pasos de un blíster recién creado | Los pasos hechos, el actual y los bloqueados se corresponden con su estado, y **cada bloqueado dice por qué**. | `CA-1530` |
 | ☐ | Sin material de acondicionamiento registrado, mirar el paso de llenado | Está bloqueado, y el motivo dice que falta el material. | `CA-1530` |

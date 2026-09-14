@@ -6,7 +6,7 @@
 
 **Status**: Draft — pendiente de `/speckit-clarify`
 
-**Constitución aplicable:** 2.1.0 (Artículos IV, V, VI — la spec original cita 2.1.0, sin contradicción con la constitución vigente)
+**Constitución aplicable:** 3.0.0 (Artículos I.3, IV, V, VI). Revisada el 2026-09-14 contra la enmienda MAJOR del Art. I.3.
 
 **Depende de:** Ninguna funcional; Spec 000 (configuración inicial) para la URL del nomenclátor
 
@@ -22,6 +22,12 @@
 
 - Q: ¿Necesitas ampliar la lista cerrada de formas farmacéuticas de FR-300, o basta con la lista ya propuesta? → A: Se mantiene la lista tal cual (comprimido, comprimido de liberación prolongada, cápsula, cápsula de liberación prolongada, gragea, pastilla, píldora, otra no apta para SPD), sin añadir valores ahora.
 - Q: Tras probar que `LectorNomenclatorCsv` no reconocía el nomenclátor oficial real (corregido, ver research.md), ¿cómo debe encajar la consulta al CIMA REST API (probada en vivo, forma farmacéutica en vocabulario cerrado vía `formaFarmaceuticaSimplificada`, ~100ms por CN) en el flujo de alta? → A: Reemplaza el catálogo precargado para este caso de uso — al escanear/teclear un CN nuevo se consulta CIMA en el momento (FR-323/FR-324); no se necesita tener el nomenclátor completo cargado para conocer la forma farmacéutica. El nomenclátor CSV (FR-320..322) se mantiene para la revisión por lotes de nombres ya registrados, un caso de uso distinto (reconciliación masiva, no alta puntual).
+
+### Session 2026-09-14 (decisiones del propietario)
+
+- Q: ¿Hay que dar de alta los medicamentos en el catálogo antes de poder asignarlos a un paciente? → A: No. Al descargar el nomenclátor se da de alta entero (FR-320), y lo que no esté se da de alta desde el tratamiento del paciente (Spec 004 FR-400). Sustituye a la clarificación anterior en lo que se refiere a no precargar el catálogo; CIMA sigue siendo el modo de completar la forma farmacéutica.
+- Q: ¿Qué filas del nomenclátor entran? → A: Solo medicamentos (no efectos ni accesorios). Los de baja entran inactivos, para que un paciente antiguo pueda seguir usándolos (se reactivan al elegirlos, CA-305). Lo que ya existe no se toca (FR-321).
+- Q: El nomenclátor no dice si un medicamento es apto para SPD: ¿con qué aptitud entran? → A: Vacía, *sin confirmar*. Al preparar se advierte y el farmacéutico confirma todos a la vez; no bloquea la elaboración (Constitución 3.0.0, Art. I.3; Spec 006 FR-692).
 
 ---
 
@@ -54,11 +60,11 @@ Como administrador, quiero descargar el nomenclátor desde la URL configurada (S
 ### 4.1 Alta y edición
 
 - **FR-300** Campos: CN (6 dígitos, único), nombre, principio activo (opcional), laboratorio (opcional), forma farmacéutica (catálogo cerrado: comprimido, comprimido de liberación prolongada, cápsula, cápsula de liberación prolongada, gragea, pastilla, píldora, otra no apta para SPD), fraccionable (sí/no), unidades por envase, GTIN (opcional, para Spec 012).
-- **FR-301** `apto_spd` se deriva de la forma farmacéutica (formas líquidas, efervescentes, bucodispersables, parenterales, tópicas quedan fuera por defecto) pero es **editable manualmente** con motivo obligatorio (`motivo_no_apto` o razón de excepción), porque la aptitud real depende también de informes del laboratorio que el sistema no puede conocer.
+- **FR-301** `apto_spd` tiene tres estados: **apto**, **no apto** y **sin confirmar** (vacío), que es el de todo medicamento nuevo, porque ni el nomenclátor ni CIMA dicen si es apto (revisado el 2026-09-14, Constitución 3.0.0 Art. I.3). Es **editable manualmente**; fijar una aptitud contraria a la que sugiere la forma farmacéutica (formas líquidas, efervescentes, bucodispersables, parenterales y tópicas quedan fuera por defecto) exige motivo (`motivo_no_apto`), porque la aptitud real depende también de informes del laboratorio que el sistema no puede conocer. Dejarla sin confirmar no exige motivo. La confirmación en bloque al preparar está en Spec 006 FR-692.
 - **FR-302** Alta mínima: solo CN y nombre son obligatorios para crear el registro (permite el flujo de alta rápida del Escenario E1); forma farmacéutica y descripción física pueden completarse después, con aviso visible mientras falten.
 - **FR-303** Descripción física: forma, color, ranura, serigrafía, tamaño, más un campo de texto libre autogenerado a partir de los anteriores y editable a mano. Editar cualquiera de estos campos actualiza el catálogo para todo uso futuro (Artículo IV.2); no afecta a instantáneas ya congeladas en líneas de SPD existentes (Artículo IV.3).
 - **FR-304** Cada cambio de descripción física añade una fila a `Medicamento_Hist` con la fecha de vigencia, sin borrar el estado anterior.
-- **FR-305** Búsqueda por CN exacto o por fragmento de nombre, sin distinguir mayúsculas ni tildes.
+- **FR-305** Búsqueda por CN exacto o por fragmento de nombre, sin distinguir mayúsculas ni tildes. Con el nomenclátor entero en el catálogo, exige al menos dos caracteres y devuelve como mucho 50 resultados (el CN exacto primero, luego los activos); sin nada escrito no se lista nada.
 - **FR-306** No se permite duplicar un CN. Un CN dado de baja (`activo = 0`) puede reactivarse si vuelve a comercializarse; no se crea uno nuevo con el mismo CN.
 
 ### 4.2 Unidades por envase
@@ -68,9 +74,9 @@ Como administrador, quiero descargar el nomenclátor desde la URL configurada (S
 
 ### 4.3 Importación del nomenclátor
 
-- **FR-320** Desde Configuración (Spec 000 FR-051) se descarga el fichero del nomenclátor. Esta spec define qué se hace con ese fichero una vez descargado: se ofrece una pantalla de revisión que compara el nomenclátor con el catálogo actual y muestra, por CN, qué medicamentos son nuevos, cuáles tienen nombre distinto al registrado, y (si el perfil de importación lo mapea, Spec 011) qué valor de `unidades_envase` se extraería por regex.
+- **FR-320** Desde Configuración (Spec 000 FR-051) se descarga el fichero del nomenclátor. **Tras descargarlo, se dan de alta en el catálogo todos los medicamentos que no estén ya** (revisado el 2026-09-14): solo filas de tipo medicamento, no efectos ni accesorios; los de baja como inactivos; con CN, nombre, principio activo y laboratorio, y la aptitud SPD sin confirmar. Es atómico (entran todos o ninguno), deja una traza de auditoría con el recuento y cada medicamento lleva su autor. Se puede repetir con el último fichero descargado sin volver a descargarlo. Aparte, la pantalla de revisión compara el nomenclátor con el catálogo y muestra, por CN, cuáles tienen nombre distinto al registrado, y (si el perfil de importación lo mapea, Spec 011) qué valor de `unidades_envase` se extraería por regex.
 - **FR-321** La importación **nunca sobrescribe automáticamente** la descripción física ni la aptitud SPD de un medicamento existente — esos campos son exclusivamente de responsabilidad manual del profesional (Artículo I.2 y I.3: aptitud SPD y descripción son decisiones clínicas, no datos de nomenclátor). Solo puede rellenar `unidades_envase` cuando está vacío, o actualizarlo si el usuario lo confirma explícitamente fila a fila.
-- **FR-322** El usuario decide, medicamento a medicamento, si acepta la creación o el dato propuesto; no hay una importación masiva sin revisión para los campos sensibles.
+- **FR-322** Sobre medicamentos **existentes**, el usuario decide medicamento a medicamento si acepta el dato propuesto; no hay importación masiva sin revisión para los campos sensibles. El alta masiva de FR-320 no contradice esto: solo crea medicamentos que no existían y no rellena ningún campo sensible (ni descripción física ni aptitud).
 
 ### 4.4 Consulta puntual a CIMA (alternativa al nomenclátor para forma farmacéutica)
 
@@ -107,6 +113,9 @@ Dado un medicamento con CN 111111 dado de baja, cuando se vuelve a necesitar, en
 **CA-306 Consulta a CIMA rellena forma farmacéutica**
 Dado un CN de un medicamento registrado en CIMA, cuando pulso "Consultar CIMA" en el alta, entonces se rellenan nombre, principio activo, laboratorio y forma farmacéutica (si CIMA tiene un equivalente en el catálogo cerrado de FR-300), todos editables antes de guardar.
 
+**CA-308 Alta del nomenclátor completo**
+Dado un catálogo con un medicamento que ya tiene aptitud y motivo decididos, cuando se descarga un nomenclátor que lo incluye junto con medicamentos nuevos, uno de baja y un accesorio, entonces se dan de alta los nuevos sin aptitud confirmada, el de baja como inactivo, el accesorio no entra, y el existente no cambia en nada.
+
 **CA-307 CN no encontrado en CIMA no bloquea el alta**
 Dado un CN de una fórmula magistral (sin registro en CIMA), cuando pulso "Consultar CIMA", entonces se informa de que no hay datos y puedo seguir rellenando el alta a mano.
 
@@ -115,6 +124,7 @@ Dado un CN de una fórmula magistral (sin registro en CIMA), cuando pulso "Consu
 - Medicamento con varias presentaciones (20 mg y 40 mg) del mismo principio activo: son CN distintos, catálogos independientes; no hay relación automática entre ellos salvo el campo opcional `principio_activo` para búsquedas.
 - Medicamento fraccionable a la mitad pero no a cuartos: `fraccionable` es un booleano simple en 1.0; fraccionamientos parciales por denominador se dejan para una versión posterior si hiciera falta.
 - Nomenclátor con un CN que ya no es apto SPD según el fabricante: la importación no cambia `apto_spd` (FR-321); es responsabilidad profesional revisarlo.
+- Descargar el nomenclátor dos veces: la segunda no crea nada que ya exista (FR-306, FR-320).
 
 ## 8. Fuera de alcance de esta spec
 

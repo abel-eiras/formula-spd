@@ -11,8 +11,29 @@ public sealed class ServicioMedicamentos(
 
     public Medicamento? ObtenerPorCn(string cn) => repositorio.ObtenerPorCn(cn);
 
-    public IReadOnlyList<Medicamento> Buscar(string fragmento)
-        => repositorio.Buscar(fragmento, Normalizador.QuitarTildesYMayusculas(fragmento));
+    /// <summary>FR-305. Con el nomenclátor entero cargado hay más de 15.000 medicamentos: por debajo de dos
+    /// caracteres cualquier fragmento los trae casi todos.</summary>
+    public const int MinimoCaracteres = 2;
+    public const int LimitePorDefecto = 50;
+
+    public IReadOnlyList<Medicamento> Buscar(string fragmento, int limite = LimitePorDefecto)
+    {
+        var texto = fragmento?.Trim() ?? string.Empty;
+        return texto.Length < MinimoCaracteres
+            ? []
+            : repositorio.Buscar(texto, Normalizador.QuitarTildesYMayusculas(texto), limite);
+    }
+
+    public int ConfirmarAptitudSpd(IReadOnlyCollection<int> medicamentoIds, int? usuarioQueEjecutaId)
+    {
+        var confirmados = repositorio.ConfirmarAptitud(medicamentoIds);
+        foreach (var id in confirmados)
+        {
+            auditoria.Registrar(usuarioQueEjecutaId, "CONFIRMAR_APTITUD_SPD", "Medicamento", id,
+                "Aptitud SPD confirmada en bloque al elaborar (Art. I.3: responsabilidad del farmacéutico).");
+        }
+        return confirmados.Count;
+    }
 
     public Medicamento Crear(DatosAltaMedicamento datos, int? usuarioQueEjecutaId)
     {
@@ -55,7 +76,9 @@ public sealed class ServicioMedicamentos(
             ?? throw new ErrorValidacionException($"No existe el medicamento {medicamento.Id}.");
 
         var aptoDerivado = DerivarAptoPorDefecto(medicamento.FormaFarmaceutica);
-        if (medicamento.AptoSpd != aptoDerivado && string.IsNullOrWhiteSpace(medicamento.MotivoNoApto))
+        // FR-301, revisado: «sin confirmar» no contradice nada. El motivo solo hace falta cuando se FIJA una
+        // aptitud distinta de la que dicta la forma farmacéutica.
+        if (medicamento.AptoSpd is { } apto && apto != aptoDerivado && string.IsNullOrWhiteSpace(medicamento.MotivoNoApto))
         {
             throw new ErrorValidacionException(
                 "Fijar la aptitud SPD distinta de la derivada de la forma farmacéutica exige un motivo (FR-301, CA-302).");

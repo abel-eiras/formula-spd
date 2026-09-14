@@ -12,7 +12,12 @@ public sealed class Medicamento
     public string? PrincipioActivo { get; set; }
     public string? Laboratorio { get; set; }
     public FormaFarmaceutica? FormaFarmaceutica { get; set; }
-    public bool AptoSpd { get; set; } = true;
+    /// <summary>Aptitud para SPD (FR-301). <c>null</c> = **sin confirmar**: ni apto ni no apto, sino que
+    /// nadie lo ha decidido todavía. Es el estado de todo medicamento nuevo, porque el nomenclátor no
+    /// trae ese dato; lo confirma el farmacéutico al elaborar (Spec 006, decisión del propietario del
+    /// 2026-09-14). Un «no apto» explícito es una decisión clínica y ninguna confirmación en bloque lo
+    /// cambia.</summary>
+    public bool? AptoSpd { get; set; }
     public string? MotivoNoApto { get; set; }
     public bool Fraccionable { get; set; }
     public int? UnidadesEnvase { get; set; }

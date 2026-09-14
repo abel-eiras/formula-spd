@@ -162,4 +162,70 @@ public sealed class ServicioMedicamentosTests
         Assert.Contains("EDITAR_UNIDADES_ENVASE", acciones);
         Assert.Contains("BAJA", acciones);
     }
+
+    [Fact]
+    public void Un_medicamento_nuevo_nace_con_la_aptitud_sin_confirmar_FR_301()
+    {
+        var (servicio, _) = CrearServicio();
+        var medicamento = servicio.Crear(new DatosAltaMedicamento("654321", "Paracetamol 1g"), null);
+        Assert.Null(servicio.ObtenerPorId(medicamento.Id)!.AptoSpd);
+    }
+
+    /// <summary>«Sin confirmar» no contradice a la forma farmacéutica: el motivo del CA-302 solo hace falta
+    /// cuando se fija una aptitud distinta de la que dicta la forma.</summary>
+    [Fact]
+    public void Sin_confirmar_no_exige_motivo_aunque_la_forma_diga_apto_CA_302()
+    {
+        var (servicio, _) = CrearServicio();
+        var medicamento = servicio.Crear(new DatosAltaMedicamento("654321", "Paracetamol 1g"), null);
+        medicamento.FormaFarmaceutica = FormaFarmaceutica.Comprimido;
+        medicamento.AptoSpd = null;
+        medicamento.MotivoNoApto = null;
+
+        servicio.ActualizarDatos(medicamento, null);
+
+        Assert.Null(servicio.ObtenerPorId(medicamento.Id)!.AptoSpd);
+    }
+
+    /// <summary>Art. I.3 con el modelo del propietario: la confirmación en bloque marca aptos solo los que
+    /// estaban sin confirmar. Un «no apto» explícito es una decisión clínica y no se vuelca.</summary>
+    [Fact]
+    public void Confirmar_aptitud_solo_marca_los_vacios_y_nunca_vuelca_un_no_apto()
+    {
+        var (servicio, conexion) = CrearServicio();
+        var vacio = servicio.Crear(new DatosAltaMedicamento("111111", "Enalapril 20 mg"), null);
+        var noApto = servicio.ObtenerPorId(servicio.Crear(new DatosAltaMedicamento("222222", "Jarabe tos"), null).Id)!;
+        noApto.AptoSpd = false;
+        noApto.MotivoNoApto = "Forma líquida.";
+        servicio.ActualizarDatos(noApto, null);
+        var apto = servicio.ObtenerPorId(servicio.Crear(new DatosAltaMedicamento("333333", "Omeprazol 20 mg"), null).Id)!;
+        apto.AptoSpd = true;
+        servicio.ActualizarDatos(apto, null);
+
+        var confirmados = servicio.ConfirmarAptitudSpd([vacio.Id, noApto.Id, apto.Id], usuarioQueEjecutaId: 7);
+
+        Assert.Equal(1, confirmados);
+        Assert.True(servicio.ObtenerPorId(vacio.Id)!.AptoSpd);
+        Assert.False(servicio.ObtenerPorId(noApto.Id)!.AptoSpd);
+        Assert.True(servicio.ObtenerPorId(apto.Id)!.AptoSpd);
+
+        var traza = Assert.Single(conexion.Query<(long EntidadId, long UsuarioId)>(
+            "SELECT entidad_id, usuario_id FROM Auditoria WHERE accion = 'CONFIRMAR_APTITUD_SPD'"));
+        Assert.Equal(vacio.Id, (int)traza.EntidadId);
+        Assert.Equal(7, (int)traza.UsuarioId);
+    }
+
+    [Fact]
+    public void Buscar_exige_dos_caracteres_y_limita_los_resultados()
+    {
+        var (servicio, _) = CrearServicio();
+        for (var i = 0; i < 60; i++)
+            servicio.Crear(new DatosAltaMedicamento($"8{i:D5}", $"Paracetamol genérico {i}"), null);
+
+        Assert.Empty(servicio.Buscar("p"));
+        Assert.Empty(servicio.Buscar("   "));
+        Assert.Equal(ServicioMedicamentos.LimitePorDefecto, servicio.Buscar("paracetamol").Count);
+        Assert.Equal(10, servicio.Buscar("paracetamol", 10).Count);
+        Assert.Equal("800007", Assert.Single(servicio.Buscar("800007")).Cn);
+    }
 }

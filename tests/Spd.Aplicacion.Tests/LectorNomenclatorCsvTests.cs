@@ -69,4 +69,41 @@ public sealed class LectorNomenclatorCsvTests
         Assert.Null(fila.PrincipioActivo);
         Assert.Null(fila.Laboratorio);
     }
+
+    /// <summary>El nomenclátor real mezcla medicamentos, efectos y accesorios y códigos de
+    /// facturación. Los nombres son copia literal del fichero de septiembre de 2026.</summary>
+    [Fact]
+    public void Distingue_medicamentos_de_accesorios_y_bajas_de_altas()
+    {
+        var ruta = EscribirCsvTemporal(
+            "Código Nacional,Nombre del producto farmacéutico,Tipo de fármaco,Nombre genérico efecto y accesorio,Estado\n" +
+            "650004,\"DEPAKINE 500 mg comprimidos gastrorresistentes, 20 comprimidos\",Medicamento Etica,,ALTA\n" +
+            "700001,LAMOTRIGINA KERN PHARMA 100MG 56 COMPR DISPER EFG,Medicamento Generico,,BAJA GENERAL\n" +
+            "700002,OLMETEC PLUS 20/12,Medicamento Etica,,SUSPENSION TEMPORAL GENERAL\n" +
+            "400011,MODERMA FLEX ABIERTA PLANA MINI OPACA 15-55MM 30U,,BOLSAS ILEOST RES SINT MIC FIL,ALTA\n");
+
+        var filas = new LectorNomenclatorCsv().Leer(ruta).Filas;
+
+        Assert.True(filas.Single(f => f.Cn == "650004") is { EsMedicamento: true, EstaDeBaja: false });
+        Assert.True(filas.Single(f => f.Cn == "700001") is { EsMedicamento: true, EstaDeBaja: true });
+        // Una suspensión temporal no es una baja: el medicamento sigue existiendo.
+        Assert.True(filas.Single(f => f.Cn == "700002") is { EsMedicamento: true, EstaDeBaja: false });
+        // Tipo vacío con la columna presente: es un accesorio, no un medicamento.
+        var accesorio = filas.Single(f => f.Cn == "400011");
+        Assert.Equal(string.Empty, accesorio.TipoFarmaco);
+        Assert.False(accesorio.EsMedicamento);
+    }
+
+    [Fact]
+    public void Sin_columnas_de_tipo_ni_estado_todo_es_medicamento_en_alta()
+    {
+        var ruta = EscribirCsvTemporal("CN,Nombre\n654321,Paracetamol 1g\n");
+
+        var fila = Assert.Single(new LectorNomenclatorCsv().Leer(ruta).Filas);
+
+        Assert.Null(fila.TipoFarmaco);
+        Assert.Null(fila.Estado);
+        Assert.True(fila.EsMedicamento);
+        Assert.False(fila.EstaDeBaja);
+    }
 }

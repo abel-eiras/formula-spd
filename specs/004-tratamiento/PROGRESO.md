@@ -69,3 +69,14 @@ motivo por el que terminó. El tramo en vigor se marca en verde.
 
 Un test cubre el caso que importa: dos tramos del mismo medicamento con pautas y días distintos,
 comprobando que el orden, las fechas, la pauta de entonces y el motivo se leen tal cual se guardaron.
+
+## 2026-09-14 — Dosis tecleada y alta del medicamento desde el tratamiento
+
+Decisiones del propietario. **FR-402**: la dosis se teclea (`1/2`, `1+1/2`) con catorce valores
+admitidos; se amplía `FraccionDosis` con `UnoYTercio`, `UnoYDosTercios`, `UnoYTresCuartos`, `Dos` y
+`Tres` (añadidos al final: se guardan por nombre). La notación impresa no cambia. El cálculo de
+unidades a descontar pasa a doceavos: con decimales, tres tercios sumaban 0,999… y la regla «entero
+más uno» descontaba de más o de menos (CA-507b, CA-500, tests nuevos). **FR-400**: el CN tecleado se
+sustituye por `SelectorMedicamentoViewModel` (nombre o CN, alta en panel lateral con «Consultar CIMA»,
+elegir uno de baja lo reactiva, un CN ya existente se elige en vez de fallar). CA-403 reescrito y
+CA-407 nuevo.

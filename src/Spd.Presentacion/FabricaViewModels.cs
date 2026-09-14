@@ -31,7 +31,7 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
         Seccion.Farmacia => new FarmaciaViewModel(servicios.Farmacia, servicios.GestorLogo, servicios.Backup, usuario.Id),
         Seccion.Usuarios => new UsuariosViewModel(servicios.Usuarios, usuario.Id),
         Seccion.Actualizaciones => new ActualizacionesViewModel(servicios.Actualizaciones, usuario.Id),
-        Seccion.Nomenclator => new NomenclatorViewModel(servicios.Farmacia, servicios.Nomenclator, usuario.Id),
+        Seccion.Nomenclator => new NomenclatorViewModel(servicios.Farmacia, servicios.Nomenclator, usuario.Id, servicios.ImportacionNomenclator),
         Seccion.Seguridad => new SeguridadViewModel(servicios.Cifrado, servicios.Purga, usuario.Id),
         Seccion.Perfiles => new PerfilesImportacionViewModel(servicios.PerfilesImportacion, usuario.Id),
         Seccion.Ayuda => CrearAyuda(destino.Detalle),

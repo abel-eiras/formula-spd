@@ -178,3 +178,15 @@ fase de `/speckit-plan`.
   `001-pacientes-y-medicos` se fusionó primero, así que esta migración se renombra de `0002` a
   `0003_catalogo_medicamentos.sql` al fusionar esta rama. `Normalizador.cs` (duplicado idéntico con
   Spec 001, ya anotado como pendiente de unificar) queda como un único fichero compartido.
+
+- **2026-09-14 (nomenclátor completo y aptitud sin confirmar)** — Decisión del propietario: los
+  medicamentos no tienen que estar en el catálogo antes de usarlos. Al descargar el nomenclátor se da
+  de alta entero (`ServicioImportacionNomenclator.ImportarCompleto`, FR-320 revisado): solo filas de
+  tipo medicamento, bajas como inactivos, lo existente intacto, una transacción, una traza con el
+  recuento y `creado_por` en cada fila. Con el fichero real del 05-09: 12.736 activos, 3.035 de baja,
+  4.776 filas descartadas por no ser medicamentos, en 0,6 s; repetirlo no crea nada (0,09 s).
+  Aptitud de tres estados (FR-301 revisado, Constitución 3.0.0): la migración `0013` reconstruye
+  `Medicamento` para quitar el `NOT NULL DEFAULT 1` de `apto_spd` conservando id y valores (las claves
+  foráneas están activas: se aplazan con `defer_foreign_keys` y se reinserta con el mismo nombre de
+  tabla; test sobre una base en la versión 12 con historia colgando). Búsqueda con mínimo de dos
+  caracteres y límite de 50 (FR-305); el catálogo ya no carga nada sin búsqueda. CA-308 nuevo.

@@ -20,7 +20,9 @@ La impresión real (FR-680/681) queda como punto de extensión hacia Spec 007.
   (`FR-601`, dentro del límite ≤14 del Art. I.3) probado en la creación de sesión; "no se prepara
   sin consentimiento/idoneidad" probado contra `IComprobadorIdoneidadYConsentimiento`; "solo
   medicamentos aptos para SPD" ya lo filtra `ListarVigentesDePaciente(...).Where(t => t.EnSpd)`
-  (Spec 004); "verificador ≠ elaborador, excepción con motivo" probado en `Verificar`; "toda
+  (Spec 004) — **corrección del 2026-09-14**: ese filtro solo mira si el tratamiento va en el blíster,
+  nunca la aptitud del medicamento, así que la regla no estaba aplicada. La enmienda 3.0.0 del Art. I.3
+  la convierte en confirmación del farmacéutico sin bloqueo, implementada como FR-692; "verificador ≠ elaborador, excepción con motivo" probado en `Verificar`; "toda
   preparación registra temperatura y humedad" probado en `PasarAPreparado` (exige
   `registroAmbientalId`).
 - **Art. III.4**: reelaboración conserva número de registro, versiona, exige nueva verificación —

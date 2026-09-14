@@ -1,10 +1,12 @@
 using Avalonia.Headless.XUnit;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using Spd.Aplicacion;
 using Spd.Dominio;
 using Spd.Infraestructura;
 using Spd.Infraestructura.Migraciones;
 using Spd.Presentacion.Views.Preparacion;
+using Spd.Presentacion.Navegacion;
 using Spd.Presentacion.ViewModels;
 using Xunit;
 
@@ -17,7 +19,12 @@ public sealed class PreparacionesViewTests
 {
     /// <summary>Deja dos pacientes con sesión abierta, que es el mínimo para poder hablar de
     /// ordenar y de selección múltiple.</summary>
-    private static PreparacionesViewModel Montar(SqliteConnection conexion)
+    private sealed record Montaje(
+        PreparacionesViewModel Vm, ServicioPreparacion Preparacion, ServicioMedicamentos Medicamentos,
+        ServicioGeneracionDocumentos Documentos, ServicioComunicacionesMedico Comunicaciones, Navegador Navegador,
+        int PacienteId, int PacienteSinSesionId, int MedicamentoId, int ElaboradorId);
+
+    private static Montaje Montar(SqliteConnection conexion)
     {
         conexion.Open();
         new AplicadorMigraciones(conexion).Aplicar();
@@ -40,15 +47,22 @@ public sealed class PreparacionesViewTests
             new DatosAltaPaciente("Ana", "Álvarez", null, "87654321X", null, null, null, null, null, null,
                 null, null, null, null, null, null, null, false, null, diaLejano, 2), null);
         servicioPacientes.CambiarEstado(segundo.Id, EstadoPaciente.Activo, null, null);
+        // Sin sesión abierta: el candidato para «Nueva preparación».
+        var tercero = servicioPacientes.Crear(
+            new DatosAltaPaciente("Luis", "Pérez", null, "11111111H", null, null, null, null, null, null,
+                null, null, null, null, null, null, null, false, null, diaLejano, 1), null);
+        servicioPacientes.CambiarEstado(tercero.Id, EstadoPaciente.Activo, null, null);
 
         var repositorioMedicamentos = new RepositorioMedicamentos(conexion);
         var medicamento = new Medicamento { Cn = "654321", Nombre = "Paracetamol 1g", UnidadesEnvase = 28 };
         medicamento.Id = repositorioMedicamentos.Crear(medicamento);
         var repositorioTratamientos = new RepositorioTratamientos(conexion);
         repositorioTratamientos.Crear(new Tratamiento { PacienteId = paciente.Id, MedicamentoId = medicamento.Id, EnSpd = true, PautaD = FraccionDosis.Uno, FechaInicio = new DateOnly(2026, 1, 1), FechaPrescripcionInicial = new DateOnly(2026, 1, 1) });
+        repositorioTratamientos.Crear(new Tratamiento { PacienteId = tercero.Id, MedicamentoId = medicamento.Id, EnSpd = true, PautaD = FraccionDosis.Uno, FechaInicio = new DateOnly(2026, 1, 1), FechaPrescripcionInicial = new DateOnly(2026, 1, 1) });
         repositorioTratamientos.Crear(new Tratamiento { PacienteId = segundo.Id, MedicamentoId = medicamento.Id, EnSpd = true, PautaD = FraccionDosis.Uno, FechaInicio = new DateOnly(2026, 1, 1), FechaPrescripcionInicial = new DateOnly(2026, 1, 1) });
         var repositorioEnvases = new RepositorioEnvases(conexion);
         repositorioEnvases.Crear(new Envase { PacienteId = paciente.Id, MedicamentoId = medicamento.Id, Serie = "S1", Caducidad = new DateOnly(2030, 1, 1), UnidadesIniciales = 28, UnidadesRestantes = 28 });
+        repositorioEnvases.Crear(new Envase { PacienteId = tercero.Id, MedicamentoId = medicamento.Id, Serie = "S3", Caducidad = new DateOnly(2030, 1, 1), UnidadesIniciales = 28, UnidadesRestantes = 28 });
         repositorioEnvases.Crear(new Envase { PacienteId = segundo.Id, MedicamentoId = medicamento.Id, Serie = "S2", Caducidad = new DateOnly(2030, 1, 1), UnidadesIniciales = 28, UnidadesRestantes = 28 });
 
         var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria);
@@ -72,17 +86,20 @@ public sealed class PreparacionesViewTests
         var comunicaciones = new ServicioComunicacionesMedico(new RepositorioComunicacionesMedico(conexion), repositorioPacientes, repositorioTratamientos, auditoria);
         var lote = new ServicioGeneracionLote(servicioPreparacion, documentos, repositorioSpd, repositorioPacientes);
 
-        return new PreparacionesViewModel(
-            servicioPreparacion, servicioPacientes, servicioUsuarios, new ServicioMedicamentos(repositorioMedicamentos, auditoria),
-            documentos, comunicaciones, lote, new Spd.Presentacion.Navegacion.Navegador(esAdministrador: true),
-            usuarioActualId: elaborador.Id);
+        var servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
+        var navegador = new Navegador(esAdministrador: true);
+        var vm = new PreparacionesViewModel(
+            servicioPreparacion, servicioPacientes, servicioUsuarios, servicioMedicamentos,
+            documentos, comunicaciones, lote, navegador, usuarioActualId: elaborador.Id);
+        return new Montaje(vm, servicioPreparacion, servicioMedicamentos, documentos, comunicaciones, navegador,
+            paciente.Id, tercero.Id, medicamento.Id, elaborador.Id);
     }
 
     [AvaloniaFact]
     public void La_tabla_de_preparaciones_se_construye_y_muestra_con_spd_reales_sin_lanzar()
     {
         using var conexion = new SqliteConnection("Data Source=:memory:");
-        var ventana = AnfitrionDeVista.Anfitrion(new PreparacionesView { DataContext = Montar(conexion) });
+        var ventana = AnfitrionDeVista.Anfitrion(new PreparacionesView { DataContext = Montar(conexion).Vm });
 
         ventana.Show();
     }
@@ -94,7 +111,7 @@ public sealed class PreparacionesViewTests
     public void Reordenar_la_tabla_conserva_la_seleccion_para_el_lote_CA_1512()
     {
         using var conexion = new SqliteConnection("Data Source=:memory:");
-        var vm = Montar(conexion);
+        var vm = Montar(conexion).Vm;
         vm.SoloPendientes = false;
         vm.CargarCommand.Execute(null);
 
@@ -109,5 +126,87 @@ public sealed class PreparacionesViewTests
         var seleccionadasDespues = vm.Filas.Where(f => f.Seleccionado).ToList();
         Assert.Equal(elegidas.Count, seleccionadasDespues.Count);
         foreach (var fila in elegidas) Assert.Contains(fila, seleccionadasDespues);
+    }
+
+    /// <summary>Petición del propietario (2026-09-14): abrir una preparación desde la lista, buscando al
+    /// paciente, sin pasar antes por su ficha.</summary>
+    [AvaloniaFact]
+    public void Nueva_preparacion_busca_al_paciente_abre_su_sesion_y_lleva_a_su_preparacion()
+    {
+        using var conexion = new SqliteConnection("Data Source=:memory:");
+        var m = Montar(conexion);
+        var ventana = AnfitrionDeVista.Anfitrion(new PreparacionesView { DataContext = m.Vm });
+        ventana.Show();
+
+        m.Vm.AbrirNuevaPreparacionCommand.Execute(null);
+        Assert.True(m.Vm.PanelNuevaAbierto);
+
+        m.Vm.BusquedaPaciente = "p";
+        Assert.Empty(m.Vm.Candidatos);             // una letra no busca
+        m.Vm.BusquedaPaciente = "perez";           // sin tilde, como se teclea
+        ventana.UpdateLayout();
+        var candidato = Assert.Single(m.Vm.Candidatos);
+        Assert.Equal("Pérez, Luis", candidato.Etiqueta);
+        Assert.Null(candidato.Ultima);
+        Assert.False(candidato.PuedePrepararSiguiente);
+
+        m.Vm.CrearSesionParaCommand.Execute(candidato);
+
+        Assert.Null(m.Vm.MensajeNueva);
+        Assert.False(m.Vm.PanelNuevaAbierto);
+        Assert.NotEmpty(m.Preparacion.ListarPorFiltro(new FiltrosPreparaciones(PacienteId: m.PacienteSinSesionId)));
+        var destino = m.Navegador.Actual!;
+        Assert.Equal(Seccion.Paciente, destino.Seccion);
+        Assert.Equal(m.PacienteSinSesionId, destino.PacienteId);
+        Assert.Equal("Preparacion", destino.Detalle);
+    }
+
+    [AvaloniaFact]
+    public void Si_la_sesion_no_se_puede_abrir_lo_explica_en_el_panel_y_no_navega()
+    {
+        using var conexion = new SqliteConnection("Data Source=:memory:");
+        var m = Montar(conexion);
+
+        m.Vm.AbrirNuevaPreparacionCommand.Execute(null);
+        m.Vm.BusquedaPaciente = "nunez";
+        var candidato = Assert.Single(m.Vm.Candidatos);
+        Assert.NotNull(candidato.Ultima);           // ya tiene una sesión en borrador
+
+        m.Vm.PrepararSiguienteParaCommand.Execute(candidato);   // no está entregada: no hay continuidad
+
+        Assert.NotNull(m.Vm.MensajeNueva);
+        Assert.True(m.Vm.PanelNuevaAbierto);
+        Assert.Null(m.Navegador.Actual);
+    }
+
+    /// <summary>Art. I.3, enmienda 3.0.0: al preparar se avisa de los medicamentos sin aptitud confirmada y
+    /// se confirman todos con un botón. Nunca bloquea, y nunca vuelca un «no apto».</summary>
+    [AvaloniaFact]
+    public void La_preparacion_avisa_de_la_aptitud_sin_confirmar_y_se_confirma_de_una_vez()
+    {
+        using var conexion = new SqliteConnection("Data Source=:memory:");
+        var m = Montar(conexion);
+
+        var preparacion = new PreparacionViewModel(
+            m.Preparacion, m.Medicamentos, m.Documentos, m.Comunicaciones, m.PacienteId, m.ElaboradorId);
+        var ventana = AnfitrionDeVista.Anfitrion(new PreparacionView { DataContext = preparacion });
+        ventana.Show();
+
+        Assert.True(preparacion.HayAptitudSinConfirmar);
+        Assert.Contains("Paracetamol 1g", preparacion.MedicamentosSinConfirmar);
+        Assert.False(preparacion.HayNoAptos);
+
+        preparacion.ConfirmarAptitudSpdCommand.Execute(null);
+
+        Assert.False(preparacion.HayAptitudSinConfirmar);
+        Assert.True(m.Medicamentos.ObtenerPorId(m.MedicamentoId)!.AptoSpd);
+        Assert.Contains("1 medicamento", preparacion.Mensaje);
+
+        // Un «no apto» explícito se enseña, pero no se ofrece confirmarlo.
+        conexion.Execute("UPDATE Medicamento SET apto_spd = 0 WHERE id = @id", new { id = m.MedicamentoId });
+        var otraVez = new PreparacionViewModel(
+            m.Preparacion, m.Medicamentos, m.Documentos, m.Comunicaciones, m.PacienteId, m.ElaboradorId);
+        Assert.False(otraVez.HayAptitudSinConfirmar);
+        Assert.True(otraVez.HayNoAptos);
     }
 }

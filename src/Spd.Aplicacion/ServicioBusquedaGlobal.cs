@@ -40,7 +40,7 @@ public sealed class ServicioBusquedaGlobal(
                 p.Id, p.Id, $"{p.Nombre} {p.Apellidos}"));
         }
 
-        foreach (var m in servicioMedicamentos.Buscar(fragmento).Take(limitePorTipo))
+        foreach (var m in servicioMedicamentos.Buscar(fragmento, limitePorTipo))
         {
             resultados.Add(new ResultadoBusqueda(
                 TipoResultadoBusqueda.Medicamento,
