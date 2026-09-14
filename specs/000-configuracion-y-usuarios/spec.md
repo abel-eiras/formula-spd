@@ -20,7 +20,7 @@
 
 ### Session 2026-09-05
 
-- Q: ¿A qué URL debe apuntar la comprobación de actualizaciones del software (FR-050): a las GitHub Releases del propio repositorio del proyecto, o a un servidor de distribución propio? → A: GitHub Releases del repositorio del proyecto (`abel-eiras/spd`).
+- Q: ¿A qué URL debe apuntar la comprobación de actualizaciones del software (FR-050): a las GitHub Releases del propio repositorio del proyecto, o a un servidor de distribución propio? → A: GitHub Releases del repositorio del proyecto (`abel-eiras/formula-spd`; se llamaba `abel-eiras/spd` hasta el 2026-09-14).
 - Q: Para el bloqueo tras intentos fallidos de login (FR-045), ¿desbloqueo solo manual por un Administrador, o además desbloqueo automático transcurrido un tiempo? → A: Solo desbloqueo manual por un Administrador, sin expiración automática.
 
 ---
@@ -94,7 +94,7 @@ Como administrador, quiero cambiar el día de retirada por defecto o el número 
 
 ### 4.6 Actualizaciones y nomenclátor (excepciones de red)
 
-- **FR-050** Pantalla "Actualizaciones" en Configuración: botón "Comprobar actualizaciones" que consulta la URL fija de las GitHub Releases del repositorio del proyecto (`abel-eiras/spd`), no configurable por el usuario, y, si hay una versión nueva, ofrece descargarla. Nunca automático al arrancar sin que el usuario lo pida (Constitución Artículo VI.3).
+- **FR-050** Pantalla "Actualizaciones" en Configuración: botón "Comprobar actualizaciones" que consulta la URL fija de las GitHub Releases del repositorio del proyecto (`abel-eiras/formula-spd`; se llamaba `abel-eiras/spd` hasta el 2026-09-14), no configurable por el usuario, y, si hay una versión nueva, ofrece descargarla. Nunca automático al arrancar sin que el usuario lo pida (Constitución Artículo VI.3).
 - **FR-051** Pantalla "Nomenclátor" en Configuración: campo `url_nomenclator` editable, y botón "Descargar ahora" que obtiene el fichero Excel/CSV de esa URL para alimentar Spec 003/011. Si la URL cambia de formato o desaparece, el campo sigue siendo editable manualmente sin necesitar una nueva versión de la aplicación.
 - **FR-052** Ambas acciones muestran el resultado (éxito, fecha de la última comprobación/descarga, o el motivo del fallo) y no impiden el uso del resto de la aplicación si fallan.
 

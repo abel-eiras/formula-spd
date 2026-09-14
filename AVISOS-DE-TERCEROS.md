@@ -36,3 +36,7 @@ Los documentos que la aplicación imprime reproducen los elementos mínimos de l
 Procedimiento Normalizado de Trabajo de SPD del Colegio Oficial de Farmacéuticos y del Decreto
 87/2022 de la Xunta de Galicia. Son los enunciados que la normativa gallega exige, y deben ser esos
 para que la documentación resultante cumpla: no se reformulan.
+
+## Marca
+
+El logotipo de Fórmula farma que acompaña a la aplicación (pantalla de inicio de sesión, pantalla de inicio e icono) es una marca de su titular. No forma parte del código publicado bajo licencia MIT y no se concede ningún derecho sobre él.

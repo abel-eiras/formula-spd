@@ -2,8 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="using:Spd.Presentacion.Controles"
              x:Class="Spd.Presentacion.Views.InicioView">
+  <Grid>
   <ScrollViewer>
-    <StackPanel Margin="24,20" Spacing="18">
+    <StackPanel Margin="24,20,24,104" Spacing="18">
 
       <!-- FR-1510: los cuatro indicadores. Se leen de un vistazo al abrir la aplicación y
            responden a "¿qué tengo hoy?" antes de que el usuario tenga que buscar nada. -->
@@ -77,4 +78,9 @@
 
     </StackPanel>
   </ScrollViewer>
+    <!-- Marca de Fórmula farma, abajo a la derecha; el margen inferior de la lista le deja sitio. -->
+    <Border Width="72" Height="72" Margin="0,0,24,20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+          Background="{DynamicResource LogoFormulaFarma}" IsHitTestVisible="False"
+          ToolTip.Tip="Fórmula farma" AutomationProperties.Name="Logotipo de Fórmula farma" />
+  </Grid>
 </UserControl>

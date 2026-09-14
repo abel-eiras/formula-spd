@@ -487,3 +487,6 @@ $RECYCLE.BIN/
 resources
 # Paquetes de publicación (Art. VI: la instalación es una carpeta; no se versiona)
 publicar/
+
+# Paquetes generados por publicar/empaquetar.sh
+artefactos/

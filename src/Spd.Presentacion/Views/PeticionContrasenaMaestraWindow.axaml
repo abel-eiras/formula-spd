@@ -1,7 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Spd.Presentacion.Views.PeticionContrasenaMaestraWindow"
-        Title="SPD — Base de datos cifrada"
+        Title="Fórmula SPD — Base de datos cifrada"
+        Icon="/Assets/formula-spd.ico"
         Width="420" SizeToContent="Height"
         CanResize="False">
   <StackPanel Margin="16" Spacing="12">

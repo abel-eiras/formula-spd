@@ -13,6 +13,8 @@
   <ResourceDictionary.ThemeDictionaries>
 
     <ResourceDictionary x:Key="Light">
+      <!-- Marca: la serpiente de Fórmula farma, negra sobre claro y blanca sobre oscuro. -->
+      <ImageBrush x:Key="LogoFormulaFarma" Source="/Assets/formula-farma-logo.png" Stretch="Uniform" />
       <SolidColorBrush x:Key="Fondo">#F6F8F7</SolidColorBrush>
       <SolidColorBrush x:Key="Superficie">#FFFFFF</SolidColorBrush>
       <SolidColorBrush x:Key="SuperficieAlterna">#EFF3F2</SolidColorBrush>
@@ -42,6 +44,7 @@
     </ResourceDictionary>
 
     <ResourceDictionary x:Key="Dark">
+      <ImageBrush x:Key="LogoFormulaFarma" Source="/Assets/formula-farma-logo-blanco.png" Stretch="Uniform" />
       <SolidColorBrush x:Key="Fondo">#101819</SolidColorBrush>
       <SolidColorBrush x:Key="Superficie">#172224</SolidColorBrush>
       <SolidColorBrush x:Key="SuperficieAlterna">#1D2A2C</SolidColorBrush>
