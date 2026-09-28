@@ -23,11 +23,13 @@ public sealed partial class DepositoViewModel : ViewModelBase
     [ObservableProperty] private bool _mostrarHistorico;
     [ObservableProperty] private string? _mensaje;
 
+    [ObservableProperty] private string _codigoEscaneado = string.Empty;
     [ObservableProperty] private string _cn = string.Empty;
     [ObservableProperty] private string _serie = string.Empty;
     [ObservableProperty] private string? _lote;
     [ObservableProperty] private DateTimeOffset? _caducidad;
     [ObservableProperty] private int? _unidadesIniciales;
+    private OrigenEnvase _origenAlta = OrigenEnvase.Manual;
 
     [ObservableProperty] private string? _entregadoA;
 
@@ -80,6 +82,36 @@ public sealed partial class DepositoViewModel : ViewModelBase
     private EnvaseFila AFila(Envase e) => new(
         e.Id, _servicioMedicamentos.ObtenerPorId(e.MedicamentoId)?.Nombre ?? "(medicamento no encontrado)", e);
 
+    /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
+    /// Codigo Nacional solo viene en el codigo si el fabricante incluye el AI 712 (FR-1201); cuando
+    /// no viene, se introduce a mano igual que hasta ahora.</summary>
+    [RelayCommand]
+    private void LeerCodigoEscaneado()
+    {
+        var datos = LectorGs1DataMatrix.Leer(CodigoEscaneado);
+        CodigoEscaneado = string.Empty;
+        if (datos is null)
+        {
+            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+            return;
+        }
+
+        Serie = datos.NumeroSerie;
+        Lote = datos.Lote;
+        Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
+        _origenAlta = OrigenEnvase.Escaneado;
+
+        if (datos.CodigoNacional is { } cn)
+        {
+            Cn = cn;
+            Mensaje = "Lectura aplicada, incluido el CN.";
+        }
+        else
+        {
+            Mensaje = "Lectura aplicada. El código no incluye el CN: introdúcelo a mano.";
+        }
+    }
+
     [RelayCommand]
     private void RegistrarEnvase()
     {
@@ -99,13 +131,14 @@ public sealed partial class DepositoViewModel : ViewModelBase
         {
             var envase = _servicioEnvases.RegistrarEnvase(
                 new DatosAltaEnvase(_pacienteId, medicamento.Id, Serie, Lote ?? string.Empty,
-                    DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, OrigenEnvase.Manual),
+                    DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, _origenAlta),
                 _usuarioActualId);
 
             Mensaje = envase.Caducidad < DateOnly.FromDateTime(DateTime.Today)
                 ? "Envase registrado. Aviso: la caducidad ya ha pasado (FR-514); nunca se propondrá para una preparación."
                 : "Envase registrado.";
             Cn = string.Empty; Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+            _origenAlta = OrigenEnvase.Manual;
             Cargar();
         }
         catch (ErrorValidacionException ex)
@@ -151,6 +184,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
                 _usuarioActualId);
             Mensaje = "Entrega fuera de blíster registrada.";
             Cn = string.Empty; Serie = string.Empty; Lote = null; EntregadoA = null;
+            _origenAlta = OrigenEnvase.Manual;
             Cargar();
         }
         catch (ErrorValidacionException ex)

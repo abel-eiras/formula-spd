@@ -61,10 +61,12 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     [ObservableProperty] private string _motivoReelaboracion = string.Empty;
 
     [ObservableProperty] private SpdLinea? _lineaParaRegistrarEnvase;
+    [ObservableProperty] private string _envaseCodigoEscaneado = string.Empty;
     [ObservableProperty] private string _envaseSerie = string.Empty;
     [ObservableProperty] private string _envaseLote = string.Empty;
     [ObservableProperty] private DateTimeOffset? _envaseCaducidad;
     [ObservableProperty] private int? _envaseUnidadesIniciales;
+    private OrigenEnvase _envaseOrigenAlta = OrigenEnvase.Manual;
 
     public OrigenSolicitudReelaboracion[] OrigenesDisponibles { get; } = Enum.GetValues<OrigenSolicitudReelaboracion>();
 
@@ -328,10 +330,32 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     private void PrepararRegistroEnvase(SpdLinea linea)
     {
         LineaParaRegistrarEnvase = linea;
+        EnvaseCodigoEscaneado = string.Empty;
         EnvaseSerie = string.Empty;
         EnvaseLote = string.Empty;
         EnvaseCaducidad = null;
         EnvaseUnidadesIniciales = null;
+        _envaseOrigenAlta = OrigenEnvase.Manual;
+    }
+
+    /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
+    /// medicamento ya viene de la linea del blister, asi que el CN del codigo (si lo trae) no hace falta aqui.</summary>
+    [RelayCommand]
+    private void LeerEnvaseCodigoEscaneado()
+    {
+        var datos = LectorGs1DataMatrix.Leer(EnvaseCodigoEscaneado);
+        EnvaseCodigoEscaneado = string.Empty;
+        if (datos is null)
+        {
+            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+            return;
+        }
+
+        EnvaseSerie = datos.NumeroSerie;
+        EnvaseLote = datos.Lote;
+        EnvaseCaducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
+        _envaseOrigenAlta = OrigenEnvase.Escaneado;
+        Mensaje = "Lectura aplicada.";
     }
 
     [RelayCommand]
@@ -346,11 +370,12 @@ public sealed partial class PreparacionViewModel : ViewModelBase
             var pacienteId = Blisteres.First(b => b.Lineas.Contains(LineaParaRegistrarEnvase)).Spd.PacienteId;
             var datos = new DatosAltaEnvase(
                 pacienteId, medicamento.Id, EnvaseSerie, EnvaseLote,
-                DateOnly.FromDateTime(EnvaseCaducidad.Value.Date), EnvaseUnidadesIniciales.Value, OrigenEnvase.Manual);
+                DateOnly.FromDateTime(EnvaseCaducidad.Value.Date), EnvaseUnidadesIniciales.Value, _envaseOrigenAlta);
 
             _servicio.RegistrarEnvaseDesdeLinea(LineaParaRegistrarEnvase.Id, datos, _usuarioActualId);
             Mensaje = "Envase registrado. La línea ya puede pasar a PREPARADO.";
             LineaParaRegistrarEnvase = null;
+            _envaseOrigenAlta = OrigenEnvase.Manual;
             Cargar();
         }
         catch (ErrorValidacionException ex)

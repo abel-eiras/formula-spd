@@ -29,10 +29,12 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     public bool HayFiltroDePaciente => FiltroPacienteId is not null;
 
     [ObservableProperty] private FilaListadoRetirada? _filaSeleccionadaParaRegistrar;
+    [ObservableProperty] private string _codigoEscaneado = string.Empty;
     [ObservableProperty] private string _serie = string.Empty;
     [ObservableProperty] private string? _lote;
     [ObservableProperty] private DateTimeOffset? _caducidad;
     [ObservableProperty] private int? _unidadesIniciales;
+    private OrigenEnvase _origenAlta = OrigenEnvase.Manual;
 
     public RetiradaEnvasesViewModel(IServicioListadoRetirada servicioListadoRetirada, IServicioEnvases servicioEnvases, int? usuarioActualId)
     {
@@ -68,7 +70,33 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void PrepararRegistro(FilaListadoRetirada fila) => FilaSeleccionadaParaRegistrar = fila;
+    private void PrepararRegistro(FilaListadoRetirada fila)
+    {
+        FilaSeleccionadaParaRegistrar = fila;
+        CodigoEscaneado = string.Empty;
+        Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+        _origenAlta = OrigenEnvase.Manual;
+    }
+
+    /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
+    /// medicamento ya viene de la fila (FR-516), asi que el CN del codigo (si lo trae) no hace falta aqui.</summary>
+    [RelayCommand]
+    private void LeerCodigoEscaneado()
+    {
+        var datos = LectorGs1DataMatrix.Leer(CodigoEscaneado);
+        CodigoEscaneado = string.Empty;
+        if (datos is null)
+        {
+            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+            return;
+        }
+
+        Serie = datos.NumeroSerie;
+        Lote = datos.Lote;
+        Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
+        _origenAlta = OrigenEnvase.Escaneado;
+        Mensaje = "Lectura aplicada.";
+    }
 
     [RelayCommand]
     private void ConfirmarRegistro()
@@ -83,11 +111,12 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
         {
             _servicioEnvases.RegistrarEnvase(
                 new DatosAltaEnvase(fila.PacienteId, fila.MedicamentoId, Serie, Lote ?? string.Empty,
-                    DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, OrigenEnvase.Manual),
+                    DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, _origenAlta),
                 _usuarioActualId);
             Mensaje = "Envase registrado. El listado se ha recalculado.";
             FilaSeleccionadaParaRegistrar = null;
             Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+            _origenAlta = OrigenEnvase.Manual;
             Recalcular();
         }
         catch (ErrorValidacionException ex)

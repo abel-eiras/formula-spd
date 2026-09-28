@@ -51,6 +51,11 @@
         <TextBlock Text="{Binding FilaSeleccionadaParaRegistrar.MedicamentoNombre, StringFormat='Registrar envase: {0}'}"
                    Classes="etiqueta" />
         <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBox Watermark="Escanear envase (spec-012)" Text="{Binding CodigoEscaneado}">
+            <TextBox.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding LeerCodigoEscaneadoCommand}" />
+            </TextBox.KeyBindings>
+          </TextBox>
           <TextBox Watermark="Serie" Text="{Binding Serie}" />
           <TextBox Watermark="Lote" Text="{Binding Lote}" />
           <DatePicker SelectedDate="{Binding Caducidad}" />

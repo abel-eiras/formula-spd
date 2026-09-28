@@ -48,6 +48,14 @@
     <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
       <StackPanel Spacing="8">
         <TextBlock Text="Registrar envase / entrega" FontSize="16" FontWeight="Bold" />
+
+        <TextBlock Text="Escanear envase (spec-012)" FontWeight="Bold" />
+        <TextBox Text="{Binding CodigoEscaneado}" Watermark="Apunta el lector aquí y escanea">
+          <TextBox.KeyBindings>
+            <KeyBinding Gesture="Enter" Command="{Binding LeerCodigoEscaneadoCommand}" />
+          </TextBox.KeyBindings>
+        </TextBox>
+
         <TextBlock Text="CN del medicamento *" />
         <TextBox Text="{Binding Cn}" />
         <TextBlock Text="Serie (obligatoria en custodia, opcional fuera de blíster)" />
