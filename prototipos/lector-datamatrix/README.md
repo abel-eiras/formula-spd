@@ -5,6 +5,11 @@ es confirmar que se puede interpretar la cadena que entrega el lector de
 Abel antes de comprometer el diseno del parser en spec-012 (pregunta abierta Q1
 de esa spec). No depende de Spd.Dominio ni de ningun otro proyecto de la app.
 
+Si aparece un envase con un codigo que no se reconoce (o que se reconoce mal),
+ver [DIAGNOSTICO.md](DIAGNOSTICO.md) antes de nada: explica como capturar la
+cadena cruda sin transformaciones, que AI de GS1 soporta el parser hoy y como
+localizar uno que no soporte.
+
 ## Que hace
 
 `LectorGs1DataMatrix.Leer(cadena)` recibe el texto que el lector USB (emulacion
@@ -14,7 +19,16 @@ excepcion nunca; si no reconoce la cadena devuelve `null`.
 
 ## Lo que se ha confirmado con codigos reales (2026-09-28)
 
-- Los 3 codigos que trajo Abel se interpretan correctamente.
+- Los 5 codigos que trajo Abel se interpretan correctamente (verificados dato a dato contra las
+  etiquetas de PC/Lote/SN/CAD impresas en los envases, capturando la cadena cruda en hexadecimal
+  para descartar transformaciones de texto).
+- Un quinto codigo (GTIN `08470006543870`) revelo un fallo real en la ruta sin separador GS: la
+  busqueda encontraba dos formas de consumir la cadena entera, pero una de ellas se comia la fecha
+  de caducidad dentro del lote y por tanto nunca podria haber producido un resultado valido. Al no
+  filtrar esa descomposicion inutil antes de juzgar la ambiguedad, el codigo se descartaba entero
+  pese a tener una unica interpretacion realmente valida. Corregido anadiendo un filtro
+  (`EsDecomposicionCompleta`) que descarta las descomposiciones sin los 4 campos obligatorios
+  (01/10/17/21) antes de contar cuantas hay — ver `CodigoReal5_...` en los tests.
 - Los 4 codigos de prueba oficiales del documento SEVeM-0108.03 "Pruebas de
   validacion de escaneres" (adjuntado por Abel) tambien, incluido el caso con
   dia de caducidad sin especificar (`00`).
@@ -48,7 +62,7 @@ cd prototipos/lector-datamatrix/tests
 dotnet test
 ```
 
-10/10 tests en verde: 3 codigos reales de Abel + 4 patrones oficiales de
+12/12 tests en verde: 5 codigos reales de Abel + 4 patrones oficiales de
 SEVeM + 3 casos de cadena no reconocida.
 
 ## Como probarlo a mano (pegando o escaneando codigos)

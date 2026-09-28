@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 
 namespace LectorDataMatrix;
@@ -87,12 +88,24 @@ public static class LectorGs1DataMatrix
     // todas las descomposiciones posibles dentro de los limites de longitud de GS1 y solo se acepta el
     // resultado si hay una unica forma de consumir toda la cadena. Ante cualquier ambiguedad (cero o
     // varias descomposiciones validas) se considera no reconocido, igual que un codigo realmente ilegible.
+    //
+    // Antes de juzgar la ambiguedad se descartan las descomposiciones que nunca podrian dar un resultado
+    // valido por faltarles un campo obligatorio (01/10/17/21): un escaneo real (2026-09-28) demostraba
+    // que la busqueda encontraba dos formas de consumir la cadena entera, pero una de ellas se comia la
+    // fecha de caducidad dentro del lote y por tanto jamas habria podido construir un resultado. Sin este
+    // filtro, esa descomposicion inutil bastaba para declarar el codigo ambiguo y descartar la unica
+    // interpretacion realmente valida.
     private static Dictionary<string, string>? LeerSinSeparadorGs(string cadena)
     {
         var encontrados = new List<Dictionary<string, string>>();
         Buscar(cadena, new Dictionary<string, string>(), encontrados);
-        return encontrados.Count == 1 ? encontrados[0] : null;
+        var completos = encontrados.Where(EsDecomposicionCompleta).ToList();
+        return completos.Count == 1 ? completos[0] : null;
     }
+
+    private static bool EsDecomposicionCompleta(Dictionary<string, string> campos) =>
+        campos.ContainsKey("01") && campos.ContainsKey("10") &&
+        campos.ContainsKey("17") && campos.ContainsKey("21");
 
     private static void Buscar(string resto, Dictionary<string, string> campos, List<Dictionary<string, string>> encontrados)
     {

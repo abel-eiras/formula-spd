@@ -49,6 +49,38 @@ public class LectorGs1DataMatrixTests
         Assert.Null(resultado.CodigoNacional);
     }
 
+    [Fact]
+    public void CodigoReal4_orden_AI_01_17_10_21()
+    {
+        var resultado = LectorGs1DataMatrix.Leer(
+            "01084700097166391728103110412036X214000JFRH2XAN6S");
+
+        Assert.NotNull(resultado);
+        Assert.Equal("08470009716639", resultado!.Gtin);
+        Assert.Equal(new FechaCaducidadGs1(2028, 10, 31), resultado.Caducidad);
+        Assert.Equal("412036X", resultado.Lote);
+        Assert.Equal("4000JFRH2XAN6S", resultado.NumeroSerie);
+        Assert.Null(resultado.CodigoNacional);
+    }
+
+    // Escaneado por Abel el 2026-09-28: sin el filtro de EsDecomposicionCompleta, la busqueda sin
+    // separador GS encontraba dos formas de consumir la cadena entera (una se comia la fecha de
+    // caducidad dentro del lote) y el codigo se descartaba como ambiguo pese a tener una unica
+    // interpretacion realmente valida.
+    [Fact]
+    public void CodigoReal5_descarta_descomposicion_incompleta_antes_de_juzgar_ambiguedad()
+    {
+        var resultado = LectorGs1DataMatrix.Leer(
+            "0108470006543870219436795376788101250529317260228");
+
+        Assert.NotNull(resultado);
+        Assert.Equal("08470006543870", resultado!.Gtin);
+        Assert.Equal("12505293", resultado.Lote);
+        Assert.Equal("9436795376788", resultado.NumeroSerie);
+        Assert.Equal(new FechaCaducidadGs1(2026, 2, 28), resultado.Caducidad);
+        Assert.Null(resultado.CodigoNacional);
+    }
+
     // Casos oficiales de SEVeM-0108.03 "Pruebas de validacion de escaneres" (v1.0), con el separador GS
     // real (0x1D) tal como especifica el documento. Cada uno reproduce un fallo de configuracion distinto
     // que un escaner puede introducir; confirman que la ruta con separador funciona incluso con contenido
