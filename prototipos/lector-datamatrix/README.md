@@ -51,6 +51,20 @@ dotnet test
 10/10 tests en verde: 3 codigos reales de Abel + 4 patrones oficiales de
 SEVeM + 3 casos de cadena no reconocida.
 
+## Como probarlo a mano (pegando o escaneando codigos)
+
+```
+cd prototipos/lector-datamatrix/consola
+dotnet run
+```
+
+Se queda esperando lineas por consola: pega una cadena y pulsa Enter, o
+directamente escanea un envase con el lector USB apuntando a la ventana de
+la consola (el lector se comporta como un teclado, asi que esto es una
+prueba real, no solo una simulacion). Muestra GTIN, lote, numero de serie,
+caducidad y Codigo Nacional (o "NO RECONOCIDO" si no se puede interpretar).
+Ctrl+D (Linux/Mac) o Ctrl+Z + Enter (Windows) para salir.
+
 ## Fuera de alcance de este prototipo
 
 - Integracion con Spd.Dominio / Spd.Presentacion / Spd.Aplicacion (Spec 005,
