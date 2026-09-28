@@ -126,6 +126,47 @@ public sealed partial class IdoneidadConsentimientoViewModel : ViewModelBase
     [RelayCommand]
     private void AceptarPropuesta() => ResultadoSeleccionado = Propuesta();
 
+    /// <summary>Atajo para el caso habitual de un paciente que ya estaba en el servicio SPD antes
+    /// de usar la aplicación: la entrevista del Anexo 9 y la firma del consentimiento ya se hicieron
+    /// en su día. Registra una evaluación APTO real (Art. I.3, FR-213) y un consentimiento firmado
+    /// con la fecha indicada — no se marca el estado del paciente sin esos registros (FR-602 exige
+    /// evaluación e idoneidad reales, no solo el estado ACTIVO). Los criterios uno a uno no se
+    /// repiten aquí; la discrepancia con la propuesta de la aplicación queda documentada en las
+    /// observaciones (FR-204), igual que cualquier decisión profesional que se aparte de la
+    /// propuesta.</summary>
+    [RelayCommand]
+    private void MarcarAptoYaEvaluado()
+    {
+        if (FechaFirma is null)
+        {
+            Mensaje = "Indica la fecha en que se firmó el consentimiento para registrarlo.";
+            return;
+        }
+        try
+        {
+            const string observacion =
+                "Evaluación y consentimiento ya realizados (entrevista y firma en papel) antes del alta de " +
+                "este paciente en la aplicación; paciente ya en el servicio SPD. No se repite la entrevista.";
+            var datosEvaluacion = new DatosEvaluacionIdoneidad(
+                false, false, false, false, false, false, false, false, false,
+                observacion, ResultadoIdoneidad.Apto, _usuarioActualId);
+            _servicio.RegistrarEvaluacion(_pacienteId, datosEvaluacion, _usuarioActualId);
+
+            var consentimiento = _servicio.CrearConsentimiento(
+                _pacienteId, TipoSeleccionado, EsRepresentante ? RepresentanteSeleccionado?.Id : null, _usuarioActualId);
+            var resultado = _servicio.RegistrarFirma(
+                consentimiento.Id, DateOnly.FromDateTime(FechaFirma.Value.Date), _usuarioActualId);
+
+            Mensaje = "Registrado como apto con evaluación y consentimiento previos." +
+                       (resultado.PacienteActivado ? " El paciente pasa a ACTIVO (FR-213)." : "");
+            RecargarYAvisar();
+        }
+        catch (ErrorValidacionException ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
+
     [RelayCommand]
     private void RegistrarEvaluacion()
     {

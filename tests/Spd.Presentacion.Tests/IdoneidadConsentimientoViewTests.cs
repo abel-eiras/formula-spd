@@ -59,4 +59,57 @@ public sealed class IdoneidadConsentimientoViewTests
 
         ventana.Show();
     }
+
+    /// <summary>Atajo para pacientes ya evaluados y consentidos antes de usar la aplicación: debe
+    /// activar al paciente de verdad, con evaluación APTO y consentimiento vigentes (Art. I.3,
+    /// FR-213) — no basta con el estado ACTIVO por sí solo (Spec 006 FR-602).</summary>
+    [AvaloniaFact]
+    public void MarcarAptoYaEvaluado_activa_al_paciente_con_evaluacion_y_consentimiento_reales()
+    {
+        var conexion = new SqliteConnection("Data Source=:memory:");
+        conexion.Open();
+        new AplicadorMigraciones(conexion).Aplicar();
+
+        var repositorioFarmacia = new RepositorioFarmacia(conexion);
+        repositorioFarmacia.Crear(new Farmacia
+        {
+            CodigoSanitario = "PO-001", Nombre = "Farmacia de Prueba", TitularOComunidadBienes = "Titular", Cif = "B00000000",
+            Direccion = "Calle Falsa 1", Cp = "36000", Poblacion = "Pontevedra", Telefono = "986000000"
+        });
+        var auditoria = new RegistradorAuditoria(conexion);
+        var repositorioPacientes = new RepositorioPacientes(conexion);
+        var servicioPacientes = new ServicioPacientes(repositorioPacientes, repositorioFarmacia, auditoria);
+        var paciente = servicioPacientes.Crear(
+            new DatosAltaPaciente("José", "Núñez", null, "12345678Z", null, null, null, null, null, null,
+                null, null, null, null, null, null, null, false, null, null, null),
+            usuarioQueEjecutaId: null);
+
+        var repositorioContactos = new RepositorioContactos(conexion);
+        var evaluaciones = new RepositorioEvaluacionesIdoneidad(conexion);
+        var consentimientos = new RepositorioConsentimientos(conexion);
+        var servicioIdoneidad = new ServicioIdoneidadConsentimiento(
+            evaluaciones, consentimientos, repositorioContactos, repositorioPacientes, servicioPacientes, auditoria);
+        var servicioDocumentos = new ServicioGeneracionDocumentos(
+            new RepositorioSpd(conexion), new RepositorioSpdLineas(conexion), new RepositorioSpdLineaEnvases(conexion),
+            new RepositorioSpdVerificaciones(conexion), repositorioPacientes, repositorioContactos, new RepositorioMedicos(conexion),
+            new RepositorioTratamientos(conexion), new RepositorioMedicamentos(conexion), new RepositorioUsuarios(conexion),
+            new RepositorioMaterialAcondicionamiento(conexion), new RepositorioRegistrosAmbientales(conexion),
+            evaluaciones, consentimientos, new RepositorioComunicacionesMedico(conexion), repositorioFarmacia, auditoria);
+
+        var vm = new IdoneidadConsentimientoViewModel(servicioIdoneidad, servicioDocumentos, paciente.Id, usuarioActualId: null)
+        {
+            FechaFirma = new DateTimeOffset(new DateTime(2023, 3, 15))
+        };
+
+        vm.MarcarAptoYaEvaluadoCommand.Execute(null);
+
+        var estado = servicioIdoneidad.Consultar(paciente.Id);
+        Assert.Equal(EstadoPaciente.Activo, estado.Paciente.Estado);
+        Assert.Equal(ResultadoIdoneidad.Apto, estado.EvaluacionVigente?.Resultado);
+        Assert.NotNull(estado.ConsentimientoVigente);
+        Assert.Equal(new DateOnly(2023, 3, 15), estado.ConsentimientoVigente!.FechaFirma);
+        // Comprobador real de Spec 006 FR-602: no basta con Estado == Activo, exige los registros.
+        var comprobador = new ComprobadorIdoneidadYConsentimientoReal(evaluaciones, consentimientos);
+        Assert.True(comprobador.Aprobado(paciente.Id));
+    }
 }

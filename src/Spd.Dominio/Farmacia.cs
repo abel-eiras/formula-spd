@@ -29,7 +29,10 @@ public sealed class Farmacia
     public string PrefijoNumSpd { get; set; } = string.Empty;
     public string? RutaBackup { get; set; }
     public string? RutaDocumentosGenerados { get; set; }
-    public string? UrlNomenclator { get; set; }
+    /// <summary>FR-051: URL del nomenclátor del Ministerio de Sanidad, editable en Configuración.
+    /// Se preinforma con la URL pública habitual para que la farmacia no tenga que buscarla.</summary>
+    public string? UrlNomenclator { get; set; } =
+        "https://www.sanidad.gob.es/profesionales/nomenclator.do?metodo=buscarProductos&especialidad=%25%25%25&d-4015021-e=1&6578706f7274=1%20%C2%A0";
     public int UmbralReutilizacionLecturaAmbientalHoras { get; set; } = 2;
     public double TempMin { get; set; } = 15;
     public double TempMax { get; set; } = 25;
