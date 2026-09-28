@@ -16,9 +16,32 @@ public sealed class ServicioBusquedaGlobal(
     IServicioPacientes servicioPacientes,
     IServicioMedicamentos servicioMedicamentos,
     IRepositorioSpd repositorioSpd,
-    IRepositorioPacientes repositorioPacientes)
+    IRepositorioPacientes repositorioPacientes,
+    IServicioListadoRetirada listadoRetirada)
     : IServicioBusquedaGlobal
 {
+    public IReadOnlyList<ResultadoBusqueda> BuscarEnvaseEscaneado(DatosEnvaseEscaneado datos, DateOnly hoy)
+    {
+        // Mismo orden que el selector de medicamento: el CN del propio código (AI 712) manda sobre el GTIN.
+        var medicamento = (datos.CodigoNacional is { } cn ? servicioMedicamentos.ObtenerPorCn(cn) : null)
+                          ?? servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        if (medicamento is null) return [];
+
+        var pendientes = listadoRetirada.ObtenerListado(hoy, new FiltrosListadoRetirada(SoloConFaltantes: true))
+            .Where(f => f.MedicamentoId == medicamento.Id)
+            .Select(f => new ResultadoBusqueda(
+                TipoResultadoBusqueda.RetiradaPendiente,
+                $"{f.Nombre} {f.Apellidos}",
+                $"{medicamento.Nombre} · faltan {f.Faltan} ud. · retirada {f.ProximaRetirada:dd/MM}",
+                medicamento.Id, f.PacienteId, $"{f.Nombre} {f.Apellidos}"))
+            .ToList();
+        if (pendientes.Count > 0) return pendientes;
+
+        return [new ResultadoBusqueda(
+            TipoResultadoBusqueda.Medicamento, medicamento.Nombre,
+            $"CN {medicamento.Cn} · ningún paciente tiene pendiente retirarlo", medicamento.Id, null)];
+    }
+
     /// <summary>Por debajo de dos caracteres cualquier texto encuentra media base de datos: no es
     /// una búsqueda, es ruido.</summary>
     public const int MinimoCaracteres = 2;

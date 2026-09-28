@@ -190,7 +190,7 @@ public sealed class SelectorMedicamentoTests
         using var c = conexion;
         var ventana = AnfitrionDeVista.Anfitrion(new RetiradaEnvasesView
         {
-            DataContext = new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, null)
+            DataContext = new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, servicios.Medicamentos, null)
         });
         ventana.Show();
 

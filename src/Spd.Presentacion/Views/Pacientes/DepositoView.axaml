@@ -74,8 +74,16 @@
         <TextBox Text="{Binding Lote}" />
         <TextBlock Text="Caducidad (solo para custodia)" />
         <DatePicker SelectedDate="{Binding Caducidad}" />
-        <TextBlock Text="Unidades iniciales (solo para custodia)" />
-        <NumericUpDown Value="{Binding UnidadesIniciales}" Minimum="0" />
+        <TextBlock Text="Unidades iniciales (solo para custodia; Intro guarda)" />
+        <NumericUpDown x:Name="CampoUnidades" Value="{Binding UnidadesIniciales}" Minimum="0">
+          <NumericUpDown.KeyBindings>
+            <KeyBinding Gesture="Enter" Command="{Binding RegistrarEnvaseCommand}" />
+          </NumericUpDown.KeyBindings>
+        </NumericUpDown>
+        <CheckBox IsChecked="{Binding Unidades.Guardar}" IsVisible="{Binding Unidades.OfrecerGuardar}">
+          <TextBlock TextWrapping="Wrap"
+                     Text="El catálogo no sabe cuántas unidades trae este envase. Si está completo, guardar estas unidades como tamaño de envase" />
+        </CheckBox>
         <Button Content="Registrar envase en custodia" Command="{Binding RegistrarEnvaseCommand}" Margin="0,8,0,0" />
 
         <TextBlock Text="Entregado a (solo fuera de blíster)" Margin="0,16,0,0" />

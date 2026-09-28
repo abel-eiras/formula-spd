@@ -23,6 +23,9 @@ public sealed class HeadlessTestApp : Application
         Styles.Add(new StyleInclude((System.Uri?)null) { Source = new System.Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml") });
         Styles.Add(new StyleInclude((System.Uri?)null) { Source = new System.Uri("avares://Spd.Presentacion/Estilos/Controles.axaml") });
         Styles.Add(new StyleInclude((System.Uri?)null) { Source = new System.Uri("avares://Spd.Presentacion/Estilos/Tabla.axaml") });
+        // Igual que App.axaml: sin él, la región de contenido del marco no pinta la vista de la
+        // sección y no se puede probar un flujo que navega (p. ej. escanear → retirada).
+        DataTemplates.Add(new ViewLocator());
     }
 }
 

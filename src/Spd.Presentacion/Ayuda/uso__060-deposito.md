@@ -4,7 +4,7 @@
 
 Envases del paciente en custodia, con medicamento, **serie**, **lote**, **caducidad**, unidades iniciales y restantes, origen (manual o importado) y estado (en custodia, agotado, residuo SIGRE, entregado al paciente).
 
-- **Registrar envase**: alta manual.
+- **Registrar envase**: elige el medicamento en el desplegable de los que tienen tratamiento en SPD (o escribe el CN) y **escanea el DataMatrix** del envase: se rellenan serie, lote y caducidad, y el CN si el código lo trae. Las **unidades** vienen del catálogo; el cursor salta ahí tras escanear y **Intro** guarda. Si el catálogo no sabe cuántas unidades trae el envase, escríbelas y marca la casilla para guardarlas como tamaño de envase, solo si el envase está completo (un envase empezado no sirve de referencia). Sin lector, todos los campos se rellenan a mano.
 - **Salida**: marcar como residuo SIGRE o entregado al paciente (nunca se borra; la aplicación no tiene "devolver al stock").
 - Las unidades restantes bajan automáticamente al pasar un blíster a PREPARADO, con la serie y el lote anotados en la línea del SPD.
 

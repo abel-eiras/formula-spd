@@ -205,7 +205,7 @@ public partial class App : Application
 
         // Panel de inicio (Spec 006 FR-691), lote (Spec 007 FR-720..725) y purga manual (Spec 010 §4.3).
         _servicioAvisos = new ServicioAvisosInicio(_servicioListadoRetirada, repositorioSpd, repositorioPacientes, new RepositorioRegistrosAmbientales(_conexion!));
-        _servicioBusquedaGlobal = new ServicioBusquedaGlobal(_servicioPacientes, _servicioMedicamentos, repositorioSpd, repositorioPacientes);
+        _servicioBusquedaGlobal = new ServicioBusquedaGlobal(_servicioPacientes, _servicioMedicamentos, repositorioSpd, repositorioPacientes, _servicioListadoRetirada);
         _servicioLote = new ServicioGeneracionLote(_servicioPreparacion, _servicioGeneracionDocumentos, repositorioSpd, repositorioPacientes);
         _servicioPurga = new ServicioPurga(
             repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia, new RepositorioPurga(_conexion!), auditoria);

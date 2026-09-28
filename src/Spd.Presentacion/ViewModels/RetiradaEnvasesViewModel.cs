@@ -14,6 +14,7 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
 {
     private readonly IServicioListadoRetirada _servicioListadoRetirada;
     private readonly IServicioEnvases _servicioEnvases;
+    private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly int? _usuarioActualId;
 
     [ObservableProperty] private ObservableCollection<FilaListadoRetirada> _filas = [];
@@ -36,10 +37,18 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     [ObservableProperty] private int? _unidadesIniciales;
     private OrigenEnvase _origenAlta = OrigenEnvase.Manual;
 
-    public RetiradaEnvasesViewModel(IServicioListadoRetirada servicioListadoRetirada, IServicioEnvases servicioEnvases, int? usuarioActualId)
+    public UnidadesDelCatalogo Unidades { get; } = new();
+
+    /// <summary>Tras una lectura correcta la vista lleva el foco a Unidades, donde Intro guarda.</summary>
+    public event Action? LecturaAplicada;
+
+    public RetiradaEnvasesViewModel(
+        IServicioListadoRetirada servicioListadoRetirada, IServicioEnvases servicioEnvases,
+        IServicioMedicamentos servicioMedicamentos, int? usuarioActualId)
     {
         _servicioListadoRetirada = servicioListadoRetirada;
         _servicioEnvases = servicioEnvases;
+        _servicioMedicamentos = servicioMedicamentos;
         _usuarioActualId = usuarioActualId;
         Recalcular();
     }
@@ -74,8 +83,24 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     {
         FilaSeleccionadaParaRegistrar = fila;
         CodigoEscaneado = string.Empty;
-        Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+        Serie = string.Empty; Lote = null; Caducidad = null;
+        Unidades.Reiniciar();
+        UnidadesIniciales = Unidades.AlCambiarMedicamento(_servicioMedicamentos.ObtenerPorId(fila.MedicamentoId), null);
         _origenAlta = OrigenEnvase.Manual;
+    }
+
+    /// <summary>Llegada desde un escaneo en la búsqueda global: abre el registro de la fila de ese
+    /// medicamento con la lectura ya aplicada. Si la fila ya no está (se cubrió mientras tanto), lo dice.</summary>
+    public void AbrirRegistroEscaneado(int medicamentoId, DatosEnvaseEscaneado datos)
+    {
+        var fila = Filas.FirstOrDefault(f => f.MedicamentoId == medicamentoId);
+        if (fila is null)
+        {
+            Mensaje = "Ese medicamento ya no tiene faltantes para este paciente.";
+            return;
+        }
+        PrepararRegistro(fila);
+        AplicarLectura(datos);
     }
 
     /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
@@ -90,12 +115,17 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
             Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
             return;
         }
+        AplicarLectura(datos);
+    }
 
+    private void AplicarLectura(DatosEnvaseEscaneado datos)
+    {
         Serie = datos.NumeroSerie;
         Lote = datos.Lote;
         Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
         _origenAlta = OrigenEnvase.Escaneado;
-        Mensaje = "Lectura aplicada.";
+        Mensaje = "Lectura aplicada: revisa las unidades y pulsa Intro para guardar.";
+        LecturaAplicada?.Invoke();
     }
 
     [RelayCommand]
@@ -113,9 +143,11 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
                 new DatosAltaEnvase(fila.PacienteId, fila.MedicamentoId, Serie, Lote ?? string.Empty,
                     DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, _origenAlta),
                 _usuarioActualId);
+            Unidades.GuardarSiProcede(_servicioMedicamentos, UnidadesIniciales.Value, _usuarioActualId);
             Mensaje = "Envase registrado. El listado se ha recalculado.";
             FilaSeleccionadaParaRegistrar = null;
             Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+            Unidades.Reiniciar();
             _origenAlta = OrigenEnvase.Manual;
             Recalcular();
         }

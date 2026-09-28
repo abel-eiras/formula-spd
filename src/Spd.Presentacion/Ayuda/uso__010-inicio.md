@@ -24,7 +24,9 @@ Debajo, los **avisos del día**, los mismos que cuentan los indicadores: faltant
 
 ## Buscar
 
-Arriba a la derecha hay un buscador que vale para todo: escribe parte del nombre o el DNI de un paciente, el CN o el nombre de un medicamento, o el número de registro de un blíster, y lleva directamente al resultado. No distingue tildes ni mayúsculas y hacen falta al menos dos letras.
+Arriba a la derecha hay un buscador que vale para todo: escribe parte del nombre o el DNI de un paciente, el CN o el nombre de un medicamento, o el número de registro de un blíster, y lleva directamente al resultado. No distingue tildes ni mayúsculas y hacen falta al menos dos letras. **Ctrl+F** lleva al buscador desde cualquier pantalla; **Intro** abre el primer resultado y **Esc** lo cierra.
+
+**Escanear en el mostrador.** Con el cursor en el buscador, escanea el DataMatrix de un envase recién dispensado: la aplicación busca a qué paciente le falta ese medicamento en el listado de retirada. Si es a uno solo, abre directamente su retirada con lote, serie, caducidad y unidades ya puestos: revisa las unidades y pulsa **Intro** para guardar. Si le falta a varios, elige para quién es. Si no le falta a nadie o el envase no está en el catálogo, lo dice. Ver [[uso:retirada-envases]].
 
 **Cerrar sesión** vuelve al inicio de sesión sin cerrar la aplicación. Cerrar la ventana con la X cierra la aplicación y, antes, genera una **copia de seguridad** automática; si falla, avisa y no cierra hasta que lo veas.
 

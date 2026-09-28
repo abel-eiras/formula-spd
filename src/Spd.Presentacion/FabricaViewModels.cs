@@ -87,8 +87,9 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
 
     private RetiradaEnvasesViewModel CrearRetirada(Destino destino)
     {
-        var vm = new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, usuario.Id);
+        var vm = new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, servicios.Medicamentos, usuario.Id);
         if (destino.PacienteId is { } id) vm.CentrarEnPaciente(id, destino.Detalle);
+        if (destino.Lectura is { } lectura) vm.AbrirRegistroEscaneado(lectura.MedicamentoId, lectura.Datos);
         return vm;
     }
 

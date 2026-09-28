@@ -1,7 +1,7 @@
 # Spec 012 — Lectura de código DataMatrix
 
 **Estado:** Implementada
-**Versión:** 0.3 — 2026-09-28
+**Versión:** 0.4 — 2026-09-28
 **Constitución aplicable:** 2.1.0 (Artículos V, X)
 **Depende de:** Spec 005 (alta de envase), Spec 004 (selector de medicamento)
 **Requerida por:** Ninguna; mejora opcional sobre Spec 005 FR-516 y Spec 004 FR-400
@@ -41,6 +41,9 @@ Como elaborador, si el código no se lee bien o no tengo lector a mano, quiero p
 - **FR-1205** El campo de captura de escáner convive con los campos manuales sin necesidad de activarlo o desactivarlo: si no hay lector conectado, se rellenan los campos a mano directamente y el campo de escaneo simplemente no se usa.
 - **FR-1206** El selector de medicamento (Spec 004 FR-400, usado en el alta de tratamiento y en cualquier pantalla que elija un medicamento del catálogo) admite el mismo escaneo para encontrar el medicamento, no solo para registrar el envase: busca primero por CN si el código trae el AI 712; si no, por `Medicamento.gtin`. Sin coincidencia por ninguna de las dos vías, deja el CN tecleado en el buscador para que «Nuevo medicamento…» lo prerellene — no existe asociación automática GTIN→CN por catálogo, sigue siendo mejora futura si hiciera falta.
 
+- **FR-1207** El buscador global de la cabecera (Spec 015 FR-1513) acepta un escaneo: al pulsar Intro sobre un texto que es un DataMatrix, se resuelve el medicamento (CN del AI 712, si no GTIN) y se listan los pacientes a los que les falta en el listado de retirada (Spec 005 FR-531). Con uno solo se va directamente a su retirada con el registro de ese medicamento abierto y la lectura aplicada; con varios, se elige; si no le falta a nadie se muestra el medicamento, y si no está en el catálogo se dice. Es el flujo del mostrador: tras dispensar en el programa de gestión, escanear la caja sin buscar antes al paciente.
+- **FR-1208** Tras una lectura correcta en cualquier alta de envase, el foco pasa al campo de unidades (propuestas desde el catálogo, Spec 005 FR-513b) e Intro en ese campo guarda: escanear + Intro es un alta completa cuando el envase está entero.
+
 ## 5. Entidades clave
 
 Ninguna nueva; usa los campos existentes de `Envase` (Spec 005), incluido `Envase.Origen = ESCANEADO` cuando el alta se rellenó por esta vía.
@@ -58,6 +61,9 @@ Dado un código que el parser no reconoce, cuando lo escaneo, entonces veo un av
 
 **CA-1203 Alta manual sin escáner**
 Dado que no tengo lector conectado, cuando abro el alta de envase, entonces puedo completar todos los campos a mano sin que la pantalla exija un escaneo previo.
+
+**CA-1205 Escanear en el buscador lleva a la retirada**
+Dado un paciente al que le faltan envases de un medicamento, cuando escaneo un envase de ese medicamento en el buscador de la cabecera, entonces se abre su retirada con serie, lote, caducidad y unidades ya puestos, y un Intro registra el envase.
 
 **CA-1204 Escanear encuentra el medicamento al dar de alta un tratamiento**
 Dado un medicamento ya en el catálogo con su GTIN guardado, cuando escaneo su envase desde el selector de medicamento de un tratamiento nuevo, entonces el medicamento queda seleccionado sin buscar por nombre ni CN.

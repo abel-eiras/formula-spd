@@ -38,6 +38,12 @@ public sealed partial class DepositoViewModel : ViewModelBase
     [ObservableProperty] private int? _unidadesIniciales;
     private OrigenEnvase _origenAlta = OrigenEnvase.Manual;
 
+    public UnidadesDelCatalogo Unidades { get; } = new();
+
+    /// <summary>Tras una lectura correcta solo queda revisar las unidades: la vista lleva ahí el foco
+    /// para que Intro guarde el envase sin tocar el ratón.</summary>
+    public event Action? LecturaAplicada;
+
     [ObservableProperty] private string? _entregadoA;
 
     [ObservableProperty] private EnvaseFila? _envaseSeleccionadoParaSalida;
@@ -106,6 +112,14 @@ public sealed partial class DepositoViewModel : ViewModelBase
         if (value is not null) Cn = value.Cn;
     }
 
+    /// <summary>FR-513: el CN llega tecleado, elegido o escaneado; en los tres casos las unidades
+    /// iniciales se proponen desde el catálogo.</summary>
+    partial void OnCnChanged(string value)
+    {
+        var medicamento = string.IsNullOrWhiteSpace(value) ? null : _servicioMedicamentos.ObtenerPorCn(value.Trim());
+        UnidadesIniciales = Unidades.AlCambiarMedicamento(medicamento, UnidadesIniciales);
+    }
+
     /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
     /// Codigo Nacional solo viene en el codigo si el fabricante incluye el AI 712 (FR-1201); cuando
     /// no viene, se introduce a mano igual que hasta ahora.</summary>
@@ -134,6 +148,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
         {
             Mensaje = "Lectura aplicada. El código no incluye el CN: introdúcelo a mano.";
         }
+        LecturaAplicada?.Invoke();
     }
 
     [RelayCommand]
@@ -157,12 +172,14 @@ public sealed partial class DepositoViewModel : ViewModelBase
                 new DatosAltaEnvase(_pacienteId, medicamento.Id, Serie, Lote ?? string.Empty,
                     DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, _origenAlta),
                 _usuarioActualId);
+            Unidades.GuardarSiProcede(_servicioMedicamentos, UnidadesIniciales.Value, _usuarioActualId);
 
             Mensaje = envase.Caducidad < DateOnly.FromDateTime(DateTime.Today)
                 ? "Envase registrado. Aviso: la caducidad ya ha pasado (FR-514); nunca se propondrá para una preparación."
                 : "Envase registrado.";
             Cn = string.Empty; Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
             MedicamentoSeleccionado = null;
+            Unidades.Reiniciar();
             _origenAlta = OrigenEnvase.Manual;
             Cargar();
         }

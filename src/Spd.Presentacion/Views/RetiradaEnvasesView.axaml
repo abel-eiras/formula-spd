@@ -59,9 +59,15 @@
           <TextBox Watermark="Serie" Text="{Binding Serie}" />
           <TextBox Watermark="Lote" Text="{Binding Lote}" />
           <DatePicker SelectedDate="{Binding Caducidad}" />
-          <NumericUpDown Value="{Binding UnidadesIniciales}" Minimum="0" Watermark="Unidades" />
+          <NumericUpDown x:Name="CampoUnidades" Value="{Binding UnidadesIniciales}" Minimum="0" Watermark="Unidades">
+            <NumericUpDown.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding ConfirmarRegistroCommand}" />
+            </NumericUpDown.KeyBindings>
+          </NumericUpDown>
           <Button Classes="primario" Content="Guardar" Command="{Binding ConfirmarRegistroCommand}" />
         </StackPanel>
+        <CheckBox IsChecked="{Binding Unidades.Guardar}" IsVisible="{Binding Unidades.OfrecerGuardar}"
+                  Content="El catálogo no sabe cuántas unidades trae este envase. Si está completo, guardar estas unidades como tamaño de envase" />
       </StackPanel>
     </Border>
 
