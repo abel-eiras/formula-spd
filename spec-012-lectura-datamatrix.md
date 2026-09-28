@@ -1,10 +1,10 @@
 # Spec 012 — Lectura de código DataMatrix
 
 **Estado:** Implementada
-**Versión:** 0.2 — 2026-09-28
+**Versión:** 0.3 — 2026-09-28
 **Constitución aplicable:** 2.1.0 (Artículos V, X)
-**Depende de:** Spec 005 (alta de envase)
-**Requerida por:** Ninguna; mejora opcional sobre Spec 005 FR-516
+**Depende de:** Spec 005 (alta de envase), Spec 004 (selector de medicamento)
+**Requerida por:** Ninguna; mejora opcional sobre Spec 005 FR-516 y Spec 004 FR-400
 
 ---
 
@@ -39,6 +39,7 @@ Como elaborador, si el código no se lee bien o no tengo lector a mano, quiero p
 - **FR-1203** Si el código incluye el AI `712` (Código Nacional), se rellena también el campo CN. Si no lo incluye — caso habitual, no todos los fabricantes lo codifican —, el campo CN queda vacío y se introduce a mano exactamente igual que en el alta manual.
 - **FR-1204** Si el código no se puede parsear (formato inesperado, lectura parcial, ambigüedad sin separador GS), el sistema no bloquea nada: muestra un aviso y deja los campos vacíos para introducción manual, exactamente igual que si no se hubiera escaneado nada.
 - **FR-1205** El campo de captura de escáner convive con los campos manuales sin necesidad de activarlo o desactivarlo: si no hay lector conectado, se rellenan los campos a mano directamente y el campo de escaneo simplemente no se usa.
+- **FR-1206** El selector de medicamento (Spec 004 FR-400, usado en el alta de tratamiento y en cualquier pantalla que elija un medicamento del catálogo) admite el mismo escaneo para encontrar el medicamento, no solo para registrar el envase: busca primero por CN si el código trae el AI 712; si no, por `Medicamento.gtin`. Sin coincidencia por ninguna de las dos vías, deja el CN tecleado en el buscador para que «Nuevo medicamento…» lo prerellene — no existe asociación automática GTIN→CN por catálogo, sigue siendo mejora futura si hiciera falta.
 
 ## 5. Entidades clave
 
@@ -58,6 +59,9 @@ Dado un código que el parser no reconoce, cuando lo escaneo, entonces veo un av
 **CA-1203 Alta manual sin escáner**
 Dado que no tengo lector conectado, cuando abro el alta de envase, entonces puedo completar todos los campos a mano sin que la pantalla exija un escaneo previo.
 
+**CA-1204 Escanear encuentra el medicamento al dar de alta un tratamiento**
+Dado un medicamento ya en el catálogo con su GTIN guardado, cuando escaneo su envase desde el selector de medicamento de un tratamiento nuevo, entonces el medicamento queda seleccionado sin buscar por nombre ni CN.
+
 ## 7. Casos límite
 
 - Lector configurado con un sufijo de tecla Intro al final de cada lectura: se asume comportamiento estándar de los lectores del sector; si un modelo concreto da problemas, es una cuestión de configuración del propio lector, no de esta spec.
@@ -66,9 +70,9 @@ Dado que no tengo lector conectado, cuando abro el alta de envase, entonces pued
 ## 8. Fuera de alcance de esta spec
 
 - Lectura por cámara/webcam: fuera de alcance; el lector USB tipo teclado es el escenario probado y suficiente.
-- Asociación automática de GTIN a CN a través del catálogo: el campo `Medicamento.gtin` existe en el catálogo (Spec 003) pero esta spec no lo usa para resolver el CN de una lectura — el CN solo se rellena cuando el propio código lo trae (AI 712); en cualquier otro caso se introduce a mano. Posible mejora futura si aparece necesidad real.
+- Asociación automática de GTIN a CN a través del catálogo (recordar el GTIN de un medicamento tras el primer escaneo): no implementada; cada escaneo resuelve el medicamento por CN o por `Medicamento.gtin` ya guardado, pero no aprende nuevas asociaciones. Posible mejora futura si aparece necesidad real.
 - Cualquier verificación adicional de autenticidad del medicamento (sistema de verificación de medicamentos SVM/FMD europeo): fuera de alcance total del proyecto.
 
 ## 9. Preguntas abiertas
 
-Ninguna. Q1 (¿merece la pena implementarlo?) quedó resuelta al probarlo con códigos reales y los patrones oficiales de SEVeM-0108.03 (2026-09-28): funciona, y se integró en Depósito, Retirada de envases y Preparación (los tres puntos de alta de envase de Spec 005 FR-516).
+Ninguna. Q1 (¿merece la pena implementarlo?) quedó resuelta al probarlo con códigos reales y los patrones oficiales de SEVeM-0108.03 (2026-09-28): funciona, y se integró en Depósito, Retirada de envases y Preparación (los tres puntos de alta de envase de Spec 005 FR-516) y, desde la v0.3, también en el selector de medicamento (FR-1206) para encontrar el medicamento al escanear, no solo para registrar el envase.

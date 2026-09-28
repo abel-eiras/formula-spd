@@ -105,6 +105,54 @@ public sealed class SelectorMedicamentoTests
         Assert.Contains("ya estaba", selector.Mensaje);
     }
 
+    // spec-012: escanear el envase también encuentra el medicamento, no solo registra el envase.
+    private const char Gs = '\u001D';
+
+    [Fact]
+    public void Escanear_un_codigo_con_CN_via_AI712_selecciona_el_medicamento()
+    {
+        var (servicios, conexion) = Montar();
+        using var c = conexion;
+        servicios.Medicamentos.Crear(new DatosAltaMedicamento("654321", "Enalapril 20 mg"), null);
+        var selector = new SelectorMedicamentoViewModel(servicios.Medicamentos, null, null);
+
+        selector.CodigoEscaneado = $"0108470006950647{Gs}17300101{Gs}10LOTE1{Gs}21SERIE1{Gs}712654321";
+        selector.LeerCodigoEscaneadoCommand.Execute(null);
+
+        Assert.Equal("654321", selector.Seleccionado!.Cn);
+    }
+
+    [Fact]
+    public void Escanear_un_codigo_sin_CN_pero_con_GTIN_conocido_selecciona_el_medicamento()
+    {
+        var (servicios, conexion) = Montar();
+        using var c = conexion;
+        var medicamento = servicios.Medicamentos.Crear(new DatosAltaMedicamento("654321", "Enalapril 20 mg"), null);
+        medicamento.Gtin = "08470006950647";
+        servicios.Medicamentos.ActualizarDatos(medicamento, null);
+        var selector = new SelectorMedicamentoViewModel(servicios.Medicamentos, null, null);
+
+        selector.CodigoEscaneado = $"0108470006950647{Gs}17300101{Gs}10LOTE1{Gs}21SERIE1";
+        selector.LeerCodigoEscaneadoCommand.Execute(null);
+
+        Assert.Equal("654321", selector.Seleccionado!.Cn);
+    }
+
+    [Fact]
+    public void Escanear_un_codigo_sin_medicamento_en_catalogo_deja_el_cn_listo_para_darlo_de_alta()
+    {
+        var (servicios, conexion) = Montar();
+        using var c = conexion;
+        var selector = new SelectorMedicamentoViewModel(servicios.Medicamentos, null, null);
+
+        selector.CodigoEscaneado = $"0108470006950647{Gs}17300101{Gs}10LOTE1{Gs}21SERIE1{Gs}712999999";
+        selector.LeerCodigoEscaneadoCommand.Execute(null);
+
+        Assert.Null(selector.Seleccionado);
+        Assert.Equal("999999", selector.Texto);
+        Assert.Contains("alta", selector.Mensaje);
+    }
+
     /// <summary>El flujo completo en la pestaña: alta del medicamento sin salir y tratamiento guardado.</summary>
     [AvaloniaFact]
     public void El_tratamiento_se_guarda_con_un_medicamento_dado_de_alta_desde_la_propia_ficha()

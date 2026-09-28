@@ -31,6 +31,7 @@ public sealed partial class SelectorMedicamentoViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<Medicamento> _resultados = [];
     [ObservableProperty] private Medicamento? _seleccionado;
     [ObservableProperty] private string? _mensaje;
+    [ObservableProperty] private string _codigoEscaneado = string.Empty;
 
     // Alta en línea.
     [ObservableProperty] private bool _panelNuevoAbierto;
@@ -62,6 +63,34 @@ public sealed partial class SelectorMedicamentoViewModel : ViewModelBase
         Seleccionado = medicamentoId is null ? null : _servicio.ObtenerPorId(medicamentoId.Value);
         Texto = string.Empty;
         Mensaje = null;
+    }
+
+    /// <summary>spec-012: escanear el envase también sirve para encontrar el medicamento, no solo
+    /// para registrar el envase (Depósito/Retirada/Preparación). Busca primero por el CN si el código
+    /// lo trae (AI 712), si no por el GTIN; si no hay coincidencia, deja el CN tecleado para que
+    /// «Nuevo medicamento…» lo prerellene, igual que si se hubiera escrito a mano.</summary>
+    [RelayCommand]
+    private void LeerCodigoEscaneado()
+    {
+        var datos = LectorGs1DataMatrix.Leer(CodigoEscaneado);
+        CodigoEscaneado = string.Empty;
+        if (datos is null)
+        {
+            Mensaje = "Código no reconocido (FR-1204): busca por nombre o CN, o escríbelo a mano.";
+            return;
+        }
+
+        var medicamento = (datos.CodigoNacional is { } cn ? _servicio.ObtenerPorCn(cn) : null)
+                           ?? _servicio.ObtenerPorGtin(datos.Gtin);
+        if (medicamento is not null)
+        {
+            Elegir(medicamento);
+            Mensaje = null;
+            return;
+        }
+
+        Texto = datos.CodigoNacional ?? string.Empty;
+        Mensaje = "Ese medicamento no está en el catálogo: puedes darlo de alta con «Nuevo medicamento…».";
     }
 
     [RelayCommand]
