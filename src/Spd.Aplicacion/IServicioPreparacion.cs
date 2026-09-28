@@ -10,9 +10,15 @@ public interface IServicioPreparacion
 
     RegistroAmbiental ObtenerOCrearLecturaAmbiental(double? temperatura, double? humedad, int? usuarioId);
 
+    /// <summary>FR-630: la última lectura y si se reutilizaría dejando temperatura y humedad vacías.</summary>
+    LecturaAmbientalReciente? ObtenerUltimaLecturaAmbiental();
+
     MaterialAcondicionamiento CrearMaterial(string descripcion, string lote, DateOnly fechaEntrada);
 
     IReadOnlyList<MaterialAcondicionamiento> ListarMaterialesActivos();
+
+    /// <summary>FR-632: material que se preselecciona al preparar.</summary>
+    MaterialAcondicionamiento? ObtenerMaterialPropuesto();
 
     void AsignarMaterial(int spdId, int materialId);
 

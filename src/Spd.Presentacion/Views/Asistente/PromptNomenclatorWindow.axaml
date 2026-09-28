@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Spd.Presentacion.Views.Asistente.PromptNomenclatorWindow"
+        Title="Fórmula SPD — Nomenclátor"
+        Icon="/Assets/formula-spd.ico"
+        Width="480" SizeToContent="Height"
+        CanResize="False">
+  <StackPanel Margin="16" Spacing="12">
+    <TextBlock Text="¿Descargar el nomenclátor ahora?" FontSize="16" FontWeight="Bold" />
+    <TextBlock TextWrapping="Wrap"
+               Text="El nomenclátor alimenta el catálogo de medicamentos (Spec 003). Se descarga desde la URL del Ministerio de Sanidad de abajo; puedes cambiarla aquí o más tarde en Configuración → Nomenclátor. Es opcional: puedes continuar sin descargarlo." />
+    <TextBlock Text="URL del nomenclátor" />
+    <TextBox Text="{Binding UrlNomenclator}" />
+    <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
+               IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+      <Button Content="Descargar ahora" Command="{Binding DescargarCommand}" IsEnabled="{Binding !Descargando}" />
+      <Button Name="BotonContinuar" Content="Continuar" />
+    </StackPanel>
+  </StackPanel>
+</Window>

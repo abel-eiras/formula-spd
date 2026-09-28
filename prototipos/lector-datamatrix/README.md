@@ -1,9 +1,16 @@
 # Prototipo — lector de DataMatrix
 
+**Ya integrado (2026-09-28):** el parser vive ahora tambien en
+`src/Spd.Dominio/LectorGs1DataMatrix.cs` y esta conectado en las pantallas de
+Deposito, Retirada de envases y Preparacion (spec-012 v0.2). Este directorio
+se conserva como banco de pruebas aislado y como historial del proceso de
+validacion (DIAGNOSTICO.md, captura-cruda.sh); si tocas el parser, replica el
+cambio en ambos sitios o, si ya no aporta, valora retirar la copia de aqui.
+
 Modulo aislado, fuera de `src/` y sin engancharse a `SPD.sln`. Su unico objetivo
 es confirmar que se puede interpretar la cadena que entrega el lector de
 Abel antes de comprometer el diseno del parser en spec-012 (pregunta abierta Q1
-de esa spec). No depende de Spd.Dominio ni de ningun otro proyecto de la app.
+de esa spec, ya resuelta). No depende de Spd.Dominio ni de ningun otro proyecto de la app.
 
 Si aparece un envase con un codigo que no se reconoce (o que se reconoce mal),
 ver [DIAGNOSTICO.md](DIAGNOSTICO.md) antes de nada: explica como capturar la

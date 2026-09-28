@@ -61,10 +61,21 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     [ObservableProperty] private string _motivoReelaboracion = string.Empty;
 
     [ObservableProperty] private SpdLinea? _lineaParaRegistrarEnvase;
+    [ObservableProperty] private string _envaseCodigoEscaneado = string.Empty;
     [ObservableProperty] private string _envaseSerie = string.Empty;
     [ObservableProperty] private string _envaseLote = string.Empty;
     [ObservableProperty] private DateTimeOffset? _envaseCaducidad;
     [ObservableProperty] private int? _envaseUnidadesIniciales;
+    private OrigenEnvase _envaseOrigenAlta = OrigenEnvase.Manual;
+
+    public UnidadesDelCatalogo EnvaseUnidades { get; } = new();
+
+    /// <summary>Tras una lectura correcta la vista lleva el foco a Unidades, donde Intro guarda.</summary>
+    public event Action? EnvaseLecturaAplicada;
+
+    /// <summary>FR-630: qué lectura ambiental hay y si se reutilizará dejando los campos vacíos. Antes
+    /// solo se sabía al pulsar "Pasar a PREPARADO" y recibir un error.</summary>
+    [ObservableProperty] private string? _textoUltimaLectura;
 
     public OrigenSolicitudReelaboracion[] OrigenesDisponibles { get; } = Enum.GetValues<OrigenSolicitudReelaboracion>();
 
@@ -102,6 +113,10 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         // El material se carga primero: el carril de pasos necesita saber si lo hay para poder decir
         // que el llenado está bloqueado y por qué (FR-1540).
         MaterialesDisponibles = new ObservableCollection<MaterialAcondicionamiento>(_servicio.ListarMaterialesActivos());
+        // FR-632: el último lote usado queda preseleccionado; lo que el usuario ya eligió se respeta.
+        MaterialSeleccionado = MaterialesDisponibles.FirstOrDefault(m => m.Id == MaterialSeleccionado?.Id)
+                               ?? MaterialesDisponibles.FirstOrDefault(m => m.Id == _servicio.ObtenerMaterialPropuesto()?.Id);
+        TextoUltimaLectura = DescribirUltimaLectura(_servicio.ObtenerUltimaLecturaAmbiental());
         var spds = _servicio.ListarPorFiltro(new FiltrosPreparaciones(PacienteId: _pacienteId));
         Blisteres = new ObservableCollection<BlisterFila>(
             spds.OrderByDescending(s => s.Id)
@@ -181,10 +196,12 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     private void CrearMaterial()
     {
         if (string.IsNullOrWhiteSpace(NuevoMaterialDescripcion) || string.IsNullOrWhiteSpace(NuevoMaterialLote)) return;
-        _servicio.CrearMaterial(NuevoMaterialDescripcion, NuevoMaterialLote, DateOnly.FromDateTime(DateTime.Today));
+        var nuevo = _servicio.CrearMaterial(NuevoMaterialDescripcion, NuevoMaterialLote, DateOnly.FromDateTime(DateTime.Today));
         NuevoMaterialDescripcion = string.Empty;
         NuevoMaterialLote = string.Empty;
         MaterialesDisponibles = new ObservableCollection<MaterialAcondicionamiento>(_servicio.ListarMaterialesActivos());
+        // Quien da de alta un lote nuevo es porque va a usarlo ahora.
+        MaterialSeleccionado = MaterialesDisponibles.FirstOrDefault(m => m.Id == nuevo.Id);
     }
 
     [RelayCommand]
@@ -324,14 +341,48 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         }
     }
 
+    private static string DescribirUltimaLectura(LecturaAmbientalReciente? reciente) => reciente switch
+    {
+        null => "No hay ninguna lectura registrada: indica temperatura y humedad.",
+        { Reutilizable: true, Lectura: var l } =>
+            $"Última lectura: {l.Temperatura:0.#} °C y {l.Humedad:0.#} % a las {l.Fecha.ToLocalTime():HH:mm}. " +
+            "Si dejas los campos vacíos se reutiliza.",
+        { Lectura: var l } =>
+            $"Última lectura: {l.Fecha.ToLocalTime():dd/MM HH:mm}, ya no vale para esta preparación: indica temperatura y humedad."
+    };
+
     [RelayCommand]
     private void PrepararRegistroEnvase(SpdLinea linea)
     {
         LineaParaRegistrarEnvase = linea;
+        EnvaseCodigoEscaneado = string.Empty;
         EnvaseSerie = string.Empty;
         EnvaseLote = string.Empty;
         EnvaseCaducidad = null;
-        EnvaseUnidadesIniciales = null;
+        EnvaseUnidades.Reiniciar();
+        EnvaseUnidadesIniciales = EnvaseUnidades.AlCambiarMedicamento(_servicioMedicamentos.ObtenerPorId(linea.MedicamentoId), null);
+        _envaseOrigenAlta = OrigenEnvase.Manual;
+    }
+
+    /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
+    /// medicamento ya viene de la linea del blister, asi que el CN del codigo (si lo trae) no hace falta aqui.</summary>
+    [RelayCommand]
+    private void LeerEnvaseCodigoEscaneado()
+    {
+        var datos = LectorGs1DataMatrix.Leer(EnvaseCodigoEscaneado);
+        EnvaseCodigoEscaneado = string.Empty;
+        if (datos is null)
+        {
+            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+            return;
+        }
+
+        EnvaseSerie = datos.NumeroSerie;
+        EnvaseLote = datos.Lote;
+        EnvaseCaducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
+        _envaseOrigenAlta = OrigenEnvase.Escaneado;
+        Mensaje = "Lectura aplicada: revisa las unidades y pulsa Intro para guardar.";
+        EnvaseLecturaAplicada?.Invoke();
     }
 
     [RelayCommand]
@@ -346,11 +397,14 @@ public sealed partial class PreparacionViewModel : ViewModelBase
             var pacienteId = Blisteres.First(b => b.Lineas.Contains(LineaParaRegistrarEnvase)).Spd.PacienteId;
             var datos = new DatosAltaEnvase(
                 pacienteId, medicamento.Id, EnvaseSerie, EnvaseLote,
-                DateOnly.FromDateTime(EnvaseCaducidad.Value.Date), EnvaseUnidadesIniciales.Value, OrigenEnvase.Manual);
+                DateOnly.FromDateTime(EnvaseCaducidad.Value.Date), EnvaseUnidadesIniciales.Value, _envaseOrigenAlta);
 
             _servicio.RegistrarEnvaseDesdeLinea(LineaParaRegistrarEnvase.Id, datos, _usuarioActualId);
+            EnvaseUnidades.GuardarSiProcede(_servicioMedicamentos, EnvaseUnidadesIniciales.Value, _usuarioActualId);
             Mensaje = "Envase registrado. La línea ya puede pasar a PREPARADO.";
             LineaParaRegistrarEnvase = null;
+            EnvaseUnidades.Reiniciar();
+            _envaseOrigenAlta = OrigenEnvase.Manual;
             Cargar();
         }
         catch (ErrorValidacionException ex)

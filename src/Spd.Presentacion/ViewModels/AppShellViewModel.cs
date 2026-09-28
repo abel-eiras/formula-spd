@@ -28,6 +28,12 @@ public sealed partial class AppShellViewModel : ViewModelBase
     [ObservableProperty] private string _textoBusqueda = string.Empty;
     [ObservableProperty] private ObservableCollection<ResultadoBusqueda> _resultadosBusqueda = [];
     [ObservableProperty] private bool _busquedaAbierta;
+    [ObservableProperty] private string? _avisoBusqueda;
+
+    /// <summary>spec-012 FR-1207: la lectura del último envase escaneado en la cabecera, que viaja a
+    /// la retirada del paciente elegido para no tener que escanearlo otra vez.</summary>
+    private DatosEnvaseEscaneado? _ultimaLectura;
+    private bool _ignorarCambioDeTexto;
 
     public Usuario UsuarioActual { get; }
     public string Saludo => $"{UsuarioActual.Nombre} {UsuarioActual.Apellidos} · {UsuarioActual.Rol}";
@@ -111,8 +117,49 @@ public sealed partial class AppShellViewModel : ViewModelBase
     /// del mínimo de caracteres, así que no hace falta condicionarlo aquí.</summary>
     partial void OnTextoBusquedaChanged(string value)
     {
+        if (_ignorarCambioDeTexto) return;
+        AvisoBusqueda = null;
         ResultadosBusqueda = new ObservableCollection<ResultadoBusqueda>(_servicioBusqueda.Buscar(value));
         BusquedaAbierta = ResultadosBusqueda.Count > 0;
+    }
+
+    /// <summary>Intro en la búsqueda. Un lector USB teclea el código y un Intro, así que si el texto es
+    /// un DataMatrix se busca a quién le falta ese medicamento (FR-1207): con un solo paciente se va
+    /// directo a su retirada con la lectura aplicada; con varios, se elige. Si es texto normal, Intro
+    /// abre el primer resultado, como en cualquier buscador.</summary>
+    [RelayCommand]
+    private void ConfirmarBusqueda()
+    {
+        if (LectorGs1DataMatrix.Leer(TextoBusqueda) is not { } datos)
+        {
+            if (ResultadosBusqueda.FirstOrDefault() is { } primero) AbrirResultado(primero);
+            return;
+        }
+
+        _ultimaLectura = datos;
+        var resultados = _servicioBusqueda.BuscarEnvaseEscaneado(datos, DateOnly.FromDateTime(DateTime.Today));
+
+        // El código escaneado no es un texto que el usuario quiera leer ni buscar: se vacía sin
+        // disparar la búsqueda por texto, que taparía los resultados del escaneo.
+        _ignorarCambioDeTexto = true;
+        TextoBusqueda = string.Empty;
+        _ignorarCambioDeTexto = false;
+
+        if (resultados is [{ Tipo: TipoResultadoBusqueda.RetiradaPendiente } unico])
+        {
+            AbrirResultado(unico);
+            return;
+        }
+
+        ResultadosBusqueda = new ObservableCollection<ResultadoBusqueda>(resultados);
+        AvisoBusqueda = resultados.Count switch
+        {
+            0 => "Ese envase no está en el catálogo (ni por CN ni por GTIN).",
+            _ when resultados.All(r => r.Tipo == TipoResultadoBusqueda.RetiradaPendiente) =>
+                "Varios pacientes tienen pendiente este medicamento: elige para quién es el envase.",
+            _ => null
+        };
+        BusquedaAbierta = true;
     }
 
     /// <summary>FR-1522: elegir un resultado lleva a su pantalla, ya centrada en él.</summary>
@@ -126,6 +173,9 @@ public sealed partial class AppShellViewModel : ViewModelBase
             TipoResultadoBusqueda.Paciente => new Destino(Seccion.Pacientes, resultado.PacienteId, resultado.NombrePaciente),
             TipoResultadoBusqueda.Medicamento => new Destino(Seccion.Catalogo, null, resultado.Titulo),
             TipoResultadoBusqueda.Blister => new Destino(Seccion.Preparaciones, resultado.PacienteId, resultado.NombrePaciente),
+            TipoResultadoBusqueda.RetiradaPendiente => new Destino(
+                Seccion.Retirada, resultado.PacienteId, resultado.NombrePaciente,
+                _ultimaLectura is null ? null : new LecturaParaRetirada(resultado.Id, _ultimaLectura)),
             _ => new Destino(Seccion.Inicio)
         };
 
@@ -140,6 +190,7 @@ public sealed partial class AppShellViewModel : ViewModelBase
         // mínimo de caracteres); cerrar después evita depender del orden de las notificaciones.
         TextoBusqueda = string.Empty;
         BusquedaAbierta = false;
+        AvisoBusqueda = null;
     }
 
     /// <summary>Una entrada del menú, con su estado visual.</summary>

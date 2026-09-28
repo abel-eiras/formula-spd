@@ -40,6 +40,7 @@ Como administrador, quiero cambiar el día de retirada por defecto o el número 
 
 - **FR-000** Al arrancar la aplicación sin base de datos existente, se lanza un asistente obligatorio, en este orden: (1) elegir cifrado sí/no y contraseña maestra si aplica (Spec 010); (2) datos de la farmacia (FR-010); (3) primer usuario, con rol Administrador forzado; (4) valores por defecto de retirada y blísteres; (5) rutas de backup y documentos generados.
 - **FR-001** El asistente no permite avanzar sin los campos obligatorios de cada paso (FR-010, FR-020). Se puede volver a un paso anterior antes de finalizar. Una vez finalizado, todos los valores son editables individualmente desde Configuración, sin necesidad de repetir el asistente.
+- **FR-002** Terminado el asistente (FR-000) y antes de mostrar el inicio de sesión, se pregunta una sola vez si se quiere descargar el nomenclátor ahora, con la URL pública del Ministerio de Sanidad preinformada (editable). Es la misma acción explícita que FR-051 (Art. VI.3: nunca automática); "continuar" está siempre disponible, con o sin descarga, tanto si se pulsa el botón como si se cierra la ventana. Al descargar aquí se guarda la URL y se importa el catálogo igual que desde Configuración → Nomenclátor.
 
 ### 4.2 Datos de la farmacia
 
@@ -72,7 +73,7 @@ Como administrador, quiero cambiar el día de retirada por defecto o el número 
 ### 4.6 Actualizaciones y nomenclátor (excepciones de red)
 
 - **FR-050** Pantalla "Actualizaciones" en Configuración: botón "Comprobar actualizaciones" que consulta una URL fija de Anthropic/proveedor del software (no configurable por el usuario) y, si hay una versión nueva, ofrece descargarla. Nunca automático al arrancar sin que el usuario lo pida (Constitución Artículo VI.3).
-- **FR-051** Pantalla "Nomenclátor" en Configuración: campo `url_nomenclator` editable, y botón "Descargar ahora" que obtiene el fichero Excel/CSV de esa URL para alimentar Spec 003/011. Si la URL cambia de formato o desaparece, el campo sigue siendo editable manualmente sin necesitar una nueva versión de la aplicación.
+- **FR-051** Pantalla "Nomenclátor" en Configuración: campo `url_nomenclator` editable, preinformado con la URL pública de búsqueda de productos del nomenclátor del Ministerio de Sanidad, y botón "Descargar ahora" que obtiene el fichero Excel/CSV de esa URL para alimentar Spec 003/011. Si la URL cambia de formato o desaparece, el campo sigue siendo editable manualmente sin necesitar una nueva versión de la aplicación.
 - **FR-052** Ambas acciones muestran el resultado (éxito, fecha de la última comprobación/descarga, o el motivo del fallo) y no impiden el uso del resto de la aplicación si fallan.
 
 ## 5. Entidades clave
@@ -104,6 +105,9 @@ Dado que la URL del nomenclátor no responde, cuando pulso "Descargar ahora", en
 
 **CA-006 Cambio de valores por defecto no reescribe pacientes existentes**
 Dado un paciente con `dia_retirada = MARTES` fijado individualmente, cuando cambio `dia_retirada_defecto` a JUEVES, entonces ese paciente sigue en MARTES.
+
+**CA-007 Nomenclátor tras el asistente es opcional**
+Dado que acabo de completar el asistente de primer arranque, cuando se me pregunta si quiero descargar el nomenclátor y cierro la ventana sin pulsar "Descargar ahora", entonces paso al inicio de sesión con normalidad y puedo descargarlo más tarde desde Configuración → Nomenclátor.
 
 ## 7. Casos límite
 

@@ -205,7 +205,7 @@ public partial class App : Application
 
         // Panel de inicio (Spec 006 FR-691), lote (Spec 007 FR-720..725) y purga manual (Spec 010 §4.3).
         _servicioAvisos = new ServicioAvisosInicio(_servicioListadoRetirada, repositorioSpd, repositorioPacientes, new RepositorioRegistrosAmbientales(_conexion!));
-        _servicioBusquedaGlobal = new ServicioBusquedaGlobal(_servicioPacientes, _servicioMedicamentos, repositorioSpd, repositorioPacientes);
+        _servicioBusquedaGlobal = new ServicioBusquedaGlobal(_servicioPacientes, _servicioMedicamentos, repositorioSpd, repositorioPacientes, _servicioListadoRetirada);
         _servicioLote = new ServicioGeneracionLote(_servicioPreparacion, _servicioGeneracionDocumentos, repositorioSpd, repositorioPacientes);
         _servicioPurga = new ServicioPurga(
             repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia, new RepositorioPurga(_conexion!), auditoria);
@@ -232,7 +232,7 @@ public partial class App : Application
             ventanaAsistente.AsistenteFinalizado += () =>
             {
                 asistenteFinalizadoPorElUsuario = true;
-                MostrarLogin(desktop);
+                MostrarPromptNomenclator(desktop);
                 ventanaAsistente.Close();
             };
             // Igual que en la ventana principal: cerrar con la X (sin completar el asistente) debe
@@ -250,6 +250,20 @@ public partial class App : Application
         {
             MostrarLogin(desktop);
         }
+    }
+
+    /// <summary>Tras el asistente obligatorio, se ofrece descargar el nomenclátor una sola vez
+    /// (FR-051, Art. VI.3): explícito, opcional, y "Continuar" siempre lleva al login se haya
+    /// descargado o no (CA-005), tanto si se pulsa el botón como si se cierra con la X.</summary>
+    private void MostrarPromptNomenclator(IClassicDesktopStyleApplicationLifetime desktop)
+    {
+        var viewModel = new NomenclatorViewModel(_servicioFarmacia!, _servicioNomenclator!, null, _servicioImportacionNomenclator);
+        var ventana = new PromptNomenclatorWindow(viewModel);
+        ventana.Continuado += ventana.Close;
+        ventana.Closed += (_, _) => MostrarLogin(desktop);
+        desktop.MainWindow = ventana;
+        ventana.Show();
+        RegistrarTiempoDeArranque("prompt-nomenclator");
     }
 
     // CA-000/FR-045: hasta iniciar sesión, la única ventana visible es el asistente o el login.

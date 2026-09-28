@@ -61,11 +61,33 @@ public sealed class DepositoViewTests
         var servicioImportacion = new ServicioImportacionTratamientoEnvase(
             repositorioMedicamentos, repositorioTratamientos, repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientosParaImportacion, auditoria);
-        var ventana = AnfitrionDeVista.Anfitrion(new DepositoView
-        {
-            DataContext = new DepositoViewModel(servicioEnvases, servicioMedicamentos, servicioImportacion, paciente.Id, usuarioActualId: null)
-        });
+        var vm = new DepositoViewModel(
+            servicioEnvases, servicioMedicamentos, servicioTratamientosParaImportacion, servicioImportacion,
+            paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new DepositoView { DataContext = vm });
 
         ventana.Show();
+
+        // El tratamiento vigente en SPD creado arriba debe aparecer para elegirlo en vez de teclear el CN.
+        var opcion = Assert.Single(vm.MedicamentosConTratamiento);
+        Assert.Equal("654321", opcion.Cn);
+        vm.MedicamentoSeleccionado = opcion;
+        Assert.Equal("654321", vm.Cn);
+
+        // FR-513: el catálogo no sabe las unidades de este medicamento, así que se ofrece guardarlas;
+        // sin marcar la casilla no se guarda (el envase podría estar empezado).
+        Assert.Null(vm.UnidadesIniciales);
+        Assert.True(vm.Unidades.OfrecerGuardar);
+        vm.Serie = "S2"; vm.Caducidad = new DateTimeOffset(new DateTime(2030, 1, 1)); vm.UnidadesIniciales = 30;
+        vm.Unidades.Guardar = true;
+        vm.RegistrarEnvaseCommand.Execute(null);
+
+        Assert.Equal(30, servicioMedicamentos.ObtenerPorCn("654321")!.UnidadesEnvase);
+        Assert.Equal(2, servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id).Count);
+
+        // Ya en el catálogo: al volver a elegirlo, las unidades se proponen y no se ofrece guardar.
+        vm.MedicamentoSeleccionado = Assert.Single(vm.MedicamentosConTratamiento);
+        Assert.Equal(30, vm.UnidadesIniciales);
+        Assert.False(vm.Unidades.OfrecerGuardar);
     }
 }

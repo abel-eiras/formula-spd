@@ -14,6 +14,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
 {
     private readonly IServicioEnvases _servicioEnvases;
     private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioTratamientos _servicioTratamientos;
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
@@ -23,11 +24,25 @@ public sealed partial class DepositoViewModel : ViewModelBase
     [ObservableProperty] private bool _mostrarHistorico;
     [ObservableProperty] private string? _mensaje;
 
+    /// <summary>Medicamentos con tratamiento vigente en SPD de este paciente (Spec 004), para
+    /// elegirlos aquí en vez de teclear el CN: la mayoría de altas de envase son de un medicamento
+    /// que ya tiene tratamiento, así que escanear o seleccionar cubre el caso habitual.</summary>
+    [ObservableProperty] private ObservableCollection<MedicamentoParaEnvase> _medicamentosConTratamiento = [];
+    [ObservableProperty] private MedicamentoParaEnvase? _medicamentoSeleccionado;
+
+    [ObservableProperty] private string _codigoEscaneado = string.Empty;
     [ObservableProperty] private string _cn = string.Empty;
     [ObservableProperty] private string _serie = string.Empty;
     [ObservableProperty] private string? _lote;
     [ObservableProperty] private DateTimeOffset? _caducidad;
     [ObservableProperty] private int? _unidadesIniciales;
+    private OrigenEnvase _origenAlta = OrigenEnvase.Manual;
+
+    public UnidadesDelCatalogo Unidades { get; } = new();
+
+    /// <summary>Tras una lectura correcta solo queda revisar las unidades: la vista lleva ahí el foco
+    /// para que Intro guarde el envase sin tocar el ratón.</summary>
+    public event Action? LecturaAplicada;
 
     [ObservableProperty] private string? _entregadoA;
 
@@ -38,10 +53,12 @@ public sealed partial class DepositoViewModel : ViewModelBase
 
     public DepositoViewModel(
         IServicioEnvases servicioEnvases, IServicioMedicamentos servicioMedicamentos,
-        IServicioImportacionTratamientoEnvase servicioImportacion, int pacienteId, int? usuarioActualId)
+        IServicioTratamientos servicioTratamientos, IServicioImportacionTratamientoEnvase servicioImportacion,
+        int pacienteId, int? usuarioActualId)
     {
         _servicioEnvases = servicioEnvases;
         _servicioMedicamentos = servicioMedicamentos;
+        _servicioTratamientos = servicioTratamientos;
         _servicioImportacion = servicioImportacion;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
@@ -75,10 +92,64 @@ public sealed partial class DepositoViewModel : ViewModelBase
     {
         EnCustodia = new ObservableCollection<EnvaseFila>(_servicioEnvases.ListarEnCustodiaDePaciente(_pacienteId).Select(AFila));
         Historico = new ObservableCollection<EnvaseFila>(_servicioEnvases.ListarHistoricoDePaciente(_pacienteId).Select(AFila));
+        MedicamentosConTratamiento = new ObservableCollection<MedicamentoParaEnvase>(
+            _servicioTratamientos.ListarVigentesDePaciente(_pacienteId)
+                .Where(t => t.EnSpd)
+                .Select(t => _servicioMedicamentos.ObtenerPorId(t.MedicamentoId))
+                .Where(m => m is not null)
+                .Select(m => new MedicamentoParaEnvase(m!.Cn, m.Nombre))
+                .DistinctBy(m => m.Cn)
+                .OrderBy(m => m.NombreMedicamento));
     }
 
     private EnvaseFila AFila(Envase e) => new(
         e.Id, _servicioMedicamentos.ObtenerPorId(e.MedicamentoId)?.Nombre ?? "(medicamento no encontrado)", e);
+
+    /// <summary>Elegir un medicamento con tratamiento vigente rellena el CN igual que si se
+    /// tecleara: solo evita el tecleo, no cambia cómo se registra el envase.</summary>
+    partial void OnMedicamentoSeleccionadoChanged(MedicamentoParaEnvase? value)
+    {
+        if (value is not null) Cn = value.Cn;
+    }
+
+    /// <summary>FR-513: el CN llega tecleado, elegido o escaneado; en los tres casos las unidades
+    /// iniciales se proponen desde el catálogo.</summary>
+    partial void OnCnChanged(string value)
+    {
+        var medicamento = string.IsNullOrWhiteSpace(value) ? null : _servicioMedicamentos.ObtenerPorCn(value.Trim());
+        UnidadesIniciales = Unidades.AlCambiarMedicamento(medicamento, UnidadesIniciales);
+    }
+
+    /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
+    /// Codigo Nacional solo viene en el codigo si el fabricante incluye el AI 712 (FR-1201); cuando
+    /// no viene, se introduce a mano igual que hasta ahora.</summary>
+    [RelayCommand]
+    private void LeerCodigoEscaneado()
+    {
+        var datos = LectorGs1DataMatrix.Leer(CodigoEscaneado);
+        CodigoEscaneado = string.Empty;
+        if (datos is null)
+        {
+            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+            return;
+        }
+
+        Serie = datos.NumeroSerie;
+        Lote = datos.Lote;
+        Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
+        _origenAlta = OrigenEnvase.Escaneado;
+
+        if (datos.CodigoNacional is { } cn)
+        {
+            Cn = cn;
+            Mensaje = "Lectura aplicada, incluido el CN.";
+        }
+        else
+        {
+            Mensaje = "Lectura aplicada. El código no incluye el CN: introdúcelo a mano.";
+        }
+        LecturaAplicada?.Invoke();
+    }
 
     [RelayCommand]
     private void RegistrarEnvase()
@@ -99,13 +170,17 @@ public sealed partial class DepositoViewModel : ViewModelBase
         {
             var envase = _servicioEnvases.RegistrarEnvase(
                 new DatosAltaEnvase(_pacienteId, medicamento.Id, Serie, Lote ?? string.Empty,
-                    DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, OrigenEnvase.Manual),
+                    DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, _origenAlta),
                 _usuarioActualId);
+            Unidades.GuardarSiProcede(_servicioMedicamentos, UnidadesIniciales.Value, _usuarioActualId);
 
             Mensaje = envase.Caducidad < DateOnly.FromDateTime(DateTime.Today)
                 ? "Envase registrado. Aviso: la caducidad ya ha pasado (FR-514); nunca se propondrá para una preparación."
                 : "Envase registrado.";
             Cn = string.Empty; Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+            MedicamentoSeleccionado = null;
+            Unidades.Reiniciar();
+            _origenAlta = OrigenEnvase.Manual;
             Cargar();
         }
         catch (ErrorValidacionException ex)
@@ -151,6 +226,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
                 _usuarioActualId);
             Mensaje = "Entrega fuera de blíster registrada.";
             Cn = string.Empty; Serie = string.Empty; Lote = null; EntregadoA = null;
+            _origenAlta = OrigenEnvase.Manual;
             Cargar();
         }
         catch (ErrorValidacionException ex)
@@ -160,4 +236,6 @@ public sealed partial class DepositoViewModel : ViewModelBase
     }
 
     public sealed record EnvaseFila(int Id, string NombreMedicamento, Envase Envase);
+
+    public sealed record MedicamentoParaEnvase(string Cn, string NombreMedicamento);
 }

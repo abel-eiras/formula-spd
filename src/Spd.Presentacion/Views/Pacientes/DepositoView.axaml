@@ -48,6 +48,24 @@
     <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
       <StackPanel Spacing="8">
         <TextBlock Text="Registrar envase / entrega" FontSize="16" FontWeight="Bold" />
+
+        <TextBlock Text="Medicamento con tratamiento en este paciente" FontWeight="Bold" />
+        <ComboBox ItemsSource="{Binding MedicamentosConTratamiento}" SelectedItem="{Binding MedicamentoSeleccionado}"
+                  PlaceholderText="Selecciona en vez de teclear el CN" HorizontalAlignment="Stretch">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding NombreMedicamento}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock Text="Escanear envase (spec-012)" FontWeight="Bold" />
+        <TextBox Text="{Binding CodigoEscaneado}" Watermark="Apunta el lector aquí y escanea">
+          <TextBox.KeyBindings>
+            <KeyBinding Gesture="Enter" Command="{Binding LeerCodigoEscaneadoCommand}" />
+          </TextBox.KeyBindings>
+        </TextBox>
+
         <TextBlock Text="CN del medicamento *" />
         <TextBox Text="{Binding Cn}" />
         <TextBlock Text="Serie (obligatoria en custodia, opcional fuera de blíster)" />
@@ -56,8 +74,16 @@
         <TextBox Text="{Binding Lote}" />
         <TextBlock Text="Caducidad (solo para custodia)" />
         <DatePicker SelectedDate="{Binding Caducidad}" />
-        <TextBlock Text="Unidades iniciales (solo para custodia)" />
-        <NumericUpDown Value="{Binding UnidadesIniciales}" Minimum="0" />
+        <TextBlock Text="Unidades iniciales (solo para custodia; Intro guarda)" />
+        <NumericUpDown x:Name="CampoUnidades" Value="{Binding UnidadesIniciales}" Minimum="0">
+          <NumericUpDown.KeyBindings>
+            <KeyBinding Gesture="Enter" Command="{Binding RegistrarEnvaseCommand}" />
+          </NumericUpDown.KeyBindings>
+        </NumericUpDown>
+        <CheckBox IsChecked="{Binding Unidades.Guardar}" IsVisible="{Binding Unidades.OfrecerGuardar}">
+          <TextBlock TextWrapping="Wrap"
+                     Text="El catálogo no sabe cuántas unidades trae este envase. Si está completo, guardar estas unidades como tamaño de envase" />
+        </CheckBox>
         <Button Content="Registrar envase en custodia" Command="{Binding RegistrarEnvaseCommand}" Margin="0,8,0,0" />
 
         <TextBlock Text="Entregado a (solo fuera de blíster)" Margin="0,16,0,0" />
