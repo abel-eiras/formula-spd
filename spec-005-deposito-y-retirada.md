@@ -63,6 +63,7 @@ Como quien dispensa, quiero que el listado de retirada muestre el DNI que corres
 - **FR-514** Caducidad anterior a la fecha de hoy: aviso al registrar; no bloquea el alta pero el envase nunca se propone para una preparación.
 - **FR-515** Solo se puede registrar un envase de un medicamento que tenga tratamiento activo para ese paciente. Si no lo tiene, el sistema ofrece crear el tratamiento (Spec 004) antes.
 - **FR-516** El registro de un envase se puede hacer desde: la pestaña Depósito del paciente, el listado de retirada (fila del paciente/medicamento, prerrellena ambos), o la pantalla de preparación (Spec 006) cuando falta stock.
+- **FR-516b** En la pestaña Depósito, el formulario de alta ofrece los medicamentos con tratamiento vigente `en_spd = 1` de ese paciente (Spec 004) para elegirlos en vez de teclear el CN — cubre el caso habitual sin impedir teclearlo directamente para un medicamento sin tratamiento todavía.
 - **FR-517** La pestaña Depósito muestra los envases `EN_CUSTODIA` con unidades restantes, caducidad y un aviso "caduca antes de la próxima validez" cuando `caducidad < próxima retirada + 7 × n_blisteres`. Los envases en otros estados se ven con "mostrar histórico".
 
 ### 4.3 Descuento y sobrante (regla de consumo)

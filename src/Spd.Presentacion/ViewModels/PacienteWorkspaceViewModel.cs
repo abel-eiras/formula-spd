@@ -81,8 +81,8 @@ public sealed partial class PacienteWorkspaceViewModel : ViewModelBase
                 new TratamientoViewModel(_servicios.Tratamientos, _servicios.Medicamentos, _servicios.Comunicaciones,
                     _servicios.Documentos, _servicios.Medicos, id, _usuarioActualId, _contexto, _servicios.ConsultaCima)));
             pestanas.Add(new Pestana(PestanaPaciente.Deposito, "Depósito",
-                new DepositoViewModel(_servicios.Envases, _servicios.Medicamentos, _servicios.ImportacionTratamiento,
-                    id, _usuarioActualId)));
+                new DepositoViewModel(_servicios.Envases, _servicios.Medicamentos, _servicios.Tratamientos,
+                    _servicios.ImportacionTratamiento, id, _usuarioActualId)));
             pestanas.Add(new Pestana(PestanaPaciente.Preparacion, "Preparación",
                 new PreparacionViewModel(_servicios.Preparacion, _servicios.Medicamentos, _servicios.Documentos,
                     _servicios.Comunicaciones, id, _usuarioActualId, _contexto, _servicios.Usuarios)));

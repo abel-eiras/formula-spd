@@ -61,11 +61,17 @@ public sealed class DepositoViewTests
         var servicioImportacion = new ServicioImportacionTratamientoEnvase(
             repositorioMedicamentos, repositorioTratamientos, repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientosParaImportacion, auditoria);
-        var ventana = AnfitrionDeVista.Anfitrion(new DepositoView
-        {
-            DataContext = new DepositoViewModel(servicioEnvases, servicioMedicamentos, servicioImportacion, paciente.Id, usuarioActualId: null)
-        });
+        var vm = new DepositoViewModel(
+            servicioEnvases, servicioMedicamentos, servicioTratamientosParaImportacion, servicioImportacion,
+            paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new DepositoView { DataContext = vm });
 
         ventana.Show();
+
+        // El tratamiento vigente en SPD creado arriba debe aparecer para elegirlo en vez de teclear el CN.
+        var opcion = Assert.Single(vm.MedicamentosConTratamiento);
+        Assert.Equal("654321", opcion.Cn);
+        vm.MedicamentoSeleccionado = opcion;
+        Assert.Equal("654321", vm.Cn);
     }
 }

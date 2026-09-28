@@ -14,6 +14,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
 {
     private readonly IServicioEnvases _servicioEnvases;
     private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioTratamientos _servicioTratamientos;
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
@@ -22,6 +23,12 @@ public sealed partial class DepositoViewModel : ViewModelBase
     [ObservableProperty] private ObservableCollection<EnvaseFila> _historico = [];
     [ObservableProperty] private bool _mostrarHistorico;
     [ObservableProperty] private string? _mensaje;
+
+    /// <summary>Medicamentos con tratamiento vigente en SPD de este paciente (Spec 004), para
+    /// elegirlos aquí en vez de teclear el CN: la mayoría de altas de envase son de un medicamento
+    /// que ya tiene tratamiento, así que escanear o seleccionar cubre el caso habitual.</summary>
+    [ObservableProperty] private ObservableCollection<MedicamentoParaEnvase> _medicamentosConTratamiento = [];
+    [ObservableProperty] private MedicamentoParaEnvase? _medicamentoSeleccionado;
 
     [ObservableProperty] private string _codigoEscaneado = string.Empty;
     [ObservableProperty] private string _cn = string.Empty;
@@ -40,10 +47,12 @@ public sealed partial class DepositoViewModel : ViewModelBase
 
     public DepositoViewModel(
         IServicioEnvases servicioEnvases, IServicioMedicamentos servicioMedicamentos,
-        IServicioImportacionTratamientoEnvase servicioImportacion, int pacienteId, int? usuarioActualId)
+        IServicioTratamientos servicioTratamientos, IServicioImportacionTratamientoEnvase servicioImportacion,
+        int pacienteId, int? usuarioActualId)
     {
         _servicioEnvases = servicioEnvases;
         _servicioMedicamentos = servicioMedicamentos;
+        _servicioTratamientos = servicioTratamientos;
         _servicioImportacion = servicioImportacion;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
@@ -77,10 +86,25 @@ public sealed partial class DepositoViewModel : ViewModelBase
     {
         EnCustodia = new ObservableCollection<EnvaseFila>(_servicioEnvases.ListarEnCustodiaDePaciente(_pacienteId).Select(AFila));
         Historico = new ObservableCollection<EnvaseFila>(_servicioEnvases.ListarHistoricoDePaciente(_pacienteId).Select(AFila));
+        MedicamentosConTratamiento = new ObservableCollection<MedicamentoParaEnvase>(
+            _servicioTratamientos.ListarVigentesDePaciente(_pacienteId)
+                .Where(t => t.EnSpd)
+                .Select(t => _servicioMedicamentos.ObtenerPorId(t.MedicamentoId))
+                .Where(m => m is not null)
+                .Select(m => new MedicamentoParaEnvase(m!.Cn, m.Nombre))
+                .DistinctBy(m => m.Cn)
+                .OrderBy(m => m.NombreMedicamento));
     }
 
     private EnvaseFila AFila(Envase e) => new(
         e.Id, _servicioMedicamentos.ObtenerPorId(e.MedicamentoId)?.Nombre ?? "(medicamento no encontrado)", e);
+
+    /// <summary>Elegir un medicamento con tratamiento vigente rellena el CN igual que si se
+    /// tecleara: solo evita el tecleo, no cambia cómo se registra el envase.</summary>
+    partial void OnMedicamentoSeleccionadoChanged(MedicamentoParaEnvase? value)
+    {
+        if (value is not null) Cn = value.Cn;
+    }
 
     /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
     /// Codigo Nacional solo viene en el codigo si el fabricante incluye el AI 712 (FR-1201); cuando
@@ -138,6 +162,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
                 ? "Envase registrado. Aviso: la caducidad ya ha pasado (FR-514); nunca se propondrá para una preparación."
                 : "Envase registrado.";
             Cn = string.Empty; Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+            MedicamentoSeleccionado = null;
             _origenAlta = OrigenEnvase.Manual;
             Cargar();
         }
@@ -194,4 +219,6 @@ public sealed partial class DepositoViewModel : ViewModelBase
     }
 
     public sealed record EnvaseFila(int Id, string NombreMedicamento, Envase Envase);
+
+    public sealed record MedicamentoParaEnvase(string Cn, string NombreMedicamento);
 }

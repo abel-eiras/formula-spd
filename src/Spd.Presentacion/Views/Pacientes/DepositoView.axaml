@@ -49,6 +49,16 @@
       <StackPanel Spacing="8">
         <TextBlock Text="Registrar envase / entrega" FontSize="16" FontWeight="Bold" />
 
+        <TextBlock Text="Medicamento con tratamiento en este paciente" FontWeight="Bold" />
+        <ComboBox ItemsSource="{Binding MedicamentosConTratamiento}" SelectedItem="{Binding MedicamentoSeleccionado}"
+                  PlaceholderText="Selecciona en vez de teclear el CN" HorizontalAlignment="Stretch">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding NombreMedicamento}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+
         <TextBlock Text="Escanear envase (spec-012)" FontWeight="Bold" />
         <TextBox Text="{Binding CodigoEscaneado}" Watermark="Apunta el lector aquí y escanea">
           <TextBox.KeyBindings>
