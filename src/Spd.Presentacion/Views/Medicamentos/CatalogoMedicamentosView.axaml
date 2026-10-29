@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:conv="using:Spd.Presentacion.Convertidores"
+             xmlns:r="using:Spd.Presentacion.Recursos"
              x:Class="Spd.Presentacion.Views.Medicamentos.CatalogoMedicamentosView">
   <Grid ColumnDefinitions="1.6*,*" Margin="24,20" RowDefinitions="*,Auto">
     <StackPanel Grid.Column="0" Grid.Row="0" Spacing="8">
@@ -60,6 +61,9 @@
         <TextBox Text="{Binding Nombre}" />
         <TextBlock Text="Principio activo" />
         <TextBox Text="{Binding PrincipioActivo}" />
+        <TextBlock Text="{x:Static r:Textos.GrupoHomogeneo}" />
+        <TextBox Text="{Binding GrupoHomogeneo}" />
+        <TextBlock Text="{x:Static r:Textos.AyudaGrupoHomogeneo}" Classes="suave" TextWrapping="Wrap" />
         <TextBlock Text="Laboratorio" />
         <TextBox Text="{Binding Laboratorio}" />
         <TextBlock Text="Forma farmacéutica" />

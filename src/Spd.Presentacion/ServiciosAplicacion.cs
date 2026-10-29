@@ -14,6 +14,7 @@ public sealed record ServiciosAplicacion(
     IServicioConfiguracionFarmacia Farmacia,
     GestorLogoFarmacia GestorLogo,
     IServicioActualizaciones Actualizaciones,
+    IServicioInstalacionActualizaciones InstalacionActualizaciones,
     IServicioNomenclator Nomenclator,
     IServicioPacientes Pacientes,
     IServicioTratamientos Tratamientos,

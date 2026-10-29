@@ -71,6 +71,26 @@ jobs:
           merge-multiple: true
       - name: Sumas de comprobación
         run: cd artefactos && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      # Spec 000 FR-053: la aplicación solo instala una actualización si SHA256SUMS.txt viene firmado con la
+      # clave privada de este secreto (ECDSA P-256, PEM). Sin secreto no se publica la release.
+      # La clave solo toca disco en un fichero
+      # temporal que se borra al terminar el paso, pase lo que pase.
+      - name: Firmar las sumas de comprobación
+        env:
+          SPD_CLAVE_ACTUALIZACIONES: ${{ secrets.SPD_CLAVE_ACTUALIZACIONES }}
+        run: |
+          if [ -z "$SPD_CLAVE_ACTUALIZACIONES" ]; then
+            echo "::error::Falta el secreto SPD_CLAVE_ACTUALIZACIONES: no se puede publicar una release instalable desde la aplicación."
+            exit 1
+          fi
+          umask 077
+          clave="$(mktemp)"
+          trap 'rm -f "$clave"' EXIT
+          printf '%s\n' "$SPD_CLAVE_ACTUALIZACIONES" > "$clave"
+          openssl dgst -sha256 -sign "$clave" -out artefactos/SHA256SUMS.txt.sig artefactos/SHA256SUMS.txt
+          # Antes de publicar, la misma comprobación que hará la aplicación, con la clave pública que lleva dentro.
+          openssl dgst -sha256 -verify publicar/clave-publica-actualizaciones.pem \
+            -signature artefactos/SHA256SUMS.txt.sig artefactos/SHA256SUMS.txt
       - name: Crear la release
         env:
           GH_TOKEN: ${{ github.token }}

@@ -10,18 +10,18 @@ namespace Spd.Infraestructura;
 public sealed class RepositorioSpdLineaEnvases(SqliteConnection conexion) : IRepositorioSpdLineaEnvases
 {
     private const string FormatoFecha = "yyyy-MM-dd";
-    private const string Columnas = "id, spd_linea_id, envase_id, unidades_tomadas, snap_serie, snap_lote, snap_caducidad";
+    private const string Columnas = "id, spd_linea_id, envase_id, unidades_tomadas, snap_serie, snap_lote, snap_caducidad, snap_cn, snap_nombre, snap_desc_texto";
 
     public int Crear(SpdLineaEnvase f)
         => conexion.ExecuteScalar<int>(
             """
-            INSERT INTO SPD_Linea_Envase (spd_linea_id, envase_id, unidades_tomadas, snap_serie, snap_lote, snap_caducidad)
-            VALUES (@SpdLineaId, @EnvaseId, @UnidadesTomadas, @SnapSerie, @SnapLote, @SnapCaducidad)
+            INSERT INTO SPD_Linea_Envase (spd_linea_id, envase_id, unidades_tomadas, snap_serie, snap_lote, snap_caducidad, snap_cn, snap_nombre, snap_desc_texto)
+            VALUES (@SpdLineaId, @EnvaseId, @UnidadesTomadas, @SnapSerie, @SnapLote, @SnapCaducidad, @SnapCn, @SnapNombre, @SnapDescTexto)
             RETURNING id
             """,
             new
             {
-                f.SpdLineaId, f.EnvaseId, f.UnidadesTomadas, f.SnapSerie, f.SnapLote,
+                f.SpdLineaId, f.EnvaseId, f.UnidadesTomadas, f.SnapSerie, f.SnapLote, f.SnapCn, f.SnapNombre, f.SnapDescTexto,
                 SnapCaducidad = f.SnapCaducidad?.ToString(FormatoFecha, CultureInfo.InvariantCulture)
             });
 
@@ -48,7 +48,7 @@ public sealed class RepositorioSpdLineaEnvases(SqliteConnection conexion) : IRep
 
     // Dapper 2.1.79: mismo hallazgo que Spec 009 — el constructor debe tipar `double`, no
     // `decimal`, para una columna REAL, o la materialización rápida por constructor falla.
-    private sealed record Fila(long Id, long SpdLineaId, long EnvaseId, double UnidadesTomadas, string? SnapSerie, string? SnapLote, string? SnapCaducidad)
+    private sealed record Fila(long Id, long SpdLineaId, long EnvaseId, double UnidadesTomadas, string? SnapSerie, string? SnapLote, string? SnapCaducidad, string? SnapCn, string? SnapNombre, string? SnapDescTexto)
     {
         public SpdLineaEnvase AFila() => new()
         {
@@ -56,6 +56,7 @@ public sealed class RepositorioSpdLineaEnvases(SqliteConnection conexion) : IRep
             SpdLineaId = (int)SpdLineaId,
             EnvaseId = (int)EnvaseId,
             UnidadesTomadas = (decimal)UnidadesTomadas,
+            SnapCn = SnapCn, SnapNombre = SnapNombre, SnapDescTexto = SnapDescTexto,
             SnapSerie = SnapSerie,
             SnapLote = SnapLote,
             SnapCaducidad = SnapCaducidad is null ? null : DateOnly.ParseExact(SnapCaducidad, FormatoFecha, CultureInfo.InvariantCulture)

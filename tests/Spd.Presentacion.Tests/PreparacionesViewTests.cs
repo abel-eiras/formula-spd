@@ -65,7 +65,7 @@ public sealed class PreparacionesViewTests
         repositorioEnvases.Crear(new Envase { PacienteId = tercero.Id, MedicamentoId = medicamento.Id, Serie = "S3", Caducidad = new DateOnly(2030, 1, 1), UnidadesIniciales = 28, UnidadesRestantes = 28 });
         repositorioEnvases.Crear(new Envase { PacienteId = segundo.Id, MedicamentoId = medicamento.Id, Serie = "S2", Caducidad = new DateOnly(2030, 1, 1), UnidadesIniciales = 28, UnidadesRestantes = 28 });
 
-        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria);
+        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria, new RepositorioMedicamentos(conexion));
         var servicioListadoRetirada = new ServicioListadoRetirada(repositorioPacientes, new RepositorioContactos(conexion), repositorioTratamientos,
             repositorioMedicamentos, repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
         var repositorioSpd = new RepositorioSpd(conexion);

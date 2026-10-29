@@ -491,3 +491,6 @@ publicar/win-x64/
 
 # Paquetes generados por publicar/empaquetar.sh
 artefactos/
+
+# Clave privada para firmar las actualizaciones (va como secreto en GitHub, nunca al repositorio)
+formula-spd-actualizaciones.key

@@ -6,10 +6,10 @@
              x:Class="Spd.Presentacion.Views.Pacientes.TratamientoView">
   <Grid>
   <Grid ColumnDefinitions="280,*" RowDefinitions="*,Auto" Margin="16">
-    <StackPanel Grid.Column="0" Spacing="8">
+    <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*" RowSpacing="8">
       <TextBlock Text="Tratamientos vigentes" FontSize="16" FontWeight="Bold" />
-      <Button Content="Nuevo tratamiento" Command="{Binding NuevoTratamientoCommand}" />
-      <ListBox ItemsSource="{Binding Vigentes}">
+      <Button Grid.Row="1" Content="Nuevo tratamiento" Command="{Binding NuevoTratamientoCommand}" />
+      <ListBox x:Name="ListaTratamientos" Grid.Row="2" ItemsSource="{Binding Vigentes}" ScrollViewer.VerticalScrollBarVisibility="Auto">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Margin="0,4" Spacing="2">
@@ -29,7 +29,7 @@
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
-    </StackPanel>
+    </Grid>
 
     <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
       <StackPanel Spacing="8">

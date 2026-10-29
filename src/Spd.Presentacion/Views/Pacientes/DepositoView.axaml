@@ -2,20 +2,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="using:Spd.Presentacion.Controles"
              xmlns:pacientes="using:Spd.Presentacion.Views.Pacientes"
+             xmlns:medicamentos="using:Spd.Presentacion.Views.Medicamentos"
+             xmlns:r="using:Spd.Presentacion.Recursos"
              x:Class="Spd.Presentacion.Views.Pacientes.DepositoView">
   <Grid>
   <Grid ColumnDefinitions="320,*" RowDefinitions="*,Auto" Margin="16">
-    <StackPanel Grid.Column="0" Spacing="8">
+    <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*,Auto,Auto,Auto" RowSpacing="8">
       <TextBlock Text="Envases en custodia" FontSize="16" FontWeight="Bold" />
-      <Button Content="Importar tratamiento (pegado/fichero)" Command="{Binding AbrirImportarTratamientoCommand}" />
-      <ListBox ItemsSource="{Binding EnCustodia}">
+      <Button Grid.Row="1" Content="Importar tratamiento (pegado/fichero)" Command="{Binding AbrirImportarTratamientoCommand}" />
+      <ListBox x:Name="ListaCustodia" Grid.Row="2" ItemsSource="{Binding EnCustodia}" ScrollViewer.VerticalScrollBarVisibility="Auto">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Margin="0,4" Spacing="2">
               <TextBlock Text="{Binding NombreMedicamento}" FontWeight="Bold" />
+              <TextBlock Text="{Binding Cn, StringFormat='CN: {0}'}" FontSize="11" />
+              <TextBlock Text="{Binding Envase.Lote, StringFormat='Lote: {0}'}" FontSize="11" />
               <TextBlock Text="{Binding Envase.Serie, StringFormat='Serie: {0}'}" FontSize="11" />
               <TextBlock Text="{Binding Envase.UnidadesRestantes, StringFormat='Restantes: {0}'}" FontSize="11" />
               <TextBlock Text="{Binding Envase.Caducidad, StringFormat='Caduca: {0:d}'}" FontSize="11" />
+              <Button Content="{x:Static r:Textos.OtraCaja}" FontSize="11"
+                      Command="{Binding DataContext.PrepararOtraCajaCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                      CommandParameter="{Binding}" />
               <Button Content="Dar salida a SIGRE" FontSize="11"
                       Command="{Binding DataContext.PrepararSalidaSigreCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                       CommandParameter="{Binding}" />
@@ -24,8 +31,8 @@
         </ListBox.ItemTemplate>
       </ListBox>
 
-      <CheckBox Content="Mostrar histórico" IsChecked="{Binding MostrarHistorico}" />
-      <ListBox ItemsSource="{Binding Historico}" IsVisible="{Binding MostrarHistorico}" MaxHeight="200">
+      <CheckBox Grid.Row="3" Content="Mostrar histórico" IsChecked="{Binding MostrarHistorico}" />
+      <ListBox Grid.Row="4" ItemsSource="{Binding Historico}" IsVisible="{Binding MostrarHistorico}" MaxHeight="200">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Margin="0,4">
@@ -36,20 +43,21 @@
         </ListBox.ItemTemplate>
       </ListBox>
 
-      <Border Padding="8" Background="#22808080" IsVisible="{Binding EnvaseSeleccionadoParaSalida, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <Border Grid.Row="5" Padding="8" Background="#22808080" IsVisible="{Binding EnvaseSeleccionadoParaSalida, Converter={x:Static ObjectConverters.IsNotNull}}">
         <StackPanel Spacing="4">
           <TextBlock Text="{Binding EnvaseSeleccionadoParaSalida.NombreMedicamento, StringFormat='Salida SIGRE: {0}'}" FontWeight="Bold" />
           <ComboBox ItemsSource="{Binding MotivosSalida}" SelectedItem="{Binding MotivoSalidaSeleccionado}" />
           <Button Content="Confirmar salida" Command="{Binding ConfirmarSalidaSigreCommand}" />
         </StackPanel>
       </Border>
-    </StackPanel>
+    </Grid>
 
     <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
       <StackPanel Spacing="8">
         <TextBlock Text="Registrar envase / entrega" FontSize="16" FontWeight="Bold" />
-        <TextBlock Text="CN del medicamento *" />
-        <TextBox Text="{Binding Cn}" />
+        <TextBlock Text="{x:Static r:Textos.Medicamento}" />
+        <medicamentos:SelectorMedicamentoView DataContext="{Binding SelectorMedicamento}" />
+        <TextBlock Text="{x:Static r:Textos.AltaConsecutiva}" Classes="suave" TextWrapping="Wrap" />
         <TextBlock Text="Serie (obligatoria en custodia, opcional fuera de blíster)" />
         <TextBox Text="{Binding Serie}" />
         <TextBlock Text="Lote" />

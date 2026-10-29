@@ -50,9 +50,27 @@ Usado por: toda spec que registre autoría de acciones (005, 006, 007, 008, 009)
 
 ## IServicioActualizaciones
 
-- `ResultadoComprobacion ComprobarActualizaciones()` — FR-050; llama a GitHub Releases
-  (Decisión 3 de `research.md`), nunca automático (Art. VI.3).
-- `void DescargarActualizacion(string urlAsset)` — FR-050.
+- `Task<ResultadoComprobacionActualizacion> ComprobarActualizacionesAsync(string versionInstalada,
+  int? administradorQueEjecutaId)` — FR-050; llama a GitHub Releases (Decisión 3 de `research.md`),
+  nunca automático (Art. VI.3). La descarga e instalación pasan a `IServicioInstalacionActualizaciones`.
+
+Usado por: solo Spec 000 (pantalla Configuración/Actualizaciones).
+
+## IServicioInstalacionActualizaciones
+
+- `Task<ResultadoInstalacionActualizacion> InstalarAsync(string etiqueta, int? administradorQueEjecutaId,
+  IProgress<int>? progreso, CancellationToken cancelacion)` — FR-053. Obtiene la release por etiqueta,
+  verifica la firma de `SHA256SUMS.txt` con la clave pública embebida, descarga el paquete de la
+  plataforma (progreso 0–100, cancelable hasta antes de sustituir), comprueba su SHA-256, lo extrae sin
+  admitir rutas fuera de la carpeta temporal, hace copia con `IServicioBackup.GenerarBackup` y sustituye
+  los ficheros (ejecutable en uso → `.anterior`; deshace si falla a mitad). Nunca lanza por fallos
+  esperables: devuelve `Exito=false` con `Motivo` legible, y `SoloManual=true` cuando la salida es
+  descargar a mano (release sin firma, copia no empaquetada, carpeta de solo lectura). Registra
+  `INSTALAR_ACTUALIZACION` en auditoría en todos los casos (Art. VII.6). No reinicia: con `Exito=true`,
+  `RutaEjecutable` es lo que la Presentación abre cuando la aplicación ya se ha cerrado.
+- Implementación `ServicioInstalacionActualizaciones` (Infraestructura), con la carpeta de instalación,
+  el ejecutable en uso y la plataforma inyectados (`EntornoInstalacion`) para poder probarla en una
+  carpeta temporal.
 
 Usado por: solo Spec 000 (pantalla Configuración/Actualizaciones).
 

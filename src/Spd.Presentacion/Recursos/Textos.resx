@@ -14,4 +14,11 @@
   </resheader>
   <!-- Fichero único de textos de interfaz en castellano (Constitución Art. IX.5). Se rellena a
        medida que cada user story añade sus pantallas, empezando por la Spec 000. -->
+  <data name="GrupoHomogeneo" xml:space="preserve"><value>Código de grupo homogéneo</value></data>
+  <data name="AyudaGrupoHomogeneo" xml:space="preserve"><value>Las marcas con el mismo código comparten saldo en custodia. Use un código verificado del nomenclátor; sin código solo se utiliza el mismo CN.</value></data>
+  <data name="OtraCaja" xml:space="preserve"><value>Añadir otra caja</value></data>
+  <data name="Medicamento" xml:space="preserve"><value>Medicamento (nombre o CN) *</value></data>
+  <data name="AltaConsecutiva" xml:space="preserve"><value>Puede registrar varias cajas sin agotar la anterior. Tras guardar se mantiene el medicamento y las unidades; indique la serie, lote y caducidad de la siguiente caja.</value></data>
+  <data name="RecordatorioActualizaciones" xml:space="preserve"><value>Consulta si hay una versión nueva de Fórmula SPD.</value></data>
+  <data name="AbrirActualizaciones" xml:space="preserve"><value>Comprobar actualizaciones</value></data>
 </root>

@@ -47,6 +47,18 @@ public sealed class MigracionAptitudSpdVaciaTests
         return conexion;
     }
 
+    // El fixture del esquema 12 no puede depender de columnas que incorporen repositorios posteriores.
+    private static int CrearEnEsquemaAnterior(SqliteConnection conexion, Medicamento medicamento)
+        => conexion.ExecuteScalar<int>(
+            """
+            INSERT INTO Medicamento (cn, nombre, nombre_normalizado, apto_spd, motivo_no_apto, desc_texto, activo)
+            VALUES (@Cn, @Nombre, @NombreNormalizado, @AptoSpd, @MotivoNoApto, @DescTexto, @Activo)
+            RETURNING id
+            """,
+            new { medicamento.Cn, medicamento.Nombre, medicamento.NombreNormalizado,
+                AptoSpd = medicamento.AptoSpd == true ? 1 : 0, medicamento.MotivoNoApto,
+                medicamento.DescTexto, Activo = medicamento.Activo ? 1 : 0 });
+
     private static int ObligatoriaAptitud(SqliteConnection conexion)
         => conexion.ExecuteScalar<int>("SELECT \"notnull\" FROM pragma_table_info('Medicamento') WHERE name = 'apto_spd'");
 
@@ -59,15 +71,15 @@ public sealed class MigracionAptitudSpdVaciaTests
 
         var repositorio = new RepositorioMedicamentos(conexion);
         var apto = new Medicamento { Cn = "111111", Nombre = "Enalapril 20 mg", NombreNormalizado = "enalapril 20 mg", AptoSpd = true };
-        apto.Id = repositorio.Crear(apto);
+        apto.Id = CrearEnEsquemaAnterior(conexion, apto);
         var noApto = new Medicamento
         {
             Cn = "222222", Nombre = "Jarabe tos", NombreNormalizado = "jarabe tos",
             AptoSpd = false, MotivoNoApto = "Forma líquida.", DescTexto = "jarabe marrón"
         };
-        noApto.Id = repositorio.Crear(noApto);
+        noApto.Id = CrearEnEsquemaAnterior(conexion, noApto);
         var deBaja = new Medicamento { Cn = "333333", Nombre = "Omeprazol 20 mg", NombreNormalizado = "omeprazol 20 mg", AptoSpd = true, Activo = false };
-        deBaja.Id = repositorio.Crear(deBaja);
+        deBaja.Id = CrearEnEsquemaAnterior(conexion, deBaja);
         conexion.Execute(
             "INSERT INTO Medicamento_Hist (medicamento_id, desc_texto, vigente_desde, vigente_hasta) " +
             "VALUES (@id, 'jarabe rojo', '2026-01-01', '2026-06-01')", new { id = noApto.Id });

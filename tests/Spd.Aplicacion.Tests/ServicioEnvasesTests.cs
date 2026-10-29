@@ -36,7 +36,7 @@ public sealed class ServicioEnvasesTests
 
         var repositorioPacientes = new RepositorioPacientes(conexion);
         var auditoria = new RegistradorAuditoria(conexion);
-        var servicio = new ServicioEnvases(new RepositorioEnvases(conexion), repositorioTratamientos, repositorioPacientes, auditoria);
+        var servicio = new ServicioEnvases(new RepositorioEnvases(conexion), repositorioTratamientos, repositorioPacientes, auditoria, new RepositorioMedicamentos(conexion));
         return (servicio, auditoria, pacienteId, medicamentoId, conexion);
     }
 
@@ -46,7 +46,7 @@ public sealed class ServicioEnvasesTests
         using var conexion = AbrirBaseDeDatosDePrueba();
         var (pacienteId, medicamentoId) = InfraestructuraTratamientosFundamentosTests.CrearPacienteYMedicamento(conexion);
         var servicio = new ServicioEnvases(
-            new RepositorioEnvases(conexion), new RepositorioTratamientos(conexion), new RepositorioPacientes(conexion), new RegistradorAuditoria(conexion));
+            new RepositorioEnvases(conexion), new RepositorioTratamientos(conexion), new RepositorioPacientes(conexion), new RegistradorAuditoria(conexion), new RepositorioMedicamentos(conexion));
 
         var datos = new DatosAltaEnvase(pacienteId, medicamentoId, "S1", "L1", new DateOnly(2027, 1, 1), 28, OrigenEnvase.Manual);
 
@@ -202,4 +202,26 @@ public sealed class ServicioEnvasesTests
 
         Assert.Empty(servicio.ListarEnCustodiaDePaciente(pacienteId));
     }
+
+    [Fact]
+    public void Registra_varias_cajas_de_marcas_del_mismo_grupo_sin_agotar_las_anteriores()
+    {
+        var (servicio, _, pacienteId, medicamentoId, conexion) = Crear();
+        using var c = conexion;
+        var catalogo = new RepositorioMedicamentos(conexion);
+        var original = catalogo.ObtenerPorId(medicamentoId)!;
+        original.GrupoHomogeneo = "GH1"; catalogo.Actualizar(original);
+        var alternativa = new Medicamento { Cn = "111111", Nombre = "Otra marca", GrupoHomogeneo = " gh1 " };
+        alternativa.Id = catalogo.Crear(alternativa);
+        var primera = servicio.RegistrarEnvase(new DatosAltaEnvase(pacienteId, medicamentoId, "S1", "L1", new DateOnly(2030, 1, 31), 28, OrigenEnvase.Manual), null);
+        var segunda = servicio.RegistrarEnvase(new DatosAltaEnvase(pacienteId, alternativa.Id, "S2", "L2", new DateOnly(2031, 2, 28), 30, OrigenEnvase.Manual), null);
+        var cajas = servicio.ListarEnCustodiaDePaciente(pacienteId);
+        Assert.Equal(2, cajas.Count);
+        Assert.All(cajas, e => Assert.Equal(EstadoEnvase.EnCustodia, e.Estado));
+        Assert.Equal(28, cajas.Single(e => e.Id == primera.Id).UnidadesRestantes);
+        Assert.Equal("L2", cajas.Single(e => e.Id == segunda.Id).Lote);
+        alternativa.GrupoHomogeneo = "OTRO"; catalogo.Actualizar(alternativa);
+        Assert.Throws<ErrorValidacionException>(() => servicio.RegistrarEnvase(new DatosAltaEnvase(pacienteId, alternativa.Id, "S3", "L3", new DateOnly(2030, 1, 1), 28, OrigenEnvase.Manual), null));
+    }
+
 }

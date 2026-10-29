@@ -1,4 +1,8 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Xunit;
 
 namespace Spd.Presentacion.Tests;
 
@@ -12,4 +16,23 @@ namespace Spd.Presentacion.Tests;
 internal static class AnfitrionDeVista
 {
     public static Window Anfitrion(Control vista) => new() { Content = vista, Width = 1100, Height = 760 };
+
+    public static void ComprobarScrollHastaElUltimo(Window ventana, ListBox lista)
+    {
+        ventana.UpdateLayout();
+        Dispatcher.UIThread.RunJobs();
+        var scroll = lista.GetVisualDescendants().OfType<ScrollViewer>().First();
+        Assert.True(scroll.Extent.Height > scroll.Viewport.Height);
+        lista.ScrollIntoView(lista.Items[^1]!);
+        ventana.UpdateLayout();
+        Dispatcher.UIThread.RunJobs();
+        ventana.UpdateLayout();
+        Assert.True(scroll.Offset.Y > 0);
+        var ultimo = lista.ContainerFromIndex(lista.ItemCount - 1);
+        Assert.NotNull(ultimo);
+        Assert.True(ultimo!.IsEffectivelyVisible);
+        var posicion = ultimo.TranslatePoint(default, lista);
+        Assert.NotNull(posicion);
+        Assert.True(posicion!.Value.Y < lista.Bounds.Height && posicion.Value.Y + ultimo.Bounds.Height > 0);
+    }
 }

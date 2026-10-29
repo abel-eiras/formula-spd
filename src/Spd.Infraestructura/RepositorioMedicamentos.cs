@@ -11,7 +11,7 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
         id, cn, nombre, nombre_normalizado, principio_activo, laboratorio, forma_farmaceutica,
         apto_spd, motivo_no_apto, fraccionable, unidades_envase, unidades_envase_origen,
         desc_forma, desc_color, desc_ranura, desc_serigrafia, desc_tamano, desc_texto,
-        desc_vigente_desde, gtin, activo
+        desc_vigente_desde, gtin, activo, grupo_homogeneo
         """;
 
     public Medicamento? ObtenerPorId(int id)
@@ -53,12 +53,12 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
                 cn, nombre, nombre_normalizado, principio_activo, laboratorio, forma_farmaceutica,
                 apto_spd, motivo_no_apto, fraccionable, unidades_envase, unidades_envase_origen,
                 desc_forma, desc_color, desc_ranura, desc_serigrafia, desc_tamano, desc_texto,
-                desc_vigente_desde, gtin, activo, creado_por
+                desc_vigente_desde, gtin, activo, grupo_homogeneo, creado_por
             ) VALUES (
                 @Cn, @Nombre, @NombreNormalizado, @PrincipioActivo, @Laboratorio, @FormaFarmaceutica,
                 @AptoSpd, @MotivoNoApto, @Fraccionable, @UnidadesEnvase, @UnidadesEnvaseOrigen,
                 @DescForma, @DescColor, @DescRanura, @DescSerigrafia, @DescTamano, @DescTexto,
-                @DescVigenteDesde, @Gtin, @Activo, @CreadoPor
+                @DescVigenteDesde, @Gtin, @Activo, @GrupoHomogeneo, @CreadoPor
             )
             """,
             medicamentos.Select(m => AParametros(m, creadoPor)),
@@ -88,6 +88,22 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
         return pendientes;
     }
 
+    public int CompletarGruposHomogeneos(IReadOnlyDictionary<string, string> gruposPorCn)
+    {
+        using var transaccion = conexion.BeginTransaction();
+        var actualizados = conexion.Execute(
+            """
+            UPDATE Medicamento SET grupo_homogeneo = @Grupo, modificado_en = @Ahora
+            WHERE cn = @Cn AND (grupo_homogeneo IS NULL OR trim(grupo_homogeneo) = '')
+            """,
+            gruposPorCn.Where(g => !string.IsNullOrWhiteSpace(g.Value)).Select(g => new
+            {
+                Cn = g.Key, Grupo = g.Value.Trim().ToUpperInvariant(), Ahora = DateTime.UtcNow.ToString("o")
+            }), transaccion);
+        transaccion.Commit();
+        return actualizados;
+    }
+
     public int Crear(Medicamento medicamento)
         => conexion.ExecuteScalar<int>(
             """
@@ -95,12 +111,12 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
                 cn, nombre, nombre_normalizado, principio_activo, laboratorio, forma_farmaceutica,
                 apto_spd, motivo_no_apto, fraccionable, unidades_envase, unidades_envase_origen,
                 desc_forma, desc_color, desc_ranura, desc_serigrafia, desc_tamano, desc_texto,
-                desc_vigente_desde, gtin, activo
+                desc_vigente_desde, gtin, activo, grupo_homogeneo
             ) VALUES (
                 @Cn, @Nombre, @NombreNormalizado, @PrincipioActivo, @Laboratorio, @FormaFarmaceutica,
                 @AptoSpd, @MotivoNoApto, @Fraccionable, @UnidadesEnvase, @UnidadesEnvaseOrigen,
                 @DescForma, @DescColor, @DescRanura, @DescSerigrafia, @DescTamano, @DescTexto,
-                @DescVigenteDesde, @Gtin, @Activo
+                @DescVigenteDesde, @Gtin, @Activo, @GrupoHomogeneo
             ) RETURNING id
             """,
             AParametros(medicamento));
@@ -117,7 +133,7 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
                 desc_forma = @DescForma, desc_color = @DescColor, desc_ranura = @DescRanura,
                 desc_serigrafia = @DescSerigrafia, desc_tamano = @DescTamano, desc_texto = @DescTexto,
                 desc_vigente_desde = @DescVigenteDesde, gtin = @Gtin, activo = @Activo,
-                modificado_en = @ModificadoEn
+                grupo_homogeneo = @GrupoHomogeneo, modificado_en = @ModificadoEn
             WHERE id = @Id
             """,
             AParametros(medicamento));
@@ -153,7 +169,7 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
 
     private static object AParametros(Medicamento m, int? creadoPor = null) => new
     {
-        m.Id, m.Cn, m.Nombre, m.NombreNormalizado, m.PrincipioActivo, m.Laboratorio,
+        m.Id, m.Cn, m.GrupoHomogeneo, m.Nombre, m.NombreNormalizado, m.PrincipioActivo, m.Laboratorio,
         FormaFarmaceutica = m.FormaFarmaceutica is null ? null : TextoForma(m.FormaFarmaceutica.Value),
         AptoSpd = m.AptoSpd is null ? (int?)null : m.AptoSpd.Value ? 1 : 0, m.MotivoNoApto, Fraccionable = m.Fraccionable ? 1 : 0,
         m.UnidadesEnvase, UnidadesEnvaseOrigen = TextoOrigen(m.UnidadesEnvaseOrigen),
@@ -202,13 +218,14 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
         string? Laboratorio, string? FormaFarmaceutica, long? AptoSpd, string? MotivoNoApto,
         long Fraccionable, long? UnidadesEnvase, string UnidadesEnvaseOrigen, string? DescForma,
         string? DescColor, string? DescRanura, string? DescSerigrafia, string? DescTamano,
-        string? DescTexto, string DescVigenteDesde, string? Gtin, long Activo)
+        string? DescTexto, string DescVigenteDesde, string? Gtin, long Activo, string? GrupoHomogeneo)
     {
         public Medicamento AMedicamento() => new()
         {
             Id = (int)Id,
             Cn = Cn,
             Nombre = Nombre,
+            GrupoHomogeneo = GrupoHomogeneo,
             NombreNormalizado = NombreNormalizado,
             PrincipioActivo = PrincipioActivo,
             Laboratorio = Laboratorio,

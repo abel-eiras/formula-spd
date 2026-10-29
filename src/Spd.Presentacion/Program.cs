@@ -81,6 +81,9 @@ sealed class Program
         try
         {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+            // FR-053: la versión recién instalada se abre aquí, con la anterior ya cerrada del todo.
+            ReinicioTrasActualizacion.LanzarSiSeSolicito();
         }
         finally
         {

@@ -91,8 +91,8 @@ public sealed class ServicioGeneracionDocumentos(
                             continue;
                         }
                         // FR-611 / CA-602: una fila por cada envase del que se tomaron unidades.
-                        foreach (var e in envases)
-                            FilaMedicamento(tabla, linea, e.SnapLote ?? "—", e.SnapCaducidad is DateOnly cad ? cad.ToString("MM/yyyy") : "—", e.SnapSerie ?? "—");
+                        foreach (var e in envases.Where(e => e.UnidadesTomadas > 0))
+                            FilaMedicamento(tabla, linea, e.SnapLote ?? "—", e.SnapCaducidad is DateOnly cad ? cad.ToString("MM/yyyy") : "—", e.SnapSerie ?? "—", e);
                     }
                 });
                 if (excluidas.Count > 0)
@@ -246,16 +246,16 @@ public sealed class ServicioGeneracionDocumentos(
                     {
                         var envases = repositorioLineaEnvases.ListarPorLinea(linea.Id);
                         if (envases.Count == 0) envases = [new SpdLineaEnvase { SpdLineaId = linea.Id, EnvaseId = 0 }];
-                        foreach (var e in envases)
-                        {
-                            Celda(tabla, linea.SnapCn);
-                            Celda(tabla, linea.SnapNombre);
-                            Celda(tabla, Posologia(linea.SnapPautaD, linea.SnapPautaA, linea.SnapPautaC, linea.SnapPautaN, linea.SnapMomento));
-                            Celda(tabla, e.SnapSerie ?? "—");
-                            Celda(tabla, e.SnapLote ?? "—");
-                            Celda(tabla, e.SnapCaducidad is DateOnly cad ? cad.ToString("MM/yyyy") : "—");
-                            Celda(tabla, linea.SnapDescTexto ?? "");
-                        }
+                        else envases = envases.Where(e => e.UnidadesTomadas > 0).ToList();
+                        if (envases.Count == 0) continue;
+                        // Una única pauta aunque se hayan usado varias cajas o marcas del mismo grupo.
+                        Celda(tabla, string.Join("\n", envases.Select(e => e.SnapCn ?? linea.SnapCn)));
+                        Celda(tabla, string.Join("\n", envases.Select(e => e.SnapNombre ?? linea.SnapNombre)));
+                        Celda(tabla, Posologia(linea.SnapPautaD, linea.SnapPautaA, linea.SnapPautaC, linea.SnapPautaN, linea.SnapMomento));
+                        Celda(tabla, string.Join("\n", envases.Select(e => e.SnapSerie ?? "—")));
+                        Celda(tabla, string.Join("\n", envases.Select(e => e.SnapLote ?? "—")));
+                        Celda(tabla, string.Join("\n", envases.Select(e => e.SnapCaducidad is DateOnly cad ? cad.ToString("MM/yyyy") : "—")));
+                        Celda(tabla, string.Join("\n", envases.Select(e => (e.SnapCn is null ? linea.SnapDescTexto : e.SnapDescTexto) ?? "")));
                     }
                 });
                 col.Item().PaddingTop(3).Text("ADVERTENCIAS DE USO").Bold().FontSize(6.5f);
@@ -288,7 +288,7 @@ public sealed class ServicioGeneracionDocumentos(
             throw new ErrorValidacionException("Los blísteres de la sesión no tienen el mismo contenido: imprima una hoja de instrucciones por blíster (FR-682).");
 
         var registros = string.Join(" / ", spds.Select(s => s.NumRegistro));
-        return ConstruirInstrucciones(paciente, repositorioLineas.ListarPorSpd(spds[0].Id), registros, spds[0].FechaPreparacion,
+        return ConstruirInstrucciones(paciente, spds.SelectMany(s => repositorioLineas.ListarPorSpd(s.Id)).ToList(), registros, spds[0].FechaPreparacion,
             spds[0].ValidezDesde, spds[^1].ValidezHasta, spds[0].NumRegistro, spds[0].Id, usuarioQueEjecutaId);
     }
 
@@ -322,11 +322,12 @@ public sealed class ServicioGeneracionDocumentos(
                 col.Item().Table(tabla =>
                 {
                     DefinirColumnasInstrucciones(tabla);
-                    foreach (var linea in incluidas)
+                    foreach (var marcas in MarcasUsadas(incluidas).GroupBy(m => m.Linea.TratamientoId))
                     {
+                        var linea = marcas.First().Linea;
                         var tratamiento = repositorioTratamientos.ObtenerPorId(linea.TratamientoId);
-                        Celda(tabla, linea.SnapCn);
-                        Celda(tabla, linea.SnapNombre);
+                        Celda(tabla, string.Join(" / ", marcas.Select(m => m.Cn).Distinct()));
+                        Celda(tabla, string.Join(" / ", marcas.Select(m => m.Nombre).Distinct()));
                         Celda(tabla, NombreMedico(tratamiento?.MedicoId));
                         Celda(tabla, Posologia(linea.SnapPautaD, linea.SnapPautaA, linea.SnapPautaC, linea.SnapPautaN, linea.SnapMomento));
                         Celda(tabla, FechaPrescripcion(tratamiento));
@@ -825,10 +826,10 @@ public sealed class ServicioGeneracionDocumentos(
         if (negrita) t.Bold();
     }
 
-    private static void FilaMedicamento(TableDescriptor tabla, SpdLinea linea, string lote, string caducidad, string serie)
+    private static void FilaMedicamento(TableDescriptor tabla, SpdLinea linea, string lote, string caducidad, string serie, SpdLineaEnvase? envase = null)
     {
-        Celda(tabla, linea.SnapCn);
-        Celda(tabla, linea.SnapNombre);
+        Celda(tabla, envase?.SnapCn ?? linea.SnapCn);
+        Celda(tabla, envase?.SnapNombre ?? linea.SnapNombre);
         Celda(tabla, FraccionTexto(linea.SnapPautaD));
         Celda(tabla, FraccionTexto(linea.SnapPautaA));
         Celda(tabla, FraccionTexto(linea.SnapPautaC));
@@ -836,6 +837,23 @@ public sealed class ServicioGeneracionDocumentos(
         Celda(tabla, lote);
         Celda(tabla, caducidad);
         Celda(tabla, serie);
+    }
+
+    private IEnumerable<(SpdLinea Linea, string Cn, string Nombre)> MarcasUsadas(IEnumerable<SpdLinea> lineas)
+    {
+        var vistas = new HashSet<(int Tratamiento, string Cn, string Nombre)>();
+        foreach (var linea in lineas)
+        {
+            var envases = repositorioLineaEnvases.ListarPorLinea(linea.Id);
+            if (envases.Count == 0) envases = [new SpdLineaEnvase { SpdLineaId = linea.Id, EnvaseId = 0 }];
+            else envases = envases.Where(e => e.UnidadesTomadas > 0).ToList();
+            foreach (var envase in envases)
+            {
+                var cn = envase.SnapCn ?? linea.SnapCn;
+                var nombre = envase.SnapNombre ?? linea.SnapNombre;
+                if (vistas.Add((linea.TratamientoId, cn, nombre))) yield return (linea, cn, nombre);
+            }
+        }
     }
 
     private static void DefinirColumnasInstrucciones(TableDescriptor tabla)

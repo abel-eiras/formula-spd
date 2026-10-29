@@ -29,6 +29,7 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     [ObservableProperty] private string _nombre = string.Empty;
     [ObservableProperty] private string? _principioActivo;
     [ObservableProperty] private string? _laboratorio;
+    [ObservableProperty] private string? _grupoHomogeneo;
     [ObservableProperty] private string? _formaFarmaceutica;
     [ObservableProperty] private bool _fraccionable;
     [ObservableProperty] private string? _gtin;
@@ -145,6 +146,7 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
             medicamento.Nombre = Nombre;
             medicamento.PrincipioActivo = PrincipioActivo;
             medicamento.Laboratorio = Laboratorio;
+            medicamento.GrupoHomogeneo = GrupoHomogeneo;
             medicamento.FormaFarmaceutica = string.IsNullOrEmpty(FormaFarmaceutica)
                 ? null
                 : Enum.Parse<FormaFarmaceutica>(FormaFarmaceutica);
@@ -193,6 +195,7 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
         Nombre = medicamento.Nombre;
         PrincipioActivo = medicamento.PrincipioActivo;
         Laboratorio = medicamento.Laboratorio;
+        GrupoHomogeneo = medicamento.GrupoHomogeneo;
         FormaFarmaceutica = medicamento.FormaFarmaceutica?.ToString();
         Fraccionable = medicamento.Fraccionable;
         Gtin = medicamento.Gtin;
@@ -215,6 +218,7 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
         Nombre = string.Empty;
         PrincipioActivo = null;
         Laboratorio = null;
+        GrupoHomogeneo = null;
         FormaFarmaceutica = null;
         Fraccionable = false;
         Gtin = null;

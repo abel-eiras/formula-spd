@@ -34,13 +34,15 @@ public sealed class ServicioListadoRetirada(
             var (dniRetirada, avisoSinDni) = ResolverDniDeRetirada(paciente);
             var finValidezPrevista = proximaRetirada.AddDays(7 * paciente.NBlisteres - 1);
 
-            foreach (var tratamiento in repositorioTratamientos.ListarVigentesDePaciente(paciente.Id).Where(t => t.EnSpd))
+            var grupos = repositorioTratamientos.ListarVigentesDePaciente(paciente.Id).Where(t => t.EnSpd)
+                .Select(t => (Tratamiento: t, Medicamento: repositorioMedicamentos.ObtenerPorId(t.MedicamentoId)))
+                .Where(x => x.Medicamento is not null)
+                .GroupBy(x => x.Medicamento!.GrupoHomogeneo is { } grupo ? "G:" + grupo : "M:" + x.Medicamento.Id);
+            foreach (var grupo in grupos)
             {
-                var medicamento = repositorioMedicamentos.ObtenerPorId(tratamiento.MedicamentoId);
-                if (medicamento is null) continue;
-
-                var necesarias = (int)Math.Ceiling(CalculadoraUnidadesADescontar.SumaSemanalReal(tratamiento)) * paciente.NBlisteres;
-                var disponibles = repositorioEnvases.ListarEnCustodiaDePacienteYMedicamento(paciente.Id, medicamento.Id)
+                var medicamento = grupo.First().Medicamento!;
+                var necesarias = grupo.Sum(x => (int)Math.Ceiling(CalculadoraUnidadesADescontar.SumaSemanalReal(x.Tratamiento))) * paciente.NBlisteres;
+                var disponibles = repositorioEnvases.ListarEquivalentesEnCustodia(paciente.Id, medicamento.Id)
                     .Where(e => e.Caducidad is { } caducidad && caducidad >= finValidezPrevista)
                     .Sum(e => e.UnidadesRestantes ?? 0);
                 var faltan = Math.Max(0, necesarias - disponibles);

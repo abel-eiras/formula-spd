@@ -126,4 +126,25 @@ public sealed class ServicioImportacionTratamientoEnvaseTests
         Assert.Equal("Farmatic — pegado", guardado.Nombre);
         Assert.Equal(Mapeo, guardado.Mapeo);
     }
+
+    [Fact]
+    public void Otra_marca_del_mismo_grupo_no_crea_otro_tratamiento()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var medicamentos = new RepositorioMedicamentos(c);
+        var original = medicamentos.ObtenerPorId(ctx.MedicamentoId)!;
+        original.GrupoHomogeneo = "GH1"; medicamentos.Actualizar(original);
+        medicamentos.Crear(new Medicamento { Cn = "111111", Nombre = "Otra marca", GrupoHomogeneo = "GH1", UnidadesEnvase = 28 });
+        ctx.RepositorioTratamientos.Crear(new Tratamiento
+        {
+            PacienteId = ctx.PacienteId, MedicamentoId = ctx.MedicamentoId, EnSpd = true, PautaD = FraccionDosis.Uno,
+            FechaInicio = new DateOnly(2026, 1, 1), FechaPrescripcionInicial = new DateOnly(2026, 1, 1)
+        });
+        var resultado = ctx.Servicio.ImportarDesdePegado(ctx.PacienteId, PerfilPegado, "111111\tS1\tL1\t2030-01\n111111\tS2\tL2\t2031-02", null);
+        Assert.Equal(2, resultado.EnvasesCreados.Count);
+        Assert.Empty(resultado.TratamientosPendientesCreados);
+        Assert.Single(ctx.RepositorioTratamientos.ListarVigentesDePaciente(ctx.PacienteId));
+    }
+
 }

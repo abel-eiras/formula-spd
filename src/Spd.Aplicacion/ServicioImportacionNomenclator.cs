@@ -35,6 +35,7 @@ public sealed class ServicioImportacionNomenclator(
                 NombreNormalizado = Normalizador.QuitarTildesYMayusculas(fila.Nombre),
                 PrincipioActivo = fila.PrincipioActivo,
                 Laboratorio = fila.Laboratorio,
+                GrupoHomogeneo = fila.GrupoHomogeneo,
                 // El nomenclátor no dice si es apto para SPD: queda sin confirmar (FR-301 revisado).
                 AptoSpd = null,
                 Activo = !fila.EstaDeBaja
@@ -42,6 +43,9 @@ public sealed class ServicioImportacionNomenclator(
         }
 
         repositorio.CrearEnLote(nuevos, usuarioQueEjecutaId);
+        var gruposCompletados = repositorio.CompletarGruposHomogeneos(lectura.Filas
+            .Where(f => f.EsMedicamento && existentes.Contains(f.Cn) && !string.IsNullOrWhiteSpace(f.GrupoHomogeneo))
+            .GroupBy(f => f.Cn).ToDictionary(g => g.Key, g => g.First().GrupoHomogeneo!));
 
         // Art. VII.6: la importación deja traza con su recuento. Cada medicamento creado lleva además su
         // autor en creado_por; una traza por fila no cabe en la transacción del alta en bloque.
@@ -49,7 +53,7 @@ public sealed class ServicioImportacionNomenclator(
             true, null, nuevos.Count - deBaja, deBaja, yaExistian, noSonMedicamentos);
         auditoria.Registrar(usuarioQueEjecutaId, "IMPORTACION_NOMENCLATOR", "Medicamento", null,
             $"{Path.GetFileName(rutaFicheroDescargado)}: {resultado.AltasActivas} altas activas, " +
-            $"{resultado.AltasDeBaja} de baja (inactivas), {resultado.YaExistian} ya existían y no se han tocado, " +
+            $"{resultado.AltasDeBaja} de baja (inactivas), {resultado.YaExistian} ya existían, {gruposCompletados} grupos homogéneos completados sin cambiar otros datos, " +
             $"{resultado.NoSonMedicamentos} filas descartadas por no ser medicamentos.");
         return resultado;
     }
@@ -98,6 +102,7 @@ public sealed class ServicioImportacionNomenclator(
             NombreNormalizado = Normalizador.QuitarTildesYMayusculas(fila.Nombre),
             PrincipioActivo = fila.PrincipioActivo,
             Laboratorio = fila.Laboratorio,
+                GrupoHomogeneo = fila.GrupoHomogeneo,
             Activo = !fila.EstaDeBaja
         };
         medicamento.Id = repositorio.Crear(medicamento);

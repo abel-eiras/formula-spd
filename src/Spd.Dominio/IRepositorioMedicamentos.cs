@@ -14,6 +14,9 @@ public interface IRepositorioMedicamentos
     /// <summary>Alta masiva atómica, con autor en cada fila (importación del nomenclátor).</summary>
     void CrearEnLote(IReadOnlyList<Medicamento> medicamentos, int? creadoPor);
 
+    /// <summary>Completa grupos ausentes desde el nomenclátor; conserva cualquier grupo ya informado.</summary>
+    int CompletarGruposHomogeneos(IReadOnlyDictionary<string, string> gruposPorCn);
+
     /// <summary>Marca aptos los que estén sin confirmar y devuelve cuáles; nunca toca un «no apto».</summary>
     IReadOnlyList<int> ConfirmarAptitud(IReadOnlyCollection<int> medicamentoIds);
 

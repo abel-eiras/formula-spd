@@ -30,13 +30,21 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
         Seccion.ControlDocumental => new ControlDocumentalViewModel(servicios.ControlDocumental, usuario.Id),
         Seccion.Farmacia => new FarmaciaViewModel(servicios.Farmacia, servicios.GestorLogo, servicios.Backup, usuario.Id),
         Seccion.Usuarios => new UsuariosViewModel(servicios.Usuarios, usuario.Id),
-        Seccion.Actualizaciones => new ActualizacionesViewModel(servicios.Actualizaciones, usuario.Id),
+        Seccion.Actualizaciones => CrearActualizaciones(destino),
         Seccion.Nomenclator => new NomenclatorViewModel(servicios.Farmacia, servicios.Nomenclator, usuario.Id, servicios.ImportacionNomenclator),
         Seccion.Seguridad => new SeguridadViewModel(servicios.Cifrado, servicios.Purga, usuario.Id),
         Seccion.Perfiles => new PerfilesImportacionViewModel(servicios.PerfilesImportacion, usuario.Id),
         Seccion.Ayuda => CrearAyuda(destino.Detalle),
         _ => null
     };
+
+    private ActualizacionesViewModel CrearActualizaciones(Destino destino)
+    {
+        var vm = new ActualizacionesViewModel(servicios.Actualizaciones, servicios.InstalacionActualizaciones,
+            usuario.Id, ReinicioTrasActualizacion.Solicitar);
+        if (destino.Detalle == "comprobar") vm.ComprobarCommand.Execute(null);
+        return vm;
+    }
 
     /// <summary>FR-1522: llegando desde la búsqueda global, la pantalla se abre con el texto ya
     /// puesto, que es lo que hace que el resultado "lleve" de verdad a lo buscado.</summary>

@@ -41,4 +41,7 @@ public interface IServicioPreparacion
     ResultadoEnvasesAlDia ComprobarEnvasesAlDia(int pacienteId);
 
     IReadOnlyList<SpdLinea> ListarLineas(int spdId);
+
+    /// <summary>Marcas prescritas y de las cajas previstas o ya usadas, para confirmar su aptitud.</summary>
+    IReadOnlyList<Medicamento> ListarMedicamentosAEmblistar(int spdId);
 }

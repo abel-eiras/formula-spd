@@ -1,4 +1,5 @@
 using Avalonia.Headless.XUnit;
+using Avalonia.Controls;
 using Microsoft.Data.Sqlite;
 using Spd.Aplicacion;
 using Spd.Dominio;
@@ -60,6 +61,13 @@ public sealed class TratamientoViewTests
                 paciente.Id, usuarioActualId: null)
         });
 
+        var vista = (TratamientoView)ventana.Content!;
+        var vm = (TratamientoViewModel)vista.DataContext!;
+        var primero = vm.Vigentes.Single();
+        for (var i = 2; i <= 12; i++) vm.Vigentes.Add(primero with { Id = i, NombreMedicamento = $"Medicamento {i}" });
+        ventana.Height = 500;
         ventana.Show();
+        AnfitrionDeVista.ComprobarScrollHastaElUltimo(ventana, vista.FindControl<ListBox>("ListaTratamientos")!);
+        ventana.Close();
     }
 }

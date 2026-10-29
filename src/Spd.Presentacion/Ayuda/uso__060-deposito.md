@@ -4,7 +4,9 @@
 
 Envases del paciente en custodia, con medicamento, **serie**, **lote**, **caducidad**, unidades iniciales y restantes, origen (manual o importado) y estado (en custodia, agotado, residuo SIGRE, entregado al paciente).
 
-- **Registrar envase**: alta manual.
+- **Registrar envase**: busque el medicamento por nombre o CN. Se proponen las unidades del catálogo. Introduzca la serie, lote y caducidad propios de la caja.
+- Puede registrar varias cajas del mismo medicamento sin agotar la anterior. Tras guardar se conservan medicamento y unidades, y se vacían serie, lote y caducidad para la siguiente. **Añadir otra caja** desde una fila prepara ese mismo medicamento.
+- Las marcas con el mismo código de **grupo homogéneo** comparten saldo para el tratamiento. El código se informa en el catálogo o se importa si el nomenclátor incluye la columna; nunca se deduce del nombre o principio activo. Cada caja conserva su CN, marca, serie, lote y caducidad, y los documentos del SPD reflejan las marcas realmente utilizadas con una sola pauta.
 - **Salida**: marcar como residuo SIGRE o entregado al paciente (nunca se borra; la aplicación no tiene "devolver al stock").
 - Las unidades restantes bajan automáticamente al pasar un blíster a PREPARADO, con la serie y el lote anotados en la línea del SPD.
 

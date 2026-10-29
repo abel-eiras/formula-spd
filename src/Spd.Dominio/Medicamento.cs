@@ -11,6 +11,17 @@ public sealed class Medicamento
     public string NombreNormalizado { get; set; } = string.Empty;
     public string? PrincipioActivo { get; set; }
     public string? Laboratorio { get; set; }
+    private string? _grupoHomogeneo;
+    /// <summary>Código explícito del grupo homogéneo; nunca se deduce del nombre o principio activo.</summary>
+    public string? GrupoHomogeneo
+    {
+        get => _grupoHomogeneo;
+        set => _grupoHomogeneo = string.IsNullOrWhiteSpace(value) ? null : value.Trim().ToUpperInvariant();
+    }
+
+    public bool EsEquivalenteA(Medicamento? otro)
+        => otro is not null && ((Id > 0 && Id == otro.Id) ||
+            (GrupoHomogeneo is not null && GrupoHomogeneo == otro.GrupoHomogeneo));
     public FormaFarmaceutica? FormaFarmaceutica { get; set; }
     /// <summary>Aptitud para SPD (FR-301). <c>null</c> = **sin confirmar**: ni apto ni no apto, sino que
     /// nadie lo ha decidido todavía. Es el estado de todo medicamento nuevo, porque el nomenclátor no

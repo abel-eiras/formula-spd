@@ -41,6 +41,23 @@ public sealed class ArranqueSinRedTests
         Assert.Equal(0, totalAuditoria);
     }
 
+    /// <summary>FR-053: el instalador tampoco abre red al construirse; solo el botón «Instalar» lo hace.</summary>
+    [Fact]
+    public void Construir_ServicioInstalacionActualizaciones_no_hace_ninguna_peticion_de_red()
+    {
+        var conexion = AbrirBaseDeDatos();
+        var handler = new FakeHttpMessageHandler { LanzarFalloDeRed = true };
+        var auditoria = new RegistradorAuditoria(conexion);
+
+        var servicio = new ServicioInstalacionActualizaciones(
+            new HttpClient(handler) { BaseAddress = new Uri("https://api.github.com/") },
+            new ServicioBackup(conexion, new RepositorioFarmacia(conexion), auditoria), auditoria,
+            EntornoInstalacion.Actual(), VerificadorFirmaActualizaciones.ClavePublicaOficial);
+
+        Assert.NotNull(servicio);
+        Assert.Equal(0, conexion.ExecuteScalar<int>("SELECT COUNT(*) FROM Auditoria"));
+    }
+
     private static SqliteConnection AbrirBaseDeDatos()
     {
         var conexion = new SqliteConnection("Data Source=:memory:");

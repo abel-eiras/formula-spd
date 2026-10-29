@@ -16,7 +16,11 @@ Alta con nombre, apellidos, usuario, contraseña inicial (debe cambiarla al entr
 
 ## Actualizaciones
 
-Muestra la versión instalada y comprueba si hay una más nueva, **incluidas las betas** (necesita conexión). La instalación es manual: descarga el paquete de tu sistema, haz antes una copia de seguridad y sustituye el ejecutable de la carpeta por el nuevo. La base de datos, la configuración y las copias se quedan donde están, y la aplicación actualiza su base sola al arrancar.
+Muestra la versión instalada y comprueba si hay una más nueva, **incluidas las betas** (necesita conexión). Nunca lo hace sola al arrancar.
+
+Si la hay, **Instalar la versión …** la instala desde aquí, tras pedirte confirmación: hace una copia de seguridad en la ruta configurada, descarga el paquete, comprueba que es auténtico (firmado por el proyecto) y que ha llegado entero, sustituye el programa y la aplicación se cierra y se vuelve a abrir sola. Si algo falla antes de sustituir, no se cambia nada y se explica el motivo; mientras descarga puedes **Cancelar**. La base de datos, la configuración y las copias se quedan donde están, y la aplicación actualiza su base sola al arrancar. El ejecutable anterior queda en la carpeta con la terminación `.anterior`.
+
+Si no se puede instalar desde aquí (sin conexión, carpeta de solo lectura o una versión publicada sin firma), se hace a mano: descarga el paquete de tu sistema desde el enlace que aparece, haz antes una copia de seguridad y sustituye el ejecutable de la carpeta por el nuevo.
 
 ## Nomenclátor
 

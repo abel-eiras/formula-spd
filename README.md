@@ -44,6 +44,28 @@ de `src/Spd.Presentacion/Spd.Presentacion.csproj`, el workflow
 [`publicar.yml`](.github/workflows/publicar.yml) pasa los tests, genera los cuatro paquetes y crea
 la release con las notas de `publicar/notas-<etiqueta>.md`.
 
+### Firma de las actualizaciones
+
+La aplicación instala una versión nueva desde Configuración → Actualizaciones solo si la release trae
+`SHA256SUMS.txt.sig`, la firma ECDSA P-256 de `SHA256SUMS.txt`. La clave pública va embebida en
+`src/Spd.Infraestructura/VerificadorFirmaActualizaciones.cs` y copiada en
+`publicar/clave-publica-actualizaciones.pem` (un test comprueba que coinciden). La privada vive solo como
+secreto de GitHub; el workflow firma con ella y verifica la firma antes de publicar. Si el secreto no
+existe, la release sale sin firma (con un aviso en el workflow) y las copias instaladas solo ofrecerán la
+descarga manual.
+
+Generar el par de claves (una sola vez; la privada nunca se sube al repositorio, `.gitignore` la excluye):
+
+```bash
+openssl ecparam -name prime256v1 -genkey -noout -out formula-spd-actualizaciones.key
+openssl ec -in formula-spd-actualizaciones.key -pubout -out publicar/clave-publica-actualizaciones.pem
+gh secret set SPD_CLAVE_ACTUALIZACIONES < formula-spd-actualizaciones.key
+```
+
+Guarda la privada fuera del repositorio y con copia: si se pierde, las versiones instaladas ya no podrán
+actualizarse solas y el paso a una clave nueva será una actualización manual. Por la misma razón, la
+0.1.0-beta, que no tiene el actualizador, pasa a mano a la primera versión que lo incluya.
+
 ## Licencia
 
 [MIT](LICENSE). Los componentes de terceros y sus licencias están en

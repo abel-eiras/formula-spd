@@ -224,4 +224,25 @@ public sealed class ServicioListadoRetiradaTests
         var registros = ctx.Conexion.Query<(string Accion, int? UsuarioId)>("SELECT accion, usuario_id FROM Auditoria WHERE entidad = 'ListadoRetirada'");
         Assert.Contains(registros, r => r.Accion == "IMPRIMIR" && r.UsuarioId == 9);
     }
+
+    [Fact]
+    public void Listado_suma_necesidades_por_grupo_y_cuenta_saldo_equivalente_una_sola_vez()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var paciente = CrearPacienteActivo(ctx, "LU", 1, "12345678Z");
+        var primero = CrearMedicamento(ctx, "111111", 28);
+        var segundo = CrearMedicamento(ctx, "222222", 28);
+        foreach (var id in new[] { primero, segundo })
+        {
+            var m = ctx.RepositorioMedicamentos.ObtenerPorId(id)!;
+            m.GrupoHomogeneo = "GH1"; ctx.RepositorioMedicamentos.Actualizar(m);
+            CrearTratamientoActivo(ctx, paciente.Id, id, FraccionDosis.Uno);
+        }
+        ctx.RepositorioEnvases.Crear(new Envase { PacienteId = paciente.Id, MedicamentoId = segundo, Serie = "S1",
+            Caducidad = new DateOnly(2030, 1, 1), UnidadesRestantes = 10 });
+        var fila = Assert.Single(ctx.Servicio.ObtenerListado(new DateOnly(2026, 9, 7), new FiltrosListadoRetirada()));
+        Assert.Equal(14, fila.Necesarias); Assert.Equal(10, fila.Disponibles); Assert.Equal(4, fila.Faltan);
+    }
+
 }

@@ -1,13 +1,31 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Spd.Presentacion.Views.Configuracion.ActualizacionesView">
-  <StackPanel Spacing="12" Margin="24" Width="360">
+  <StackPanel Spacing="12" Margin="24" Width="420">
     <TextBlock Text="Actualizaciones" FontSize="18" FontWeight="Bold" />
     <TextBlock Text="{Binding VersionInstaladaTexto}" Classes="datos" />
     <TextBlock TextWrapping="Wrap"
-               Text="Comprueba si hay una versión nueva del software, incluidas las betas. Nunca se comprueba automáticamente. Para actualizar, descarga el paquete y sustituye el ejecutable: los datos de la carpeta se conservan." />
+               Text="Comprueba si hay una versión nueva del software, incluidas las betas. Nunca se comprueba automáticamente. Si la hay, puedes instalarla desde aquí: los datos de la carpeta se conservan." />
     <Button Content="Comprobar actualizaciones" Command="{Binding ComprobarCommand}"
-            IsEnabled="{Binding !Comprobando}" />
+            IsEnabled="{Binding !Comprobando}" IsVisible="{Binding PuedeComprobar}" />
+
+    <Button Content="{Binding TextoBotonInstalar}" Command="{Binding PedirConfirmacionCommand}"
+            IsVisible="{Binding PuedeInstalar}" />
+
+    <!-- Confirmación en la propia pantalla, como la de la clave de recuperación en Seguridad. -->
+    <StackPanel IsVisible="{Binding ConfirmandoInstalacion}" Spacing="8">
+      <TextBlock Text="{Binding TextoConfirmacion}" TextWrapping="Wrap" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="Instalar y reiniciar" Command="{Binding InstalarCommand}" />
+        <Button Content="Cancelar" Command="{Binding CancelarConfirmacionCommand}" />
+      </StackPanel>
+    </StackPanel>
+
+    <StackPanel IsVisible="{Binding Instalando}" Spacing="8">
+      <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgresoDescarga}" ShowProgressText="True" />
+      <Button Content="Cancelar" Command="{Binding CancelarInstalacionCommand}" />
+    </StackPanel>
+
     <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap"
                IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}" />
   </StackPanel>

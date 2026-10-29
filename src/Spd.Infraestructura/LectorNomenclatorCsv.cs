@@ -20,6 +20,7 @@ public sealed class LectorNomenclatorCsv : ILectorNomenclator
     private static readonly string[] CabecerasLaboratorio = ["Nombre del laboratorio ofertante"];
     private static readonly string[] CabecerasTipo = ["Tipo de fármaco"];
     private static readonly string[] CabecerasEstado = ["Estado"];
+    private static readonly string[] CabecerasGrupo = ["Grupo homogéneo", "Grupo homogeneo", "Código de grupo homogéneo"];
 
     public ResultadoLecturaNomenclator Leer(string rutaFichero)
     {
@@ -42,6 +43,7 @@ public sealed class LectorNomenclatorCsv : ILectorNomenclator
         var indicePrincipioActivo = IndiceDeCualquiera(cabecera, CabecerasPrincipioActivo);
         var indiceLaboratorio = IndiceDeCualquiera(cabecera, CabecerasLaboratorio);
         var indiceTipo = IndiceDeCualquiera(cabecera, CabecerasTipo);
+        var indiceGrupo = IndiceDeCualquiera(cabecera, CabecerasGrupo);
         var indiceEstado = IndiceDeCualquiera(cabecera, CabecerasEstado);
         var indiceMaximoRequerido = Math.Max(indiceCn, indiceNombre);
 
@@ -55,7 +57,8 @@ public sealed class LectorNomenclatorCsv : ILectorNomenclator
                 ValorOpcional(campos, indicePrincipioActivo),
                 ValorOpcional(campos, indiceLaboratorio),
                 CeldaSiExisteLaColumna(campos, indiceTipo),
-                CeldaSiExisteLaColumna(campos, indiceEstado)))
+                CeldaSiExisteLaColumna(campos, indiceEstado),
+                ValorOpcional(campos, indiceGrupo)))
             .ToList();
 
         return ResultadoLecturaNomenclator.Exitoso(filas);

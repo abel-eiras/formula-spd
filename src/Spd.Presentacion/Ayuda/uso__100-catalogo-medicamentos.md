@@ -14,3 +14,7 @@ Un medicamento por código nacional: nombre, principio activo, laboratorio, form
 Al descargar el nomenclátor de la AEMPS ([[uso:configuracion]]) los medicamentos nuevos entran solos en el catálogo; los que ya estaban no se tocan. Esta pantalla muestra los medicamentos del catálogo cuyo nombre o datos han cambiado, para aceptar o rechazar cada cambio.
 
 Procedimiento relacionado: [[procedimiento:ficha-y-tratamiento]] (medicamentos susceptibles de SPD).
+
+## Grupo homogéneo
+
+El campo **Código de grupo homogéneo** permite utilizar en custodia marcas equivalentes que tengan el mismo código verificado. Sin código, solo se comparte saldo entre cajas del mismo CN. El nomenclátor puede traer la columna opcional **Grupo homogéneo**: al importar se completa un código ausente, conservando cualquier código ya informado y el resto del catálogo.

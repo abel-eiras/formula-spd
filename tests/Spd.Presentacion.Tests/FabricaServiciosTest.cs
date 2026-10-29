@@ -37,7 +37,7 @@ internal static class FabricaServiciosTest
 
         var servicioPacientes = new ServicioPacientes(repositorioPacientes, repositorioFarmacia, auditoria);
         var servicioTratamientos = new ServicioTratamientos(new RepositorioTratamientos(conexion), repositorioPacientes, auditoria);
-        var servicioEnvases = new ServicioEnvases(repositorioEnvases, new RepositorioTratamientos(conexion), repositorioPacientes, auditoria);
+        var servicioEnvases = new ServicioEnvases(repositorioEnvases, new RepositorioTratamientos(conexion), repositorioPacientes, auditoria, new RepositorioMedicamentos(conexion));
         var servicioListadoRetirada = new ServicioListadoRetirada(
             repositorioPacientes, new RepositorioContactos(conexion), new RepositorioTratamientos(conexion),
             repositorioMedicamentos, repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
@@ -56,6 +56,9 @@ internal static class FabricaServiciosTest
             new ServicioConfiguracionFarmacia(repositorioFarmacia, auditoria),
             new GestorLogoFarmacia(),
             new ServicioActualizaciones(new HttpClient(), auditoria),
+            new ServicioInstalacionActualizaciones(
+                new HttpClient(), new ServicioBackup(conexion, repositorioFarmacia, auditoria), auditoria,
+                new EntornoInstalacion(Path.GetTempPath(), null, null), VerificadorFirmaActualizaciones.ClavePublicaOficial),
             new ServicioNomenclator(new HttpClient(), auditoria),
             servicioPacientes,
             servicioTratamientos,

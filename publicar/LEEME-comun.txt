@@ -25,7 +25,16 @@ sistema.
 
 Actualizar a una versión nueva
 ------------------------------
-Configuración → Actualizaciones → "Comprobar actualizaciones". Para instalarla: haz una copia
-de seguridad, descarga el paquete y sustituye SOLO el ejecutable de esta carpeta por el nuevo.
-Los datos se conservan y la base de datos se actualiza sola al arrancar.
+Configuración → Actualizaciones → "Comprobar actualizaciones". Si hay una versión nueva, pulsa
+"Instalar la versión …" y confirma. La aplicación hace una copia de seguridad, descarga el
+paquete, comprueba que es auténtico y que ha llegado entero, sustituye el programa y se vuelve
+a abrir sola. Los datos se conservan y la base de datos se actualiza sola al arrancar. El
+ejecutable anterior queda en esta carpeta con la terminación ".anterior", por si hiciera falta
+volver atrás. Necesita conexión a internet y que esta carpeta sea escribible.
+
+Si la instalación desde la aplicación no es posible (sin conexión, carpeta de solo lectura o
+una versión publicada sin firma), se hace a mano: haz una copia de seguridad, descarga el
+paquete y sustituye SOLO el ejecutable de esta carpeta por el nuevo.
+
+La versión 0.1.0-beta no trae esta función: el paso desde ella a la siguiente se hace a mano.
 

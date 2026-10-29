@@ -12,7 +12,8 @@ public sealed record FilaNomenclator(
     string? PrincipioActivo = null,
     string? Laboratorio = null,
     string? TipoFarmaco = null,
-    string? Estado = null)
+    string? Estado = null,
+    string? GrupoHomogeneo = null)
 {
     /// <summary>El nomenclátor de facturación mezcla medicamentos con **efectos y accesorios** (bolsas
     /// de ostomía, apósitos) y con **códigos de facturación** («VISADOS SCP», «FORMULAS MAGISTRALES»).

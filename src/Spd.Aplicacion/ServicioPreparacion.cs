@@ -170,9 +170,10 @@ public sealed class ServicioPreparacion(
         var lineas = repositorioLineas.ListarPorSpd(spdId).Where(l => l.EstadoLinea != EstadoLinea.Excluida).ToList();
 
         var faltantes = new List<string>();
+        var reservadas = new Dictionary<int, int>();
         foreach (var linea in lineas)
         {
-            var disponibles = CalcularDisponibles(spd.PacienteId, linea.MedicamentoId, spd.ValidezHasta);
+            var disponibles = CalcularDisponibles(spd.PacienteId, linea.MedicamentoId, spd.ValidezHasta, reservadas, linea.UnidadesEnvase);
             if (disponibles < linea.UnidadesEnvase)
                 faltantes.Add($"{linea.SnapNombre} (faltan {linea.UnidadesEnvase - disponibles} unidades)");
         }
@@ -190,10 +191,23 @@ public sealed class ServicioPreparacion(
         auditoria.Registrar(usuarioId, "PASAR_A_PREPARADO", "SPD", spdId, null);
     }
 
-    private int CalcularDisponibles(int pacienteId, int medicamentoId, DateOnly caducidadMinima)
-        => repositorioEnvases.ListarEnCustodiaDePacienteYMedicamento(pacienteId, medicamentoId)
-            .Where(e => e.Caducidad is { } c && c >= caducidadMinima)
-            .Sum(e => e.UnidadesRestantes ?? 0);
+    private int CalcularDisponibles(int pacienteId, int medicamentoId, DateOnly caducidadMinima,
+        Dictionary<int, int>? reservadas = null, int reservar = 0)
+    {
+        var candidatos = repositorioEnvases.ListarEquivalentesEnCustodia(pacienteId, medicamentoId)
+            .Where(e => e.Caducidad is { } c && c >= caducidadMinima).ToList();
+        var disponibles = candidatos.Sum(e => Math.Max(0, (e.UnidadesRestantes ?? 0) - (reservadas?.GetValueOrDefault(e.Id) ?? 0)));
+        if (reservadas is null) return disponibles;
+        // Evita contar la misma caja dos veces cuando dos tratamientos comparten grupo.
+        foreach (var envase in candidatos)
+        {
+            var usadas = reservadas.GetValueOrDefault(envase.Id);
+            var tomadas = Math.Min(Math.Max(0, (envase.UnidadesRestantes ?? 0) - usadas), reservar);
+            reservadas[envase.Id] = usadas + tomadas;
+            reservar -= tomadas;
+        }
+        return disponibles;
+    }
 
     private void DescontarYRegistrarEnvases(SpdLinea linea, DateOnly caducidadMinima, int? usuarioId)
         => DescontarYRegistrarEnvases(linea.Id, linea.TratamientoId, linea.UnidadesEnvase, caducidadMinima, usuarioId);
@@ -202,15 +216,22 @@ public sealed class ServicioPreparacion(
     {
         var resultado = servicioAsignacion.Descontar(tratamientoId, unidadesEnvase, caducidadMinima, usuarioId);
         foreach (var asignacion in resultado.Asignaciones)
+        {
+            var medicamentoReal = repositorioMedicamentos.ObtenerPorId(asignacion.Envase.MedicamentoId)
+                ?? throw new ErrorValidacionException("No existe el medicamento del envase asignado.");
             repositorioLineaEnvases.Crear(new SpdLineaEnvase
             {
                 SpdLineaId = spdLineaId,
                 EnvaseId = asignacion.Envase.Id,
                 UnidadesTomadas = asignacion.UnidadesTomadas,
+                SnapCn = medicamentoReal.Cn,
+                SnapNombre = medicamentoReal.Nombre,
+                SnapDescTexto = medicamentoReal.DescTexto,
                 SnapSerie = asignacion.Envase.Serie,
                 SnapLote = asignacion.Envase.Lote,
                 SnapCaducidad = asignacion.Envase.Caducidad
             });
+        }
     }
 
     public SPD Verificar(int spdId, int verificadorId, ChecklistVerificacion checklist, string? excepcionMotivo, int? usuarioId)
@@ -315,6 +336,7 @@ public sealed class ServicioPreparacion(
         var eliminadas = new List<SpdLinea>();
         var envasePendientes = new List<SpdLinea>();
         var nuevosSpd = new List<SPD>();
+        var reservadas = new Dictionary<int, int>();
 
         for (var i = 0; i < paciente.NBlisteres; i++)
         {
@@ -362,7 +384,7 @@ public sealed class ServicioPreparacion(
                     modificadas.Add(linea);
                 }
 
-                var disponibles = CalcularDisponibles(pacienteId, medicamento.Id, nuevo.ValidezHasta);
+                var disponibles = CalcularDisponibles(pacienteId, medicamento.Id, nuevo.ValidezHasta, reservadas, linea.UnidadesEnvase);
                 if (disponibles < linea.UnidadesEnvase)
                 {
                     linea.EstadoLinea = EstadoLinea.EnvasePendiente;
@@ -531,6 +553,35 @@ public sealed class ServicioPreparacion(
 
     public IReadOnlyList<SpdLinea> ListarLineas(int spdId) => repositorioLineas.ListarPorSpd(spdId);
 
+    public IReadOnlyList<Medicamento> ListarMedicamentosAEmblistar(int spdId)
+    {
+        var spd = repositorioSpd.ObtenerPorId(spdId) ?? throw new ErrorValidacionException($"No existe el SPD {spdId}.");
+        var lineas = repositorioLineas.ListarPorSpd(spdId).Where(l => l.EstadoLinea != EstadoLinea.Excluida).ToList();
+        var ids = lineas.Select(l => l.MedicamentoId).ToHashSet();
+        var reservadas = new Dictionary<int, int>();
+        foreach (var linea in lineas)
+        {
+            if (spd.Estado != EstadoSpd.Borrador)
+            {
+                foreach (var usada in repositorioLineaEnvases.ListarPorLinea(linea.Id).Where(e => e.UnidadesTomadas > 0))
+                    if (repositorioEnvases.ObtenerPorId(usada.EnvaseId) is { } envase) ids.Add(envase.MedicamentoId);
+                continue;
+            }
+            var pendiente = linea.UnidadesEnvase;
+            foreach (var envase in repositorioEnvases.ListarEquivalentesEnCustodia(spd.PacienteId, linea.MedicamentoId)
+                         .Where(e => e.Caducidad is { } fecha && fecha >= spd.ValidezHasta))
+            {
+                var tomadas = Math.Min(Math.Max(0, (envase.UnidadesRestantes ?? 0) - reservadas.GetValueOrDefault(envase.Id)), pendiente);
+                if (tomadas <= 0) continue;
+                ids.Add(envase.MedicamentoId);
+                reservadas[envase.Id] = reservadas.GetValueOrDefault(envase.Id) + tomadas;
+                pendiente -= tomadas;
+                if (pendiente <= 0) break;
+            }
+        }
+        return ids.Select(repositorioMedicamentos.ObtenerPorId).OfType<Medicamento>().ToList();
+    }
+
     public ResultadoEnvasesAlDia ComprobarEnvasesAlDia(int pacienteId)
     {
         var paciente = repositorioPacientes.ObtenerPorId(pacienteId);
@@ -547,10 +598,11 @@ public sealed class ServicioPreparacion(
         // misma regla de caducidad que PasarAPreparado; no depende de la ventana del listado de retirada.
         var caducidadMinima = DateOnly.FromDateTime(DateTime.Today).AddDays(7 * paciente.NBlisteres - 1);
         var faltantes = new List<string>();
+        var reservadas = new Dictionary<int, int>();
         foreach (var t in tratamientos)
         {
             var necesarias = CalculadoraUnidadesADescontar.Calcular(t) * paciente.NBlisteres;
-            var disponibles = CalcularDisponibles(pacienteId, t.MedicamentoId, caducidadMinima);
+            var disponibles = CalcularDisponibles(pacienteId, t.MedicamentoId, caducidadMinima, reservadas, necesarias);
             if (disponibles < necesarias)
                 faltantes.Add($"{repositorioMedicamentos.ObtenerPorId(t.MedicamentoId)?.Nombre ?? $"medicamento {t.MedicamentoId}"} ({necesarias - disponibles})");
         }

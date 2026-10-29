@@ -30,6 +30,7 @@ public partial class App : Application
     private IServicioConfiguracionFarmacia? _servicioFarmacia;
     private GestorLogoFarmacia? _gestorLogo;
     private IServicioActualizaciones? _servicioActualizaciones;
+    private IServicioInstalacionActualizaciones? _servicioInstalacionActualizaciones;
     private IServicioNomenclator? _servicioNomenclator;
     private IServicioPacientes? _servicioPacientes;
     private IServicioTratamientos? _servicioTratamientos;
@@ -159,9 +160,14 @@ public partial class App : Application
         _servicioControlDocumental = new ServicioControlDocumental(
             new RepositorioControlDocumental(_conexion!), repositorioUsuarios, auditoria);
         _servicioBackup = new ServicioBackup(_conexion!, repositorioFarmacia, auditoria);
+        // FR-053: su propio HttpClient porque la descarga del paquete dura más que una consulta. Construirlo
+        // no abre red; solo el botón «Instalar» lo hace (Art. VI.3).
+        _servicioInstalacionActualizaciones = new ServicioInstalacionActualizaciones(
+            new HttpClient { BaseAddress = new Uri("https://api.github.com/") }, _servicioBackup, auditoria,
+            EntornoInstalacion.Actual(), VerificadorFirmaActualizaciones.ClavePublicaOficial);
 
         var repositorioEnvases = new RepositorioEnvases(_conexion!);
-        _servicioEnvases = new ServicioEnvases(repositorioEnvases, new RepositorioTratamientos(_conexion!), repositorioPacientes, auditoria);
+        _servicioEnvases = new ServicioEnvases(repositorioEnvases, new RepositorioTratamientos(_conexion!), repositorioPacientes, auditoria, new RepositorioMedicamentos(_conexion!));
         // ComprobadorCoberturaSpdReal (research.md Decisión 3 de Spec 005): Spec 006 ya existe,
         // completa el punto de extensión que Spec 005 dejó documentado en vez de fabricado.
         var repositorioSpd = new RepositorioSpd(_conexion!);
@@ -213,7 +219,8 @@ public partial class App : Application
         // Spec 015 H1.4: los servicios se reúnen aquí una vez; a partir de este punto las pantallas
         // se construyen desde `FabricaViewModels`, sin encadenar constructores entre ventanas.
         _servicios = new ServiciosAplicacion(
-            _servicioUsuarios, _servicioFarmacia, _gestorLogo, _servicioActualizaciones, _servicioNomenclator,
+            _servicioUsuarios, _servicioFarmacia, _gestorLogo, _servicioActualizaciones, _servicioInstalacionActualizaciones,
+            _servicioNomenclator,
             _servicioPacientes, _servicioTratamientos, _servicioMedicamentos, _servicioImportacionNomenclator,
             _servicioConsultaCima, _servicioRegistrosCalidad, _servicioControlDocumental, _servicioBackup,
             _servicioCifrado!, _servicioEnvases, _servicioListadoRetirada, _servicioImportacion, _servicioComunicaciones,
@@ -307,7 +314,9 @@ public partial class App : Application
         var backupDeCierreHecho = false;
         ventanaPrincipal.Closing += async (_, e) =>
         {
-            if (sesionCerradaPorElUsuario || backupDeCierreHecho)
+            // Tras instalar una actualización no se repite la copia: la instalación hizo una justo antes
+            // de sustituir el programa (FR-053).
+            if (sesionCerradaPorElUsuario || backupDeCierreHecho || ReinicioTrasActualizacion.Solicitado)
             {
                 return;
             }

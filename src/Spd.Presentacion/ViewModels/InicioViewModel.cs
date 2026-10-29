@@ -27,6 +27,8 @@ public sealed partial class InicioViewModel : ViewModelBase
 
     public bool HayAvisos => Avisos.Count > 0;
 
+    public bool PuedeConsultarActualizaciones => _navegador.PuedeNavegar(Seccion.Actualizaciones);
+
     /// <summary>FR-1510: el indicador ambiental muestra un plazo, no un recuento, y solo aparece
     /// cuando efectivamente hay retraso.</summary>
     public string TextoAmbiental => Indicadores.DiasSinLecturaAmbiental is { } dias
@@ -56,6 +58,13 @@ public sealed partial class InicioViewModel : ViewModelBase
     {
         if (fila is null) return;
         _navegador.Navegar(fila.Destino);
+    }
+
+    [RelayCommand]
+    private void ComprobarActualizaciones()
+    {
+        if (PuedeConsultarActualizaciones)
+            _navegador.Navegar(new Destino(Seccion.Actualizaciones, Detalle: "comprobar"));
     }
 
     [RelayCommand]

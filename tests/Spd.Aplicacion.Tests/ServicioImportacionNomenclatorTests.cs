@@ -165,4 +165,32 @@ public sealed class ServicioImportacionNomenclatorTests
         Assert.Equal(2, segunda.YaExistian);
         Assert.Equal(2, conexion.ExecuteScalar<int>("SELECT COUNT(*) FROM Medicamento"));
     }
+
+    [Fact]
+    public void Importar_grupo_completa_existentes_sin_sobrescribir_grupo_ni_datos_editados()
+    {
+        var (servicio, medicamentos, conexion) = CrearServicio();
+        using var c = conexion;
+        var sinGrupo = medicamentos.Crear(new DatosAltaMedicamento("111111", "Nombre conservado"), null);
+        sinGrupo.DescTexto = "Descripción conservada";
+        medicamentos.ActualizarDatos(sinGrupo, null);
+        var editado = medicamentos.Crear(new DatosAltaMedicamento("222222", "Otra marca"), null);
+        editado.GrupoHomogeneo = "MANUAL";
+        medicamentos.ActualizarDatos(editado, null);
+        var ruta = EscribirCsvTemporal("CN,Nombre,Grupo homogéneo\n111111,Nombre nuevo, gh1 \n222222,Otro nombre,GH2\n333333,Nueva marca,GH1\n");
+        try
+        {
+            Assert.True(servicio.ImportarCompleto(ruta, null).Exito);
+            Assert.True(servicio.ImportarCompleto(ruta, null).Exito);
+            var actual = medicamentos.ObtenerPorId(sinGrupo.Id)!;
+            Assert.Equal("GH1", actual.GrupoHomogeneo);
+            Assert.Equal("Nombre conservado", actual.Nombre);
+            Assert.Equal("Descripción conservada", actual.DescTexto);
+            Assert.Null(actual.AptoSpd);
+            Assert.Equal("MANUAL", medicamentos.ObtenerPorId(editado.Id)!.GrupoHomogeneo);
+            Assert.Equal("GH1", medicamentos.ObtenerPorCn("333333")!.GrupoHomogeneo);
+        }
+        finally { File.Delete(ruta); }
+    }
+
 }

@@ -57,7 +57,7 @@ public sealed class ServicioGeneracionLoteTests : IDisposable
         var elaborador = new Usuario { Nombre = "Elena", Apellidos = "Ruiz", Login = "elena", HashPassword = "x", Rol = Rol.Elaborador };
         elaborador.Id = repositorioUsuarios.Crear(elaborador);
 
-        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria);
+        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria, new RepositorioMedicamentos(conexion));
         var listado = new ServicioListadoRetirada(repositorioPacientes, new RepositorioContactos(conexion), repositorioTratamientos, repositorioMedicamentos,
             repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
         var repositorioSpd = new RepositorioSpd(conexion);

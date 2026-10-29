@@ -51,7 +51,7 @@ public sealed class RetiradaEnvasesViewTests
         });
 
         var repositorioEnvases = new RepositorioEnvases(conexion);
-        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria);
+        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria, new RepositorioMedicamentos(conexion));
         var servicioListadoRetirada = new ServicioListadoRetirada(
             repositorioPacientes, new RepositorioContactos(conexion), repositorioTratamientos, repositorioMedicamentos,
             repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);

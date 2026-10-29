@@ -115,11 +115,8 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     {
         var aEmblistar = Blisteres
             .Where(b => b.Spd.Estado is EstadoSpd.Borrador or EstadoSpd.Preparado)
-            .SelectMany(b => b.Lineas)
-            .Select(l => l.MedicamentoId)
-            .Distinct()
-            .Select(_servicioMedicamentos.ObtenerPorId)
-            .OfType<Medicamento>()
+            .SelectMany(b => _servicio.ListarMedicamentosAEmblistar(b.Spd.Id))
+            .DistinctBy(m => m.Id)
             .ToList();
 
         var sinConfirmar = aEmblistar.Where(m => m.AptoSpd is null).OrderBy(m => m.Nombre).ToList();

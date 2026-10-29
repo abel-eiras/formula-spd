@@ -94,9 +94,17 @@ Como administrador, quiero cambiar el día de retirada por defecto o el número 
 
 ### 4.6 Actualizaciones y nomenclátor (excepciones de red)
 
-- **FR-050** Pantalla "Actualizaciones" en Configuración: botón "Comprobar actualizaciones" que consulta la URL fija de las GitHub Releases del repositorio del proyecto (`abel-eiras/formula-spd`; se llamaba `abel-eiras/spd` hasta el 2026-09-14), no configurable por el usuario, y, si hay una versión nueva, ofrece descargarla. Nunca automático al arrancar sin que el usuario lo pida (Constitución Artículo VI.3).
+- **FR-050** Pantalla "Actualizaciones" en Configuración: botón "Comprobar actualizaciones" que consulta la URL fija de las GitHub Releases del repositorio del proyecto (`abel-eiras/formula-spd`; se llamaba `abel-eiras/spd` hasta el 2026-09-14), no configurable por el usuario, y, si hay una versión nueva, ofrece instalarla (FR-053). Nunca automático al arrancar sin que el usuario lo pida (Constitución Artículo VI.3).
 - **FR-051** Pantalla "Nomenclátor" en Configuración: campo `url_nomenclator` editable, y botón "Descargar ahora" que obtiene el fichero Excel/CSV de esa URL para alimentar Spec 003/011. Si la URL cambia de formato o desaparece, el campo sigue siendo editable manualmente sin necesitar una nueva versión de la aplicación.
 - **FR-052** Ambas acciones muestran el resultado (éxito, fecha de la última comprobación/descarga, o el motivo del fallo) y no impiden el uso del resto de la aplicación si fallan.
+- **FR-053** Instalar la actualización desde la aplicación *(añadido 2026-09-29, decisión del propietario; modelo de formula-care)*. Tras una comprobación con versión nueva, el botón «Instalar la versión X» pide confirmación explicando que se hará copia de seguridad, se descargará y verificará el paquete y la aplicación se reiniciará. Al confirmar:
+  1. Se obtiene la release por su etiqueta y, de sus ficheros, el paquete de la plataforma en uso (mismos nombres que `publicar/empaquetar.sh`), `SHA256SUMS.txt` y su firma `SHA256SUMS.txt.sig`.
+  2. La firma (ECDSA P-256/SHA-256, generada por la CI con una clave privada que solo existe como secreto de GitHub) se verifica con la clave pública embebida en la aplicación; el paquete se descarga, con indicación de progreso y opción de cancelar, a una carpeta temporal `actualizacion/` dentro de la instalación, y su SHA-256 se compara con el de `SHA256SUMS.txt`.
+  3. Se extrae en esa carpeta temporal, sin admitir rutas que salgan de ella.
+  4. Se hace una copia de seguridad (Spec 010) antes de sustituir nada.
+  5. Los ficheros del paquete sustituyen a los de la carpeta de instalación; nada que no venga en el paquete (base de datos, logs, copias, documentos) se toca. El ejecutable en uso se aparta como `<ejecutable>.anterior`. Si algo falla a mitad, se deshace lo hecho.
+  6. La aplicación se cierra de forma ordenada y, ya cerrada, abre la versión nueva.
+  Cualquier fallo antes del paso 5 (sin red, release sin firma, firma o suma que no cuadran, copia de seguridad fallida, carpeta de solo lectura) deja la instalación intacta y muestra el motivo en lenguaje llano (FR-052). Una release sin firma, o una copia que no es la versión empaquetada (p. ej. ejecutada desde el entorno de desarrollo), no se instala desde la aplicación: se indica que la actualización es manual y se muestra el enlace de descarga. Cada intento queda en auditoría con su resultado (Art. VII.6). La versión 0.1.0-beta no incluye esta función: el paso desde ella es manual.
 
 ## 5. Entidades clave
 
@@ -127,6 +135,24 @@ Dado que la URL del nomenclátor no responde, cuando pulso "Descargar ahora", en
 
 **CA-006 Cambio de valores por defecto no reescribe pacientes existentes**
 Dado un paciente con `dia_retirada = MARTES` fijado individualmente, cuando cambio `dia_retirada_defecto` a JUEVES, entonces ese paciente sigue en MARTES.
+
+**CA-007 Instalar una actualización firmada**
+Dado que la comprobación encontró la versión X con paquete, sumas y firma válidos, cuando pulso «Instalar la versión X» y confirmo, entonces se hace una copia de seguridad antes de sustituir nada, el ejecutable nuevo ocupa el lugar del anterior (que queda como `.anterior`), `spd.db` no cambia, la carpeta `actualizacion/` desaparece y la aplicación se reinicia con la versión X.
+
+**CA-008 Paquete no auténtico o dañado**
+Dado que la firma de `SHA256SUMS.txt` no corresponde a la clave del proyecto, o el SHA-256 del paquete descargado no coincide, cuando instalo, entonces no se hace copia ni se sustituye ningún fichero y veo el motivo.
+
+**CA-009 Release sin firma**
+Dado una release publicada sin `SHA256SUMS.txt.sig`, cuando instalo, entonces no se descarga el paquete y se me indica que la actualización es manual, con el enlace de descarga.
+
+**CA-010 Copia de seguridad fallida**
+Dado que la copia de seguridad previa falla (p. ej. ruta sin configurar), cuando instalo, entonces no se sustituye ningún fichero y veo el motivo.
+
+**CA-011 Fallo a mitad de la sustitución**
+Dado que un fichero del paquete no se puede colocar después de haber apartado el ejecutable, cuando instalo, entonces se deshace todo y queda la versión anterior tal como estaba.
+
+**CA-012 Solo la versión empaquetada**
+Dado que la aplicación no se ejecuta como el ejecutable empaquetado dentro de su carpeta (p. ej. `dotnet run`), cuando pulso instalar, entonces no se abre ninguna conexión y se explica que la actualización es manual.
 
 ## 7. Fuera de alcance de esta spec
 

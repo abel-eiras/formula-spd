@@ -77,7 +77,7 @@ public sealed class ServicioPreparacionTests
         var repositorioModificaciones = new RepositorioSpdModificaciones(conexion);
 
         var servicioAsignacion = new ServicioAsignacionEnvases(repositorioEnvases, repositorioTratamientos, auditoria);
-        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria);
+        var servicioEnvases = new ServicioEnvases(repositorioEnvases, repositorioTratamientos, repositorioPacientes, auditoria, new RepositorioMedicamentos(conexion));
         var servicioListadoRetirada = new ServicioListadoRetirada(
             repositorioPacientes, new RepositorioContactos(conexion), repositorioTratamientos, repositorioMedicamentos,
             repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
@@ -616,4 +616,61 @@ public sealed class ServicioPreparacionTests
         var registros = ctx.Conexion.Query<string>("SELECT accion FROM Auditoria WHERE entidad = 'SPD' AND accion = 'IMPRIMIR'");
         Assert.Single(registros);
     }
+
+    [Fact]
+    public void Prepara_con_otra_marca_y_congela_su_identidad_real_por_caja()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var catalogo = new RepositorioMedicamentos(c);
+        var original = catalogo.ObtenerPorId(ctx.MedicamentoId)!;
+        original.GrupoHomogeneo = "GH1"; catalogo.Actualizar(original);
+        var alternativa = new Medicamento { Cn = "111111", Nombre = "Marca real", GrupoHomogeneo = "GH1", DescTexto = "comprimido azul" };
+        alternativa.Id = catalogo.Crear(alternativa);
+        ctx.RepositorioEnvases.Crear(new Envase { PacienteId = ctx.PacienteId, MedicamentoId = alternativa.Id,
+            Serie = "REAL", Lote = "LOTE-REAL", Caducidad = new DateOnly(2030, 1, 31), UnidadesRestantes = 28 });
+        Assert.True(ctx.Servicio.ComprobarEnvasesAlDia(ctx.PacienteId).AlDia);
+        var spd = Assert.Single(ctx.Servicio.CrearSesion(ctx.PacienteId, ctx.ElaboradorId));
+        var sinUsar = new Medicamento { Cn = "222222", Nombre = "No usada", GrupoHomogeneo = "GH1", AptoSpd = false };
+        sinUsar.Id = catalogo.Crear(sinUsar);
+        ctx.RepositorioEnvases.Crear(new Envase { PacienteId = ctx.PacienteId, MedicamentoId = sinUsar.Id,
+            Serie = "CADUCADA", Caducidad = new DateOnly(2020, 1, 1), UnidadesRestantes = 3 });
+        ctx.RepositorioEnvases.Crear(new Envase { PacienteId = ctx.PacienteId, MedicamentoId = sinUsar.Id,
+            Serie = "RESERVA", Caducidad = new DateOnly(2030, 1, 1), UnidadesRestantes = 100 });
+        Assert.Contains(ctx.Servicio.ListarMedicamentosAEmblistar(spd.Id), m => m.Id == alternativa.Id && m.AptoSpd is null);
+        Assert.DoesNotContain(ctx.Servicio.ListarMedicamentosAEmblistar(spd.Id), m => m.Id == sinUsar.Id);
+        ctx.Servicio.AsignarMaterial(spd.Id, CrearMaterial(ctx));
+        ctx.Servicio.PasarAPreparado(spd.Id, CrearLecturaAmbiental(ctx), ctx.ElaboradorId);
+        Assert.Contains(ctx.Servicio.ListarMedicamentosAEmblistar(spd.Id), m => m.Id == alternativa.Id);
+        alternativa.Nombre = "Nombre cambiado"; alternativa.DescTexto = "otra descripción"; catalogo.Actualizar(alternativa);
+        var snapshot = Assert.Single(ctx.RepositorioLineaEnvases.ListarPorSpd(spd.Id));
+        Assert.Equal("111111", snapshot.SnapCn);
+        Assert.Equal("Marca real", snapshot.SnapNombre);
+        Assert.Equal("comprimido azul", snapshot.SnapDescTexto);
+        Assert.Equal("REAL", snapshot.SnapSerie);
+        Assert.Equal("LOTE-REAL", snapshot.SnapLote);
+        Assert.Equal(7m, snapshot.UnidadesTomadas);
+    }
+
+    [Fact]
+    public void Tratamientos_del_mismo_grupo_no_cuentan_dos_veces_el_saldo_ni_dejan_descuento_parcial()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var catalogo = new RepositorioMedicamentos(c);
+        var original = catalogo.ObtenerPorId(ctx.MedicamentoId)!;
+        original.GrupoHomogeneo = "GH1"; catalogo.Actualizar(original);
+        var alternativa = new Medicamento { Cn = "111111", Nombre = "Otra marca", GrupoHomogeneo = "GH1" };
+        alternativa.Id = catalogo.Crear(alternativa);
+        ctx.RepositorioTratamientos.Crear(new Tratamiento { PacienteId = ctx.PacienteId, MedicamentoId = alternativa.Id,
+            EnSpd = true, PautaD = FraccionDosis.Uno, FechaInicio = new DateOnly(2026, 1, 1), FechaPrescripcionInicial = new DateOnly(2026, 1, 1) });
+        CrearEnvase(ctx, "S1", 10, new DateOnly(2030, 1, 1));
+        Assert.False(ctx.Servicio.ComprobarEnvasesAlDia(ctx.PacienteId).AlDia);
+        var spd = Assert.Single(ctx.Servicio.CrearSesion(ctx.PacienteId, ctx.ElaboradorId));
+        ctx.Servicio.AsignarMaterial(spd.Id, CrearMaterial(ctx));
+        Assert.Throws<ErrorValidacionException>(() => ctx.Servicio.PasarAPreparado(spd.Id, CrearLecturaAmbiental(ctx), ctx.ElaboradorId));
+        Assert.Equal(10, ctx.RepositorioEnvases.ObtenerPorSerie("S1")!.UnidadesRestantes);
+        Assert.Empty(ctx.RepositorioLineaEnvases.ListarPorSpd(spd.Id));
+    }
+
 }

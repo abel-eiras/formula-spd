@@ -96,4 +96,38 @@ public sealed class ServicioAsignacionEnvasesTests
         var registros = conexion.Query<(string Accion, int? UsuarioId)>("SELECT accion, usuario_id FROM Auditoria WHERE entidad = 'Tratamiento'");
         Assert.Contains(registros, r => r.Accion == "DESCUENTO_ENVASE" && r.UsuarioId == 3);
     }
+
+    [Fact]
+    public void Descuenta_marcas_equivalentes_conservando_cajas_orden_y_excluyendo_otros_grupos_y_pacientes()
+    {
+        var (tratamientoId, envases, servicio, conexion) = Crear();
+        using var c = conexion;
+        var t = new RepositorioTratamientos(conexion).ObtenerPorId(tratamientoId)!;
+        var catalogo = new RepositorioMedicamentos(conexion);
+        var original = catalogo.ObtenerPorId(t.MedicamentoId)!;
+        original.GrupoHomogeneo = "GH1"; catalogo.Actualizar(original);
+        var marca = new Medicamento { Cn = "111111", Nombre = "Marca alternativa", GrupoHomogeneo = "GH1" };
+        marca.Id = catalogo.Crear(marca);
+        var ajeno = new Medicamento { Cn = "222222", Nombre = "Mismo nombre sin grupo" };
+        ajeno.Id = catalogo.Crear(ajeno);
+        var pacientes = new RepositorioPacientes(conexion);
+        var otro = pacientes.ObtenerPorId(t.PacienteId)!;
+        otro.Id = 0; otro.CorrelativoNumFicha = pacientes.ObtenerSiguienteCorrelativo(); otro.NumFicha = "F-OTRO"; otro.Dni = "87654321X"; otro.Cip = null;
+        var otroPaciente = pacientes.Crear(otro);
+        var cajas = new[]
+        {
+            new Envase { PacienteId = t.PacienteId, MedicamentoId = marca.Id, Serie = "ALT", Lote = "L-ALT", Caducidad = new DateOnly(2031, 1, 1), UnidadesRestantes = 3 },
+            new Envase { PacienteId = t.PacienteId, MedicamentoId = original.Id, Serie = "ORIG", Caducidad = new DateOnly(2030, 1, 1), UnidadesRestantes = 28 },
+            new Envase { PacienteId = t.PacienteId, MedicamentoId = ajeno.Id, Serie = "SIN-GRUPO", Caducidad = new DateOnly(2030, 1, 1), UnidadesRestantes = 100 },
+            new Envase { PacienteId = otroPaciente, MedicamentoId = marca.Id, Serie = "OTRO-PAC", Caducidad = new DateOnly(2030, 1, 1), UnidadesRestantes = 100 },
+            new Envase { PacienteId = t.PacienteId, MedicamentoId = marca.Id, Serie = "CADUCADO", Caducidad = new DateOnly(2020, 1, 1), UnidadesRestantes = 100 }
+        };
+        foreach (var caja in cajas) caja.Id = envases.Crear(caja);
+        var resultado = servicio.Descontar(tratamientoId, 7, new DateOnly(2029, 1, 1), null);
+        Assert.Equal(new[] { "ALT", "ORIG" }, resultado.Asignaciones.Select(a => a.Envase.Serie));
+        Assert.Equal(new[] { 3, 4 }, resultado.Asignaciones.Select(a => a.UnidadesTomadas));
+        Assert.Equal("L-ALT", resultado.Asignaciones[0].Envase.Lote);
+        foreach (var caja in cajas.Skip(2)) Assert.Equal(100, envases.ObtenerPorId(caja.Id)!.UnidadesRestantes);
+    }
+
 }

@@ -5,13 +5,14 @@ namespace Spd.Aplicacion;
 /// <summary>Depósito de envases en custodia (FR-510..544).</summary>
 public sealed class ServicioEnvases(
     IRepositorioEnvases repositorio, IRepositorioTratamientos repositorioTratamientos,
-    IRepositorioPacientes repositorioPacientes, IRegistradorAuditoria auditoria)
+    IRepositorioPacientes repositorioPacientes, IRegistradorAuditoria auditoria,
+    IRepositorioMedicamentos repositorioMedicamentos)
     : IServicioEnvases
 {
     public Envase RegistrarEnvase(DatosAltaEnvase datos, int? usuarioQueEjecutaId)
     {
         var tieneTratamientoActivo = repositorioTratamientos.ListarVigentesDePaciente(datos.PacienteId)
-            .Any(t => t.MedicamentoId == datos.MedicamentoId && t.EnSpd);
+            .Any(t => EsMismoFarmaco(t.MedicamentoId, datos.MedicamentoId) && t.EnSpd);
         if (!tieneTratamientoActivo)
             throw new ErrorValidacionException(
                 "El paciente no tiene un tratamiento activo en SPD para ese medicamento. Cree el tratamiento antes de registrar el envase (FR-515).");
@@ -46,7 +47,7 @@ public sealed class ServicioEnvases(
     public Envase RegistrarEntregaFueraBlister(DatosEntregaFueraBlister datos, int? usuarioQueEjecutaId)
     {
         var tieneTratamientoFueraDeBlister = repositorioTratamientos.ListarVigentesDePaciente(datos.PacienteId)
-            .Any(t => t.MedicamentoId == datos.MedicamentoId && !t.EnSpd);
+            .Any(t => EsMismoFarmaco(t.MedicamentoId, datos.MedicamentoId) && !t.EnSpd);
         if (!tieneTratamientoFueraDeBlister)
             throw new ErrorValidacionException(
                 "Solo se puede registrar entrega fuera de blíster de un medicamento con tratamiento activo fuera de SPD (FR-543).");
@@ -96,7 +97,9 @@ public sealed class ServicioEnvases(
     }
 
     public IReadOnlyList<Envase> ProponerSalidaSigrePorFinDeTratamiento(int pacienteId, int medicamentoId)
-        => repositorio.ListarEnCustodiaDePacienteYMedicamento(pacienteId, medicamentoId);
+        => repositorioTratamientos.ListarVigentesDePaciente(pacienteId)
+            .Any(t => t.EnSpd && t.MedicamentoId != medicamentoId && EsMismoFarmaco(t.MedicamentoId, medicamentoId))
+                ? [] : repositorio.ListarEquivalentesEnCustodia(pacienteId, medicamentoId);
 
     public IReadOnlyList<Envase> ProponerSalidaSigreMasivaPorBaja(int pacienteId)
         => repositorio.ListarEnCustodiaDePaciente(pacienteId);
@@ -105,6 +108,10 @@ public sealed class ServicioEnvases(
         => repositorio.ListarEnCustodiaDePaciente(pacienteId)
             .Select(e => DarSalidaSigre(e.Id, motivo, null, usuarioQueEjecutaId))
             .ToList();
+
+    private bool EsMismoFarmaco(int primero, int segundo)
+        => primero == segundo || repositorioMedicamentos.ObtenerPorId(primero)
+            ?.EsEquivalenteA(repositorioMedicamentos.ObtenerPorId(segundo)) == true;
 
     private Envase? BuscarPorSerie(string? serie)
         => serie is null ? null : repositorio.ObtenerPorSerie(serie);

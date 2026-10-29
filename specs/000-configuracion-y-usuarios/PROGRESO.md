@@ -342,3 +342,15 @@ la aplicación.
   blanco en oscuro, vía `LogoFormulaFarma` en la paleta) y como icono de ventanas, del ejecutable de
   Windows y del acceso directo de Linux. El repositorio pasa a `abel-eiras/formula-spd`. El logotipo
   queda fuera de la licencia MIT (README y AVISOS-DE-TERCEROS).
+
+- **2026-09-29 — Instalar la actualización desde la aplicación (FR-053, Fase 9).** Hasta ahora la
+  actualización era manual (sustituir el ejecutable). Ahora, tras «Comprobar», el botón «Instalar la
+  versión X» —con confirmación— descarga el paquete de la plataforma, verifica la firma ECDSA de
+  `SHA256SUMS.txt` con la clave pública embebida y el SHA-256 del paquete, lo extrae (sin admitir rutas
+  que escapen), hace copia de seguridad y sustituye los ficheros del paquete (el ejecutable en uso queda
+  como `.anterior`; si algo falla a mitad, se deshace). La aplicación se cierra y `Program.Main` abre la
+  versión nueva cuando la anterior ya ha terminado, para que no convivan dos procesos sobre `spd.db`; la
+  copia de cierre no se repite. La CI firma con el secreto `SPD_CLAVE_ACTUALIZACIONES`; sin él la release
+  sale sin firma y las copias instaladas solo ofrecen la descarga manual. La 0.1.0-beta no trae el
+  actualizador: el paso desde ella es manual. Pendiente de probar en real en Windows y macOS (los tests
+  cubren la lógica en carpetas temporales en Linux).

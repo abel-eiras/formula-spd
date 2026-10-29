@@ -196,6 +196,35 @@ se ha reordenado en consecuencia; ninguna tarea tenía todavía código escrito.
 
 ---
 
+## Phase 9: Instalar la actualización desde la aplicación (FR-053, añadido 2026-09-29)
+
+**Goal**: que una farmacia pase a la versión nueva desde Configuración / Actualizaciones, sin sustituir
+el ejecutable a mano, y sin que un paquete no auténtico o dañado pueda llegar a instalarse.
+
+**Independent Test**: publicar en un GitHub simulado una release firmada con una clave efímera y
+comprobar CA-007..CA-012 sobre una instalación en una carpeta temporal.
+
+### Tests
+
+- [x] T060 [P] Test: firma válida, manipulada, de otra clave y malformada; la clave embebida es la de `publicar/clave-publica-actualizaciones.pem`, en `tests/Spd.Aplicacion.Tests/VerificadorFirmaActualizacionesTests.cs`
+- [x] T061 [P] Test: paquete y ejecutable por plataforma; rechazo fuera de la versión empaquetada (CA-012), en `tests/Spd.Aplicacion.Tests/EntornoInstalacionTests.cs`
+- [x] T062 [P] Test: extracción de `.zip` y `.tar.gz`, y rechazo de rutas que escapan (zip-slip), en `tests/Spd.Aplicacion.Tests/ExtractorPaqueteActualizacionTests.cs`
+- [x] T063 [P] Test: sustitución con `.anterior`, sin tocar `spd.db` ni `logs/`, y vuelta atrás si falla a mitad (CA-011), en `tests/Spd.Aplicacion.Tests/SustitucionFicherosInstalacionTests.cs`
+- [x] T064 [P] Test de integración con `HttpMessageHandler` simulado: instalación correcta con copia previa (CA-007), firma/suma que no cuadran (CA-008), release sin firma (CA-009), copia fallida (CA-010), cancelación, auditoría, en `tests/Spd.Aplicacion.Tests/ServicioInstalacionActualizacionesTests.cs`
+- [x] T065 [P] Test: construir `ServicioInstalacionActualizaciones` no abre red (Art. VI.3), en `tests/Spd.Aplicacion.Tests/ArranqueSinRedTests.cs`
+- [x] T066 [P] Test: botón de instalar solo con versión nueva, confirmación previa y petición de reinicio, en `tests/Spd.Presentacion.Tests/ActualizacionesViewModelTests.cs`
+
+### Implementation
+
+- [x] T067 `IServicioInstalacionActualizaciones` y `ResultadoInstalacionActualizacion` en `src/Spd.Aplicacion/`
+- [x] T068 `ServicioInstalacionActualizaciones`, `EntornoInstalacion`, `VerificadorFirmaActualizaciones`, `ExtractorPaqueteActualizacion` y `SustitucionFicherosInstalacion` en `src/Spd.Infraestructura/`
+- [x] T069 Reinicio ordenado: `ReinicioTrasActualizacion` (lanzado desde `Program.Main` al terminar la aplicación) y sin repetir la copia de cierre en `App.axaml.cs`
+- [x] T070 Pantalla Configuración/Actualizaciones: botón «Instalar la versión X», confirmación, barra de progreso y cancelar; ayuda de uso (`uso__120-configuracion.md`)
+- [x] T071 Workflow `publicar.yml`: firma de `SHA256SUMS.txt` con el secreto `SPD_CLAVE_ACTUALIZACIONES` y verificación con la clave pública antes de publicar; sin secreto, aviso y release sin firma
+- [x] T072 Documentación: `publicar/LEEME-comun.txt` y `README.md` (generación de la clave y alta del secreto; la 0.1.0-beta se actualiza a mano)
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

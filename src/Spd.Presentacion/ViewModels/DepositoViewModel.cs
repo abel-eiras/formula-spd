@@ -34,6 +34,8 @@ public sealed partial class DepositoViewModel : ViewModelBase
     [ObservableProperty] private EnvaseFila? _envaseSeleccionadoParaSalida;
     [ObservableProperty] private MotivoSalidaEnvase _motivoSalidaSeleccionado = MotivoSalidaEnvase.Otro;
 
+    public SelectorMedicamentoViewModel SelectorMedicamento { get; }
+
     public MotivoSalidaEnvase[] MotivosSalida { get; } = Enum.GetValues<MotivoSalidaEnvase>();
 
     public DepositoViewModel(
@@ -45,6 +47,13 @@ public sealed partial class DepositoViewModel : ViewModelBase
         _servicioImportacion = servicioImportacion;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
+        SelectorMedicamento = new SelectorMedicamentoViewModel(servicioMedicamentos, null, usuarioActualId);
+        SelectorMedicamento.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(SelectorMedicamento.Seleccionado)) return;
+            Cn = SelectorMedicamento.Seleccionado?.Cn ?? string.Empty;
+            UnidadesIniciales = SelectorMedicamento.Seleccionado?.UnidadesEnvase;
+        };
         Cargar();
     }
 
@@ -78,7 +87,8 @@ public sealed partial class DepositoViewModel : ViewModelBase
     }
 
     private EnvaseFila AFila(Envase e) => new(
-        e.Id, _servicioMedicamentos.ObtenerPorId(e.MedicamentoId)?.Nombre ?? "(medicamento no encontrado)", e);
+        e.Id, _servicioMedicamentos.ObtenerPorId(e.MedicamentoId)?.Nombre ?? "(medicamento no encontrado)", e)
+        { Cn = _servicioMedicamentos.ObtenerPorId(e.MedicamentoId)?.Cn ?? string.Empty };
 
     [RelayCommand]
     private void RegistrarEnvase()
@@ -105,13 +115,23 @@ public sealed partial class DepositoViewModel : ViewModelBase
             Mensaje = envase.Caducidad < DateOnly.FromDateTime(DateTime.Today)
                 ? "Envase registrado. Aviso: la caducidad ya ha pasado (FR-514); nunca se propondrá para una preparación."
                 : "Envase registrado.";
-            Cn = string.Empty; Serie = string.Empty; Lote = null; Caducidad = null; UnidadesIniciales = null;
+            // La siguiente caja comparte medicamento, pero siempre tiene su propia identidad.
+            Serie = string.Empty; Lote = null; Caducidad = null;
             Cargar();
         }
         catch (ErrorValidacionException ex)
         {
             Mensaje = ex.Message;
         }
+    }
+
+    [RelayCommand]
+    private void PrepararOtraCaja(EnvaseFila fila)
+    {
+        SelectorMedicamento.Establecer(fila.Envase.MedicamentoId);
+        UnidadesIniciales = SelectorMedicamento.Seleccionado?.UnidadesEnvase ?? fila.Envase.UnidadesIniciales;
+        Serie = string.Empty; Lote = null; Caducidad = null;
+        Mensaje = null;
     }
 
     [RelayCommand]
@@ -150,7 +170,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
                 new DatosEntregaFueraBlister(_pacienteId, medicamento.Id, string.IsNullOrWhiteSpace(Serie) ? null : Serie, Lote, EntregadoA ?? "paciente"),
                 _usuarioActualId);
             Mensaje = "Entrega fuera de blíster registrada.";
-            Cn = string.Empty; Serie = string.Empty; Lote = null; EntregadoA = null;
+            Serie = string.Empty; Lote = null; EntregadoA = null;
             Cargar();
         }
         catch (ErrorValidacionException ex)
@@ -159,5 +179,8 @@ public sealed partial class DepositoViewModel : ViewModelBase
         }
     }
 
-    public sealed record EnvaseFila(int Id, string NombreMedicamento, Envase Envase);
+    public sealed record EnvaseFila(int Id, string NombreMedicamento, Envase Envase)
+    {
+        public string Cn { get; init; } = string.Empty;
+    }
 }

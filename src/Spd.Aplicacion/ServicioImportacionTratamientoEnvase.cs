@@ -49,7 +49,7 @@ public sealed class ServicioImportacionTratamientoEnvase(
             }
 
             var tratamientoActivo = repositorioTratamientos.ListarVigentesDePaciente(pacienteId)
-                .FirstOrDefault(t => t.MedicamentoId == medicamento.Id && t.EnSpd);
+                .FirstOrDefault(t => t.EnSpd && medicamento.EsEquivalenteA(repositorioMedicamentos.ObtenerPorId(t.MedicamentoId)));
 
             var tratamientoPendiente = false;
             if (tratamientoActivo is null) // FR-573: tratamiento nuevo, pendiente de posología

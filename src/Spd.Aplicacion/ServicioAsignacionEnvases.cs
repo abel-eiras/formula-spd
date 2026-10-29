@@ -17,8 +17,8 @@ public sealed class ServicioAsignacionEnvases(
 
         // FR-520: ya vienen ordenados por unidades_restantes asc, caducidad asc (RepositorioEnvases).
         var candidatos = repositorioEnvases
-            .ListarEnCustodiaDePacienteYMedicamento(tratamiento.PacienteId, tratamiento.MedicamentoId)
-            .Where(e => e.Caducidad is { } caducidad && caducidad >= caducidadMinima)
+            .ListarEquivalentesEnCustodia(tratamiento.PacienteId, tratamiento.MedicamentoId)
+            .Where(e => e.UnidadesRestantes > 0 && e.Caducidad is { } caducidad && caducidad >= caducidadMinima)
             .ToList();
 
         if (candidatos.Sum(e => e.UnidadesRestantes ?? 0) < unidadesADescontar)

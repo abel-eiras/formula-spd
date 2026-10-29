@@ -75,4 +75,22 @@ public sealed class InicioViewTests
         vm.IrACommand.Execute("Retirada");
         Assert.Equal(Seccion.Retirada, navegador.Actual!.Seccion);
     }
+    [AvaloniaFact]
+    public void La_comprobacion_se_inicia_solo_al_pulsar_y_solo_para_administracion()
+    {
+        var (vm, navegador, conexion) = Crear();
+        using var c = conexion;
+        Assert.True(vm.PuedeConsultarActualizaciones);
+        Assert.Null(navegador.Actual);
+        vm.ComprobarActualizacionesCommand.Execute(null);
+        Assert.Equal(Seccion.Actualizaciones, navegador.Actual!.Seccion);
+        Assert.Equal("comprobar", navegador.Actual.Detalle);
+
+        var servicios = FabricaServiciosTest.Todos(c);
+        var elaborador = new Navegador(esAdministrador: false);
+        var inicioElaborador = new InicioViewModel(servicios.Avisos, elaborador);
+        Assert.False(inicioElaborador.PuedeConsultarActualizaciones);
+        inicioElaborador.ComprobarActualizacionesCommand.Execute(null);
+        Assert.Null(elaborador.Actual);
+    }
 }

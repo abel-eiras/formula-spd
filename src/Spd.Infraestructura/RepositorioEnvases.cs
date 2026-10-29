@@ -62,6 +62,20 @@ public sealed class RepositorioEnvases(SqliteConnection conexion) : IRepositorio
             .Select(f => f.AEnvase())
             .ToList();
 
+    public IReadOnlyList<Envase> ListarEquivalentesEnCustodia(int pacienteId, int medicamentoId)
+        => conexion.Query<EnvaseFila>(
+                $"""
+                SELECT {Columnas} FROM Envase
+                WHERE paciente_id = @pacienteId AND estado = 'EnCustodia'
+                  AND (medicamento_id = @medicamentoId OR medicamento_id IN (
+                    SELECT alternativa.id FROM Medicamento alternativa
+                    JOIN Medicamento solicitado ON solicitado.id = @medicamentoId
+                    WHERE nullif(trim(solicitado.grupo_homogeneo), '') IS NOT NULL
+                      AND upper(trim(alternativa.grupo_homogeneo)) = upper(trim(solicitado.grupo_homogeneo))))
+                ORDER BY unidades_restantes ASC, caducidad ASC, id ASC
+                """, new { pacienteId, medicamentoId })
+            .Select(f => f.AEnvase()).ToList();
+
     public IReadOnlyList<Envase> ListarEnCustodiaDePaciente(int pacienteId)
         => conexion.Query<EnvaseFila>(
                 $"SELECT {Columnas} FROM Envase WHERE paciente_id = @pacienteId AND estado = 'EnCustodia' ORDER BY caducidad ASC",

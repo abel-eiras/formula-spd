@@ -421,4 +421,92 @@ public sealed class ServicioGeneracionDocumentosTests : IDisposable
         ContieneTodo(texto, "Colegio Oficial de Farmacéuticos");
         Assert.DoesNotContain("Diego DPO", texto);
     }
+
+    [Fact]
+    public void Documentos_listan_marcas_reales_con_una_sola_pauta_y_snapshot_congelado()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var envases = new RepositorioSpdLineaEnvases(c);
+        var anterior = Assert.Single(envases.ListarPorSpd(ctx.SpdId));
+        c.Execute("UPDATE SPD_Linea_Envase SET snap_cn = '111111', snap_nombre = 'Marca Alfa', snap_desc_texto = 'comprimido azul' WHERE id = @Id", new { anterior.Id });
+        envases.Crear(new SpdLineaEnvase { SpdLineaId = anterior.SpdLineaId, EnvaseId = anterior.EnvaseId,
+            UnidadesTomadas = 4, SnapCn = "222222", SnapNombre = "Marca Beta", SnapDescTexto = "comprimido verde",
+            SnapSerie = "SER2", SnapLote = "LOT2", SnapCaducidad = new DateOnly(2031, 2, 28) });
+        c.Execute("UPDATE Medicamento SET nombre = 'Nombre futuro', desc_texto = 'Descripción futura' WHERE cn = '654321'");
+        var ficha = TextoDelPdf(ctx.Servicio.GenerarFichaSpd(ctx.SpdId, null).RutaCompleta);
+        var etiqueta = TextoDelPdf(ctx.Servicio.GenerarEtiquetaReverso(ctx.SpdId, null).RutaCompleta);
+        var instrucciones = TextoDelPdf(ctx.Servicio.GenerarInstrucciones(ctx.SpdId, null).RutaCompleta);
+        foreach (var texto in new[] { ficha, etiqueta, instrucciones })
+        {
+            ContieneTodo(texto, "111111", "222222", "Marca Alfa", "Marca Beta");
+            Assert.DoesNotContain("Nombre futuro", texto);
+        }
+        ContieneTodo(etiqueta, "comprimido azul", "comprimido verde", "SER1", "SER2", "LOT1", "LOT2");
+        Assert.DoesNotContain("Descripción futura", etiqueta);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(etiqueta, @"\b1/2\b"));
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(instrucciones, @"\b1/2\b"));
+    }
+
+
+    [Fact]
+    public void Migracion_de_grupos_conserva_cajas_y_documentos_historicos()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        // Reconstruye el esquema anterior: las filas históricas no tenían identidad de marca por caja.
+        c.Execute("DROP INDEX ix_medicamento_grupo_homogeneo");
+        c.Execute("ALTER TABLE Medicamento DROP COLUMN grupo_homogeneo");
+        c.Execute("ALTER TABLE SPD_Linea_Envase DROP COLUMN snap_cn");
+        c.Execute("ALTER TABLE SPD_Linea_Envase DROP COLUMN snap_nombre");
+        c.Execute("ALTER TABLE SPD_Linea_Envase DROP COLUMN snap_desc_texto");
+        c.Execute("DELETE FROM schema_version WHERE version = 14");
+        new AplicadorMigraciones(c).Aplicar();
+        new AplicadorMigraciones(c).Aplicar();
+        var snapshot = Assert.Single(new RepositorioSpdLineaEnvases(c).ListarPorSpd(ctx.SpdId));
+        Assert.Null(snapshot.SnapCn); Assert.Null(snapshot.SnapNombre);
+        Assert.Equal("SER1", snapshot.SnapSerie); Assert.Equal("LOT1", snapshot.SnapLote);
+        var etiqueta = TextoDelPdf(ctx.Servicio.GenerarEtiquetaReverso(ctx.SpdId, null).RutaCompleta);
+        ContieneTodo(etiqueta, "654321", "Paracetamol", "SER1", "LOT1");
+    }
+
+    [Fact]
+    public void Documentos_omiten_marca_devuelta_completamente_y_conservan_snapshot_historico()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var envases = new RepositorioSpdLineaEnvases(c);
+        var alfa = Assert.Single(envases.ListarPorSpd(ctx.SpdId));
+        c.Execute("UPDATE SPD_Linea_Envase SET unidades_tomadas = 3, snap_cn = '111111', snap_nombre = 'Marca Alfa', snap_desc_texto = 'comprimido azul' WHERE id = @Id", new { alfa.Id });
+        var beta = new SpdLineaEnvase { SpdLineaId = alfa.SpdLineaId, EnvaseId = alfa.EnvaseId,
+            UnidadesTomadas = 4, SnapCn = "222222", SnapNombre = "Marca Beta", SnapDescTexto = "comprimido verde",
+            SnapSerie = "SER-BETA", SnapLote = "LOT-BETA", SnapCaducidad = new DateOnly(2031, 2, 28) };
+        beta.Id = envases.Crear(beta);
+        var historial = new RepositorioSpdModificaciones(c);
+        var snapshotAnterior = System.Text.Json.JsonSerializer.Serialize(new { Envases = envases.ListarPorSpd(ctx.SpdId) });
+        historial.Crear(new SpdModificacion { SpdId = ctx.SpdId, VersionAnterior = 1, VersionNueva = 2,
+            UsuarioId = new RepositorioSpd(c).ObtenerPorId(ctx.SpdId)!.ElaboradorId,
+            OrigenSolicitud = OrigenSolicitudReelaboracion.Paciente, Motivo = "Reducción de unidades",
+            ResumenCambios = "[]", LineasSnapshotAnterior = snapshotAnterior });
+
+        // Estado persistido por Reelaborar al devolver las cuatro unidades de Beta: la fila se conserva.
+        beta.UnidadesTomadas = 0;
+        envases.Actualizar(beta);
+        c.Execute("UPDATE SPD_Linea SET unidades_envase = 3 WHERE id = @Id", new { Id = alfa.SpdLineaId });
+        Assert.Equal(2, envases.ListarPorSpd(ctx.SpdId).Count);
+        Assert.Equal(snapshotAnterior, Assert.Single(historial.ListarPorSpd(ctx.SpdId)).LineasSnapshotAnterior);
+
+        var ficha = TextoDelPdf(ctx.Servicio.GenerarFichaSpd(ctx.SpdId, null).RutaCompleta);
+        var etiqueta = TextoDelPdf(ctx.Servicio.GenerarEtiquetaReverso(ctx.SpdId, null).RutaCompleta);
+        var instrucciones = TextoDelPdf(ctx.Servicio.GenerarInstrucciones(ctx.SpdId, null).RutaCompleta);
+        foreach (var texto in new[] { ficha, etiqueta, instrucciones })
+        {
+            ContieneTodo(texto, "111111", "Marca Alfa");
+            foreach (var devuelto in new[] { "222222", "Marca Beta", "SER-BETA", "LOT-BETA", "comprimido verde" })
+                Assert.DoesNotContain(devuelto, texto);
+        }
+        ContieneTodo(etiqueta, "SER1", "LOT1", "comprimido azul");
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(etiqueta, @"\b1/2\b"));
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(instrucciones, @"\b1/2\b"));
+    }
 }
