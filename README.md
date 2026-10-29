@@ -4,7 +4,7 @@ Programa de escritorio para el servicio SPD de las farmacias gallegas, construid
 *Procedimiento Normalizado de Trabajo* del Colegio de Farmacéuticos de Pontevedra y el
 Decreto 87/2022 de la Xunta de Galicia.
 
-> **Estado: beta.** La versión 0.1.0-beta está en pruebas en un grupo reducido de farmacias.
+> **Estado: beta.** La versión 0.2.0-beta está en pruebas en un grupo reducido de farmacias.
 
 ## Descargar
 

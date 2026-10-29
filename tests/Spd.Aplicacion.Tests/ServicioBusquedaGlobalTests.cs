@@ -11,7 +11,7 @@ namespace Spd.Aplicacion.Tests;
 /// una lista vacía, nunca un error.</summary>
 public sealed class ServicioBusquedaGlobalTests
 {
-    private static (IServicioBusquedaGlobal Servicio, int PacienteId) Montar(SqliteConnection conexion)
+    private static (IServicioBusquedaGlobal Servicio, int PacienteId) Montar(SqliteConnection conexion, bool conFaltante = false)
     {
         conexion.Open();
         new AplicadorMigraciones(conexion).Aplicar();
@@ -28,16 +28,30 @@ public sealed class ServicioBusquedaGlobalTests
         var servicioPacientes = new ServicioPacientes(repositorioPacientes, repositorioFarmacia, auditoria);
         var paciente = servicioPacientes.Crear(
             new DatosAltaPaciente("María", "López Pérez", null, "12345678Z", null, null, null, null, null, null,
-                null, null, null, null, null, null, null, false, null, null, 1), null);
+                null, null, null, null, null, null, null, false, null,
+                conFaltante ? DiasSemana.Codigos[((int)DateTime.Today.DayOfWeek + 6) % 7] : null, 1), null);
+        if (conFaltante) servicioPacientes.CambiarEstado(paciente.Id, EstadoPaciente.Activo, null, null);
 
         var repositorioMedicamentos = new RepositorioMedicamentos(conexion);
         var servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
         var medicamento = new Medicamento
         {
             Cn = "654321", Nombre = "Enalapril 20 mg", PrincipioActivo = "Enalapril",
-            NombreNormalizado = Normalizador.QuitarTildesYMayusculas("Enalapril 20 mg"), UnidadesEnvase = 28
+            NombreNormalizado = Normalizador.QuitarTildesYMayusculas("Enalapril 20 mg"), UnidadesEnvase = 28,
+            Gtin = "08470006950647"
         };
         medicamento.Id = repositorioMedicamentos.Crear(medicamento);
+
+        var repositorioTratamientos = new RepositorioTratamientos(conexion);
+        if (conFaltante)
+            repositorioTratamientos.Crear(new Tratamiento
+            {
+                PacienteId = paciente.Id, MedicamentoId = medicamento.Id, EnSpd = true, PautaD = FraccionDosis.Uno,
+                FechaInicio = new DateOnly(2026, 1, 1), FechaPrescripcionInicial = new DateOnly(2026, 1, 1)
+            });
+        var listadoRetirada = new ServicioListadoRetirada(
+            repositorioPacientes, new RepositorioContactos(conexion), repositorioTratamientos, repositorioMedicamentos,
+            new RepositorioEnvases(conexion), repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
 
         var elaborador = new Usuario { Nombre = "Elena", Apellidos = "Ruiz", Login = "elena", HashPassword = "x", Rol = Rol.Elaborador };
         elaborador.Id = new RepositorioUsuarios(conexion).Crear(elaborador);
@@ -50,7 +64,7 @@ public sealed class ServicioBusquedaGlobalTests
             ValidezDesde = hoy, ValidezHasta = hoy.AddDays(6), Estado = EstadoSpd.Preparado
         });
 
-        return (new ServicioBusquedaGlobal(servicioPacientes, servicioMedicamentos, repositorioSpd, repositorioPacientes),
+        return (new ServicioBusquedaGlobal(servicioPacientes, servicioMedicamentos, repositorioSpd, repositorioPacientes, listadoRetirada),
                 paciente.Id);
     }
 
@@ -89,5 +103,45 @@ public sealed class ServicioBusquedaGlobalTests
         Assert.Empty(servicio.Buscar("   "));
         // Una sola letra encontraría media base de datos: no es una búsqueda, es ruido.
         Assert.Empty(servicio.Buscar("l"));
+    }
+
+    // spec-012 FR-1207: escanear en la búsqueda global lleva a quien tiene pendiente retirar ese medicamento.
+
+    private static DatosEnvaseEscaneado Lectura(string? cn = null) => new(
+        "08470006950647", "LOTE1", new FechaCaducidadGs1(2030, 12, 31), "SERIE1", cn);
+
+    [Fact]
+    public void Envase_escaneado_lleva_al_paciente_con_faltantes_de_ese_medicamento()
+    {
+        using var conexion = new SqliteConnection("Data Source=:memory:");
+        var (servicio, pacienteId) = Montar(conexion, conFaltante: true);
+
+        var resultado = Assert.Single(servicio.BuscarEnvaseEscaneado(Lectura(), DateOnly.FromDateTime(DateTime.Today)));
+
+        Assert.Equal(TipoResultadoBusqueda.RetiradaPendiente, resultado.Tipo);
+        Assert.Equal(pacienteId, resultado.PacienteId);
+        Assert.Contains("Enalapril", resultado.Detalle);
+    }
+
+    [Fact]
+    public void Envase_escaneado_sin_retiradas_pendientes_devuelve_el_medicamento()
+    {
+        using var conexion = new SqliteConnection("Data Source=:memory:");
+        var (servicio, _) = Montar(conexion);
+
+        var resultado = Assert.Single(servicio.BuscarEnvaseEscaneado(Lectura(cn: "654321"), DateOnly.FromDateTime(DateTime.Today)));
+
+        Assert.Equal(TipoResultadoBusqueda.Medicamento, resultado.Tipo);
+        Assert.Contains("ningún paciente", resultado.Detalle);
+    }
+
+    [Fact]
+    public void Envase_escaneado_que_no_esta_en_el_catalogo_devuelve_vacio()
+    {
+        using var conexion = new SqliteConnection("Data Source=:memory:");
+        var (servicio, _) = Montar(conexion);
+
+        var lectura = new DatosEnvaseEscaneado("00000000000000", "L", new FechaCaducidadGs1(2030, 1, 1), "S", "999999");
+        Assert.Empty(servicio.BuscarEnvaseEscaneado(lectura, DateOnly.FromDateTime(DateTime.Today)));
     }
 }

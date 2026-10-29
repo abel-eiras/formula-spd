@@ -5,6 +5,8 @@ public interface IRepositorioMedicamentos
 {
     Medicamento? ObtenerPorId(int id);
     Medicamento? ObtenerPorCn(string cn);
+    /// <summary>spec-012: para resolver el medicamento a partir del GTIN de un DataMatrix escaneado.</summary>
+    Medicamento? ObtenerPorGtin(string gtin);
 
     /// <summary>Busca por CN exacto o por fragmento de nombre ya normalizado (FR-305), con límite.</summary>
     IReadOnlyList<Medicamento> Buscar(string fragmento, string fragmentoNormalizado, int limite);

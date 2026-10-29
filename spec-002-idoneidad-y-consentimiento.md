@@ -35,6 +35,9 @@ Como elaborador, si el paciente o su representante retira el consentimiento, qui
 ### E5 — Reevaluar tras un cambio relevante
 Como elaborador, si cambia significativamente la situación del paciente (nuevo diagnóstico, cambio de capacidad), quiero poder registrar una nueva evaluación de idoneidad sin perder la anterior.
 
+### E6 — Paciente ya evaluado antes de usar la aplicación
+Como elaborador, si doy de alta a un paciente que ya estaba en el servicio SPD con entrevista y consentimiento firmado en papel de antes, quiero registrarlo como apto sin repetir los 7 criterios uno a uno ni rehacer la entrevista.
+
 ## 4. Requisitos funcionales
 
 ### 4.1 Evaluación de idoneidad
@@ -53,6 +56,11 @@ Como elaborador, si cambia significativamente la situación del paciente (nuevo 
 - **FR-213** Un paciente pasa de `EVALUACION` a `ACTIVO` (Spec 001 FR-006) automáticamente cuando existen a la vez: una evaluación vigente `APTO` y un consentimiento vigente con `fecha_firma` informada y sin `fecha_revocacion`.
 - **FR-214** Revocación: registra `fecha_revocacion` y motivo. El consentimiento no se borra; simplemente deja de ser vigente. Si no hay otro consentimiento vigente, el sistema avisa y ofrece pasar al paciente a `SUSPENDIDO` (Spec 001 FR-006).
 - **FR-215** Un nuevo consentimiento del mismo tipo sustituye al anterior como vigente (el anterior queda con fecha, sin revocar explícitamente, simplemente no es el más reciente); esto cubre la renovación periódica si la farmacia la practica, sin necesitar una revocación previa.
+
+### 4.3 Atajo para pacientes ya evaluados antes de usar la aplicación
+
+- **FR-216** Botón "Marcar como apto" (pestaña Idoneidad y consentimiento) para el caso habitual de un paciente ya en el servicio SPD con entrevista y firma en papel ya hechas: pide solo tipo de firmante (paciente/representante) y fecha real de la firma, y registra una evaluación `APTO` real y un consentimiento firmado con esa fecha — nunca activa al paciente sin esos dos registros (Art. I.3; el estado ACTIVO por sí solo no basta para preparar SPD, Spec 006 FR-602). Los 7 criterios no se marcan uno a uno; la discrepancia con la propuesta de la aplicación (Art. V.1) queda documentada en observaciones (FR-204), igual que cualquier decisión profesional que se aparte de la propuesta.
+- **FR-217** El atajo reutiliza exactamente las mismas operaciones que el alta manual (FR-201, FR-210, FR-212, FR-213): no introduce ningún camino nuevo para saltarse Art. I.3, solo evita repetir la pantalla larga de la entrevista cuando esta ya se hizo.
 
 ## 5. Entidades clave
 
@@ -81,6 +89,9 @@ Dado dos evaluaciones de un paciente, la primera NO_APTO y la segunda (posterior
 
 **CA-205 Observaciones obligatorias en NO_APTO**
 Dado un formulario de evaluación con resultado NO_APTO y sin observaciones, cuando intento guardar, entonces el sistema lo impide.
+
+**CA-206 Marcar como apto activa de verdad**
+Dado un paciente en EVALUACION, cuando uso "Marcar como apto" indicando fecha de firma, entonces el paciente pasa a ACTIVO y queda tanto con una evaluación vigente APTO como con un consentimiento vigente — no solo con el estado cambiado.
 
 ## 7. Casos límite
 

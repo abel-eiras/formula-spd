@@ -28,7 +28,11 @@ public enum Seccion
 /// <summary>A dónde se navega. `Detalle` es el sub-destino: el apartado de ayuda en
 /// <see cref="Seccion.Ayuda"/> y la pestaña de <see cref="Seccion.Paciente"/>. En `Seccion.Paciente`
 /// un `PacienteId` nulo significa alta nueva, no "cualquiera".</summary>
-public sealed record Destino(Seccion Seccion, int? PacienteId = null, string? Detalle = null);
+public sealed record Destino(Seccion Seccion, int? PacienteId = null, string? Detalle = null, LecturaParaRetirada? Lectura = null);
+
+/// <summary>Un envase escaneado en la búsqueda global (spec-012 FR-1207): la retirada se abre con el
+/// registro de ese medicamento ya rellenado con la lectura.</summary>
+public sealed record LecturaParaRetirada(int MedicamentoId, Spd.Dominio.DatosEnvaseEscaneado Datos);
 
 /// <summary>Una entrada del menú lateral.</summary>
 public sealed record EntradaNavegacion(Seccion Seccion, string Titulo, string Grupo, bool SoloAdministrador)

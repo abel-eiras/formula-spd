@@ -66,9 +66,15 @@
                   Command="{Binding AtrasCommand}" IsVisible="{Binding PuedeVolver}" />
 
           <!-- FR-1520: la búsqueda global vive en la cabecera, disponible desde cualquier sección. -->
+          <!-- FR-1207 (spec-012): escanear un envase aquí lleva a la retirada de quien lo necesita. -->
           <TextBox DockPanel.Dock="Right" Width="300" Name="CampoBusqueda"
                    Text="{Binding TextoBusqueda}"
-                   Watermark="Buscar paciente, medicamento o blíster…" />
+                   Watermark="Buscar o escanear envase… (Ctrl+F)">
+            <TextBox.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding ConfirmarBusquedaCommand}" />
+              <KeyBinding Gesture="Escape" Command="{Binding CerrarBusquedaCommand}" />
+            </TextBox.KeyBindings>
+          </TextBox>
 
           <TextBlock Text="{Binding TituloSeccion}" Classes="titulo" VerticalAlignment="Center" />
         </DockPanel>
@@ -83,6 +89,8 @@
                 HorizontalAlignment="Right" VerticalAlignment="Top" Width="380"
                 Margin="0,6,24,0" Padding="0" ZIndex="10">
           <StackPanel>
+            <TextBlock Text="{Binding AvisoBusqueda}" Classes="suave" TextWrapping="Wrap" Margin="12,8,12,4"
+                       IsVisible="{Binding AvisoBusqueda, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <ItemsControl ItemsSource="{Binding ResultadosBusqueda}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>

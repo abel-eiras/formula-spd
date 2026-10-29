@@ -51,11 +51,19 @@
               <NumericUpDown Value="{Binding Temperatura}" Watermark="Temp. °C" Width="130" />
               <NumericUpDown Value="{Binding Humedad}" Watermark="Humedad %" Width="130" />
             </StackPanel>
+            <TextBlock Text="{Binding TextoUltimaLectura}" Classes="suave" TextWrapping="Wrap" />
             <StackPanel Orientation="Horizontal" Spacing="8">
-              <ComboBox ItemsSource="{Binding MaterialesDisponibles}" SelectedItem="{Binding MaterialSeleccionado}" Width="220">
+              <ComboBox ItemsSource="{Binding MaterialesDisponibles}" SelectedItem="{Binding MaterialSeleccionado}" Width="280">
                 <ComboBox.ItemTemplate>
                   <DataTemplate>
-                    <TextBlock Text="{Binding Descripcion}" />
+                    <TextBlock>
+                      <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} — lote {1}">
+                          <Binding Path="Descripcion" />
+                          <Binding Path="Lote" />
+                        </MultiBinding>
+                      </TextBlock.Text>
+                    </TextBlock>
                   </DataTemplate>
                 </ComboBox.ItemTemplate>
               </ComboBox>
@@ -187,12 +195,23 @@
           <StackPanel Spacing="4">
             <TextBlock Text="{Binding LineaParaRegistrarEnvase.SnapNombre, StringFormat='Registrar envase: {0}'}" FontWeight="Bold" />
             <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBox Watermark="Escanear envase (spec-012)" Text="{Binding EnvaseCodigoEscaneado}">
+                <TextBox.KeyBindings>
+                  <KeyBinding Gesture="Enter" Command="{Binding LeerEnvaseCodigoEscaneadoCommand}" />
+                </TextBox.KeyBindings>
+              </TextBox>
               <TextBox Watermark="Serie" Text="{Binding EnvaseSerie}" />
               <TextBox Watermark="Lote" Text="{Binding EnvaseLote}" />
               <DatePicker SelectedDate="{Binding EnvaseCaducidad}" />
-              <NumericUpDown Value="{Binding EnvaseUnidadesIniciales}" Minimum="0" Watermark="Unidades" />
+              <NumericUpDown x:Name="CampoUnidades" Value="{Binding EnvaseUnidadesIniciales}" Minimum="0" Watermark="Unidades">
+                <NumericUpDown.KeyBindings>
+                  <KeyBinding Gesture="Enter" Command="{Binding ConfirmarRegistroEnvaseCommand}" />
+                </NumericUpDown.KeyBindings>
+              </NumericUpDown>
               <Button Content="Guardar" Command="{Binding ConfirmarRegistroEnvaseCommand}" />
             </StackPanel>
+            <CheckBox IsChecked="{Binding EnvaseUnidades.Guardar}" IsVisible="{Binding EnvaseUnidades.OfrecerGuardar}"
+                      Content="El catálogo no sabe cuántas unidades trae este envase. Si está completo, guardar estas unidades como tamaño de envase" />
           </StackPanel>
         </Border>
       </StackPanel>

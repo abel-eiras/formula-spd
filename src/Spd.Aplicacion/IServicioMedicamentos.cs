@@ -8,6 +8,7 @@ public interface IServicioMedicamentos
 {
     Medicamento? ObtenerPorId(int id);
     Medicamento? ObtenerPorCn(string cn);
+    Medicamento? ObtenerPorGtin(string gtin);
     /// <summary>FR-305. Con menos de dos caracteres devuelve vacío, y nunca más de <paramref name="limite"/>
     /// resultados: con el nomenclátor entero en el catálogo, listar miles no ayuda a encontrar ninguno.</summary>
     IReadOnlyList<Medicamento> Buscar(string fragmento, int limite = 50);

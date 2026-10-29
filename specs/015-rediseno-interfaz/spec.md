@@ -131,6 +131,10 @@ de un vistazo, porque es la herramienta que se enseña en una inspección.
   verificador y el médico se eligen por nombre en un selector.
 - **FR-1534** Los mensajes de bloqueo aparecen junto a la acción que los provoca, con su "¿Por qué?".
 
+### 4.4b Teclado (añadido 2026-09-28)
+
+- **FR-1535** **Ctrl+F** lleva al buscador global desde cualquier sección. En el buscador, **Intro** abre el primer resultado (o interpreta un envase escaneado, spec-012 FR-1207) y **Esc** lo cierra. En las altas de envase, Intro en el campo de unidades guarda (spec-012 FR-1208). F1 sigue abriendo la ayuda contextual (FR-1505).
+
 ### 4.5 Invariantes de todas las fases
 
 - **FR-1540** No cambia ninguna regla de negocio: las capas de Dominio y Aplicación solo se tocan para

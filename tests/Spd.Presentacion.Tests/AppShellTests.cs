@@ -1,4 +1,9 @@
+using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Headless;
+using Avalonia.Input;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Avalonia.Headless.XUnit;
 using Microsoft.Data.Sqlite;
 using Spd.Aplicacion;
@@ -161,4 +166,65 @@ public sealed class AppShellTests
 
     /// <summary>Contenido mínimo para tener una ventana viva durante el test.</summary>
     private sealed class AppShellContenido : UserControl;
+
+    /// <summary>spec-012 FR-1207, el flujo del mostrador con teclas de verdad: Ctrl+F, el lector teclea
+    /// el código y un Intro, la aplicación va sola a la retirada del único paciente al que le falta
+    /// ese medicamento con lote, serie, caducidad y unidades ya puestos, y otro Intro guarda.</summary>
+    [AvaloniaFact]
+    public void Escanear_en_la_busqueda_global_lleva_a_la_retirada_y_un_Intro_registra_el_envase()
+    {
+        using var conexion = new SqliteConnection("Data Source=:memory:");
+        conexion.Open();
+        new AplicadorMigraciones(conexion).Aplicar();
+        new RepositorioFarmacia(conexion).Crear(new Farmacia
+        {
+            CodigoSanitario = "PO-001", Nombre = "Farmacia de Prueba", TitularOComunidadBienes = "Titular",
+            Cif = "B00000000", Direccion = "Calle Falsa 1", Cp = "36000", Poblacion = "Pontevedra", Telefono = "986000000"
+        });
+        var servicios = FabricaServiciosTest.Todos(conexion);
+        var usuario = servicios.Usuarios.CrearUsuario(
+            new DatosAltaUsuario("Ana", "Ruiz", "ana", "contraseña-inicial", Rol.Elaborador, null, null),
+            administradorQueEjecutaId: null).Usuario;
+
+        var diaRetiradaHoy = DiasSemana.Codigos[((int)System.DateTime.Today.DayOfWeek + 6) % 7];
+        var paciente = servicios.Pacientes.Crear(
+            new DatosAltaPaciente("José", "Núñez", null, "12345678Z", null, null, null, null, null, null,
+                null, null, null, null, null, null, null, false, null, diaRetiradaHoy, 1), null);
+        servicios.Pacientes.CambiarEstado(paciente.Id, EstadoPaciente.Activo, null, null);
+        var medicamento = new Medicamento { Cn = "654321", Nombre = "Enalapril 20 mg", UnidadesEnvase = 28, Gtin = "08470006950647" };
+        medicamento.Id = new RepositorioMedicamentos(conexion).Crear(medicamento);
+        new RepositorioTratamientos(conexion).Crear(new Tratamiento
+        {
+            PacienteId = paciente.Id, MedicamentoId = medicamento.Id, EnSpd = true, PautaD = FraccionDosis.Uno,
+            FechaInicio = new System.DateOnly(2026, 1, 1), FechaPrescripcionInicial = new System.DateOnly(2026, 1, 1)
+        });
+
+        var navegador = new Navegador(esAdministrador: false);
+        var vm = new AppShellViewModel(new FabricaViewModels(servicios, navegador, usuario), navegador, servicios.Avisos, servicios.BusquedaGlobal, usuario);
+        var ventana = new AppShell { DataContext = vm, Width = 1300, Height = 800 };
+        ventana.Show();
+        Dispatcher.UIThread.RunJobs();
+
+        ventana.KeyPress(Key.F, RawInputModifiers.Control, PhysicalKey.F, null);
+        Assert.True(ventana.FindControl<TextBox>("CampoBusqueda")!.IsFocused);
+
+        // Como lo haría el lector USB: sin separador GS visible, y un Intro al final.
+        ventana.KeyTextInput("01084700069506471730123110LOTE921SERIE9");
+        ventana.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+        ventana.UpdateLayout();          // la sección nueva se maqueta y engancha al árbol visual...
+        Dispatcher.UIThread.RunJobs();   // ...y entonces se ejecuta el cambio de foco diferido.
+
+        var retirada = Assert.IsType<RetiradaEnvasesViewModel>(vm.Contenido);
+        Assert.Equal("SERIE9", retirada.Serie);
+        Assert.Equal(28, retirada.UnidadesIniciales);
+        var unidades = ventana.GetVisualDescendants().OfType<NumericUpDown>().Single(n => n.Name == "CampoUnidades");
+        Assert.True(unidades.IsKeyboardFocusWithin);
+
+        ventana.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+        Dispatcher.UIThread.RunJobs();
+
+        var envase = Assert.Single(servicios.Envases.ListarEnCustodiaDePaciente(paciente.Id));
+        Assert.Equal("LOTE9", envase.Lote);
+        Assert.Equal(OrigenEnvase.Escaneado, envase.Origen);
+    }
 }

@@ -6,7 +6,10 @@ public enum TipoResultadoBusqueda
 {
     Paciente,
     Medicamento,
-    Blister
+    Blister,
+    /// <summary>Un paciente al que le falta retirar el medicamento de un envase escaneado. `Id` es el
+    /// medicamento y `PacienteId` el paciente (spec-012 FR-1207).</summary>
+    RetiradaPendiente
 }
 
 /// <summary>Un resultado de la búsqueda global. `Titulo` es lo que identifica la cosa (el nombre
@@ -26,4 +29,9 @@ public interface IServicioBusquedaGlobal
     /// <summary>Busca en pacientes, medicamentos y blísteres a la vez. Devuelve lista vacía —nunca
     /// excepción— si no hay texto o no hay coincidencias.</summary>
     IReadOnlyList<ResultadoBusqueda> Buscar(string? texto, int limitePorTipo = 5);
+
+    /// <summary>spec-012 FR-1207: para un envase escaneado en el mostrador, los pacientes a los que les
+    /// falta retirar ese medicamento. Si no le falta a nadie, el propio medicamento; si no está en el
+    /// catálogo, lista vacía.</summary>
+    IReadOnlyList<ResultadoBusqueda> BuscarEnvaseEscaneado(Spd.Dominio.DatosEnvaseEscaneado datos, DateOnly hoy);
 }

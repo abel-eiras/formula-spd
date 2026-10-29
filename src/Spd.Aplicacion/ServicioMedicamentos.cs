@@ -11,6 +11,8 @@ public sealed class ServicioMedicamentos(
 
     public Medicamento? ObtenerPorCn(string cn) => repositorio.ObtenerPorCn(cn);
 
+    public Medicamento? ObtenerPorGtin(string gtin) => repositorio.ObtenerPorGtin(gtin);
+
     /// <summary>FR-305. Con el nomenclátor entero cargado hay más de 15.000 medicamentos: por debajo de dos
     /// caracteres cualquier fragmento los trae casi todos.</summary>
     public const int MinimoCaracteres = 2;

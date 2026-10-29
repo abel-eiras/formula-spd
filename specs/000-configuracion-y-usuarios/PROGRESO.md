@@ -336,6 +336,16 @@ la aplicación.
   el título de las ventanas y en Actualizaciones. Empaquetado portable por plataforma en
   `publicar/empaquetar.sh` y workflow de release en `.github/workflows/publicar.yml`.
 
+- **2026-09-28 — Segunda release (0.2.0-beta).** Lector DataMatrix (spec-012) integrado en las tres
+  altas de envase, en el selector de medicamento y en el buscador global; "Marcar como apto" (Spec 002
+  FR-216); descarga del nomenclátor ofrecida tras el asistente con la URL del Ministerio preinformada
+  (FR-002/FR-051), también para las instalaciones que actualizan, sin migración
+  (`UrlNomenclatorPorDefectoTests`); unidades desde el catálogo, preparación semanal y atajos de
+  teclado. Sin cambios de esquema: actualizar es sustituir el ejecutable. Suite completa en verde con
+  la cultura del workflow (`LANG=gl_ES.utf8`); en una máquina con otra cultura falla
+  `GenerarFichaSpd_contiene_los_elementos_del_Anexo_I_G…` porque busca «21,5» en el PDF, que es
+  cuestión del entorno, no del código.
+
 - **2026-09-14 — Marca «Fórmula SPD».** Decisión del propietario antes de la primera release: la
   aplicación se llama Fórmula SPD (títulos, barra lateral, log, paquetes `FormulaSPD-…`), lleva el
   logotipo de Fórmula farma abajo a la derecha en el inicio de sesión y en Inicio (negro en tema claro,

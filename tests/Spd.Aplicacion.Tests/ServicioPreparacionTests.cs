@@ -110,6 +110,42 @@ public sealed class ServicioPreparacionTests
         => ctx.RepositorioAmbiental.Crear(new RegistroAmbiental { Fecha = DateTime.UtcNow, Temperatura = 20, Humedad = 50, FueraRango = false });
 
     [Fact]
+    public void Material_propuesto_es_el_ultimo_usado_o_el_unico_activo_FR_632()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        Assert.Null(ctx.Servicio.ObtenerMaterialPropuesto());
+
+        var unico = CrearMaterial(ctx);
+        Assert.Equal(unico, ctx.Servicio.ObtenerMaterialPropuesto()!.Id);
+
+        var otro = ctx.RepositorioMaterial.Crear(
+            new MaterialAcondicionamiento { Descripcion = "Blíster 7x4", Lote = "L2", FechaEntrada = new DateOnly(2026, 2, 1) });
+        Assert.Null(ctx.Servicio.ObtenerMaterialPropuesto()); // dos activos y ninguno usado: no se adivina
+
+        CrearEnvase(ctx, "S1", 28, new DateOnly(2030, 1, 1));
+        var spd = ctx.Servicio.CrearSesion(ctx.PacienteId, ctx.ElaboradorId).Single();
+        ctx.Servicio.AsignarMaterial(spd.Id, otro);
+        Assert.Equal(otro, ctx.Servicio.ObtenerMaterialPropuesto()!.Id);
+    }
+
+    [Fact]
+    public void Ultima_lectura_ambiental_dice_si_se_reutilizaria_FR_630()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        Assert.Null(ctx.Servicio.ObtenerUltimaLecturaAmbiental());
+
+        ctx.RepositorioAmbiental.Crear(new RegistroAmbiental { Fecha = DateTime.UtcNow.AddHours(-5), Temperatura = 20, Humedad = 50 });
+        Assert.False(ctx.Servicio.ObtenerUltimaLecturaAmbiental()!.Reutilizable);
+        Assert.Throws<ErrorValidacionException>(() => ctx.Servicio.ObtenerOCrearLecturaAmbiental(null, null, null));
+
+        var reciente = CrearLecturaAmbiental(ctx);
+        Assert.True(ctx.Servicio.ObtenerUltimaLecturaAmbiental()!.Reutilizable);
+        Assert.Equal(reciente, ctx.Servicio.ObtenerOCrearLecturaAmbiental(null, null, null).Id);
+    }
+
+    [Fact]
     public void CrearSesion_con_dos_blisteres_crea_dos_spd_con_validez_consecutiva_CA_600()
     {
         var ctx = Crear(nBlisteres: 2);

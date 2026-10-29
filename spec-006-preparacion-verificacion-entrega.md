@@ -68,8 +68,9 @@ Como elaborador, si al preparar descubro que un envase se agotó antes de lo pre
 ### 4.4 Condiciones ambientales y material
 
 - **FR-630** La sesión muestra la última lectura ambiental. Si tiene menos de N horas (configurable, por defecto 2) se reutiliza con un clic; si no, se introduce una nueva, que se guarda una sola vez y se enlaza a todos los SPD de la sesión.
+- **FR-630b** La pantalla muestra siempre la última lectura (valores y hora) y si se reutilizaría dejando los campos vacíos, antes de pulsar nada; la regla de reutilización vive en un solo sitio del servicio, para que lo anunciado y lo aplicado no puedan discrepar.
 - **FR-631** Lectura fuera de rango: aviso, no bloquea.
-- **FR-632** Material de acondicionamiento: selector por blíster con el último lote usado preseleccionado. Obligatorio por blíster antes de pasar a PREPARADO.
+- **FR-632** Material de acondicionamiento: selector por blíster con el último lote usado preseleccionado. Obligatorio por blíster antes de pasar a PREPARADO. El selector muestra descripción **y lote**; si todavía no se ha usado ninguno y solo hay un material activo, se preselecciona ese; con varios activos y ninguno usado no se adivina. Un material recién dado de alta queda seleccionado.
 
 ### 4.5 Llenado asistido
 

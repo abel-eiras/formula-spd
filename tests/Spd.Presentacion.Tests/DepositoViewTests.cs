@@ -62,13 +62,12 @@ public sealed class DepositoViewTests
         var servicioImportacion = new ServicioImportacionTratamientoEnvase(
             repositorioMedicamentos, repositorioTratamientos, repositorioEnvases,
             new RepositorioPerfilesImportacionTratamiento(conexion), servicioTratamientosParaImportacion, auditoria);
-        var ventana = AnfitrionDeVista.Anfitrion(new DepositoView
-        {
-            DataContext = new DepositoViewModel(servicioEnvases, servicioMedicamentos, servicioImportacion, paciente.Id, usuarioActualId: null)
-        });
+        var vm = new DepositoViewModel(
+            servicioEnvases, servicioMedicamentos, servicioTratamientosParaImportacion, servicioImportacion,
+            paciente.Id, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new DepositoView { DataContext = vm });
 
         var vista = (DepositoView)ventana.Content!;
-        var vm = (DepositoViewModel)vista.DataContext!;
         var primera = vm.EnCustodia.Single();
         for (var i = 2; i <= 12; i++) vm.EnCustodia.Add(primera with { Id = i, NombreMedicamento = $"Medicamento {i}" });
         ventana.Height = 500;
@@ -88,6 +87,22 @@ public sealed class DepositoViewTests
         Assert.Equal(3, vm.EnCustodia.Count);
         Assert.Equal("LOTE-1", vm.EnCustodia.Single(e => e.Envase.Serie == "NUEVA-1").Envase.Lote);
         Assert.Equal(new DateOnly(2031, 2, 28), vm.EnCustodia.Single(e => e.Envase.Serie == "NUEVA-2").Envase.Caducidad);
+        var otro = new Medicamento { Cn = "777777", Nombre = "Medicamento sin tamaño" };
+        otro.Id = repositorioMedicamentos.Crear(otro);
+        repositorioTratamientos.Crear(new Tratamiento
+        {
+            PacienteId = paciente.Id, MedicamentoId = otro.Id, EnSpd = true, PautaD = FraccionDosis.Uno,
+            FechaInicio = new DateOnly(2026, 1, 1), FechaPrescripcionInicial = new DateOnly(2026, 1, 1)
+        });
+        vm.CerrarPanelImportarCommand.Execute(null);
+        vm.MedicamentoSeleccionado = vm.MedicamentosConTratamiento.Single(m => m.Cn == "777777");
+        Assert.Null(vm.UnidadesIniciales);
+        Assert.True(vm.Unidades.OfrecerGuardar);
+        vm.Serie = "S-NUEVO"; vm.Caducidad = new DateTimeOffset(new DateTime(2030, 1, 1));
+        vm.UnidadesIniciales = 30; vm.Unidades.Guardar = true;
+        vm.RegistrarEnvaseCommand.Execute(null);
+        Assert.Equal(30, servicioMedicamentos.ObtenerPorCn("777777")!.UnidadesEnvase);
         ventana.Close();
+
     }
 }

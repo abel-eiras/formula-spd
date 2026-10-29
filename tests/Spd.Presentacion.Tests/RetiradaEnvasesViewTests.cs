@@ -1,4 +1,10 @@
+using System.Linq;
+using Avalonia.Controls;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
+using Avalonia.Input;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Microsoft.Data.Sqlite;
 using Spd.Aplicacion;
 using Spd.Dominio;
@@ -56,8 +62,38 @@ public sealed class RetiradaEnvasesViewTests
             repositorioPacientes, new RepositorioContactos(conexion), repositorioTratamientos, repositorioMedicamentos,
             repositorioEnvases, repositorioFarmacia, new ComprobadorCoberturaSpdNulo(), auditoria);
 
-        var ventana = AnfitrionDeVista.Anfitrion(new RetiradaEnvasesView { DataContext = new RetiradaEnvasesViewModel(servicioListadoRetirada, servicioEnvases, usuarioActualId: null) });
+        var servicioMedicamentos = new ServicioMedicamentos(repositorioMedicamentos, auditoria);
+        var vm = new RetiradaEnvasesViewModel(servicioListadoRetirada, servicioEnvases, servicioMedicamentos, usuarioActualId: null);
+        var ventana = AnfitrionDeVista.Anfitrion(new RetiradaEnvasesView { DataContext = vm });
 
         ventana.Show();
+
+        // Spec 005 FR-513: al abrir el registro, las unidades vienen del catálogo.
+        vm.PrepararRegistroCommand.Execute(Assert.Single(vm.Filas));
+        Assert.Equal(28, vm.UnidadesIniciales);
+        Assert.False(vm.Unidades.OfrecerGuardar);
+
+        // El lector USB teclea la cadena y un Intro sobre el campo de escaneo; después el foco pasa a
+        // Unidades y otro Intro guarda. Se prueba con teclas de verdad, no llamando a los comandos.
+        Dispatcher.UIThread.RunJobs();
+        var campoEscaneo = ventana.GetVisualDescendants().OfType<TextBox>().Single(t => t.Watermark == "Escanear envase (spec-012)");
+        campoEscaneo.Focus();
+        vm.CodigoEscaneado = $"0108470006950647{Gs}17301231{Gs}10LOTE7{Gs}21SERIE7";
+        ventana.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+        Dispatcher.UIThread.RunJobs();
+
+        Assert.Equal("SERIE7", vm.Serie);
+        var unidades = ventana.GetVisualDescendants().OfType<NumericUpDown>().Single(n => n.Name == "CampoUnidades");
+        Assert.True(unidades.IsKeyboardFocusWithin);
+
+        ventana.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+        Dispatcher.UIThread.RunJobs();
+
+        var envase = Assert.Single(servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id));
+        Assert.Equal(28, envase.UnidadesIniciales);
+        Assert.Equal(OrigenEnvase.Escaneado, envase.Origen);
+        Assert.Equal("LOTE7", envase.Lote);
     }
+
+    private const char Gs = '\u001D';
 }

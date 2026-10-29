@@ -106,11 +106,8 @@ public sealed class ServicioPreparacion(
     {
         if (temperatura is null || humedad is null)
         {
-            var ultima = repositorioAmbiental.ObtenerUltimo();
-            var farmaciaActual = repositorioFarmacia.Obtener();
-            if (ultima is not null && farmaciaActual is not null
-                && (DateTime.UtcNow - ultima.Fecha).TotalHours < farmaciaActual.UmbralReutilizacionLecturaAmbientalHoras)
-                return ultima;
+            if (ObtenerUltimaLecturaAmbiental() is { Reutilizable: true } reciente)
+                return reciente.Lectura;
             throw new ErrorValidacionException("No hay lectura ambiental reciente que reutilizar; indique temperatura y humedad (FR-630).");
         }
 
@@ -134,7 +131,30 @@ public sealed class ServicioPreparacion(
         return material;
     }
 
+    /// <summary>FR-630: la regla de reutilización vive solo aquí, para que lo que la pantalla anuncia
+    /// y lo que <see cref="ObtenerOCrearLecturaAmbiental"/> hace no puedan discrepar.</summary>
+    public LecturaAmbientalReciente? ObtenerUltimaLecturaAmbiental()
+    {
+        var ultima = repositorioAmbiental.ObtenerUltimo();
+        if (ultima is null) return null;
+        var umbralHoras = repositorioFarmacia.Obtener()?.UmbralReutilizacionLecturaAmbientalHoras ?? 0;
+        return new LecturaAmbientalReciente(ultima, (DateTime.UtcNow - ultima.Fecha).TotalHours < umbralHoras);
+    }
+
     public IReadOnlyList<MaterialAcondicionamiento> ListarMaterialesActivos() => repositorioMaterial.ListarActivos();
+
+    /// <summary>FR-632: el último lote de material usado en cualquier blíster, si sigue activo. Si no se
+    /// ha usado ninguno todavía y solo hay un material activo, ese: no hay otra cosa que elegir.</summary>
+    public MaterialAcondicionamiento? ObtenerMaterialPropuesto()
+    {
+        var activos = repositorioMaterial.ListarActivos();
+        var ultimoUsado = repositorioSpd.Listar(null, null, null)
+            .Where(s => s.MaterialId is not null)
+            .OrderByDescending(s => s.Id)
+            .Select(s => activos.FirstOrDefault(m => m.Id == s.MaterialId))
+            .FirstOrDefault(m => m is not null);
+        return ultimoUsado ?? (activos.Count == 1 ? activos[0] : null);
+    }
 
     public void AsignarMaterial(int spdId, int materialId)
     {

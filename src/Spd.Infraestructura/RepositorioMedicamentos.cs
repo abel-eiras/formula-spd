@@ -22,6 +22,13 @@ public sealed class RepositorioMedicamentos(SqliteConnection conexion) : IReposi
         => conexion.QuerySingleOrDefault<MedicamentoFila>($"SELECT {Columnas} FROM Medicamento WHERE cn = @cn", new { cn })
             ?.AMedicamento();
 
+    /// <summary>`gtin` no tiene restricción de unicidad en el esquema (a diferencia de `cn`): el primero
+    /// que haya basta para este uso de ayuda al escanear, no es una clave de negocio garantizada.</summary>
+    public Medicamento? ObtenerPorGtin(string gtin)
+        => conexion.QueryFirstOrDefault<MedicamentoFila>(
+                $"SELECT {Columnas} FROM Medicamento WHERE gtin = @gtin ORDER BY activo DESC, id LIMIT 1", new { gtin })
+            ?.AMedicamento();
+
     /// <summary>Con el nomenclátor entero cargado son más de 15.000 filas: siempre con límite. Primero el
     /// CN exacto, después los activos, y por nombre.</summary>
     public IReadOnlyList<Medicamento> Buscar(string fragmento, string fragmentoNormalizado, int limite)

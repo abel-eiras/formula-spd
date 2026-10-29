@@ -35,11 +35,11 @@ Si algún medicamento de un blíster que todavía se va a emblistar tiene la apt
 
 ## Condiciones ambientales y material
 
-Temperatura y humedad (si las dejas vacías y hay una lectura reciente, se reutiliza); selector de material de acondicionamiento y alta rápida de material nuevo (descripción y lote).
+Temperatura y humedad. Debajo se ve la **última lectura** y si todavía vale: si vale, deja los campos vacíos y se reutiliza; si no, la pantalla lo dice antes de que pulses nada. El **material de acondicionamiento** viene ya elegido con el último lote usado (se muestra descripción y lote); el alta rápida de material nuevo (descripción y lote) lo deja seleccionado.
 
 ## Por cada blíster
 
-- Líneas con medicamento, unidades por envase y estado; **Registrar envase** en la línea si falta saldo.
+- Líneas con medicamento, unidades por envase y estado; **Registrar envase** en la línea si falta saldo: las unidades vienen del catálogo y, al escanear el DataMatrix, se rellenan serie, lote y caducidad y el cursor salta a las unidades; **Intro** guarda.
 - **Pasar a preparado**: valida saldo en todas las líneas y descuenta de los envases.
 - **Verificar**: las ocho preguntas del Anexo I.G con su texto literal, el **verificador elegido por nombre** de la lista de usuarios activos (quién firma una verificación es dato legal: elegirlo de una lista y no tecleando un número evita atribuir la firma a quien no verificó) y el motivo de excepción si coincide con el elaborador.
 - **Reelaborar**: origen (paciente, familiar, médico) y motivo; nueva versión, pendiente de verificar.

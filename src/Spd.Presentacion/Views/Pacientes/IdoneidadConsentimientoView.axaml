@@ -7,6 +7,39 @@
       <TextBlock Text="{Binding Cabecera}" FontWeight="Bold" TextWrapping="Wrap" />
       <Button Content="Pasar el paciente a SUSPENDIDO" Command="{Binding SuspenderCommand}"
               IsVisible="{Binding SugerirSuspension}" />
+
+      <Border Padding="8" Background="#22409040" Margin="0,4,0,0">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Paciente ya evaluado y con consentimiento firmado antes de usar la aplicación"
+                     FontWeight="Bold" />
+          <TextBlock TextWrapping="Wrap" FontSize="11"
+                     Text="Para pacientes ya en el servicio SPD: registra una evaluación APTO y un consentimiento firmado sin repetir la entrevista con los 7 criterios. Indica cómo firmó y la fecha real de la firma en papel." />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Firma:" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding TiposConsentimiento}" SelectedItem="{Binding TipoSeleccionado}" />
+            <ComboBox ItemsSource="{Binding RepresentantesElegibles}" SelectedItem="{Binding RepresentanteSeleccionado}"
+                      IsVisible="{Binding EsRepresentante}" Width="220">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock>
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="{}{0} {1} ({2}) — {3}">
+                        <Binding Path="Nombre" />
+                        <Binding Path="Apellidos" />
+                        <Binding Path="Tipo" />
+                        <Binding Path="Dni" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="Fecha de firma:" VerticalAlignment="Center" />
+            <DatePicker SelectedDate="{Binding FechaFirma}" />
+            <Button Content="Marcar como apto" Command="{Binding MarcarAptoYaEvaluadoCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
     </StackPanel>
 
     <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
