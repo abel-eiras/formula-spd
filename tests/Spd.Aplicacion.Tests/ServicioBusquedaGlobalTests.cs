@@ -144,4 +144,20 @@ public sealed class ServicioBusquedaGlobalTests
         var lectura = new DatosEnvaseEscaneado("00000000000000", "L", new FechaCaducidadGs1(2030, 1, 1), "S", "999999");
         Assert.Empty(servicio.BuscarEnvaseEscaneado(lectura, DateOnly.FromDateTime(DateTime.Today)));
     }
+    [Fact]
+    public void Escanear_marca_equivalente_encuentra_faltante_y_conserva_identidad_real()
+    {
+        using var c = new SqliteConnection("Data Source=:memory:");
+        var (servicio, paciente) = Montar(c, conFaltante: true);
+        var repo = new RepositorioMedicamentos(c);
+        var original = repo.ObtenerPorCn("654321")!;
+        original.GrupoHomogeneo = "G1";
+        repo.Actualizar(original);
+        var marca = new Medicamento { Cn = "999999", Nombre = "Otra marca", GrupoHomogeneo = "G1" };
+        marca.Id = repo.Crear(marca);
+        var resultado = Assert.Single(servicio.BuscarEnvaseEscaneado(Lectura("999999"), DateOnly.FromDateTime(DateTime.Today)));
+        Assert.Equal(TipoResultadoBusqueda.RetiradaPendiente, resultado.Tipo);
+        Assert.Equal(paciente, resultado.PacienteId);
+        Assert.Equal(marca.Id, resultado.Id);
+    }
 }

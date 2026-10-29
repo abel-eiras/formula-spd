@@ -92,5 +92,17 @@ public sealed class PreparacionViewTests
         });
 
         ventana.Show();
+        var vm = (PreparacionViewModel)((PreparacionView)ventana.Content!).DataContext!;
+        var linea = Assert.Single(Assert.Single(vm.Blisteres).Lineas);
+        vm.PrepararRegistroEnvaseCommand.Execute(linea);
+        vm.EnvaseCodigoEscaneado = "01084700097166391728103110412036X214000JFRH2XAN6S";
+        vm.LeerEnvaseCodigoEscaneadoCommand.Execute(null);
+        Assert.True(vm.ConfirmarIdentidadEnvase);
+        Assert.Equal("4000JFRH2XAN6S", vm.EnvaseSerie);
+        vm.ConfirmarRegistroEnvaseCommand.Execute(null);
+        Assert.DoesNotContain(servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id), e => e.Serie == "4000JFRH2XAN6S");
+        vm.ConfirmarMedicamentoEnvaseEscaneadoCommand.Execute(null);
+        vm.ConfirmarRegistroEnvaseCommand.Execute(null);
+        Assert.Contains(servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id), e => e.Serie == "4000JFRH2XAN6S" && e.MedicamentoId == medicamento.Id);
     }
 }

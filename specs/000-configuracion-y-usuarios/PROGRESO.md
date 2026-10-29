@@ -361,6 +361,6 @@ la aplicación.
   como `.anterior`; si algo falla a mitad, se deshace). La aplicación se cierra y `Program.Main` abre la
   versión nueva cuando la anterior ya ha terminado, para que no convivan dos procesos sobre `spd.db`; la
   copia de cierre no se repite. La CI firma con el secreto `SPD_CLAVE_ACTUALIZACIONES`; sin él la release
-  sale sin firma y las copias instaladas solo ofrecen la descarga manual. La 0.1.0-beta no trae el
+  no se publica: el workflow falla hasta configurar el secreto. La 0.1.0-beta no trae el
   actualizador: el paso desde ella es manual. Pendiente de probar en real en Windows y macOS (los tests
   cubren la lógica en carpetas temporales en Linux).

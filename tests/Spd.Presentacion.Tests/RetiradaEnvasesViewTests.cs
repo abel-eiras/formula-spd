@@ -46,7 +46,7 @@ public sealed class RetiradaEnvasesViewTests
         servicioPacientes.CambiarEstado(paciente.Id, EstadoPaciente.Activo, null, null);
 
         var repositorioMedicamentos = new RepositorioMedicamentos(conexion);
-        var medicamento = new Medicamento { Cn = "654321", Nombre = "Paracetamol 1g", UnidadesEnvase = 28 };
+        var medicamento = new Medicamento { Cn = "654321", Nombre = "Paracetamol 1g", UnidadesEnvase = 28, Gtin = "08470006950647", GrupoHomogeneo = "G1" };
         medicamento.Id = repositorioMedicamentos.Crear(medicamento);
 
         var repositorioTratamientos = new RepositorioTratamientos(conexion);
@@ -93,6 +93,24 @@ public sealed class RetiradaEnvasesViewTests
         Assert.Equal(28, envase.UnidadesIniciales);
         Assert.Equal(OrigenEnvase.Escaneado, envase.Origen);
         Assert.Equal("LOTE7", envase.Lote);
+        var marca = new Medicamento { Cn = "777777", Nombre = "Otra marca", UnidadesEnvase = 20, GrupoHomogeneo = "G1" };
+        marca.Id = repositorioMedicamentos.Crear(marca);
+        vm.SoloConFaltantes = false;
+        vm.AbrirRegistroEscaneado(marca.Id, new DatosEnvaseEscaneado("00000000000000", "LOTE-B", new FechaCaducidadGs1(2030, 12, 31), "SERIE-B", "777777"));
+        Assert.NotNull(vm.FilaSeleccionadaParaRegistrar);
+        vm.ConfirmarRegistroCommand.Execute(null);
+        var alternativa = servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id).Single(e => e.Serie == "SERIE-B");
+        Assert.Equal(marca.Id, alternativa.MedicamentoId);
+        vm.PrepararRegistroCommand.Execute(Assert.Single(vm.Filas));
+        vm.CodigoEscaneado = "01084700097166391728103110412036X214000JFRH2XAN6S";
+        vm.LeerCodigoEscaneadoCommand.Execute(null);
+        Assert.True(vm.ConfirmarIdentidadEscaneada);
+        Assert.Equal("4000JFRH2XAN6S", vm.Serie);
+        vm.ConfirmarRegistroCommand.Execute(null);
+        Assert.DoesNotContain(servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id), e => e.Serie == "4000JFRH2XAN6S");
+        vm.ConfirmarMedicamentoEscaneadoCommand.Execute(null);
+        vm.ConfirmarRegistroCommand.Execute(null);
+        Assert.Contains(servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id), e => e.Serie == "4000JFRH2XAN6S" && e.MedicamentoId == medicamento.Id);
     }
 
     private const char Gs = '\u001D';

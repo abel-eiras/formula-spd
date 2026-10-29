@@ -66,6 +66,8 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     [ObservableProperty] private string _envaseLote = string.Empty;
     [ObservableProperty] private DateTimeOffset? _envaseCaducidad;
     [ObservableProperty] private int? _envaseUnidadesIniciales;
+    [ObservableProperty] private bool _confirmarIdentidadEnvase;
+    private int? _envaseMedicamentoId;
     private OrigenEnvase _envaseOrigenAlta = OrigenEnvase.Manual;
 
     public UnidadesDelCatalogo EnvaseUnidades { get; } = new();
@@ -352,6 +354,8 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     private void PrepararRegistroEnvase(SpdLinea linea)
     {
         LineaParaRegistrarEnvase = linea;
+        _envaseMedicamentoId = linea.MedicamentoId;
+        ConfirmarIdentidadEnvase = false;
         EnvaseCodigoEscaneado = string.Empty;
         EnvaseSerie = string.Empty;
         EnvaseLote = string.Empty;
@@ -374,6 +378,23 @@ public sealed partial class PreparacionViewModel : ViewModelBase
             return;
         }
 
+        var prescrito = LineaParaRegistrarEnvase is { } linea ? _servicioMedicamentos.ObtenerPorId(linea.MedicamentoId) : null;
+        var real = datos.CodigoNacional is { } cn ? _servicioMedicamentos.ObtenerPorCn(cn) : _servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        if (real is null || prescrito?.EsEquivalenteA(real) != true)
+        {
+            _envaseMedicamentoId = null;
+            EnvaseSerie = datos.NumeroSerie; EnvaseLote = datos.Lote;
+            EnvaseCaducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
+            _envaseOrigenAlta = OrigenEnvase.Escaneado;
+            ConfirmarIdentidadEnvase = real is null && datos.CodigoNacional is null;
+            Mensaje = ConfirmarIdentidadEnvase
+                ? "GTIN desconocido: comprueba la caja y confirma que es el medicamento indicado o regístrala en Depósito."
+                : "El medicamento escaneado no corresponde al tratamiento; regístralo en Depósito.";
+            return;
+        }
+        ConfirmarIdentidadEnvase = false;
+        _envaseMedicamentoId = real?.Id ?? prescrito?.Id;
+        if (real is not null) EnvaseUnidadesIniciales = EnvaseUnidades.AlCambiarMedicamento(real, EnvaseUnidadesIniciales);
         EnvaseSerie = datos.NumeroSerie;
         EnvaseLote = datos.Lote;
         EnvaseCaducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
@@ -383,12 +404,21 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void ConfirmarMedicamentoEnvaseEscaneado()
+    {
+        if (!ConfirmarIdentidadEnvase || LineaParaRegistrarEnvase is null) return;
+        _envaseMedicamentoId = LineaParaRegistrarEnvase.MedicamentoId;
+        ConfirmarIdentidadEnvase = false;
+        Mensaje = "Medicamento confirmado. Revisa los datos de la caja antes de guardar.";
+    }
+
+    [RelayCommand]
     private void ConfirmarRegistroEnvase()
     {
-        if (LineaParaRegistrarEnvase is null || EnvaseCaducidad is null || EnvaseUnidadesIniciales is null) return;
+        if (LineaParaRegistrarEnvase is null || _envaseMedicamentoId is null || EnvaseCaducidad is null || EnvaseUnidadesIniciales is null) return;
         try
         {
-            var medicamento = _servicioMedicamentos.ObtenerPorId(LineaParaRegistrarEnvase.MedicamentoId);
+            var medicamento = _servicioMedicamentos.ObtenerPorId(_envaseMedicamentoId.Value);
             if (medicamento is null) return;
 
             var pacienteId = Blisteres.First(b => b.Lineas.Contains(LineaParaRegistrarEnvase)).Spd.PacienteId;

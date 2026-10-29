@@ -175,7 +175,12 @@ public sealed class ServicioPreparacion(
 
     public Envase RegistrarEnvaseDesdeLinea(int lineaId, DatosAltaEnvase datos, int? usuarioId)
     {
-        _ = repositorioLineas.ObtenerPorId(lineaId) ?? throw new ErrorValidacionException($"No existe la línea {lineaId}.");
+        var linea = repositorioLineas.ObtenerPorId(lineaId) ?? throw new ErrorValidacionException($"No existe la línea {lineaId}.");
+        var spd = repositorioSpd.ObtenerPorId(linea.SpdId) ?? throw new ErrorValidacionException("No existe el SPD de la línea.");
+        var prescrito = repositorioMedicamentos.ObtenerPorId(linea.MedicamentoId);
+        var real = repositorioMedicamentos.ObtenerPorId(datos.MedicamentoId);
+        if (datos.PacienteId != spd.PacienteId || prescrito is null || !prescrito.EsEquivalenteA(real))
+            throw new ErrorValidacionException("El envase no corresponde al paciente y medicamento de esta línea.");
         return servicioEnvases.RegistrarEnvase(datos, usuarioId);
     }
 

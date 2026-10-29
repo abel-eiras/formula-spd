@@ -69,7 +69,6 @@ public sealed partial class DepositoViewModel : ViewModelBase
         {
             if (e.PropertyName != nameof(SelectorMedicamento.Seleccionado)) return;
             Cn = SelectorMedicamento.Seleccionado?.Cn ?? string.Empty;
-            UnidadesIniciales = SelectorMedicamento.Seleccionado?.UnidadesEnvase;
         };
         Cargar();
     }
@@ -133,8 +132,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
     }
 
     /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
-    /// Codigo Nacional solo viene en el codigo si el fabricante incluye el AI 712 (FR-1201); cuando
-    /// no viene, se introduce a mano igual que hasta ahora.</summary>
+    /// Identifica el medicamento por CN o GTIN y exige elegirlo si no está en el catálogo.</summary>
     [RelayCommand]
     private void LeerCodigoEscaneado()
     {
@@ -151,14 +149,20 @@ public sealed partial class DepositoViewModel : ViewModelBase
         Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
         _origenAlta = OrigenEnvase.Escaneado;
 
-        if (datos.CodigoNacional is { } cn)
+        var medicamento = datos.CodigoNacional is { } cn
+            ? _servicioMedicamentos.ObtenerPorCn(cn)
+            : _servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        if (medicamento is null)
         {
-            Cn = cn;
-            Mensaje = "Lectura aplicada, incluido el CN.";
+            MedicamentoSeleccionado = null;
+            SelectorMedicamento.Establecer(null);
+            Cn = string.Empty;
+            Mensaje = "Lectura aplicada, pero no se reconoce el medicamento: selecciónalo antes de registrar.";
         }
         else
         {
-            Mensaje = "Lectura aplicada. El código no incluye el CN: introdúcelo a mano.";
+            Cn = medicamento.Cn;
+            Mensaje = "Lectura aplicada; medicamento identificado en el catálogo.";
         }
         LecturaAplicada?.Invoke();
     }
@@ -192,6 +196,8 @@ public sealed partial class DepositoViewModel : ViewModelBase
             // La siguiente caja comparte medicamento, pero siempre tiene su propia identidad.
             Serie = string.Empty; Lote = null; Caducidad = null;
             _origenAlta = OrigenEnvase.Manual;
+            Unidades.Reiniciar();
+            UnidadesIniciales = Unidades.AlCambiarMedicamento(_servicioMedicamentos.ObtenerPorId(medicamento.Id), UnidadesIniciales);
 
             Cargar();
         }
@@ -204,6 +210,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
     [RelayCommand]
     private void PrepararOtraCaja(EnvaseFila fila)
     {
+        _origenAlta = OrigenEnvase.Manual;
         SelectorMedicamento.Establecer(fila.Envase.MedicamentoId);
         UnidadesIniciales = SelectorMedicamento.Seleccionado?.UnidadesEnvase ?? fila.Envase.UnidadesIniciales;
         Serie = string.Empty; Lote = null; Caducidad = null;

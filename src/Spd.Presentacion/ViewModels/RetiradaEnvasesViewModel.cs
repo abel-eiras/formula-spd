@@ -35,6 +35,8 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     [ObservableProperty] private string? _lote;
     [ObservableProperty] private DateTimeOffset? _caducidad;
     [ObservableProperty] private int? _unidadesIniciales;
+    [ObservableProperty] private bool _confirmarIdentidadEscaneada;
+    private int? _medicamentoRegistroId;
     private OrigenEnvase _origenAlta = OrigenEnvase.Manual;
 
     public UnidadesDelCatalogo Unidades { get; } = new();
@@ -82,6 +84,8 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     private void PrepararRegistro(FilaListadoRetirada fila)
     {
         FilaSeleccionadaParaRegistrar = fila;
+        _medicamentoRegistroId = fila.MedicamentoId;
+        ConfirmarIdentidadEscaneada = false;
         CodigoEscaneado = string.Empty;
         Serie = string.Empty; Lote = null; Caducidad = null;
         Unidades.Reiniciar();
@@ -93,7 +97,8 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     /// medicamento con la lectura ya aplicada. Si la fila ya no está (se cubrió mientras tanto), lo dice.</summary>
     public void AbrirRegistroEscaneado(int medicamentoId, DatosEnvaseEscaneado datos)
     {
-        var fila = Filas.FirstOrDefault(f => f.MedicamentoId == medicamentoId);
+        var escaneado = _servicioMedicamentos.ObtenerPorId(medicamentoId);
+        var fila = Filas.FirstOrDefault(f => escaneado?.EsEquivalenteA(_servicioMedicamentos.ObtenerPorId(f.MedicamentoId)) == true);
         if (fila is null)
         {
             Mensaje = "Ese medicamento ya no tiene faltantes para este paciente.";
@@ -120,6 +125,23 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
 
     private void AplicarLectura(DatosEnvaseEscaneado datos)
     {
+        var prescrito = FilaSeleccionadaParaRegistrar is { } fila ? _servicioMedicamentos.ObtenerPorId(fila.MedicamentoId) : null;
+        var real = datos.CodigoNacional is { } cn ? _servicioMedicamentos.ObtenerPorCn(cn) : _servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        if (real is null || prescrito?.EsEquivalenteA(real) != true)
+        {
+            _medicamentoRegistroId = null;
+            Serie = datos.NumeroSerie; Lote = datos.Lote;
+            Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
+            _origenAlta = OrigenEnvase.Escaneado;
+            ConfirmarIdentidadEscaneada = real is null && datos.CodigoNacional is null;
+            Mensaje = ConfirmarIdentidadEscaneada
+                ? "GTIN desconocido: comprueba la caja y confirma que es el medicamento indicado o regístrala en Depósito."
+                : "El medicamento escaneado no corresponde al tratamiento; regístralo en Depósito.";
+            return;
+        }
+        ConfirmarIdentidadEscaneada = false;
+        _medicamentoRegistroId = real?.Id ?? prescrito?.Id;
+        if (real is not null) UnidadesIniciales = Unidades.AlCambiarMedicamento(real, UnidadesIniciales);
         Serie = datos.NumeroSerie;
         Lote = datos.Lote;
         Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
@@ -129,9 +151,18 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void ConfirmarMedicamentoEscaneado()
+    {
+        if (!ConfirmarIdentidadEscaneada || FilaSeleccionadaParaRegistrar is null) return;
+        _medicamentoRegistroId = FilaSeleccionadaParaRegistrar.MedicamentoId;
+        ConfirmarIdentidadEscaneada = false;
+        Mensaje = "Medicamento confirmado. Revisa los datos de la caja antes de guardar.";
+    }
+
+    [RelayCommand]
     private void ConfirmarRegistro()
     {
-        if (FilaSeleccionadaParaRegistrar is not { } fila || Caducidad is null || UnidadesIniciales is null)
+        if (FilaSeleccionadaParaRegistrar is not { } fila || _medicamentoRegistroId is null || Caducidad is null || UnidadesIniciales is null)
         {
             Mensaje = "Caducidad y unidades iniciales son obligatorias (FR-512).";
             return;
@@ -140,7 +171,7 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
         try
         {
             _servicioEnvases.RegistrarEnvase(
-                new DatosAltaEnvase(fila.PacienteId, fila.MedicamentoId, Serie, Lote ?? string.Empty,
+                new DatosAltaEnvase(fila.PacienteId, _medicamentoRegistroId.Value, Serie, Lote ?? string.Empty,
                     DateOnly.FromDateTime(Caducidad.Value.Date), UnidadesIniciales.Value, _origenAlta),
                 _usuarioActualId);
             Unidades.GuardarSiProcede(_servicioMedicamentos, UnidadesIniciales.Value, _usuarioActualId);

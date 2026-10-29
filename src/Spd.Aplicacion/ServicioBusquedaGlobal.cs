@@ -23,12 +23,12 @@ public sealed class ServicioBusquedaGlobal(
     public IReadOnlyList<ResultadoBusqueda> BuscarEnvaseEscaneado(DatosEnvaseEscaneado datos, DateOnly hoy)
     {
         // Mismo orden que el selector de medicamento: el CN del propio código (AI 712) manda sobre el GTIN.
-        var medicamento = (datos.CodigoNacional is { } cn ? servicioMedicamentos.ObtenerPorCn(cn) : null)
-                          ?? servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        var medicamento = datos.CodigoNacional is { } cn ? servicioMedicamentos.ObtenerPorCn(cn)
+                          : servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
         if (medicamento is null) return [];
 
         var pendientes = listadoRetirada.ObtenerListado(hoy, new FiltrosListadoRetirada(SoloConFaltantes: true))
-            .Where(f => f.MedicamentoId == medicamento.Id)
+            .Where(f => medicamento.EsEquivalenteA(servicioMedicamentos.ObtenerPorId(f.MedicamentoId)))
             .Select(f => new ResultadoBusqueda(
                 TipoResultadoBusqueda.RetiradaPendiente,
                 $"{f.Nombre} {f.Apellidos}",

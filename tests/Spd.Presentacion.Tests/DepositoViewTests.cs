@@ -102,6 +102,37 @@ public sealed class DepositoViewTests
         vm.UnidadesIniciales = 30; vm.Unidades.Guardar = true;
         vm.RegistrarEnvaseCommand.Execute(null);
         Assert.Equal(30, servicioMedicamentos.ObtenerPorCn("777777")!.UnidadesEnvase);
+        Assert.False(vm.Unidades.Guardar);
+        vm.Serie = "S-PARCIAL"; vm.Caducidad = new DateTimeOffset(new DateTime(2030, 1, 1));
+        vm.UnidadesIniciales = 3;
+        vm.RegistrarEnvaseCommand.Execute(null);
+        Assert.Equal(30, servicioMedicamentos.ObtenerPorCn("777777")!.UnidadesEnvase);
+        vm.UnidadesIniciales = 9;
+        vm.Cn = "654321";
+        Assert.Equal(9, vm.UnidadesIniciales);
+
+        medicamento.GrupoHomogeneo = "G1"; repositorioMedicamentos.Actualizar(medicamento);
+        var marca = new Medicamento { Cn = "888888", Nombre = "Marca equivalente", GrupoHomogeneo = "G1", Gtin = "08470006950647" };
+        marca.Id = repositorioMedicamentos.Crear(marca);
+        vm.CodigoEscaneado = "010847000695064721172342612146291728073110RA0462";
+        vm.LeerCodigoEscaneadoCommand.Execute(null);
+        Assert.Equal("888888", vm.Cn);
+        Assert.Equal("17234261214629", vm.Serie);
+        vm.UnidadesIniciales = 20;
+        vm.RegistrarEnvaseCommand.Execute(null);
+        Assert.Equal(marca.Id, vm.EnCustodia.Single(e => e.Envase.Serie == "17234261214629").Envase.MedicamentoId);
+
+        vm.Cn = "654321";
+        vm.CodigoEscaneado = "01084700097166391728103110412036X214000JFRH2XAN6S";
+        vm.LeerCodigoEscaneadoCommand.Execute(null);
+        Assert.Equal(string.Empty, vm.Cn);
+        Assert.Null(vm.SelectorMedicamento.Seleccionado);
+        var cantidad = vm.EnCustodia.Count;
+        vm.RegistrarEnvaseCommand.Execute(null);
+        Assert.Equal(cantidad, vm.EnCustodia.Count);
+        vm.Cn = "654321"; vm.UnidadesIniciales = 28;
+        vm.RegistrarEnvaseCommand.Execute(null);
+        Assert.Contains(vm.EnCustodia, e => e.Envase.Serie == "4000JFRH2XAN6S" && e.Envase.MedicamentoId == medicamento.Id);
         ventana.Close();
 
     }

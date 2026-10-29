@@ -220,7 +220,7 @@ comprobar CA-007..CA-012 sobre una instalación en una carpeta temporal.
 - [x] T068 `ServicioInstalacionActualizaciones`, `EntornoInstalacion`, `VerificadorFirmaActualizaciones`, `ExtractorPaqueteActualizacion` y `SustitucionFicherosInstalacion` en `src/Spd.Infraestructura/`
 - [x] T069 Reinicio ordenado: `ReinicioTrasActualizacion` (lanzado desde `Program.Main` al terminar la aplicación) y sin repetir la copia de cierre en `App.axaml.cs`
 - [x] T070 Pantalla Configuración/Actualizaciones: botón «Instalar la versión X», confirmación, barra de progreso y cancelar; ayuda de uso (`uso__120-configuracion.md`)
-- [x] T071 Workflow `publicar.yml`: firma de `SHA256SUMS.txt` con el secreto `SPD_CLAVE_ACTUALIZACIONES` y verificación con la clave pública antes de publicar; sin secreto, aviso y release sin firma
+- [x] T071 Workflow `publicar.yml`: firma de `SHA256SUMS.txt` con el secreto `SPD_CLAVE_ACTUALIZACIONES` y verificación con la clave pública antes de publicar; sin secreto, falla antes de publicar
 - [x] T072 Documentación: `publicar/LEEME-comun.txt` y `README.md` (generación de la clave y alta del secreto; la 0.1.0-beta se actualiza a mano)
 
 ---

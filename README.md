@@ -51,8 +51,7 @@ La aplicación instala una versión nueva desde Configuración → Actualizacion
 `src/Spd.Infraestructura/VerificadorFirmaActualizaciones.cs` y copiada en
 `publicar/clave-publica-actualizaciones.pem` (un test comprueba que coinciden). La privada vive solo como
 secreto de GitHub; el workflow firma con ella y verifica la firma antes de publicar. Si el secreto no
-existe, la release sale sin firma (con un aviso en el workflow) y las copias instaladas solo ofrecerán la
-descarga manual.
+existe, el workflow detiene la publicación de la release.
 
 Generar el par de claves (una sola vez; la privada nunca se sube al repositorio, `.gitignore` la excluye):
 

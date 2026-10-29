@@ -709,4 +709,24 @@ public sealed class ServicioPreparacionTests
         Assert.Empty(ctx.RepositorioLineaEnvases.ListarPorSpd(spd.Id));
     }
 
+    [Fact]
+    public void Registro_desde_linea_acepta_marca_equivalente_y_rechaza_otro_grupo()
+    {
+        var ctx = Crear();
+        using var c = ctx.Conexion;
+        var repo = new RepositorioMedicamentos(c);
+        var original = repo.ObtenerPorId(ctx.MedicamentoId)!;
+        original.GrupoHomogeneo = "G1"; repo.Actualizar(original);
+        var alternativa = new Medicamento { Cn = "777777", Nombre = "Otra marca", GrupoHomogeneo = "G1" };
+        alternativa.Id = repo.Crear(alternativa);
+        var distinta = new Medicamento { Cn = "888888", Nombre = "Diferente", GrupoHomogeneo = "G2" };
+        distinta.Id = repo.Crear(distinta);
+        var spd = ctx.Servicio.CrearSesion(ctx.PacienteId, ctx.ElaboradorId).Single();
+        var linea = ctx.RepositorioLineas.ListarPorSpd(spd.Id).Single();
+        var datos = new DatosAltaEnvase(ctx.PacienteId, alternativa.Id, "REAL", "L", new DateOnly(2030, 1, 1), 28, OrigenEnvase.Escaneado);
+        var guardado = ctx.Servicio.RegistrarEnvaseDesdeLinea(linea.Id, datos, ctx.ElaboradorId);
+        Assert.Equal(alternativa.Id, guardado.MedicamentoId);
+        Assert.Throws<ErrorValidacionException>(() => ctx.Servicio.RegistrarEnvaseDesdeLinea(linea.Id,
+            datos with { MedicamentoId = distinta.Id, Serie = "DISTINTA" }, ctx.ElaboradorId));
+    }
 }
