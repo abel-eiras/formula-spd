@@ -84,7 +84,13 @@ public sealed partial class InicioViewModel : ViewModelBase
         /// <summary>Ninguno de estos avisos bloquea nada (son informativos, Spec 006 FR-691), así
         /// que la severidad máxima es «aviso»; el ambiental es un recordatorio de calidad.</summary>
         public Controles.Severidad Severidad =>
-            aviso.Tipo == "Ambiental" ? Controles.Severidad.Apto : Controles.Severidad.Aviso;
+            aviso.Tipo switch
+            {
+                "Ambiental" => Controles.Severidad.Apto,
+                // Spec 018: un lote retirado que puede estar en manos de un paciente.
+                "Alerta de calidad" => Controles.Severidad.Bloqueo,
+                _ => Controles.Severidad.Aviso
+            };
 
         public Destino Destino => new(
             aviso.Area switch
@@ -92,6 +98,7 @@ public sealed partial class InicioViewModel : ViewModelBase
                 AreaAviso.Retirada => Seccion.Retirada,
                 AreaAviso.Preparaciones => Seccion.Preparaciones,
                 AreaAviso.Calidad => Seccion.Calidad,
+                AreaAviso.AlertasCalidad => Seccion.AlertasCalidad,
                 _ => Seccion.Inicio
             },
             aviso.PacienteId,

@@ -15,6 +15,7 @@ public enum Seccion
     Medicos,
     RevisionNomenclator,
     Calidad,
+    AlertasCalidad,
     ControlDocumental,
     Farmacia,
     Usuarios,
@@ -55,6 +56,7 @@ public sealed record EntradaNavegacion(Seccion Seccion, string Titulo, string Gr
         // necesita poder dar de alta al médico prescriptor en ese momento.
         new(Seccion.Medicos, "Catálogo de médicos", GrupoTrabajo, false),
         new(Seccion.Calidad, "Registros de calidad", GrupoTrabajo, false),
+        new(Seccion.AlertasCalidad, "Alertas de calidad", GrupoTrabajo, false),
         new(Seccion.Exportar, "Exportar pacientes", GrupoTrabajo, false),
         new(Seccion.Farmacia, "Farmacia", GrupoAdministracion, true),
         new(Seccion.Usuarios, "Usuarios", GrupoAdministracion, true),

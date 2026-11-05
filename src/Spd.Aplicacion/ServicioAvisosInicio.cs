@@ -10,7 +10,8 @@ public sealed class ServicioAvisosInicio(
     IServicioListadoRetirada listadoRetirada,
     IRepositorioSpd repositorioSpd,
     IRepositorioPacientes repositorioPacientes,
-    IRepositorioRegistrosAmbientales repositorioAmbiental)
+    IRepositorioRegistrosAmbientales repositorioAmbiental,
+    IServicioAlertasCalidad? alertasCalidad = null)
     : IServicioAvisosInicio
 {
     /// <summary>FR-950: umbral por defecto de 7 días sin lectura ambiental (la configuración
@@ -21,6 +22,7 @@ public sealed class ServicioAvisosInicio(
     public IReadOnlyList<AvisoInicio> Obtener(DateOnly hoy)
     {
         var avisos = new List<AvisoInicio>();
+        AnadirAlertasCalidad(avisos);
 
         foreach (var grupo in listadoRetirada.ObtenerListado(hoy, new FiltrosListadoRetirada(SoloConFaltantes: true)).GroupBy(f => f.PacienteId))
         {
@@ -57,6 +59,23 @@ public sealed class ServicioAvisosInicio(
                 null, AreaAviso.Calidad));
 
         return avisos;
+    }
+
+    /// <summary>Spec 018 FR-1806: una alerta activa que todavía alcanza a algo va la primera: es una
+    /// cuestión de seguridad del paciente, no de organización del trabajo.</summary>
+    private void AnadirAlertasCalidad(List<AvisoInicio> avisos)
+    {
+        if (alertasCalidad is null) return;
+        foreach (var fila in alertasCalidad.Listar(soloActivas: true))
+        {
+            var traza = alertasCalidad.Trazar(fila.Alerta.Id);
+            if (!traza.RequiereAccion) continue;
+            avisos.Add(new AvisoInicio("Alerta de calidad",
+                $"Alerta {fila.Alerta.Referencia}: lote {fila.Alerta.Lote} de {fila.NombreMedicamento ?? "CN " + fila.Alerta.Cn} — "
+                + $"{traza.EnCustodia.Count} caja(s) en custodia, {traza.BlisteresPendientes.Count} blíster(es) sin entregar, "
+                + $"{traza.BlisteresEntregados.Count} entregado(s).",
+                null, AreaAviso.AlertasCalidad));
+        }
     }
 
     /// <summary>FR-1510. Los indicadores se derivan de los mismos avisos, no de un cálculo aparte:

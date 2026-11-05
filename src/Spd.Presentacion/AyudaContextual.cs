@@ -45,6 +45,7 @@ public static class AyudaContextual
         ["ActualizacionesView"] = "servicio-spd",
         ["PerfilesImportacionView"] = "deposito-y-retirada",
         ["LectorCodigosView"] = "deposito-y-retirada",
+        ["AlertasCalidadView"] = "deposito-y-retirada",
         ["ExportarPacientesView"] = "documentacion-y-conservacion",
     };
 
@@ -78,6 +79,7 @@ public static class AyudaContextual
         ["ActualizacionesView"] = "configuracion",
         ["PerfilesImportacionView"] = "configuracion",
         ["LectorCodigosView"] = "configuracion",
+        ["AlertasCalidadView"] = "registros-calidad",
         ["ExportarPacientesView"] = "configuracion",
     };
 

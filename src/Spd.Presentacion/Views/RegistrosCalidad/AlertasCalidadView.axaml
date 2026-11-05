@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.RegistrosCalidad.AlertasCalidadView">
+  <!-- Spec 018: retirada de lotes y trazabilidad inversa lote → caja → blíster → paciente. -->
+  <Grid RowDefinitions="*,Auto">
+    <Grid Grid.Row="0" ColumnDefinitions="340,*" Margin="16">
+      <ScrollViewer Grid.Column="0">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Nueva alerta de calidad" FontSize="16" FontWeight="Bold" />
+          <TextBlock Text="Referencia (nota de la AEMPS, laboratorio o Colegio) *" />
+          <TextBox Text="{Binding Referencia}" />
+          <TextBlock Text="Fecha de la alerta" />
+          <DatePicker SelectedDate="{Binding FechaAlerta}" />
+          <TextBlock Text="CN del medicamento *" />
+          <TextBox Text="{Binding Cn}" Watermark="712729 o 712729.3" />
+          <TextBlock Text="Lotes afectados * (separados por comas)" />
+          <TextBox Text="{Binding Lotes}" AcceptsReturn="True" MinHeight="48" TextWrapping="Wrap" />
+          <TextBlock Text="Descripción" />
+          <TextBox Text="{Binding Descripcion}" AcceptsReturn="True" MinHeight="48" TextWrapping="Wrap" />
+          <Button Classes="primario" Content="Registrar y buscar a quién alcanza" Command="{Binding RegistrarCommand}" />
+
+          <Separator Margin="0,8" />
+          <CheckBox Content="Solo activas" IsChecked="{Binding SoloActivas}" />
+          <ListBox ItemsSource="{Binding Alertas}" SelectedItem="{Binding Seleccionada}" MinHeight="160">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Spacing="2" Margin="0,2">
+                  <TextBlock FontWeight="Bold" Text="{Binding Alerta.Referencia}" />
+                  <TextBlock Text="{Binding Alerta.Lote, StringFormat='Lote {0}'}" />
+                  <TextBlock Text="{Binding NombreMedicamento}" TextWrapping="Wrap" />
+                  <TextBlock Text="Cerrada" Foreground="Gray" IsVisible="{Binding !Alerta.Activa}" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
+      </ScrollViewer>
+
+      <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
+        <StackPanel Spacing="8" IsVisible="{Binding HaySeleccion}">
+          <TextBlock FontSize="16" FontWeight="Bold"
+                     Text="{Binding Traza.Alerta.Referencia, StringFormat='A quién alcanza la alerta {0}'}" />
+          <TextBlock Text="{Binding ResumenTraza}" TextWrapping="Wrap" />
+
+          <TextBlock Text="Cajas (todas, también agotadas o ya fuera del depósito)" Classes="etiqueta" />
+          <DataGrid ItemsSource="{Binding Traza.Envases}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="220">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Paciente" Binding="{Binding Paciente}" Width="2*" />
+              <DataGridTextColumn Header="Serie" Binding="{Binding Serie}" Width="*" />
+              <DataGridTextColumn Header="Lote" Binding="{Binding Lote}" Width="*" />
+              <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="*" />
+              <DataGridTextColumn Header="Quedan" Binding="{Binding UnidadesRestantes}" Width="80" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <TextBlock Text="Blísteres con unidades de ese lote" Classes="etiqueta" />
+          <DataGrid ItemsSource="{Binding Traza.Blisteres}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="260">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Blíster" Binding="{Binding NumRegistro}" Width="*" />
+              <DataGridTextColumn Header="Paciente" Binding="{Binding Paciente}" Width="2*" />
+              <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="*" />
+              <DataGridTextColumn Header="Desde" Binding="{Binding ValidezDesde, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
+              <DataGridTextColumn Header="Hasta" Binding="{Binding ValidezHasta, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <StackPanel Spacing="6" IsVisible="{Binding Traza.Alerta.Activa}">
+            <TextBlock Text="Cerrar la alerta (cuando esté todo resuelto)" Classes="etiqueta" />
+            <TextBox Text="{Binding MotivoCierre}" Watermark="Motivo: cajas retiradas, blísteres rehechos, pacientes avisados…" />
+            <Button Content="Cerrar alerta" Command="{Binding CerrarCommand}" />
+          </StackPanel>
+          <TextBlock IsVisible="{Binding !Traza.Alerta.Activa}" TextWrapping="Wrap"
+                     Text="{Binding Traza.Alerta.MotivoCierre, StringFormat='Cerrada: {0}'}" />
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <Border Grid.Row="1" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

@@ -8,7 +8,9 @@ public enum AreaAviso
 {
     Retirada,
     Preparaciones,
-    Calidad
+    Calidad,
+    /// <summary>Spec 018: una alerta de calidad activa que alcanza a cajas o blísteres.</summary>
+    AlertasCalidad
 }
 
 /// <summary>Un aviso del panel de inicio (Spec 006 FR-691, Spec 009 FR-950). Informativo, nunca

@@ -90,6 +90,9 @@ internal static class FabricaServiciosTest
             new ServicioGeneracionLote(servicioPreparacion, documentos, repositorioSpd, repositorioPacientes),
             new ServicioPurga(
                 repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia,
-                new RepositorioPurga(conexion), auditoria));
+                new RepositorioPurga(conexion), auditoria),
+            new ServicioLecturaCodigos(new ServicioMedicamentos(repositorioMedicamentos, auditoria), repositorioFarmacia),
+            new ServicioIntegridadAuditoria(new RegistradorAuditoria(conexion), auditoria),
+            new ServicioAlertasCalidad(new RepositorioAlertasCalidad(conexion), repositorioMedicamentos, auditoria));
     }
 }
