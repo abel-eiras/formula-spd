@@ -228,7 +228,8 @@ public partial class App : Application
             _servicioPerfilesImportacion, _servicioExportacionPacientes, _servicioPreparacion,
             _servicioGeneracionDocumentos, _servicioIdoneidad, _servicioAvisos, _servicioBusquedaGlobal, new ServicioMedicos(new RepositorioMedicos(_conexion!), repositorioPacientes, auditoria),
             new ServicioContactos(new RepositorioContactos(_conexion!), repositorioPacientes, auditoria),
-            _servicioLote, _servicioPurga, lecturaCodigos);
+            _servicioLote, _servicioPurga, lecturaCodigos,
+            new ServicioIntegridadAuditoria(new RegistradorAuditoria(_conexion!), auditoria));
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)

@@ -36,6 +36,13 @@
     </StackPanel>
 
     <Separator Margin="0,8" />
+    <TextBlock Text="Integridad de la auditoría" FontSize="16" FontWeight="Bold" />
+    <TextBlock TextWrapping="Wrap"
+               Text="Cada entrada de la auditoría lleva un sello que enlaza con la anterior. Si alguien modifica, borra o intercala entradas directamente en la base de datos, la comprobación lo detecta." />
+    <Button Content="Comprobar la auditoría" Command="{Binding ComprobarAuditoriaCommand}"
+            IsVisible="{Binding PuedeComprobarAuditoria}" HorizontalAlignment="Left" />
+    <TextBlock Text="{Binding ResultadoAuditoria}" TextWrapping="Wrap" />
+
     <TextBlock Text="Purga de pacientes antiguos (baja anterior a los años de retención configurados)" FontSize="16" FontWeight="Bold" />
     <TextBlock Text="Uno a uno y con su contraseña. Antes de borrar queda la traza en auditoría; nunca se ejecuta sola." TextWrapping="Wrap" />
     <TextBox Watermark="Su contraseña de administrador" Text="{Binding ContrasenaPurga}" PasswordChar="*" Width="260" HorizontalAlignment="Left" />

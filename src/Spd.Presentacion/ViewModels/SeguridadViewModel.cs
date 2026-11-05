@@ -22,6 +22,11 @@ public sealed partial class SeguridadViewModel : ViewModelBase
     private readonly IServicioCifrado _servicio;
     private readonly IServicioPurga _servicioPurga;
     private readonly int _administradorActualId;
+    private readonly IServicioIntegridadAuditoria? _integridadAuditoria;
+
+    /// <summary>Spec 017: resultado de la última comprobación de la auditoría, para enseñarlo.</summary>
+    [ObservableProperty] private string? _resultadoAuditoria;
+    public bool PuedeComprobarAuditoria => _integridadAuditoria is not null;
 
     // Purga manual (Spec 010 §4.3): paciente a paciente, con la contraseña del administrador.
     [ObservableProperty] private ObservableCollection<Paciente> _purgables = [];
@@ -39,13 +44,27 @@ public sealed partial class SeguridadViewModel : ViewModelBase
     [ObservableProperty] private bool _hayFraseParaConfirmar;
     [ObservableProperty] private string? _mensaje;
 
-    public SeguridadViewModel(IServicioCifrado servicio, IServicioPurga servicioPurga, int administradorActualId)
+    public SeguridadViewModel(IServicioCifrado servicio, IServicioPurga servicioPurga, int administradorActualId,
+        IServicioIntegridadAuditoria? integridadAuditoria = null)
     {
+        _integridadAuditoria = integridadAuditoria;
         _servicio = servicio;
         _servicioPurga = servicioPurga;
         _administradorActualId = administradorActualId;
         _cifradoActivo = servicio.EstaActivo();
         CargarPurgables();
+    }
+
+    [RelayCommand]
+    private void ComprobarAuditoria()
+    {
+        if (_integridadAuditoria is null) return;
+        var r = _integridadAuditoria.Comprobar(_administradorActualId);
+        ResultadoAuditoria = r.Integra
+            ? $"La auditoría está íntegra: {r.Selladas} entradas selladas comprobadas"
+              + (r.SinSellar > 0 ? $" y {r.SinSellar} anteriores a que existiera el sellado (versión 0.4.0)." : ".")
+            : $"¡Atención! La auditoría ha sido manipulada por fuera de la aplicación. Entrada {r.PrimeraEntradaConProblema}: {r.Problema}. "
+              + "Conserva esta base de datos tal cual y compárala con la última copia de seguridad.";
     }
 
     private void CargarPurgables()
