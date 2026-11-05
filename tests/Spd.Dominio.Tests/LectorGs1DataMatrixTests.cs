@@ -248,3 +248,24 @@ public class LectorGs1DataMatrixAmpliacionTests
         Assert.Null(LectorGs1DataMatrix.Leer($"01084700069506461728073110AB{Gs}21EF"));
     }
 }
+
+public class Gs1Tests
+{
+    [Theory]
+    [InlineData("08470006950647", true)]
+    [InlineData("8470006950647", true)]
+    [InlineData("08470006950646", false)]
+    [InlineData("0847000695064A", false)]
+    [InlineData("1234567", false)]
+    [InlineData("", false)]
+    public void Digito_de_control(string codigo, bool correcto)
+        => Assert.Equal(correcto, Gs1.DigitoControlCorrecto(codigo));
+
+    [Theory]
+    [InlineData("7127293", "712729")]
+    [InlineData("712729", "712729")]
+    [InlineData(" ", null)]
+    [InlineData(null, null)]
+    public void CN_sin_digito_de_control(string? entrada, string? esperado)
+        => Assert.Equal(esperado, CodigoNacionalEspanol.SinDigitoDeControl(entrada));
+}

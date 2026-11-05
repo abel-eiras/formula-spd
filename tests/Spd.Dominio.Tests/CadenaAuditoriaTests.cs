@@ -74,3 +74,22 @@ public class CadenaAuditoriaTests
             CadenaAuditoria.CalcularHash(CadenaAuditoria.Genesis, "f", null, "A", "E", null, ""));
     }
 }
+
+public class CadenaAuditoriaGenesisTests
+{
+    [Fact]
+    public void La_primera_entrada_enlaza_con_el_genesis()
+    {
+        Assert.Equal(CadenaAuditoria.Genesis, CadenaAuditoria.HashPrevioPara(null));
+        Assert.Equal("abc", CadenaAuditoria.HashPrevioPara("abc"));
+        Assert.Equal(new string('0', 64), CadenaAuditoria.Genesis);
+    }
+
+    [Fact]
+    public void Primera_entrada_sellada_que_no_enlaza_con_el_genesis_se_detecta()
+    {
+        var hash = CadenaAuditoria.CalcularHash("otro", "f", null, "A", "E", null, null);
+        var r = CadenaAuditoria.Verificar([new EntradaAuditoria(1, "f", null, "A", "E", null, null, "otro", hash)]);
+        Assert.False(r.Integra);
+    }
+}

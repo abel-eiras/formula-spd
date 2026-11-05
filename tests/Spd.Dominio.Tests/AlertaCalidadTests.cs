@@ -40,3 +40,40 @@ public class AlertaCalidadTests
         Assert.False(traza.RequiereAccion);
     }
 }
+
+public class AlertaCalidadReglasTests
+{
+    [Theory]
+    [InlineData("6543217", "654321")]
+    [InlineData("654321", "654321")]
+    [InlineData("C.N. 654321.7", "654321")]
+    [InlineData("12345678", "12345678")]
+    public void NormalizarCn_quita_solo_el_septimo_digito(string entrada, string esperado)
+        => Assert.Equal(esperado, AlertaCalidad.NormalizarCn(entrada));
+
+    [Fact]
+    public void Un_blister_entregado_requiere_accion_aunque_no_haya_nada_mas()
+    {
+        var alerta = new AlertaCalidad { Referencia = "R", FechaAlerta = new DateOnly(2026, 1, 1), Cn = "1", Lote = "L" };
+        var entregado = new SpdAfectado(1, "F-1", 1, "P", EstadoSpd.Entregado, new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 7), "L");
+        var traza = new TrazabilidadAlerta(alerta, [], [entregado]);
+        Assert.True(traza.RequiereAccion);
+        Assert.Empty(traza.BlisteresPendientes);
+        Assert.Single(traza.BlisteresEntregados);
+    }
+
+    [Theory]
+    [InlineData(EstadoSpd.Borrador)]
+    [InlineData(EstadoSpd.Preparado)]
+    [InlineData(EstadoSpd.Verificado)]
+    public void Borrador_preparado_y_verificado_son_pendientes(EstadoSpd estado)
+    {
+        var alerta = new AlertaCalidad { Referencia = "R", FechaAlerta = new DateOnly(2026, 1, 1), Cn = "1", Lote = "L" };
+        var b = new SpdAfectado(1, "F-1", 1, "P", estado, new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 7), "L");
+        Assert.Single(new TrazabilidadAlerta(alerta, [], [b]).BlisteresPendientes);
+    }
+
+    [Fact]
+    public void Una_alerta_nueva_esta_activa()
+        => Assert.True(new AlertaCalidad { Referencia = "R", FechaAlerta = new DateOnly(2026, 1, 1), Cn = "1", Lote = "L" }.Activa);
+}

@@ -494,3 +494,6 @@ artefactos/
 
 # Clave privada para firmar las actualizaciones (va como secreto en GitHub, nunca al repositorio)
 formula-spd-actualizaciones.key
+
+# Informes de Stryker.NET (tests de mutación)
+StrykerOutput/

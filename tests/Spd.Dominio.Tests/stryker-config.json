@@ -1,0 +1,19 @@
+{
+  "stryker-config": {
+    "project": "Spd.Dominio.csproj",
+    "test-projects": ["Spd.Dominio.Tests.csproj"],
+    "reporters": ["progress", "html", "cleartext"],
+    "concurrency": 4,
+    "mutate": [
+      "**/LectorGs1DataMatrix.cs",
+      "**/CodigoNacionalEspanol.cs",
+      "**/CadenaAuditoria.cs",
+      "**/DisposicionBlister.cs",
+      "**/AlertaCalidad.cs",
+      "**/AspectoParecido.cs",
+      "**/CalculadoraCaducidadSpd*.cs",
+      "**/CalculadoraUnidadesADescontar.cs"
+    ],
+    "thresholds": { "high": 85, "low": 70, "break": 0 }
+  }
+}

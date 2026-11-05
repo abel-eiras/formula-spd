@@ -85,6 +85,11 @@ public sealed class ServicioInstalacionActualizaciones(
         if (sumas is null || firma is null)
             return ResultadoInstalacionActualizacion.SoloADescargarAMano(
                 $"La versión {etiqueta} se publicó sin firma, así que no se puede instalar desde aquí. Descárgala e instálala a mano. {NadaCambiado}");
+        // Art. VI.1-2: la única red permitida para actualizar es la del propio proyecto en GitHub. Una
+        // respuesta que apunte a otro sitio no se sigue, aunque luego la firma la rechazaría igual.
+        if (new[] { paquete, sumas, firma }.Any(a => !EsUrlDeDescargaPermitida(a.Url)))
+            return ResultadoInstalacionActualizacion.Fallida(
+                $"La versión {etiqueta} apunta a una descarga fuera de GitHub y no se descargará. {NadaCambiado}");
 
         var sumaEsperada = await LeerSumaFirmadaAsync(sumas, firma, paquete.Nombre, cancelacion);
         if (sumaEsperada is null)
@@ -144,11 +149,27 @@ public sealed class ServicioInstalacionActualizaciones(
         return release?.Assets?.Where(a => !string.IsNullOrWhiteSpace(a.Nombre) && !string.IsNullOrWhiteSpace(a.Url)).ToList() ?? [];
     }
 
+    /// <summary>Hosts desde los que se descargan los ficheros de una release de GitHub: la página de la
+    /// release redirige a su almacenamiento en *.githubusercontent.com. Solo HTTPS.</summary>
+    public static bool EsUrlDeDescargaPermitida(string? url)
+        => Uri.TryCreate(url, UriKind.Absolute, out var uri)
+           && uri.Scheme == Uri.UriSchemeHttps
+           && (uri.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase)
+               || uri.Host.EndsWith(".githubusercontent.com", StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>HttpClient sigue las redirecciones solo; se comprueba también a dónde acabó la petición.</summary>
+    private static void ComprobarDestinoFinal(HttpResponseMessage respuesta)
+    {
+        if (respuesta.RequestMessage?.RequestUri is { } final && !EsUrlDeDescargaPermitida(final.ToString()))
+            throw new InvalidDataException("la descarga se redirigió fuera de GitHub");
+    }
+
     private async Task<byte[]> DescargarBytesAsync(string url, CancellationToken cancelacion)
     {
         using var peticion = Peticion(url, "application/octet-stream");
         using var respuesta = await httpClient.SendAsync(peticion, cancelacion);
         respuesta.EnsureSuccessStatusCode();
+        ComprobarDestinoFinal(respuesta);
         return await respuesta.Content.ReadAsByteArrayAsync(cancelacion);
     }
 
@@ -159,6 +180,7 @@ public sealed class ServicioInstalacionActualizaciones(
         using var peticion = Peticion(paquete.Url, "application/octet-stream");
         using var respuesta = await httpClient.SendAsync(peticion, HttpCompletionOption.ResponseHeadersRead, cancelacion);
         respuesta.EnsureSuccessStatusCode();
+        ComprobarDestinoFinal(respuesta);
         var total = respuesta.Content.Headers.ContentLength ?? paquete.Tamano;
 
         await using var origen = await respuesta.Content.ReadAsStreamAsync(cancelacion);

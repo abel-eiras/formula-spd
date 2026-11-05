@@ -31,6 +31,22 @@ dotnet test
 dotnet run --project src/Spd.Presentacion
 ```
 
+### Tests de mutación
+
+[Stryker.NET](https://stryker-mutator.io/docs/stryker-net/introduction/) altera el código del Dominio
+(cambia un `<` por `<=`, quita una condición…) y comprueba que algún test falla. Un mutante que
+sobrevive es una regla que ningún test vigila. La configuración está en
+`tests/Spd.Dominio.Tests/stryker-config.json` y cubre las reglas más delicadas (lector DataMatrix,
+cadena de auditoría, disposición del blíster, alertas de calidad, aspecto parecido, unidades).
+
+```bash
+dotnet tool restore
+cd tests/Spd.Dominio.Tests && dotnet stryker
+```
+
+El informe HTML queda en `tests/Spd.Dominio.Tests/StrykerOutput/` (no se versiona). No forma parte de la
+CI: tarda un par de minutos y su resultado se revisa a mano.
+
 ## Generar los paquetes
 
 ```bash

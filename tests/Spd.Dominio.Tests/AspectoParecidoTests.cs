@@ -56,3 +56,33 @@ public class AspectoParecidoTests
             Linea(2, "B", "comprimido blanco redondo", d: FraccionDosis.Uno)]));
     }
 }
+
+public class AspectoParecidoFirmaTests
+{
+    private static SpdLinea Linea(int id, string desc) => new()
+    {
+        SpdId = 1, TratamientoId = id, MedicamentoId = id, SnapNombre = $"M{id}", SnapCn = "1",
+        SnapDescTexto = desc, SnapPautaD = FraccionDosis.Uno, SnapDiasSemana = "1111111"
+    };
+
+    [Fact]
+    public void Solo_color_sin_forma_no_basta_para_avisar()
+        => Assert.Empty(AspectoParecido.Detectar([Linea(1, "blanco"), Linea(2, "blanco")]));
+
+    [Fact]
+    public void Solo_forma_sin_color_no_basta_para_avisar()
+        => Assert.Empty(AspectoParecido.Detectar([Linea(1, "comprimido redondo"), Linea(2, "comprimido redondo")]));
+
+    [Fact]
+    public void Tres_medicamentos_iguales_dan_tres_parejas()
+        => Assert.Equal(3, AspectoParecido.Detectar([
+            Linea(1, "comprimido blanco"), Linea(2, "comprimido blanco"), Linea(3, "comprimido blanco")]).Count);
+
+    [Fact]
+    public void Una_linea_excluida_no_cuenta()
+    {
+        var excluida = Linea(2, "comprimido blanco");
+        excluida.EstadoLinea = EstadoLinea.Excluida;
+        Assert.Empty(AspectoParecido.Detectar([Linea(1, "comprimido blanco"), excluida]));
+    }
+}

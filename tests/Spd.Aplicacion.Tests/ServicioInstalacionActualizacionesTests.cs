@@ -227,4 +227,31 @@ public sealed class ServicioInstalacionActualizacionesTests : IDisposable
         public ResultadoRestauracion RestaurarDesdeZip(string rutaZip, string carpetaDestino, int administradorQueEjecutaId)
             => throw new NotSupportedException();
     }
+
+    [Fact]
+    public async Task Una_release_que_apunta_fuera_de_GitHub_no_se_descarga()
+    {
+        const string ajena = "https://descargas.ejemplo.com/";
+        var nombres = new[] { NombrePaquete, "SHA256SUMS.txt", "SHA256SUMS.txt.sig" };
+        var assets = string.Join(",", nombres.Select(n => $$"""{"name":"{{n}}","browser_download_url":"{{ajena}}{{n}}","size":10}"""));
+        _handler.Responder(UrlRelease, $$"""{"tag_name":"{{Etiqueta}}","assets":[{{assets}}]}""");
+
+        var resultado = await Instalar();
+
+        Assert.False(resultado.Exito);
+        Assert.Contains("fuera de GitHub", resultado.Motivo);
+        Assert.DoesNotContain(_handler.Peticiones, p => p.StartsWith(ajena, StringComparison.Ordinal));
+        AssertInstalacionIntacta();
+    }
+
+    [Theory]
+    [InlineData("https://github.com/abel-eiras/formula-spd/releases/download/v1/a.zip", true)]
+    [InlineData("https://objects.githubusercontent.com/x", true)]
+    [InlineData("https://release-assets.githubusercontent.com/x", true)]
+    [InlineData("http://github.com/x", false)]
+    [InlineData("https://github.com.ejemplo.com/x", false)]
+    [InlineData("https://ejemplo.com/githubusercontent.com", false)]
+    [InlineData("no es una url", false)]
+    public void Solo_se_descarga_de_GitHub_por_HTTPS(string url, bool permitida)
+        => Assert.Equal(permitida, ServicioInstalacionActualizaciones.EsUrlDeDescargaPermitida(url));
 }
