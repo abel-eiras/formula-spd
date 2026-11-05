@@ -24,7 +24,10 @@ public sealed record Alveolo(int Dia, int Toma, IReadOnlyList<ContenidoAlveolo> 
 /// Las columnas no son siempre LU–DO: un blíster que empieza en jueves tiene el jueves en la primera
 /// columna. Poner una cabecera fija de lunes a domingo encima de esos datos sería mentir sobre qué
 /// día es cada alvéolo, que es justo el error que esta pantalla existe para evitar.</summary>
-public sealed record RejillaAlveolosDatos(IReadOnlyList<string> Columnas, IReadOnlyList<Alveolo> Celdas);
+/// <summary>`Filas` son los nombres de las tomas de arriba abajo y `Celdas` va por filas y, dentro de
+/// cada fila, de izquierda a derecha: el orden físico del blíster según la disposición de la farmacia
+/// (Spec 016).</summary>
+public sealed record RejillaAlveolosDatos(IReadOnlyList<string> Columnas, IReadOnlyList<Alveolo> Celdas, IReadOnlyList<string> Filas);
 
 /// <summary>La rejilla del dispositivo (Spec 015 FR-1541).
 ///
@@ -47,9 +50,36 @@ public static class MapaAlveolos
     /// <summary>Códigos de día en el orden en que los recorre `DayOfWeek` empezando en lunes.</summary>
     private static readonly string[] CodigosDia = ["LU", "MA", "MI", "JU", "VI", "SA", "DO"];
 
-    /// <summary>Rejilla lista para pintar: cabeceras y celdas coherentes entre sí.</summary>
-    public static RejillaAlveolosDatos Rejilla(IEnumerable<SpdLinea> lineas, DateOnly? validezDesde = null)
-        => new(Columnas(validezDesde), Construir(lineas, validezDesde));
+    /// <summary>Rejilla lista para pintar: cabeceras y celdas coherentes entre sí, colocadas como el
+    /// blíster físico de la farmacia (Spec 016). Sin disposición, la de siempre: primer día a la
+    /// izquierda y desayuno arriba.</summary>
+    public static RejillaAlveolosDatos Rejilla(
+        IEnumerable<SpdLinea> lineas, DateOnly? validezDesde = null, DisposicionBlister? disposicion = null)
+    {
+        var d = disposicion ?? DisposicionBlister.PorDefecto;
+        var porDiaYToma = Construir(lineas, validezDesde).ToDictionary(a => (a.Dia, a.Toma));
+        var diasDeColumnas = DiasDeColumnas(validezDesde, d);
+
+        var celdas = new List<Alveolo>(Dias * Tomas);
+        for (var fila = 0; fila < Tomas; fila++)
+            foreach (var dia in diasDeColumnas)
+                celdas.Add(porDiaYToma[(dia, d.TomaDeFila(fila))]);
+
+        var columnas = Columnas(validezDesde);
+        return new RejillaAlveolosDatos(
+            diasDeColumnas.Select(dia => columnas[dia]).ToList(),
+            celdas,
+            Enumerable.Range(0, Tomas).Select(fila => NombresTomas[d.TomaDeFila(fila)]).ToList());
+    }
+
+    /// <summary>Qué día del blíster (0 = primer día de validez) va en cada columna física, de izquierda
+    /// a derecha. Sin fecha de validez no hay día de la semana que fijar: solo se aplica el sentido.</summary>
+    private static IReadOnlyList<int> DiasDeColumnas(DateOnly? validezDesde, DisposicionBlister d)
+    {
+        if (validezDesde is not { } inicio)
+            return Enumerable.Range(0, Dias).Select(c => d.DiasDeDerechaAIzquierda ? Dias - 1 - c : c).ToList();
+        return d.FechasDeColumnas(inicio).Select(f => f.DayNumber - inicio.DayNumber).ToList();
+    }
 
     /// <summary>Etiqueta de cada columna. Con fecha de validez lleva también el día del mes, para que
     /// no haya duda de a qué día concreto corresponde cada alvéolo.</summary>

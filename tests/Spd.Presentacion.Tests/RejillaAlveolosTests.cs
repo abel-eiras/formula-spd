@@ -112,3 +112,56 @@ public sealed class RejillaAlveolosTests
         Assert.All(rejilla, celda => Assert.True(celda.Vacio));
     }
 }
+
+/// <summary>Spec 016 (CA-1601..1603): la rejilla se coloca como el blíster físico de la farmacia.</summary>
+public sealed class DisposicionRejillaTests
+{
+    private static readonly DateOnly Jueves = new(2026, 9, 10);
+
+    private static SpdLinea SoloLunesNoche() => new()
+    {
+        SpdId = 1, TratamientoId = 1, MedicamentoId = 1, SnapNombre = "Metformina", SnapCn = "654321",
+        SnapDiasSemana = "1000000", SnapPautaN = FraccionDosis.Uno
+    };
+
+    [Fact]
+    public void Por_defecto_es_la_disposicion_de_siempre()
+    {
+        var rejilla = MapaAlveolos.Rejilla([SoloLunesNoche()], Jueves);
+        Assert.Equal("JU 10/09", rejilla.Columnas[0]);
+        Assert.Equal(["Desayuno", "Almuerzo", "Cena", "Noche"], rejilla.Filas);
+    }
+
+    [Fact]
+    public void Convencional_pone_el_lunes_en_la_primera_columna_con_su_fecha_real_CA_1601()
+    {
+        var rejilla = MapaAlveolos.Rejilla([SoloLunesNoche()], Jueves,
+            new DisposicionBlister(InicioBlister.Convencional, false, false));
+
+        Assert.Equal("LU 14/09", rejilla.Columnas[0]);
+        Assert.Equal("DO 13/09", rejilla.Columnas[6]);
+        // Fila 3 (noche), columna 0 (lunes): ahí va la metformina.
+        Assert.False(rejilla.Celdas[3 * 7 + 0].Vacio);
+        Assert.Equal(1, rejilla.Celdas.Count(c => !c.Vacio));
+    }
+
+    [Fact]
+    public void Derecha_a_izquierda_y_noche_arriba_es_el_blister_girado_CA_1602()
+    {
+        var rejilla = MapaAlveolos.Rejilla([SoloLunesNoche()], Jueves,
+            new DisposicionBlister(InicioBlister.Cronologico, true, true));
+
+        Assert.Equal("JU 10/09", rejilla.Columnas[6]);
+        Assert.Equal(["Noche", "Cena", "Almuerzo", "Desayuno"], rejilla.Filas);
+        // El lunes es el cuarto día (índice 4): en la columna 6-4 = 2, fila 0 (noche).
+        Assert.False(rejilla.Celdas[0 * 7 + 2].Vacio);
+    }
+
+    [Fact]
+    public void Las_fechas_convencionales_nunca_salen_del_periodo_de_validez_CA_1603()
+    {
+        var fechas = new DisposicionBlister(InicioBlister.Convencional, false, false).FechasDeColumnas(Jueves);
+        Assert.All(fechas, f => Assert.InRange(f, Jueves, Jueves.AddDays(6)));
+        Assert.Equal(7, fechas.Distinct().Count());
+    }
+}

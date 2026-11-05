@@ -18,6 +18,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     private readonly IServicioPreparacion _servicio;
     private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly IServicioLecturaCodigos _lecturaCodigos;
+    private readonly DisposicionBlister _disposicion;
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly int _pacienteId;
@@ -100,9 +101,10 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos,
         IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioComunicacionesMedico servicioComunicaciones,
         int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null, IServicioUsuarios? servicioUsuarios = null,
-        IServicioLecturaCodigos? lecturaCodigos = null)
+        IServicioLecturaCodigos? lecturaCodigos = null, DisposicionBlister? disposicion = null)
     {
         _lecturaCodigos = lecturaCodigos ?? new ServicioLecturaCodigos(servicioMedicamentos);
+        _disposicion = disposicion ?? DisposicionBlister.PorDefecto;
         // FR-1542: el verificador se elige de la lista de usuarios activos, no tecleando su id.
         VerificadoresDisponibles = new System.Collections.ObjectModel.ObservableCollection<Usuario>(
             servicioUsuarios?.ListarActivos() ?? []);
@@ -128,7 +130,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         var spds = _servicio.ListarPorFiltro(new FiltrosPreparaciones(PacienteId: _pacienteId));
         Blisteres = new ObservableCollection<BlisterFila>(
             spds.OrderByDescending(s => s.Id)
-                .Select(s => new BlisterFila(s, _servicio.ListarLineas(s.Id), MaterialesDisponibles.Count > 0)));
+                .Select(s => new BlisterFila(s, _servicio.ListarLineas(s.Id), MaterialesDisponibles.Count > 0, _disposicion)));
         ComprobarAptitud();
     }
 
@@ -534,13 +536,14 @@ public sealed partial class PreparacionViewModel : ViewModelBase
 
     /// <summary>Un blíster de la sesión. Además de sus datos lleva ya calculado lo que la pantalla
     /// necesita mostrar: el carril de pasos (FR-1540) y la rejilla de alvéolos (FR-1541).</summary>
-    public sealed record BlisterFila(SPD Spd, IReadOnlyList<SpdLinea> Lineas, bool HayMaterial = true)
+    public sealed record BlisterFila(SPD Spd, IReadOnlyList<SpdLinea> Lineas, bool HayMaterial = true,
+        DisposicionBlister? Disposicion = null)
     {
         public IReadOnlyList<Preparacion.PasoPreparacion> Pasos { get; } =
             Preparacion.PasoPreparacion.Derivar(Spd, HayMaterial);
 
         public Preparacion.RejillaAlveolosDatos Rejilla { get; } =
-            Preparacion.MapaAlveolos.Rejilla(Lineas, Spd.ValidezDesde);
+            Preparacion.MapaAlveolos.Rejilla(Lineas, Spd.ValidezDesde, Disposicion);
 
         /// <summary>FR-1540 (H4.6): cada impresión se ofrece cuando su paso está disponible. Un
         /// botón apagado con su motivo al lado dice más que uno encendido que devuelve un error.</summary>

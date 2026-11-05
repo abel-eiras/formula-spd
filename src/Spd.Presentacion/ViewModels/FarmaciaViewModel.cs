@@ -55,6 +55,12 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
     [ObservableProperty] private int _umbralReutilizacionLecturaAmbientalHoras;
     [ObservableProperty] private int _aniosRetencionPurga;
 
+    // Spec 016: disposición del blíster físico (FR-1603).
+    public string[] IniciosBlister { get; } = ["Cronológico (primer día a la izquierda)", "Convencional (lunes a domingo fijos)"];
+    [ObservableProperty] private int _indiceInicioBlister;
+    [ObservableProperty] private bool _blisterDiasDerechaIzquierda;
+    [ObservableProperty] private bool _blisterNocheArriba;
+
     [ObservableProperty] private string? _mensaje;
 
     public FarmaciaViewModel(
@@ -97,6 +103,19 @@ public sealed partial class FarmaciaViewModel : ViewModelBase
         _hrMax = _farmacia.HrMax;
         _umbralReutilizacionLecturaAmbientalHoras = _farmacia.UmbralReutilizacionLecturaAmbientalHoras;
         _aniosRetencionPurga = _farmacia.AniosRetencionPurga;
+        _indiceInicioBlister = _farmacia.BlisterInicio == InicioBlister.Convencional ? 1 : 0;
+        _blisterDiasDerechaIzquierda = _farmacia.BlisterDiasDerechaIzquierda;
+        _blisterNocheArriba = _farmacia.BlisterNocheArriba;
+    }
+
+    [RelayCommand]
+    private void GuardarDisposicionBlister()
+    {
+        var disposicion = new DisposicionBlister(
+            IndiceInicioBlister == 1 ? InicioBlister.Convencional : InicioBlister.Cronologico,
+            BlisterDiasDerechaIzquierda, BlisterNocheArriba);
+        _servicio.ActualizarDisposicionBlister(disposicion, _administradorActualId);
+        Mensaje = "Disposición del blíster guardada: se aplica al abrir de nuevo la preparación de un paciente.";
     }
 
     [RelayCommand]

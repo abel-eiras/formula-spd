@@ -20,12 +20,19 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
 
-      <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="*,*,*,*">
-        <TextBlock Grid.Row="0" Text="Desayuno" Classes="etiqueta" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="1" Text="Almuerzo" Classes="etiqueta" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="2" Text="Cena" Classes="etiqueta" VerticalAlignment="Center" />
-        <TextBlock Grid.Row="3" Text="Noche" Classes="etiqueta" VerticalAlignment="Center" />
-      </Grid>
+      <!-- Spec 016: las tomas, en el orden del blíster físico (desayuno o noche arriba). -->
+      <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Filas}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="1" Rows="4" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding}" Classes="etiqueta" VerticalAlignment="Center" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
 
       <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Celdas}">
         <ItemsControl.ItemsPanel>

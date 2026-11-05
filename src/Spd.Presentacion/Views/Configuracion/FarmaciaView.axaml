@@ -98,6 +98,16 @@
       <NumericUpDown Value="{Binding AniosRetencionPurga}" Minimum="5" Maximum="30" />
       <Button Content="Guardar valores por defecto" Command="{Binding GuardarValoresDefectoCommand}" />
 
+      <Separator Margin="0,8" />
+      <TextBlock Text="Disposición del blíster" FontSize="18" FontWeight="Bold" />
+      <TextBlock TextWrapping="Wrap"
+                 Text="Cómo es el blíster que usáis, para que la rejilla de preparación se vea igual que el que tenéis delante. Un blíster girado 180° es «días de derecha a izquierda» y «noche arriba» a la vez." />
+      <TextBlock Text="Días" />
+      <ComboBox ItemsSource="{Binding IniciosBlister}" SelectedIndex="{Binding IndiceInicioBlister}" />
+      <CheckBox Content="Días de derecha a izquierda" IsChecked="{Binding BlisterDiasDerechaIzquierda}" />
+      <CheckBox Content="Noche arriba (desayuno abajo)" IsChecked="{Binding BlisterNocheArriba}" />
+      <Button Content="Guardar disposición del blíster" Command="{Binding GuardarDisposicionBlisterCommand}" />
+
       <Button Content="Guardar" Command="{Binding GuardarCommand}" Margin="0,16,0,0" />
     </StackPanel>
   </ScrollViewer>
