@@ -545,6 +545,10 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         public Preparacion.RejillaAlveolosDatos Rejilla { get; } =
             Preparacion.MapaAlveolos.Rejilla(Lineas, Spd.ValidezDesde, Disposicion);
 
+        /// <summary>Spec 006 FR-699: medicamentos de aspecto muy parecido en el mismo alvéolo.</summary>
+        public IReadOnlyList<string> AvisosAspecto { get; } = AspectoParecido.Detectar(Lineas);
+        public bool HayAvisosAspecto => AvisosAspecto.Count > 0;
+
         /// <summary>FR-1540 (H4.6): cada impresión se ofrece cuando su paso está disponible. Un
         /// botón apagado con su motivo al lado dice más que uno encendido que devuelve un error.</summary>
         public bool PuedeImprimirEtiquetas => !Paso(Preparacion.ClavePaso.Etiquetado).EstaBloqueado;

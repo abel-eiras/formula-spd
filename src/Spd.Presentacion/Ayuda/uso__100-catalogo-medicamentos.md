@@ -18,3 +18,8 @@ Procedimiento relacionado: [[procedimiento:ficha-y-tratamiento]] (medicamentos s
 ## Grupo homogéneo
 
 El campo **Código de grupo homogéneo** permite utilizar en custodia marcas equivalentes que tengan el mismo código verificado. Sin código, solo se comparte saldo entre cajas del mismo CN. El nomenclátor puede traer la columna opcional **Grupo homogéneo**: al importar se completa un código ausente, conservando cualquier código ya informado y el resto del catálogo.
+
+
+## Proponer la descripción física desde la ficha técnica
+
+En la ficha del medicamento, pega el texto de la sección 3 de la ficha técnica («Forma farmacéutica») y pulsa **Proponer desde la ficha técnica**. La aplicación rellena forma, color, ranura, serigrafía y tamaño con lo que diga el texto; lo que no mencione se queda como estaba. Es una propuesta: revísala mirando el comprimido y pulsa **Guardar**. Si el texto habla de ranura, recuerda que puede no servir para dividir la dosis.

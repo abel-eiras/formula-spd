@@ -55,6 +55,8 @@ Como administrador, quiero descargar el nomenclátor desde la URL configurada (S
 - **FR-321** La importación **nunca sobrescribe automáticamente** la descripción física ni la aptitud SPD de un medicamento existente — esos campos son exclusivamente de responsabilidad manual del profesional (Artículo I.2 y I.3: aptitud SPD y descripción son decisiones clínicas, no datos de nomenclátor). Solo puede rellenar `unidades_envase` cuando está vacío, o actualizarlo si el usuario lo confirma explícitamente fila a fila.
 - **FR-322** El usuario decide, medicamento a medicamento, si acepta la creación o el dato propuesto; no hay una importación masiva sin revisión para los campos sensibles.
 
+- **FR-312** (2026-11-05) Propuesta de descripción física desde la ficha técnica: en la ficha del medicamento se puede pegar el texto de la sección 3 («Forma farmacéutica») y la aplicación propone forma (tipo y forma geométrica), color, ranura, serigrafía (marcas entre comillas cuando el texto habla de grabado, inscripción o marca) y tamaño (diámetro o dimensiones en mm). Solo rellena los campos que el texto menciona; nada se guarda hasta pulsar Guardar. «Blanco o casi blanco» se conserva entero; con más de un color se avisa; si hay ranura se avisa siempre de que puede no servir para dividir la dosis; sin datos de aspecto no se propone nada y se dice. No abre red: el texto lo pega la persona.
+
 ## 5. Entidades clave
 
 | Entidad | Referencia |

@@ -43,6 +43,10 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     [ObservableProperty] private string? _descRanura;
     [ObservableProperty] private string? _descSerigrafia;
     [ObservableProperty] private string? _descTamano;
+
+    /// <summary>Spec 003 FR-312: texto de la sección 3 de la ficha técnica, pegado para proponer la
+    /// descripción física. No se guarda.</summary>
+    [ObservableProperty] private string? _textoFichaTecnica;
     [ObservableProperty] private string? _descTexto;
     [ObservableProperty] private bool _consultandoCima;
 
@@ -130,6 +134,24 @@ public sealed partial class CatalogoMedicamentosViewModel : ViewModelBase
     [RelayCommand]
     private void ProponerDescripcion()
         => DescTexto = _servicio.ProponerDescripcionTexto(ConstruirDatosDescripcion());
+
+    /// <summary>Spec 003 FR-312: rellena los campos que el texto de la ficha técnica describe y deja
+    /// como están los que no menciona. Nada se guarda hasta pulsar Guardar: es una propuesta que se
+    /// revisa (Art. I.2).</summary>
+    [RelayCommand]
+    private void ProponerDesdeFichaTecnica()
+    {
+        var propuesta = AnalizadorDescripcionFisica.Analizar(TextoFichaTecnica);
+        DescForma = propuesta.Forma ?? DescForma;
+        DescColor = propuesta.Color ?? DescColor;
+        DescRanura = propuesta.Ranura ?? DescRanura;
+        DescSerigrafia = propuesta.Serigrafia ?? DescSerigrafia;
+        DescTamano = propuesta.Tamano ?? DescTamano;
+        if (!propuesta.Vacia) ProponerDescripcion();
+        Mensaje = propuesta.Avisos.Count == 0
+            ? "Propuesta aplicada: revísala mirando el comprimido antes de guardar."
+            : "Propuesta aplicada: revísala antes de guardar. " + string.Join(" ", propuesta.Avisos);
+    }
 
     [RelayCommand]
     private void Guardar()

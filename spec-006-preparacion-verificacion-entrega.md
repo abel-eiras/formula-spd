@@ -133,6 +133,8 @@ Como elaborador, si al preparar descubro que un envase se agotó antes de lo pre
 - **FR-6126** Un SPD puede reelaborarse más de una vez mientras no se entregue; cada vez incrementa `version` y añade una fila a `SPD_Modificacion`.
 - **FR-6127** Reelaborar un SPD que forma parte de una sesión con dos blísteres afecta solo al blíster indicado; el otro no se toca.
 
+- **FR-699** (2026-11-05) Aviso de aspecto muy parecido: si dos medicamentos distintos van en la misma toma de algún día común y la descripción física de su instantánea coincide en forma y color, la pantalla de preparación lo avisa bajo la rejilla del blíster para distinguirlos por la serigrafía o el tamaño. Sin forma o color en la descripción no se afirma nada. Es una comprobación visual, no clínica; nunca bloquea.
+
 ## 5. Entidades clave
 
 | Entidad | Cambios respecto a v0.1 |

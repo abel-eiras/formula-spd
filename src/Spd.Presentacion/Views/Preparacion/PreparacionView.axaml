@@ -103,6 +103,14 @@
                   <!-- FR-1541: el blíster como se ve. Evita traducir mentalmente "½-0-1-0, de lunes
                        a viernes" a la posición física de cada alvéolo, que es donde se falla. -->
                   <c:RejillaAlveolos DataContext="{Binding Rejilla}" Margin="0,4,0,10" />
+                  <!-- Spec 006 FR-699: aviso, nunca bloqueo. -->
+                  <ItemsControl ItemsSource="{Binding AvisosAspecto}" IsVisible="{Binding HayAvisosAspecto}" Margin="0,0,0,8">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding StringFormat='⚠ {0}'}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
 
                   <ItemsControl ItemsSource="{Binding Lineas}">
                     <ItemsControl.ItemTemplate>

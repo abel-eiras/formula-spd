@@ -48,3 +48,8 @@ Temperatura y humedad. Debajo se ve la **última lectura** y si todavía vale: s
 Los mensajes de bloqueo llevan el botón **"¿Por qué? (F1)"** ([[procedimiento:porque-de-los-bloqueos]]).
 
 Procedimientos relacionados: [[procedimiento:preparacion]], [[procedimiento:verificacion]], [[procedimiento:entrega]].
+
+
+## Aviso de aspecto parecido
+
+Si dos medicamentos distintos van en el mismo alvéolo y su descripción coincide en forma y color (por ejemplo, dos comprimidos blancos redondos), debajo de la rejilla aparece un aviso para que los distingas por la serigrafía o el tamaño. No bloquea nada.

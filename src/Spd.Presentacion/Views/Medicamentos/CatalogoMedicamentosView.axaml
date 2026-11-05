@@ -79,6 +79,11 @@
 
         <Separator Margin="0,8" />
         <TextBlock Text="Descripción física" Classes="titulo" />
+        <TextBlock Text="Pega aquí la sección 3 de la ficha técnica («Forma farmacéutica») para proponer los campos:"
+                   TextWrapping="Wrap" />
+        <TextBox Text="{Binding TextoFichaTecnica}" AcceptsReturn="True" TextWrapping="Wrap" Height="60"
+                 Watermark="Comprimidos recubiertos con película, blancos, redondos, con «M 20» grabado…" />
+        <Button Content="Proponer desde la ficha técnica" FontSize="11" Command="{Binding ProponerDesdeFichaTecnicaCommand}" />
         <TextBlock Text="Forma" />
         <TextBox Text="{Binding DescForma}" />
         <TextBlock Text="Color" />
