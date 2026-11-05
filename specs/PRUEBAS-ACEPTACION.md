@@ -1,10 +1,10 @@
 # Pruebas de aceptación — recorrido manual completo
 
-Los **134 criterios de aceptación** de las catorce especificaciones, ordenados en el orden en que
+Los **154 criterios de aceptación** de las catorce especificaciones, ordenados en el orden en que
 se ejecutan de verdad, no por número de spec. Generado desde una única fuente para que ningún
 criterio se quede fuera: la comprobación de cobertura falla si alguno no aparece.
 
-**143 pasos en 24 bloques.** No hace falta hacerlo de una sentada, pero el orden importa:
+**157 pasos en 25 bloques.** No hace falta hacerlo de una sentada, pero el orden importa:
 cada bloque deja el sistema en el estado que necesita el siguiente. Los tres últimos son
 destructivos y van al final por eso.
 
@@ -35,9 +35,10 @@ primera línea identifica la compilación y el sistema.
 - [17. Espacio del paciente, de conjunto](#17-espacio-del-paciente-de-conjunto) — 3 pasos
 - [18. Registros de calidad](#18-registros-de-calidad) — 3 pasos
 - [19. Nomenclátor, perfiles e importación/exportación](#19-nomenclator-perfiles-e-importacionexportacion) — 5 pasos
-- [20. Baja y reactivación del paciente](#20-baja-y-reactivacion-del-paciente) — 2 pasos
-- [21. Copia de seguridad y cifrado](#21-copia-de-seguridad-y-cifrado) — 6 pasos
-- [22. Purga](#22-purga) — 3 pasos
+- [20. Novedades de la 0.4.0](#20-novedades-de-la-040) — 14 pasos
+- [21. Baja y reactivación del paciente](#21-baja-y-reactivacion-del-paciente) — 2 pasos
+- [22. Copia de seguridad y cifrado](#22-copia-de-seguridad-y-cifrado) — 6 pasos
+- [23. Purga](#23-purga) — 3 pasos
 - [Lo que no se comprueba aquí, y por qué](#lo-que-no-se-comprueba-aqui-y-por-que)
 
 ## 0. Antes de empezar
@@ -77,7 +78,7 @@ Transversal. Se puede ir comprobando mientras se recorre el resto.
 
 | ✓ | Qué hacer | Qué debe pasar | Criterio |
 |---|---|---|---|
-| ☐ | Recorrer las quince secciones del menú lateral | Ninguna abre una ventana nueva: siempre una sola ventana. «← Atrás» vuelve a la sección anterior. | `CA-1500` |
+| ☐ | Recorrer las diecinueve secciones del menú lateral | Ninguna abre una ventana nueva: siempre una sola ventana. «← Atrás» vuelve a la sección anterior. | `CA-1500` |
 | ☐ | Cambiar el tema del sistema a oscuro y volver a claro | Todo sigue legible en ambas variantes: ningún texto del tema claro sobre fondo oscuro ni al revés. | `CA-1502` |
 | ☐ | Pulsar F1 en Preparaciones, en Retirada y en cuatro pestañas distintas de un paciente | Abre el apartado de procedimiento de esa pantalla, no el índice general. | `CA-1503`, `CA-1401` |
 | ☐ | Abrir la Ayuda y mirar el índice | Están separadas «Uso de la aplicación» y «Procedimiento del servicio SPD». | `CA-1400` |
@@ -319,7 +320,28 @@ Administración → Nomenclátor y Perfiles de importación, y Exportar paciente
 | ☐ | Probar un patrón de extracción contra varias filas de muestra antes de guardar | Dice cuántas aciertan y cuántas fallan. *(Si la pantalla no lo ofrece, anótalo: el FR-1110 estaba pendiente de una muestra real del nomenclátor.)* | `CA-1101` |
 | ☐ | Exportar con un perfil que solo mapea nombre, apellidos y teléfono | El CSV no contiene ningún otro campo. | `CA-1103` |
 
-## 20. Baja y reactivación del paciente
+## 20. Novedades de la 0.4.0
+
+Lector, disposición del blíster, auditoría, alertas de calidad, centros y reposición (specs 012 v0.5, 016–019, raíz del repositorio). Con el paciente de pruebas y sus envases.
+
+| ✓ | Qué hacer | Qué debe pasar | Criterio |
+|---|---|---|---|
+| ☐ | Administración → Lector de códigos: escanear una caja española sin campo 712 | Se ven los caracteres recibidos y el CN deducido del GTIN («deducido del GTIN»). | `CA-1206` |
+| ☐ | Sin separador sustituto, escanear (o pegar) `01084700069506471728073110AB21CD21EF` en el alta de un envase | Aparecen dos lecturas para elegir; no se rellena nada hasta elegir una. | `CA-1207` |
+| ☐ | Configurar `~` como separador sustituto y escanear `01084700069506471728073110AB21CD~21EF` | Lectura inequívoca: lote AB21CD, serie EF. | `CA-1208` |
+| ☐ | Configuración → Farmacia → Disposición del blíster: convencional; abrir la preparación de un blíster que empiece en jueves | La primera columna es LU con la fecha del lunes siguiente; un tratamiento de solo lunes cae en esa columna. | `CA-1601`, `CA-1603` |
+| ☐ | Marcar «días de derecha a izquierda» y «noche arriba» y volver a abrir la preparación | El primer día está en la última columna y la fila de arriba es la noche. | `CA-1602` |
+| ☐ | Administración → Seguridad → «Comprobar la auditoría» | Dice que está íntegra y cuántas entradas anteriores a la 0.4.0 no tienen sello. | `CA-1701` |
+| ☐ | Con una copia de la base, cambiar con un editor SQLite el detalle de una entrada de Auditoria y comprobar de nuevo | Señala esa entrada como modificada. *(Solo con una copia: no hagas esto sobre la base real.)* | `CA-1702`, `CA-1703` |
+| ☐ | Alertas de calidad: registrar una alerta con el CN y el lote de una caja del paciente (escrito con un guion de más) y dos lotes separados por coma | Se crean dos alertas; la del lote de la caja muestra la caja y los blísteres que la usan. En Inicio aparece el aviso el primero. | `CA-1801`, `CA-1802`, `CA-1803` |
+| ☐ | Intentar registrar una alerta sin referencia o cerrarla sin motivo; luego cerrarla con motivo | Lo primero se rechaza; al cerrarla desaparece el aviso de Inicio y queda en el histórico. | `CA-1804`, `CA-1805` |
+| ☐ | Centros y residencias: crear un centro, añadir al paciente e imprimir el albarán con un blíster verificado | Solo propone los verificados; el PDF lleva la farmacia, el centro, el blíster, el periodo y los espacios de firma y DNI. | `CA-1901`, `CA-1902` |
+| ☐ | Intentar dar de baja el centro con el paciente dentro | Lo impide; tras quitar al paciente, se puede. | `CA-1903` |
+| ☐ | Reposición con horizonte de 14 días, luego filtrada por el centro, e imprimir | Salen los medicamentos que se agotan en ese plazo con sus días y fecha; el filtro deja solo los del centro; el PDF los lista. | `CA-1904`, `CA-1905`, `CA-1906` |
+| ☐ | Pegar en el catálogo la sección 3 de una ficha técnica y pulsar «Proponer desde la ficha técnica» | Rellena forma, color, ranura, serigrafía y tamaño para revisar; si hay ranura, avisa de que puede no servir para dividir. | — |
+| ☐ | Preparar un blíster con dos medicamentos «comprimido blanco redondo» en la misma toma | Bajo la rejilla aparece el aviso de aspecto parecido; no bloquea. | — |
+
+## 21. Baja y reactivación del paciente
 
 Deja esto para el final: cambia el estado del paciente de pruebas.
 
@@ -328,7 +350,7 @@ Deja esto para el final: cambia el estado del paciente de pruebas.
 | ☐ | Dar de baja un paciente con tratamientos, envases y SPD, con fecha y motivo | Estado BAJA, **todos los datos relacionados siguen existiendo y consultables**, y la baja con su motivo está en auditoría. | `CA-009` |
 | ☐ | Reactivar ese paciente | Pasa a EVALUACION y la cabecera dice «sin consentimiento vigente». | `CA-010` |
 
-## 21. Copia de seguridad y cifrado
+## 22. Copia de seguridad y cifrado
 
 **Lo último, y con la base de pruebas, no con datos que te importen.** Activar el cifrado cambia el fichero de la base: si pierdes la contraseña maestra y la frase de recuperación, no hay vuelta atrás.
 
@@ -341,7 +363,7 @@ Deja esto para el final: cambia el estado del paciente de pruebas.
 | ☐ | Con el cifrado ya activo, cambiar la contraseña maestra | Es prácticamente instantáneo (rekey), no una exportación completa de la base. | `CA-1004` |
 | ☐ | Cerrar y reabrir la aplicación con el cifrado activo | Pide la contraseña maestra, y acepta indistintamente esa o la frase de recuperación de 24 palabras. | — |
 
-## 22. Purga
+## 23. Purga
 
 **Destructiva por diseño**: es la única excepción al Art. III. Solo sobre pacientes de prueba.
 
