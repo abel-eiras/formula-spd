@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Configuracion.LectorCodigosView">
+  <Grid RowDefinitions="*,Auto">
+  <ScrollViewer Grid.Row="0">
+    <StackPanel Margin="24" Spacing="8" MaxWidth="760" HorizontalAlignment="Left">
+      <TextBlock Text="Lector de códigos" FontSize="18" FontWeight="Bold" />
+      <TextBlock TextWrapping="Wrap"
+                 Text="Escanea una caja aquí para ver qué manda el lector y qué entiende la aplicación. No se guarda nada al probar." />
+      <TextBox Text="{Binding CodigoPrueba}" Watermark="Apunta el lector aquí y escanea una caja">
+        <TextBox.KeyBindings>
+          <KeyBinding Gesture="Enter" Command="{Binding ProbarCommand}" />
+        </TextBox.KeyBindings>
+      </TextBox>
+
+      <TextBlock Text="Caracteres recibidos" Classes="etiqueta" />
+      <SelectableTextBlock Text="{Binding CaracteresRecibidos}" Classes="datos" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding Diagnostico}" TextWrapping="Wrap" />
+      <TextBlock Text="Lo que entiende la aplicación" Classes="etiqueta" />
+      <SelectableTextBlock Text="{Binding Interpretacion}" Classes="datos" TextWrapping="Wrap" />
+
+      <Separator Margin="0,8" />
+      <TextBlock Text="Separador sustituto" FontSize="16" FontWeight="Bold" />
+      <TextBlock TextWrapping="Wrap"
+                 Text="Los lectores en modo teclado pueden perder el separador GS entre el lote y el número de serie. Si programas el lector para que lo mande como un símbolo que no aparezca en lotes (por ejemplo «~»), escríbelo aquí. Déjalo vacío si el lector manda el GS." />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBox Text="{Binding SeparadorSustituto}" Width="80" MaxLength="3" />
+        <Button Content="Guardar separador" Command="{Binding GuardarSeparadorCommand}" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+  <Border Grid.Row="1" Padding="16,8" Background="#22808080"
+          IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+    <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+  </Border>
+  </Grid>
+</UserControl>

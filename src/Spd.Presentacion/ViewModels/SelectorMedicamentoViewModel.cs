@@ -25,6 +25,7 @@ public sealed partial class SelectorMedicamentoViewModel : ViewModelBase
     private readonly IServicioMedicamentos _servicio;
     private readonly IServicioConsultaCima? _servicioCima;
     private readonly int? _usuarioActualId;
+    private readonly IServicioLecturaCodigos _lecturaCodigos;
     private ResultadoConsultaCima? _datosCima;
 
     [ObservableProperty] private string _texto = string.Empty;
@@ -40,8 +41,10 @@ public sealed partial class SelectorMedicamentoViewModel : ViewModelBase
     [ObservableProperty] private bool _consultandoCima;
 
     public SelectorMedicamentoViewModel(
-        IServicioMedicamentos servicio, IServicioConsultaCima? servicioCima, int? usuarioActualId)
+        IServicioMedicamentos servicio, IServicioConsultaCima? servicioCima, int? usuarioActualId,
+        IServicioLecturaCodigos? lecturaCodigos = null)
     {
+        _lecturaCodigos = lecturaCodigos ?? new ServicioLecturaCodigos(servicio);
         _servicio = servicio;
         _servicioCima = servicioCima;
         _usuarioActualId = usuarioActualId;
@@ -72,16 +75,21 @@ public sealed partial class SelectorMedicamentoViewModel : ViewModelBase
     [RelayCommand]
     private void LeerCodigoEscaneado()
     {
-        var datos = LectorGs1DataMatrix.Leer(CodigoEscaneado);
+        // Para elegir el medicamento basta con su identidad: en una lectura ambigua el GTIN y el CN
+        // coinciden en todas las candidatas (FR-1210). Un EAN-13 lineal de un medicamento sin receta
+        // también vale: lleva el CN dentro (FR-1209).
+        var lectura = _lecturaCodigos.Interpretar(CodigoEscaneado);
+        var codigo = CodigoEscaneado.Trim();
         CodigoEscaneado = string.Empty;
-        if (datos is null)
+        var datos = lectura.IdentidadComun;
+        var cnDelEan = datos is null ? CodigoNacionalEspanol.DesdeGtin(codigo) : null;
+        if (datos is null && cnDelEan is null)
         {
             Mensaje = "Código no reconocido (FR-1204): busca por nombre o CN, o escríbelo a mano.";
             return;
         }
 
-        var medicamento = (datos.CodigoNacional is { } cn ? _servicio.ObtenerPorCn(cn) : null)
-                           ?? _servicio.ObtenerPorGtin(datos.Gtin);
+        var medicamento = datos is not null ? _lecturaCodigos.IdentificarMedicamento(datos) : _servicio.ObtenerPorCn(cnDelEan!);
         if (medicamento is not null)
         {
             Elegir(medicamento);
@@ -89,7 +97,7 @@ public sealed partial class SelectorMedicamentoViewModel : ViewModelBase
             return;
         }
 
-        Texto = datos.CodigoNacional ?? string.Empty;
+        Texto = datos?.CnIdentificado ?? cnDelEan ?? string.Empty;
         Mensaje = "Ese medicamento no está en el catálogo: puedes darlo de alta con «Nuevo medicamento…».";
     }
 

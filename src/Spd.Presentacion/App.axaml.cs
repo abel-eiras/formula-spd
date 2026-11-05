@@ -211,7 +211,8 @@ public partial class App : Application
 
         // Panel de inicio (Spec 006 FR-691), lote (Spec 007 FR-720..725) y purga manual (Spec 010 §4.3).
         _servicioAvisos = new ServicioAvisosInicio(_servicioListadoRetirada, repositorioSpd, repositorioPacientes, new RepositorioRegistrosAmbientales(_conexion!));
-        _servicioBusquedaGlobal = new ServicioBusquedaGlobal(_servicioPacientes, _servicioMedicamentos, repositorioSpd, repositorioPacientes, _servicioListadoRetirada);
+        var lecturaCodigos = new ServicioLecturaCodigos(_servicioMedicamentos, repositorioFarmacia);
+        _servicioBusquedaGlobal = new ServicioBusquedaGlobal(_servicioPacientes, _servicioMedicamentos, repositorioSpd, repositorioPacientes, _servicioListadoRetirada, lecturaCodigos);
         _servicioLote = new ServicioGeneracionLote(_servicioPreparacion, _servicioGeneracionDocumentos, repositorioSpd, repositorioPacientes);
         _servicioPurga = new ServicioPurga(
             repositorioPacientes, repositorioEnvases, repositorioUsuarios, hasheador, repositorioFarmacia, new RepositorioPurga(_conexion!), auditoria);
@@ -227,7 +228,7 @@ public partial class App : Application
             _servicioPerfilesImportacion, _servicioExportacionPacientes, _servicioPreparacion,
             _servicioGeneracionDocumentos, _servicioIdoneidad, _servicioAvisos, _servicioBusquedaGlobal, new ServicioMedicos(new RepositorioMedicos(_conexion!), repositorioPacientes, auditoria),
             new ServicioContactos(new RepositorioContactos(_conexion!), repositorioPacientes, auditoria),
-            _servicioLote, _servicioPurga);
+            _servicioLote, _servicioPurga, lecturaCodigos);
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)

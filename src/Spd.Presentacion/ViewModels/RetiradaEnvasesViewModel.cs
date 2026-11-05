@@ -16,6 +16,7 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     private readonly IServicioEnvases _servicioEnvases;
     private readonly IServicioMedicamentos _servicioMedicamentos;
     private readonly int? _usuarioActualId;
+    private readonly IServicioLecturaCodigos _lecturaCodigos;
 
     [ObservableProperty] private ObservableCollection<FilaListadoRetirada> _filas = [];
     [ObservableProperty] private bool _soloConFaltantes = true;
@@ -41,13 +42,18 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
 
     public UnidadesDelCatalogo Unidades { get; } = new();
 
+    /// <summary>spec-012 FR-1210: elección entre lecturas cuando el escaneo es ambiguo.</summary>
+    public LecturaAmbiguaViewModel LecturaAmbigua { get; } = new();
+
     /// <summary>Tras una lectura correcta la vista lleva el foco a Unidades, donde Intro guarda.</summary>
     public event Action? LecturaAplicada;
 
     public RetiradaEnvasesViewModel(
         IServicioListadoRetirada servicioListadoRetirada, IServicioEnvases servicioEnvases,
-        IServicioMedicamentos servicioMedicamentos, int? usuarioActualId)
+        IServicioMedicamentos servicioMedicamentos, int? usuarioActualId,
+        IServicioLecturaCodigos? lecturaCodigos = null)
     {
+        _lecturaCodigos = lecturaCodigos ?? new ServicioLecturaCodigos(servicioMedicamentos);
         _servicioListadoRetirada = servicioListadoRetirada;
         _servicioEnvases = servicioEnvases;
         _servicioMedicamentos = servicioMedicamentos;
@@ -86,6 +92,7 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
         FilaSeleccionadaParaRegistrar = fila;
         _medicamentoRegistroId = fila.MedicamentoId;
         ConfirmarIdentidadEscaneada = false;
+        LecturaAmbigua.Ocultar();
         CodigoEscaneado = string.Empty;
         Serie = string.Empty; Lote = null; Caducidad = null;
         Unidades.Reiniciar();
@@ -95,7 +102,7 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
 
     /// <summary>Llegada desde un escaneo en la búsqueda global: abre el registro de la fila de ese
     /// medicamento con la lectura ya aplicada. Si la fila ya no está (se cubrió mientras tanto), lo dice.</summary>
-    public void AbrirRegistroEscaneado(int medicamentoId, DatosEnvaseEscaneado datos)
+    public void AbrirRegistroEscaneado(int medicamentoId, LecturaGs1 lectura)
     {
         var escaneado = _servicioMedicamentos.ObtenerPorId(medicamentoId);
         var fila = Filas.FirstOrDefault(f => escaneado?.EsEquivalenteA(_servicioMedicamentos.ObtenerPorId(f.MedicamentoId)) == true);
@@ -105,7 +112,7 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
             return;
         }
         PrepararRegistro(fila);
-        AplicarLectura(datos);
+        AplicarInterpretacion(lectura);
     }
 
     /// <summary>spec-012: metodo principal para rellenar lote, numero de serie y caducidad. El
@@ -113,20 +120,33 @@ public sealed partial class RetiradaEnvasesViewModel : ViewModelBase
     [RelayCommand]
     private void LeerCodigoEscaneado()
     {
-        var datos = LectorGs1DataMatrix.Leer(CodigoEscaneado);
+        var lectura = _lecturaCodigos.Interpretar(CodigoEscaneado);
         CodigoEscaneado = string.Empty;
-        if (datos is null)
+        AplicarInterpretacion(lectura);
+    }
+
+    private void AplicarInterpretacion(LecturaGs1 lectura)
+    {
+        LecturaAmbigua.Ocultar();
+        switch (lectura.Estado)
         {
-            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
-            return;
+            case EstadoLecturaGs1.Reconocido:
+                AplicarLectura(lectura.Datos!);
+                break;
+            case EstadoLecturaGs1.Ambiguo:
+                LecturaAmbigua.Mostrar(lectura, AplicarLectura);
+                Mensaje = "Lectura ambigua (FR-1210): elige la que coincide con el lote de la caja.";
+                break;
+            default:
+                Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+                break;
         }
-        AplicarLectura(datos);
     }
 
     private void AplicarLectura(DatosEnvaseEscaneado datos)
     {
         var prescrito = FilaSeleccionadaParaRegistrar is { } fila ? _servicioMedicamentos.ObtenerPorId(fila.MedicamentoId) : null;
-        var real = datos.CodigoNacional is { } cn ? _servicioMedicamentos.ObtenerPorCn(cn) : _servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        var real = _lecturaCodigos.IdentificarMedicamento(datos);
         if (real is null || prescrito?.EsEquivalenteA(real) != true)
         {
             _medicamentoRegistroId = null;

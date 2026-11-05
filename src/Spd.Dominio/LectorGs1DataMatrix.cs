@@ -1,10 +1,43 @@
 namespace Spd.Dominio;
 
+/// <summary>Resultado de interpretar un escaneo (spec-012 FR-1201/FR-1204/FR-1210).</summary>
+public enum EstadoLecturaGs1
+{
+    /// <summary>Una única interpretación válida: se aplica.</summary>
+    Reconocido,
+    /// <summary>Varias interpretaciones válidas (el lector se comió el separador GS entre dos campos
+    /// variables): no se adivina, se enseñan las candidatas y la persona elige mirando la caja.</summary>
+    Ambiguo,
+    /// <summary>Ninguna interpretación válida: introducción manual, sin bloquear nada.</summary>
+    NoReconocido
+}
+
+/// <summary>Lo que se ha entendido de un escaneo. <see cref="Datos"/> solo existe si es
+/// <see cref="EstadoLecturaGs1.Reconocido"/>; <see cref="Candidatas"/> solo si es ambiguo.</summary>
+public sealed record LecturaGs1(EstadoLecturaGs1 Estado, DatosEnvaseEscaneado? Datos, IReadOnlyList<DatosEnvaseEscaneado> Candidatas)
+{
+    public static readonly LecturaGs1 NoReconocida = new(EstadoLecturaGs1.NoReconocido, null, []);
+
+    /// <summary>Identidad del medicamento cuando todas las interpretaciones coinciden en GTIN y CN, que
+    /// es lo normal en una lectura ambigua (los campos de longitud fija no se confunden): sirve para
+    /// identificar el medicamento aunque el lote todavía esté por confirmar. Null si no hay lectura o si
+    /// las candidatas no coinciden.</summary>
+    public DatosEnvaseEscaneado? IdentidadComun => Estado switch
+    {
+        EstadoLecturaGs1.Reconocido => Datos,
+        EstadoLecturaGs1.Ambiguo when Candidatas.Select(c => (c.Gtin, c.CodigoNacional)).Distinct().Count() == 1 => Candidatas[0],
+        _ => null
+    };
+}
+
 /// <summary>
 /// Interpreta la cadena que un lector de codigo de barras USB (emulacion de teclado) entrega al escanear
 /// un DataMatrix GS1 de un envase de medicamento (spec-012 FR-1200/FR-1201). Nacio como prototipo aislado
 /// en prototipos/lector-datamatrix, validado contra codigos reales y los patrones oficiales de
 /// SEVeM-0108.03 "Pruebas de validacion de escaneres" antes de integrarse aqui.
+///
+/// Ante la duda NO adivina (FR-1210): si sin separador GS hay varias formas válidas de partir la cadena,
+/// devuelve todas para que la persona confirme el lote mirando la caja.
 /// </summary>
 public static class LectorGs1DataMatrix
 {
@@ -14,33 +47,67 @@ public static class LectorGs1DataMatrix
     private const int LongitudMaximaCampoVariable = 20;
     private const int LongitudMaximaCn = 10;
 
-    /// <summary>
-    /// Intenta interpretar la cadena escaneada. Devuelve null si no se reconoce (FR-1204: no bloquea,
-    /// la pantalla debe permitir introduccion manual en ese caso), nunca lanza excepcion por un formato inesperado.
-    /// </summary>
-    public static DatosEnvaseEscaneado? Leer(string cadenaEscaneada)
-    {
-        var cadena = cadenaEscaneada.TrimEnd('\r', '\n');
-        if (cadena.Length == 0) return null;
+    // Identificadores de simbología que algunos lectores anteponen (ISO/IEC 15424): ]d2 DataMatrix GS1,
+    // ]C1 GS1-128, ]Q3 QR GS1. No forman parte del contenido.
+    private static readonly string[] PrefijosSimbologia = ["]d2", "]C1", "]Q3"];
 
-        var campos = cadena.Contains(SeparadorGs)
+    /// <summary>Atajo para quien solo quiere una lectura inequívoca: los datos si es
+    /// <see cref="EstadoLecturaGs1.Reconocido"/>, null en cualquier otro caso. Nunca lanza.</summary>
+    public static DatosEnvaseEscaneado? Leer(string cadenaEscaneada, string? separadorSustituto = null)
+        => Interpretar(cadenaEscaneada, separadorSustituto).Datos;
+
+    /// <summary>
+    /// Interpreta la cadena escaneada. Nunca lanza excepción por un formato inesperado (FR-1204).
+    /// <paramref name="separadorSustituto"/> es el carácter que un lector en modo teclado manda en lugar
+    /// del GS, configurado en «Lector de códigos» (FR-1211): se trata exactamente como un GS.
+    /// </summary>
+    public static LecturaGs1 Interpretar(string? cadenaEscaneada, string? separadorSustituto = null)
+    {
+        var cadena = Normalizar(cadenaEscaneada ?? string.Empty, separadorSustituto);
+        if (cadena.Length == 0) return LecturaGs1.NoReconocida;
+
+        var interpretaciones = cadena.Contains(SeparadorGs)
             ? LeerConSeparadorGs(cadena)
             : LeerSinSeparadorGs(cadena);
 
-        return ConstruirResultado(campos);
+        var validas = interpretaciones
+            .Select(ConstruirResultado)
+            .OfType<DatosEnvaseEscaneado>()
+            .Distinct()
+            .ToList();
+
+        return validas.Count switch
+        {
+            0 => LecturaGs1.NoReconocida,
+            1 => new LecturaGs1(EstadoLecturaGs1.Reconocido, validas[0], []),
+            _ => new LecturaGs1(EstadoLecturaGs1.Ambiguo, null, validas)
+        };
+    }
+
+    private static string Normalizar(string cadena, string? separadorSustituto)
+    {
+        var resultado = cadena.TrimEnd('\r', '\n');
+        foreach (var prefijo in PrefijosSimbologia)
+        {
+            if (resultado.StartsWith(prefijo, StringComparison.Ordinal)) { resultado = resultado[prefijo.Length..]; break; }
+        }
+        if (!string.IsNullOrEmpty(separadorSustituto))
+            resultado = resultado.Replace(separadorSustituto, SeparadorGs.ToString(), StringComparison.Ordinal);
+        // Un GS al principio es el FNC1 inicial que algunos lectores transmiten: no separa nada.
+        return resultado.TrimStart(SeparadorGs);
     }
 
     // Ruta preferente: el lector transmite el separador GS tal como exige el estandar GS1.
     // Cada segmento entre separadores puede contener varios AI de longitud fija seguidos
     // de, como mucho, un AI de longitud variable que ocupa el resto del segmento.
-    private static Dictionary<string, string>? LeerConSeparadorGs(string cadena)
+    private static List<Dictionary<string, string>> LeerConSeparadorGs(string cadena)
     {
         var campos = new Dictionary<string, string>();
         foreach (var segmento in cadena.Split(SeparadorGs, StringSplitOptions.RemoveEmptyEntries))
         {
-            if (!ConsumirSegmento(segmento, campos)) return null;
+            if (!ConsumirSegmento(segmento, campos)) return [];
         }
-        return campos;
+        return [campos];
     }
 
     private static bool ConsumirSegmento(string segmento, Dictionary<string, string> campos)
@@ -80,30 +147,18 @@ public static class LectorGs1DataMatrix
     }
 
     // Ruta de respaldo: el lector no transmite (o transmite de forma no estandar) el separador GS,
-    // caso habitual segun SEVeM-0108.03 "Pruebas de validacion de escaneres" (el valor GS puede no
-    // visualizarse nada segun la configuracion del escaner). Sin separador, el limite entre los campos
-    // de longitud variable (10, 21, 712) es ambiguo por definicion del propio estandar GS1: se prueban
-    // todas las descomposiciones posibles dentro de los limites de longitud de GS1 y solo se acepta el
-    // resultado si hay una unica forma de consumir toda la cadena. Ante cualquier ambiguedad (cero o
-    // varias descomposiciones validas) se considera no reconocido, igual que un codigo realmente ilegible.
-    //
-    // Antes de juzgar la ambiguedad se descartan las descomposiciones que nunca podrian dar un resultado
-    // valido por faltarles un campo obligatorio (01/10/17/21): un escaneo real demostraba que la busqueda
-    // encontraba dos formas de consumir la cadena entera, pero una de ellas se comia la fecha de caducidad
-    // dentro del lote y por tanto jamas habria podido construir un resultado. Sin este filtro, esa
-    // descomposicion inutil bastaba para declarar el codigo ambiguo y descartar la unica interpretacion
-    // realmente valida.
-    private static Dictionary<string, string>? LeerSinSeparadorGs(string cadena)
+    // caso habitual segun SEVeM-0108.03 "Pruebas de validacion de escaneres". Sin separador, el limite
+    // entre los campos de longitud variable (10, 21, 712) es ambiguo por definicion del propio estandar
+    // GS1: se prueban todas las descomposiciones posibles dentro de los limites de longitud de GS1.
+    // Las que no pueden dar un resultado (falta un campo obligatorio, fecha imposible, GTIN con el digito
+    // de control mal) se descartan en ConstruirResultado; si sobrevive mas de una, la lectura es ambigua
+    // y se ofrecen todas (FR-1210) en vez de descartar el codigo.
+    private static List<Dictionary<string, string>> LeerSinSeparadorGs(string cadena)
     {
         var encontrados = new List<Dictionary<string, string>>();
         Buscar(cadena, new Dictionary<string, string>(), encontrados);
-        var completos = encontrados.Where(EsDecomposicionCompleta).ToList();
-        return completos.Count == 1 ? completos[0] : null;
+        return encontrados;
     }
-
-    private static bool EsDecomposicionCompleta(Dictionary<string, string> campos) =>
-        campos.ContainsKey("01") && campos.ContainsKey("10") &&
-        campos.ContainsKey("17") && campos.ContainsKey("21");
 
     private static void Buscar(string resto, Dictionary<string, string> campos, List<Dictionary<string, string>> encontrados)
     {
@@ -145,19 +200,18 @@ public static class LectorGs1DataMatrix
         }
     }
 
-    private static DatosEnvaseEscaneado? ConstruirResultado(Dictionary<string, string>? campos)
+    private static DatosEnvaseEscaneado? ConstruirResultado(Dictionary<string, string> campos)
     {
-        if (campos is null) return null;
-        if (!campos.TryGetValue("01", out var gtin)) return null;
+        if (!campos.TryGetValue("01", out var gtin) || !Gs1.DigitoControlCorrecto(gtin)) return null;
         if (!campos.TryGetValue("10", out var lote)) return null;
         if (!campos.TryGetValue("21", out var serie)) return null;
-        if (!campos.TryGetValue("17", out var fecha) || fecha.Length != LongitudFechaGs1) return null;
+        if (!campos.TryGetValue("17", out var fecha) || fecha.Length != LongitudFechaGs1 || !fecha.All(char.IsAsciiDigit))
+            return null;
 
-        var anio = 2000 + int.Parse(fecha[..2]);
-        var mes = int.Parse(fecha[2..4]);
-        var dia = int.Parse(fecha[4..6]);
+        var caducidad = new FechaCaducidadGs1(2000 + int.Parse(fecha[..2]), int.Parse(fecha[2..4]), int.Parse(fecha[4..6]));
+        if (!caducidad.EsValida) return null;
         campos.TryGetValue("712", out var cn);
 
-        return new DatosEnvaseEscaneado(gtin, lote, new FechaCaducidadGs1(anio, mes, dia), serie, cn);
+        return new DatosEnvaseEscaneado(gtin, lote, caducidad, serie, cn);
     }
 }

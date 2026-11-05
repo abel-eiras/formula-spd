@@ -12,10 +12,13 @@ public sealed class AplicadorMigraciones(SqliteConnection conexion)
     public void Aplicar()
     {
         AsegurarTablaVersion();
-        var versionActual = ObtenerVersionActual();
+        // Se aplica cada migración que no conste como aplicada, no solo las posteriores a la última:
+        // así una versión que falte en medio (base reconstruida a mano, pruebas de migración) se
+        // aplica igual, siempre en orden ascendente.
+        var aplicadas = ObtenerVersionesAplicadas();
         foreach (var (version, sql) in ObtenerMigracionesEmbebidas())
         {
-            if (version <= versionActual) continue;
+            if (aplicadas.Contains(version)) continue;
             AplicarUna(version, sql);
         }
     }
@@ -35,8 +38,8 @@ public sealed class AplicadorMigraciones(SqliteConnection conexion)
         => conexion.Execute(
             "CREATE TABLE IF NOT EXISTS schema_version (version INTEGER PRIMARY KEY, aplicado_en TEXT NOT NULL)");
 
-    private int ObtenerVersionActual()
-        => conexion.ExecuteScalar<int?>("SELECT MAX(version) FROM schema_version") ?? 0;
+    private HashSet<int> ObtenerVersionesAplicadas()
+        => conexion.Query<int>("SELECT version FROM schema_version").ToHashSet();
 
     private static IEnumerable<(int Version, string Sql)> ObtenerMigracionesEmbebidas()
     {

@@ -17,14 +17,18 @@ public sealed class ServicioBusquedaGlobal(
     IServicioMedicamentos servicioMedicamentos,
     IRepositorioSpd repositorioSpd,
     IRepositorioPacientes repositorioPacientes,
-    IServicioListadoRetirada listadoRetirada)
+    IServicioListadoRetirada listadoRetirada,
+    IServicioLecturaCodigos? lecturaCodigos = null)
     : IServicioBusquedaGlobal
 {
+    private readonly IServicioLecturaCodigos _lecturaCodigos = lecturaCodigos ?? new ServicioLecturaCodigos(servicioMedicamentos);
+
+    public LecturaGs1 InterpretarCodigo(string? texto) => _lecturaCodigos.Interpretar(texto);
+
     public IReadOnlyList<ResultadoBusqueda> BuscarEnvaseEscaneado(DatosEnvaseEscaneado datos, DateOnly hoy)
     {
-        // Mismo orden que el selector de medicamento: el CN del propio código (AI 712) manda sobre el GTIN.
-        var medicamento = datos.CodigoNacional is { } cn ? servicioMedicamentos.ObtenerPorCn(cn)
-                          : servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        // Misma identificación que el resto de pantallas (FR-1209): CN del código, CN del GTIN, GTIN.
+        var medicamento = _lecturaCodigos.IdentificarMedicamento(datos);
         if (medicamento is null) return [];
 
         var pendientes = listadoRetirada.ObtenerListado(hoy, new FiltrosListadoRetirada(SoloConFaltantes: true))

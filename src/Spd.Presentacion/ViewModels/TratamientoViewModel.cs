@@ -69,10 +69,10 @@ public sealed partial class TratamientoViewModel : ViewModelBase
         IServicioTratamientos servicioTratamientos, IServicioMedicamentos servicioMedicamentos,
         IServicioComunicacionesMedico servicioComunicaciones, IServicioGeneracionDocumentos servicioDocumentos,
         IServicioMedicos servicioMedicos, int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null,
-        IServicioConsultaCima? servicioConsultaCima = null)
+        IServicioConsultaCima? servicioConsultaCima = null, IServicioLecturaCodigos? lecturaCodigos = null)
     {
         SelectorMedico = new SelectorMedicoViewModel(servicioMedicos, usuarioActualId);
-        SelectorMedicamento = new SelectorMedicamentoViewModel(servicioMedicamentos, servicioConsultaCima, usuarioActualId);
+        SelectorMedicamento = new SelectorMedicamentoViewModel(servicioMedicamentos, servicioConsultaCima, usuarioActualId, lecturaCodigos);
         _contexto = contexto;
         _servicioTratamientos = servicioTratamientos;
         _servicioMedicamentos = servicioMedicamentos;

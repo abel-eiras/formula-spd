@@ -44,6 +44,7 @@ public static class AyudaContextual
         ["NomenclatorView"] = "ficha-y-tratamiento",
         ["ActualizacionesView"] = "servicio-spd",
         ["PerfilesImportacionView"] = "deposito-y-retirada",
+        ["LectorCodigosView"] = "deposito-y-retirada",
         ["ExportarPacientesView"] = "documentacion-y-conservacion",
     };
 
@@ -76,6 +77,7 @@ public static class AyudaContextual
         ["NomenclatorView"] = "configuracion",
         ["ActualizacionesView"] = "configuracion",
         ["PerfilesImportacionView"] = "configuracion",
+        ["LectorCodigosView"] = "configuracion",
         ["ExportarPacientesView"] = "configuracion",
     };
 

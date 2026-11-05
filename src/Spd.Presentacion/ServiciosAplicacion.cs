@@ -39,4 +39,7 @@ public sealed record ServiciosAplicacion(
     IServicioMedicos Medicos,
     IServicioContactos Contactos,
     IServicioGeneracionLote Lote,
-    IServicioPurga Purga);
+    IServicioPurga Purga,
+    // Al final y con valor por defecto: las pruebas que montan los servicios a mano no necesitan
+    // conocerlo, y las pantallas caen en una lectura sin separador sustituto (spec-012 FR-1211).
+    IServicioLecturaCodigos? LecturaCodigos = null);

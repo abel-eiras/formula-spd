@@ -18,6 +18,7 @@ public sealed partial class DepositoViewModel : ViewModelBase
     private readonly IServicioImportacionTratamientoEnvase _servicioImportacion;
     private readonly int _pacienteId;
     private readonly int? _usuarioActualId;
+    private readonly IServicioLecturaCodigos _lecturaCodigos;
 
     [ObservableProperty] private ObservableCollection<EnvaseFila> _enCustodia = [];
     [ObservableProperty] private ObservableCollection<EnvaseFila> _historico = [];
@@ -40,6 +41,9 @@ public sealed partial class DepositoViewModel : ViewModelBase
 
     public UnidadesDelCatalogo Unidades { get; } = new();
 
+    /// <summary>spec-012 FR-1210: elección entre lecturas cuando el escaneo es ambiguo.</summary>
+    public LecturaAmbiguaViewModel LecturaAmbigua { get; } = new();
+
     /// <summary>Tras una lectura correcta solo queda revisar las unidades: la vista lleva ahí el foco
     /// para que Intro guarde el envase sin tocar el ratón.</summary>
     public event Action? LecturaAplicada;
@@ -56,15 +60,16 @@ public sealed partial class DepositoViewModel : ViewModelBase
     public DepositoViewModel(
         IServicioEnvases servicioEnvases, IServicioMedicamentos servicioMedicamentos,
         IServicioTratamientos servicioTratamientos, IServicioImportacionTratamientoEnvase servicioImportacion,
-        int pacienteId, int? usuarioActualId)
+        int pacienteId, int? usuarioActualId, IServicioLecturaCodigos? lecturaCodigos = null)
     {
+        _lecturaCodigos = lecturaCodigos ?? new ServicioLecturaCodigos(servicioMedicamentos);
         _servicioEnvases = servicioEnvases;
         _servicioMedicamentos = servicioMedicamentos;
         _servicioTratamientos = servicioTratamientos;
         _servicioImportacion = servicioImportacion;
         _pacienteId = pacienteId;
         _usuarioActualId = usuarioActualId;
-        SelectorMedicamento = new SelectorMedicamentoViewModel(servicioMedicamentos, null, usuarioActualId);
+        SelectorMedicamento = new SelectorMedicamentoViewModel(servicioMedicamentos, null, usuarioActualId, _lecturaCodigos);
         SelectorMedicamento.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName != nameof(SelectorMedicamento.Seleccionado)) return;
@@ -136,22 +141,32 @@ public sealed partial class DepositoViewModel : ViewModelBase
     [RelayCommand]
     private void LeerCodigoEscaneado()
     {
-        var datos = LectorGs1DataMatrix.Leer(CodigoEscaneado);
+        var lectura = _lecturaCodigos.Interpretar(CodigoEscaneado);
         CodigoEscaneado = string.Empty;
-        if (datos is null)
+        LecturaAmbigua.Ocultar();
+        switch (lectura.Estado)
         {
-            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
-            return;
+            case EstadoLecturaGs1.Reconocido:
+                AplicarLectura(lectura.Datos!);
+                break;
+            case EstadoLecturaGs1.Ambiguo:
+                LecturaAmbigua.Mostrar(lectura, AplicarLectura);
+                Mensaje = "Lectura ambigua (FR-1210): elige la que coincide con el lote de la caja.";
+                break;
+            default:
+                Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+                break;
         }
+    }
 
+    private void AplicarLectura(DatosEnvaseEscaneado datos)
+    {
         Serie = datos.NumeroSerie;
         Lote = datos.Lote;
         Caducidad = new DateTimeOffset(datos.Caducidad.ComoFecha().ToDateTime(TimeOnly.MinValue));
         _origenAlta = OrigenEnvase.Escaneado;
 
-        var medicamento = datos.CodigoNacional is { } cn
-            ? _servicioMedicamentos.ObtenerPorCn(cn)
-            : _servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        var medicamento = _lecturaCodigos.IdentificarMedicamento(datos);
         if (medicamento is null)
         {
             MedicamentoSeleccionado = null;

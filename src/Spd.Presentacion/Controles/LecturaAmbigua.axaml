@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Controles.LecturaAmbigua">
+  <!-- spec-012 FR-1210: el lector se comió el separador entre lote y serie. No se adivina: se elige
+       mirando el lote impreso en la caja. -->
+  <Border Classes="tarjeta" Padding="10" IsVisible="{Binding Visible}">
+    <StackPanel Spacing="6">
+      <TextBlock FontWeight="Bold" TextWrapping="Wrap"
+                 Text="El código admite varias lecturas: elige la que coincide con el lote impreso en la caja." />
+      <ItemsControl ItemsSource="{Binding Candidatas}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button Content="{Binding Texto}" Margin="0,2" HorizontalAlignment="Stretch"
+                    Command="{Binding DataContext.ElegirCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                    CommandParameter="{Binding}" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Button Content="Ninguna: lo introduzco a mano" Command="{Binding DescartarCommand}" />
+    </StackPanel>
+  </Border>
+</UserControl>

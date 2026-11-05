@@ -34,4 +34,8 @@ public interface IServicioBusquedaGlobal
     /// falta retirar ese medicamento. Si no le falta a nadie, el propio medicamento; si no está en el
     /// catálogo, lista vacía.</summary>
     IReadOnlyList<ResultadoBusqueda> BuscarEnvaseEscaneado(Spd.Dominio.DatosEnvaseEscaneado datos, DateOnly hoy);
+
+    /// <summary>Interpreta lo tecleado en la búsqueda como un escaneo, con el separador del lector
+    /// configurado (spec-012 FR-1211).</summary>
+    Spd.Dominio.LecturaGs1 InterpretarCodigo(string? texto);
 }

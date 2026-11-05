@@ -45,6 +45,18 @@ public sealed class Farmacia
     /// FR-1020; constitución Art. III.2: cinco). Se imprime en el documento RGPD.</summary>
     public int AniosRetencionPurga { get; set; } = 5;
 
+    /// <summary>spec-012 FR-1211: carácter que el lector de códigos, en modo teclado, manda en lugar del
+    /// separador GS. Null si el lector transmite el GS o si no se ha configurado.</summary>
+    public string? SeparadorLector { get; set; }
+
+    /// <summary>Spec 016: disposición del blíster físico de la farmacia, en tres columnas para que
+    /// Dapper las lea sin conversión; <see cref="Disposicion"/> las reúne.</summary>
+    public InicioBlister BlisterInicio { get; set; } = InicioBlister.Cronologico;
+    public bool BlisterDiasDerechaIzquierda { get; set; }
+    public bool BlisterNocheArriba { get; set; }
+
+    public DisposicionBlister Disposicion() => new(BlisterInicio, BlisterDiasDerechaIzquierda, BlisterNocheArriba);
+
     /// <summary>Valor efectivo de responsable de datos para el consentimiento (Spec 002, FR-012): el titular si no se ha rellenado aparte.</summary>
     public string ResponsableDatosEfectivo() => ResponsableDatos ?? TitularOComunidadBienes;
 

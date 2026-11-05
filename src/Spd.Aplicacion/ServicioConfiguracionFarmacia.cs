@@ -48,6 +48,29 @@ public sealed class ServicioConfiguracionFarmacia(
         auditoria.Registrar(administradorQueEjecutaId, "MODIFICACION", "Farmacia", farmacia.Id, "valores_defecto");
     }
 
+    public void ActualizarSeparadorLector(string? separador, int? administradorQueEjecutaId)
+    {
+        var normalizado = string.IsNullOrEmpty(separador) ? null : separador;
+        // Un separador con letras o dígitos partiría lotes y series que los contienen: el lector
+        // entregaría un código que nunca se podría leer bien.
+        if (normalizado is not null && (normalizado.Length > 3 || normalizado.Any(char.IsLetterOrDigit) || normalizado.Any(char.IsWhiteSpace)))
+            throw new ErrorValidacionException("El separador debe ser de uno a tres símbolos, sin letras, dígitos ni espacios (por ejemplo «~»).");
+        var farmacia = ObtenerConfiguracion();
+        farmacia.SeparadorLector = normalizado;
+        repositorio.Actualizar(farmacia);
+        auditoria.Registrar(administradorQueEjecutaId, "MODIFICACION", "Farmacia", farmacia.Id, "separador_lector");
+    }
+
+    public void ActualizarDisposicionBlister(DisposicionBlister disposicion, int? administradorQueEjecutaId)
+    {
+        var farmacia = ObtenerConfiguracion();
+        farmacia.BlisterInicio = disposicion.Inicio;
+        farmacia.BlisterDiasDerechaIzquierda = disposicion.DiasDeDerechaAIzquierda;
+        farmacia.BlisterNocheArriba = disposicion.NocheArriba;
+        repositorio.Actualizar(farmacia);
+        auditoria.Registrar(administradorQueEjecutaId, "MODIFICACION", "Farmacia", farmacia.Id, "disposicion_blister");
+    }
+
     public ResultadoValidacionRuta ValidarRuta(string ruta)
     {
         var existe = Directory.Exists(ruta);

@@ -161,3 +161,90 @@ public class LectorGs1DataMatrixTests
         Assert.Equal(new DateOnly(2028, 2, 29), new FechaCaducidadGs1(2028, 2, 0).ComoFecha()); // bisiesto
     }
 }
+
+/// <summary>spec-012 v0.5: CN deducido del GTIN (FR-1209), lecturas ambiguas con candidatas (FR-1210),
+/// separador sustituto e identificadores de simbología (FR-1211).</summary>
+public class LectorGs1DataMatrixAmpliacionTests
+{
+    private const char Gs = '\u001D';
+
+    [Fact]
+    public void Gtin_espanol_da_el_CN_de_seis_digitos()
+    {
+        var datos = LectorGs1DataMatrix.Leer("010847000695064721172342612146291728073110RA0462")!;
+        Assert.Null(datos.CodigoNacional);
+        Assert.Equal("695064", datos.CnIdentificado);
+    }
+
+    [Fact]
+    public void Gtin_extranjero_sin_712_no_da_CN()
+    {
+        Assert.Null(CodigoNacionalEspanol.DesdeGtin("05413787999316"));
+    }
+
+    [Fact]
+    public void AI712_con_digito_de_control_del_CN_se_reduce_a_seis_digitos()
+    {
+        var datos = LectorGs1DataMatrix.Leer("010541378799931617301031103012801214000LQG554DTM17128702619")!;
+        Assert.Equal("870261", datos.CnIdentificado);
+        Assert.Equal(["8702619", "870261"], datos.CodigosNacionalesCandidatos);
+    }
+
+    [Theory]
+    [InlineData("08470006950647", "695064")]
+    [InlineData("8470006950647", "695064")]   // EAN-13 lineal de los medicamentos sin receta
+    public void CN_desde_GTIN14_y_EAN13(string codigo, string cn)
+    {
+        Assert.Equal(cn, CodigoNacionalEspanol.DesdeGtin(codigo));
+    }
+
+    [Fact]
+    public void GTIN_espanol_con_digito_de_control_mal_no_da_CN()
+    {
+        Assert.Null(CodigoNacionalEspanol.DesdeGtin("08470006950646"));
+    }
+
+    [Fact]
+    public void Sin_GS_con_dos_interpretaciones_devuelve_las_candidatas_sin_elegir()
+    {
+        var lectura = LectorGs1DataMatrix.Interpretar("01084700069506471728073110AB21CD21EF");
+
+        Assert.Equal(EstadoLecturaGs1.Ambiguo, lectura.Estado);
+        Assert.Null(lectura.Datos);
+        Assert.Contains(lectura.Candidatas, c => c is { Lote: "AB21CD", NumeroSerie: "EF" });
+        Assert.Contains(lectura.Candidatas, c => c is { Lote: "AB", NumeroSerie: "CD21EF" });
+        Assert.Equal("08470006950647", lectura.IdentidadComun!.Gtin);
+        Assert.Null(LectorGs1DataMatrix.Leer("01084700069506471728073110AB21CD21EF"));
+    }
+
+    [Fact]
+    public void Separador_sustituto_se_trata_como_GS()
+    {
+        var lectura = LectorGs1DataMatrix.Interpretar("01084700069506471728073110AB21CD~21EF", "~");
+
+        Assert.Equal(EstadoLecturaGs1.Reconocido, lectura.Estado);
+        Assert.Equal("AB21CD", lectura.Datos!.Lote);
+        Assert.Equal("EF", lectura.Datos.NumeroSerie);
+    }
+
+    [Fact]
+    public void Identificador_de_simbologia_y_FNC1_inicial_se_ignoran()
+    {
+        var datos = LectorGs1DataMatrix.Leer($"]d2{Gs}01084700069506471728073110AB21CD{Gs}21EF");
+        Assert.NotNull(datos);
+        Assert.Equal("AB21CD", datos!.Lote);
+    }
+
+    [Fact]
+    public void Fecha_imposible_no_se_acepta()
+    {
+        Assert.Equal(EstadoLecturaGs1.NoReconocido,
+            LectorGs1DataMatrix.Interpretar($"01084700069506471728133110AB{Gs}21EF").Estado);
+    }
+
+    [Fact]
+    public void GTIN_con_digito_de_control_mal_no_se_acepta()
+    {
+        Assert.Null(LectorGs1DataMatrix.Leer($"01084700069506461728073110AB{Gs}21EF"));
+    }
+}

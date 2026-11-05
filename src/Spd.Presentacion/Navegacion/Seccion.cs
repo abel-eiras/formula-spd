@@ -22,6 +22,7 @@ public enum Seccion
     Nomenclator,
     Seguridad,
     Perfiles,
+    LectorCodigos,
     Ayuda
 }
 
@@ -32,7 +33,7 @@ public sealed record Destino(Seccion Seccion, int? PacienteId = null, string? De
 
 /// <summary>Un envase escaneado en la búsqueda global (spec-012 FR-1207): la retirada se abre con el
 /// registro de ese medicamento ya rellenado con la lectura.</summary>
-public sealed record LecturaParaRetirada(int MedicamentoId, Spd.Dominio.DatosEnvaseEscaneado Datos);
+public sealed record LecturaParaRetirada(int MedicamentoId, Spd.Dominio.LecturaGs1 Lectura);
 
 /// <summary>Una entrada del menú lateral.</summary>
 public sealed record EntradaNavegacion(Seccion Seccion, string Titulo, string Grupo, bool SoloAdministrador)
@@ -61,6 +62,7 @@ public sealed record EntradaNavegacion(Seccion Seccion, string Titulo, string Gr
         new(Seccion.ControlDocumental, "Control documental", GrupoAdministracion, true),
         new(Seccion.Nomenclator, "Nomenclátor", GrupoAdministracion, true),
         new(Seccion.Perfiles, "Perfiles de importación", GrupoAdministracion, true),
+        new(Seccion.LectorCodigos, "Lector de códigos", GrupoAdministracion, true),
         new(Seccion.Actualizaciones, "Actualizaciones", GrupoAdministracion, true),
     ];
 }

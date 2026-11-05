@@ -32,7 +32,7 @@ public sealed partial class AppShellViewModel : ViewModelBase
 
     /// <summary>spec-012 FR-1207: la lectura del último envase escaneado en la cabecera, que viaja a
     /// la retirada del paciente elegido para no tener que escanearlo otra vez.</summary>
-    private DatosEnvaseEscaneado? _ultimaLectura;
+    private LecturaGs1? _ultimaLectura;
     private bool _ignorarCambioDeTexto;
 
     public Usuario UsuarioActual { get; }
@@ -130,13 +130,16 @@ public sealed partial class AppShellViewModel : ViewModelBase
     [RelayCommand]
     private void ConfirmarBusqueda()
     {
-        if (LectorGs1DataMatrix.Leer(TextoBusqueda) is not { } datos)
+        // En una lectura ambigua todas las candidatas comparten GTIN y CN: basta para saber a quién le
+        // falta el medicamento; el lote se elige luego en la retirada (FR-1210).
+        var lectura = _servicioBusqueda.InterpretarCodigo(TextoBusqueda);
+        if (lectura.IdentidadComun is not { } datos)
         {
             if (ResultadosBusqueda.FirstOrDefault() is { } primero) AbrirResultado(primero);
             return;
         }
 
-        _ultimaLectura = datos;
+        _ultimaLectura = lectura;
         var resultados = _servicioBusqueda.BuscarEnvaseEscaneado(datos, DateOnly.FromDateTime(DateTime.Today));
 
         // El código escaneado no es un texto que el usuario quiera leer ni buscar: se vacía sin

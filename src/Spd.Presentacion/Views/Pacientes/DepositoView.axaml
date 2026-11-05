@@ -75,6 +75,7 @@
             <KeyBinding Gesture="Enter" Command="{Binding LeerCodigoEscaneadoCommand}" />
           </TextBox.KeyBindings>
         </TextBox>
+        <c:LecturaAmbigua DataContext="{Binding LecturaAmbigua}" />
 
         <TextBlock Text="CN del medicamento *" />
         <TextBox Text="{Binding Cn}" />

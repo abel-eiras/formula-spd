@@ -51,6 +51,8 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 temp_min = @TempMin, temp_max = @TempMax, hr_min = @HrMin, hr_max = @HrMax,
                 dia_retirada_defecto = @DiaRetiradaDefecto, n_blisteres_defecto = @NBlisteresDefecto,
                 dias_antelacion_listado = @DiasAntelacionListado, anios_retencion_purga = @AniosRetencionPurga,
+                separador_lector = @SeparadorLector, blister_inicio = @BlisterInicio,
+                blister_dias_derecha_izquierda = @BlisterDiasDerechaIzquierda, blister_noche_arriba = @BlisterNocheArriba,
                 modificado_en = @ModificadoEn
             WHERE id = 1
             """,
@@ -67,6 +69,10 @@ public sealed class RepositorioFarmacia(SqliteConnection conexion) : IRepositori
                 farmacia.UmbralReutilizacionLecturaAmbientalHoras, farmacia.TempMin,
                 farmacia.TempMax, farmacia.HrMin, farmacia.HrMax, farmacia.DiaRetiradaDefecto,
                 farmacia.NBlisteresDefecto, farmacia.DiasAntelacionListado, farmacia.AniosRetencionPurga,
+                farmacia.SeparadorLector,
+                // Como texto, igual que lo deja la migración: Dapper escribiría el número del enum.
+                BlisterInicio = farmacia.BlisterInicio.ToString().ToUpperInvariant(),
+                farmacia.BlisterDiasDerechaIzquierda, farmacia.BlisterNocheArriba,
                 ModificadoEn = DateTime.UtcNow.ToString("o")
             });
 }

@@ -26,6 +26,14 @@ Si no se puede instalar desde aquí (sin conexión, carpeta de solo lectura o un
 
 URL del fichero de la AEMPS. **Descargar ahora** trae el fichero y da de alta en el catálogo todos los medicamentos que no estén: los de baja quedan inactivos, los efectos y accesorios no entran y lo que ya existía no se toca. Todo entra con la aptitud para SPD sin confirmar. **Importar al catálogo el último fichero descargado** repite la carga sin volver a descargar. Los cambios de nombre de lo que ya existía se revisan en [[uso:catalogo-medicamentos]].
 
+## Lector de códigos
+
+**Prueba del lector**: escanea una caja en el campo de prueba y verás los caracteres que manda el lector (los invisibles aparecen como ⟨GS⟩, ⟨CR⟩…), si llega el separador GS y lo que entiende la aplicación: GTIN, CN, lote, caducidad y serie. No se guarda nada al probar.
+
+**Separador sustituto**: un lector en modo teclado puede perder el separador GS que va entre el lote y el número de serie. Sin él, algunas cajas admiten varias lecturas: la aplicación no adivina y te pide elegir el lote mirando la caja. Para evitarlo, programa el lector (con su manual) para que mande el GS como un símbolo que no aparezca en lotes, por ejemplo `~`, y escríbelo aquí. Vale para todas las pantallas desde el siguiente escaneo.
+
+El **CN** se saca del propio código: del campo 712 si el fabricante lo incluye y, si no, del GTIN español (`847000` + CN + control). Solo las cajas extranjeras sin campo 712 piden el CN a mano.
+
 ## Perfiles de importación y exportar pacientes
 
 Perfiles que indican qué columna del CSV del programa de gestión corresponde a cada dato (tratamientos y envases; pacientes). "Exportar pacientes" genera un CSV con el listado según un perfil.

@@ -34,6 +34,7 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
         Seccion.Nomenclator => new NomenclatorViewModel(servicios.Farmacia, servicios.Nomenclator, usuario.Id, servicios.ImportacionNomenclator),
         Seccion.Seguridad => new SeguridadViewModel(servicios.Cifrado, servicios.Purga, usuario.Id),
         Seccion.Perfiles => new PerfilesImportacionViewModel(servicios.PerfilesImportacion, usuario.Id),
+        Seccion.LectorCodigos => new LectorCodigosViewModel(servicios.Farmacia, usuario.Id),
         Seccion.Ayuda => CrearAyuda(destino.Detalle),
         _ => null
     };
@@ -95,9 +96,10 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
 
     private RetiradaEnvasesViewModel CrearRetirada(Destino destino)
     {
-        var vm = new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, servicios.Medicamentos, usuario.Id);
+        var vm = new RetiradaEnvasesViewModel(servicios.ListadoRetirada, servicios.Envases, servicios.Medicamentos, usuario.Id,
+            servicios.LecturaCodigos);
         if (destino.PacienteId is { } id) vm.CentrarEnPaciente(id, destino.Detalle);
-        if (destino.Lectura is { } lectura) vm.AbrirRegistroEscaneado(lectura.MedicamentoId, lectura.Datos);
+        if (destino.Lectura is { } lectura) vm.AbrirRegistroEscaneado(lectura.MedicamentoId, lectura.Lectura);
         return vm;
     }
 

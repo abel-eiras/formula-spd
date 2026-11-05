@@ -17,6 +17,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
 {
     private readonly IServicioPreparacion _servicio;
     private readonly IServicioMedicamentos _servicioMedicamentos;
+    private readonly IServicioLecturaCodigos _lecturaCodigos;
     private readonly IServicioGeneracionDocumentos _servicioGeneracionDocumentos;
     private readonly IServicioComunicacionesMedico _servicioComunicaciones;
     private readonly int _pacienteId;
@@ -75,6 +76,9 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     /// <summary>Tras una lectura correcta la vista lleva el foco a Unidades, donde Intro guarda.</summary>
     public event Action? EnvaseLecturaAplicada;
 
+    /// <summary>spec-012 FR-1210: elección entre lecturas cuando el escaneo es ambiguo.</summary>
+    public LecturaAmbiguaViewModel LecturaAmbigua { get; } = new();
+
     /// <summary>FR-630: qué lectura ambiental hay y si se reutilizará dejando los campos vacíos. Antes
     /// solo se sabía al pulsar "Pasar a PREPARADO" y recibir un error.</summary>
     [ObservableProperty] private string? _textoUltimaLectura;
@@ -95,8 +99,10 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     public PreparacionViewModel(
         IServicioPreparacion servicio, IServicioMedicamentos servicioMedicamentos,
         IServicioGeneracionDocumentos servicioGeneracionDocumentos, IServicioComunicacionesMedico servicioComunicaciones,
-        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null, IServicioUsuarios? servicioUsuarios = null)
+        int pacienteId, int? usuarioActualId, PacienteContexto? contexto = null, IServicioUsuarios? servicioUsuarios = null,
+        IServicioLecturaCodigos? lecturaCodigos = null)
     {
+        _lecturaCodigos = lecturaCodigos ?? new ServicioLecturaCodigos(servicioMedicamentos);
         // FR-1542: el verificador se elige de la lista de usuarios activos, no tecleando su id.
         VerificadoresDisponibles = new System.Collections.ObjectModel.ObservableCollection<Usuario>(
             servicioUsuarios?.ListarActivos() ?? []);
@@ -356,6 +362,7 @@ public sealed partial class PreparacionViewModel : ViewModelBase
         LineaParaRegistrarEnvase = linea;
         _envaseMedicamentoId = linea.MedicamentoId;
         ConfirmarIdentidadEnvase = false;
+        LecturaAmbigua.Ocultar();
         EnvaseCodigoEscaneado = string.Empty;
         EnvaseSerie = string.Empty;
         EnvaseLote = string.Empty;
@@ -370,16 +377,28 @@ public sealed partial class PreparacionViewModel : ViewModelBase
     [RelayCommand]
     private void LeerEnvaseCodigoEscaneado()
     {
-        var datos = LectorGs1DataMatrix.Leer(EnvaseCodigoEscaneado);
+        var lectura = _lecturaCodigos.Interpretar(EnvaseCodigoEscaneado);
         EnvaseCodigoEscaneado = string.Empty;
-        if (datos is null)
+        LecturaAmbigua.Ocultar();
+        switch (lectura.Estado)
         {
-            Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
-            return;
+            case EstadoLecturaGs1.Reconocido:
+                AplicarLecturaEnvase(lectura.Datos!);
+                break;
+            case EstadoLecturaGs1.Ambiguo:
+                LecturaAmbigua.Mostrar(lectura, AplicarLecturaEnvase);
+                Mensaje = "Lectura ambigua (FR-1210): elige la que coincide con el lote de la caja.";
+                break;
+            default:
+                Mensaje = "Código no reconocido (FR-1204): introduce lote, número de serie y caducidad a mano.";
+                break;
         }
+    }
 
+    private void AplicarLecturaEnvase(DatosEnvaseEscaneado datos)
+    {
         var prescrito = LineaParaRegistrarEnvase is { } linea ? _servicioMedicamentos.ObtenerPorId(linea.MedicamentoId) : null;
-        var real = datos.CodigoNacional is { } cn ? _servicioMedicamentos.ObtenerPorCn(cn) : _servicioMedicamentos.ObtenerPorGtin(datos.Gtin);
+        var real = _lecturaCodigos.IdentificarMedicamento(datos);
         if (real is null || prescrito?.EsEquivalenteA(real) != true)
         {
             _envaseMedicamentoId = null;

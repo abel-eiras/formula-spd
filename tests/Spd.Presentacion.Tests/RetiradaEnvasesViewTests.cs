@@ -96,7 +96,8 @@ public sealed class RetiradaEnvasesViewTests
         var marca = new Medicamento { Cn = "777777", Nombre = "Otra marca", UnidadesEnvase = 20, GrupoHomogeneo = "G1" };
         marca.Id = repositorioMedicamentos.Crear(marca);
         vm.SoloConFaltantes = false;
-        vm.AbrirRegistroEscaneado(marca.Id, new DatosEnvaseEscaneado("00000000000000", "LOTE-B", new FechaCaducidadGs1(2030, 12, 31), "SERIE-B", "777777"));
+        vm.AbrirRegistroEscaneado(marca.Id, new LecturaGs1(EstadoLecturaGs1.Reconocido,
+            new DatosEnvaseEscaneado("00000000000000", "LOTE-B", new FechaCaducidadGs1(2030, 12, 31), "SERIE-B", "777777"), []));
         Assert.NotNull(vm.FilaSeleccionadaParaRegistrar);
         vm.ConfirmarRegistroCommand.Execute(null);
         var alternativa = servicioEnvases.ListarEnCustodiaDePaciente(paciente.Id).Single(e => e.Serie == "SERIE-B");
