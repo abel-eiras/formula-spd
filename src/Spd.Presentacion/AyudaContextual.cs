@@ -46,6 +46,8 @@ public static class AyudaContextual
         ["PerfilesImportacionView"] = "deposito-y-retirada",
         ["LectorCodigosView"] = "deposito-y-retirada",
         ["AlertasCalidadView"] = "deposito-y-retirada",
+        ["CentrosView"] = "entrega",
+        ["ReposicionView"] = "deposito-y-retirada",
         ["ExportarPacientesView"] = "documentacion-y-conservacion",
     };
 
@@ -80,6 +82,8 @@ public static class AyudaContextual
         ["PerfilesImportacionView"] = "configuracion",
         ["LectorCodigosView"] = "configuracion",
         ["AlertasCalidadView"] = "registros-calidad",
+        ["CentrosView"] = "retirada-envases",
+        ["ReposicionView"] = "retirada-envases",
         ["ExportarPacientesView"] = "configuracion",
     };
 

@@ -51,6 +51,8 @@ internal static class FabricaServiciosTest
             new ComprobadorIdoneidadYConsentimientoReal(repositorioEvaluaciones, repositorioConsentimientos), auditoria);
         var documentos = GeneracionDocumentos(conexion);
 
+        var repositorioCentros = new RepositorioCentros(conexion);
+        var servicioCentros = new ServicioCentros(repositorioCentros, repositorioPacientes, repositorioSpd, auditoria);
         return new ServiciosAplicacion(
             new ServicioUsuarios(repositorioUsuarios, hasheador, auditoria),
             new ServicioConfiguracionFarmacia(repositorioFarmacia, auditoria),
@@ -93,6 +95,10 @@ internal static class FabricaServiciosTest
                 new RepositorioPurga(conexion), auditoria),
             new ServicioLecturaCodigos(new ServicioMedicamentos(repositorioMedicamentos, auditoria), repositorioFarmacia),
             new ServicioIntegridadAuditoria(new RegistradorAuditoria(conexion), auditoria),
-            new ServicioAlertasCalidad(new RepositorioAlertasCalidad(conexion), repositorioMedicamentos, auditoria));
+            new ServicioAlertasCalidad(new RepositorioAlertasCalidad(conexion), repositorioMedicamentos, auditoria),
+            servicioCentros,
+            new ServicioReposicion(repositorioPacientes, new RepositorioTratamientos(conexion), repositorioMedicamentos,
+                repositorioEnvases, new RepositorioMedicos(conexion), repositorioCentros),
+            new ServicioDocumentosCentros(repositorioCentros, servicioCentros, repositorioFarmacia, auditoria));
     }
 }

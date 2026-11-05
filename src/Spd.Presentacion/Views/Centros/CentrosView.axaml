@@ -1,0 +1,102 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Centros.CentrosView">
+  <!-- Spec 019: centros (residencias) con varios pacientes y albarán de entrega. -->
+  <Grid RowDefinitions="*,Auto">
+    <Grid Grid.Row="0" ColumnDefinitions="280,*" Margin="16">
+      <StackPanel Grid.Column="0" Spacing="8">
+        <TextBlock Text="Centros y residencias" FontSize="16" FontWeight="Bold" />
+        <Button Content="Nuevo centro" Command="{Binding NuevoCommand}" />
+        <CheckBox Content="Incluir dados de baja" IsChecked="{Binding IncluirBaja}" />
+        <ListBox ItemsSource="{Binding Centros}" SelectedItem="{Binding Seleccionado}" MinHeight="200">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Margin="0,2">
+                <TextBlock Text="{Binding Nombre}" FontWeight="Bold" />
+                <TextBlock Text="De baja" Foreground="Gray" IsVisible="{Binding !Activo}" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+
+      <ScrollViewer Grid.Column="1" Margin="24,0,0,0">
+        <StackPanel Spacing="6" MaxWidth="820" HorizontalAlignment="Left">
+          <TextBlock Text="Nombre *" />
+          <TextBox Text="{Binding Nombre}" />
+          <TextBlock Text="Dirección" />
+          <TextBox Text="{Binding Direccion}" />
+          <TextBlock Text="Teléfono" />
+          <TextBox Text="{Binding Telefono}" />
+          <TextBlock Text="Persona de contacto" />
+          <TextBox Text="{Binding PersonaContacto}" />
+          <Button Classes="primario" Content="Guardar centro" Command="{Binding GuardarCommand}" />
+
+          <StackPanel Spacing="6" IsVisible="{Binding HaySeleccion}">
+            <Separator Margin="0,8" />
+            <TextBlock Text="Pacientes del centro" FontSize="16" FontWeight="Bold" />
+            <ItemsControl ItemsSource="{Binding PacientesDelCentro}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                    <TextBlock VerticalAlignment="Center">
+                      <Run Text="{Binding Apellidos}" /><Run Text=", " /><Run Text="{Binding Nombre}" />
+                      <Run Text=" · ficha " /><Run Text="{Binding NumFicha}" />
+                    </TextBlock>
+                    <Button Classes="enlace" Content="Quitar del centro"
+                            Command="{Binding DataContext.QuitarPacienteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBox Text="{Binding BusquedaPaciente}" Watermark="Añadir paciente: escribe nombre, apellidos o ficha" />
+            <ItemsControl ItemsSource="{Binding ResultadosPaciente}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Button Classes="enlace" HorizontalAlignment="Left"
+                          Command="{Binding DataContext.AnadirPacienteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                          CommandParameter="{Binding}">
+                    <TextBlock>
+                      <Run Text="Añadir: " /><Run Text="{Binding Apellidos}" /><Run Text=", " /><Run Text="{Binding Nombre}" />
+                    </TextBlock>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Separator Margin="0,8" />
+            <TextBlock Text="Albarán de entrega" FontSize="16" FontWeight="Bold" />
+            <TextBlock TextWrapping="Wrap"
+                       Text="Blísteres verificados de los pacientes del centro, listos para entregar. El albarán lo firma quien los recibe; la entrega de cada blíster se sigue registrando en su preparación." />
+            <ItemsControl ItemsSource="{Binding Blisteres}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <CheckBox IsChecked="{Binding Incluido}">
+                    <TextBlock>
+                      <Run Text="{Binding Blister.NumRegistro}" /><Run Text=" · " /><Run Text="{Binding Blister.Paciente}" />
+                      <Run Text=" · " /><Run Text="{Binding Blister.ValidezDesde, StringFormat='{}{0:dd/MM}'}" />
+                      <Run Text="–" /><Run Text="{Binding Blister.ValidezHasta, StringFormat='{}{0:dd/MM}'}" />
+                    </TextBlock>
+                  </CheckBox>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Content="Imprimir albarán" Command="{Binding ImprimirAlbaranCommand}" HorizontalAlignment="Left" />
+
+            <Separator Margin="0,8" />
+            <TextBlock Text="Dar de baja el centro" Classes="etiqueta" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBox Text="{Binding MotivoBaja}" Watermark="Motivo" Width="320" />
+              <Button Content="Dar de baja" Command="{Binding DarDeBajaCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <Border Grid.Row="1" Padding="16,8" Background="#22808080"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

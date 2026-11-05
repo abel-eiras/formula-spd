@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Spd.Presentacion.Views.Centros.ReposicionView">
+  <!-- Spec 019 FR-1910: lo que se agota pronto con lo que hay en custodia. -->
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="24,20">
+    <TextBlock Grid.Row="0" Text="Reposición" FontSize="18" FontWeight="Bold" />
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,8">
+      <TextBlock Text="Se agota en los próximos" VerticalAlignment="Center" />
+      <NumericUpDown Value="{Binding HorizonteDias}" Minimum="1" Maximum="120" Width="120" />
+      <TextBlock Text="días" VerticalAlignment="Center" />
+      <ComboBox ItemsSource="{Binding OpcionesCentro}" SelectedItem="{Binding Centro}" MinWidth="220" />
+      <Button Content="Calcular" Command="{Binding CalcularCommand}" />
+      <Button Content="Imprimir" Command="{Binding ImprimirCommand}" />
+    </StackPanel>
+    <DataGrid Grid.Row="2" ItemsSource="{Binding Filas}" AutoGenerateColumns="False" IsReadOnly="True">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Paciente" Binding="{Binding Paciente}" Width="2*" />
+        <DataGridTextColumn Header="Centro" Binding="{Binding Centro}" Width="*" />
+        <DataGridTextColumn Header="Médico" Binding="{Binding Medico}" Width="1.5*" />
+        <DataGridTextColumn Header="Medicamento" Binding="{Binding Medicamento}" Width="2*" />
+        <DataGridTextColumn Header="Quedan" Binding="{Binding UnidadesDisponibles}" Width="80" CellStyleClasses="cifra" />
+        <DataGridTextColumn Header="Días" Binding="{Binding DiasCobertura}" Width="70" CellStyleClasses="cifra" />
+        <DataGridTextColumn Header="Se agota" Binding="{Binding FechaAgotamiento, StringFormat='{}{0:dd/MM/yyyy}'}" Width="110" />
+      </DataGrid.Columns>
+    </DataGrid>
+    <Border Grid.Row="3" Padding="16,8" Background="#22808080" Margin="0,8,0,0"
+            IsVisible="{Binding Mensaje, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <TextBlock Text="{Binding Mensaje}" TextWrapping="Wrap" />
+    </Border>
+  </Grid>
+</UserControl>

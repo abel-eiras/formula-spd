@@ -44,4 +44,7 @@ public sealed record ServiciosAplicacion(
     // conocerlo, y las pantallas caen en una lectura sin separador sustituto (spec-012 FR-1211).
     IServicioLecturaCodigos? LecturaCodigos = null,
     IServicioIntegridadAuditoria? IntegridadAuditoria = null,
-    IServicioAlertasCalidad? AlertasCalidad = null);
+    IServicioAlertasCalidad? AlertasCalidad = null,
+    IServicioCentros? Centros = null,
+    IServicioReposicion? Reposicion = null,
+    IServicioDocumentosCentros? DocumentosCentros = null);

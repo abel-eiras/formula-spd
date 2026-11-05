@@ -10,6 +10,8 @@ public enum Seccion
     Paciente,
     Preparaciones,
     Retirada,
+    Reposicion,
+    Centros,
     Exportar,
     Catalogo,
     Medicos,
@@ -51,6 +53,8 @@ public sealed record EntradaNavegacion(Seccion Seccion, string Titulo, string Gr
         new(Seccion.Pacientes, "Pacientes", GrupoTrabajo, false),
         new(Seccion.Preparaciones, "Preparaciones", GrupoTrabajo, false),
         new(Seccion.Retirada, "Retirada de envases", GrupoTrabajo, false),
+        new(Seccion.Reposicion, "Reposición", GrupoTrabajo, false),
+        new(Seccion.Centros, "Centros y residencias", GrupoTrabajo, false),
         new(Seccion.Catalogo, "Catálogo de medicamentos", GrupoTrabajo, false),
         // FR-037: en el trabajo diario y no en administración — quien registra un tratamiento
         // necesita poder dar de alta al médico prescriptor en ese momento.

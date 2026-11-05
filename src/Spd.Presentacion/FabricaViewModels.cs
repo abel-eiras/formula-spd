@@ -21,6 +21,10 @@ public sealed class FabricaViewModels(ServiciosAplicacion servicios, Navegador n
         Seccion.Paciente => CrearEspacioDePaciente(destino),
         Seccion.Preparaciones => CrearPreparaciones(destino),
         Seccion.Retirada => CrearRetirada(destino),
+        Seccion.Reposicion => servicios.Reposicion is { } reposicion
+            ? new ReposicionViewModel(reposicion, servicios.Centros, servicios.DocumentosCentros, usuario.Id) : null,
+        Seccion.Centros => servicios.Centros is { } centros
+            ? new CentrosViewModel(centros, servicios.Pacientes, servicios.DocumentosCentros, usuario.Id) : null,
         Seccion.Exportar => new ExportarPacientesViewModel(
             servicios.PerfilesImportacion, servicios.ExportacionPacientes, servicios.Pacientes),
         Seccion.Catalogo => CrearCatalogo(destino),

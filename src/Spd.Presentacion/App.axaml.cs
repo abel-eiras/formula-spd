@@ -210,6 +210,10 @@ public partial class App : Application
             new RepositorioComunicacionesMedico(_conexion!), repositorioFarmacia, auditoria);
 
         // Panel de inicio (Spec 006 FR-691), lote (Spec 007 FR-720..725) y purga manual (Spec 010 §4.3).
+        var repositorioCentros = new RepositorioCentros(_conexion!);
+        var servicioCentros = new ServicioCentros(repositorioCentros, repositorioPacientes, repositorioSpd, auditoria);
+        var servicioReposicion = new ServicioReposicion(repositorioPacientes, new RepositorioTratamientos(_conexion!),
+            repositorioMedicamentos, repositorioEnvases, new RepositorioMedicos(_conexion!), repositorioCentros);
         var servicioAlertasCalidad = new ServicioAlertasCalidad(new RepositorioAlertasCalidad(_conexion!), repositorioMedicamentos, auditoria);
         _servicioAvisos = new ServicioAvisosInicio(_servicioListadoRetirada, repositorioSpd, repositorioPacientes,
             new RepositorioRegistrosAmbientales(_conexion!), servicioAlertasCalidad);
@@ -232,7 +236,8 @@ public partial class App : Application
             new ServicioContactos(new RepositorioContactos(_conexion!), repositorioPacientes, auditoria),
             _servicioLote, _servicioPurga, lecturaCodigos,
             new ServicioIntegridadAuditoria(new RegistradorAuditoria(_conexion!), auditoria),
-            servicioAlertasCalidad);
+            servicioAlertasCalidad, servicioCentros, servicioReposicion,
+            new ServicioDocumentosCentros(repositorioCentros, servicioCentros, repositorioFarmacia, auditoria));
     }
 
     private void MostrarAsistenteOLogin(IClassicDesktopStyleApplicationLifetime desktop)

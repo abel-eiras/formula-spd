@@ -7,3 +7,12 @@ Pacientes cuyo próximo blíster empieza dentro de los días de antelación conf
 Sirve para pedir las recetas y preparar la dispensación con tiempo. Un paciente cuya semana ya está cubierta por un SPD preparado o verificado no aparece. La antelación y el día de retirada por defecto se configuran en [[uso:configuracion]]; el día de cada paciente, en su ficha.
 
 Procedimiento relacionado: [[procedimiento:deposito-y-retirada]].
+
+
+## Reposición
+
+**Reposición** dice qué medicamentos en SPD se agotan en los próximos días (14 por defecto, hasta 120) con lo que hay en custodia: unidades que quedan, días que cubren y fecha en que se acaban. Sirve para pedir a tiempo la dispensación o una receta nueva; el listado de retirada solo mira la próxima preparación. Se puede filtrar por centro e imprimir.
+
+## Centros y residencias
+
+En **Centros y residencias** se dan de alta las residencias o centros de día y se les asignan sus pacientes. Al elegir un centro aparecen los blísteres **verificados** de sus pacientes; **Imprimir albarán** genera el documento que acompaña a los blísteres, con espacio para la firma de quien los recibe. El albarán no registra la entrega: cada blíster se sigue entregando desde su preparación, porque el procedimiento pide los datos de cada entrega. Un centro con pacientes no se puede dar de baja.

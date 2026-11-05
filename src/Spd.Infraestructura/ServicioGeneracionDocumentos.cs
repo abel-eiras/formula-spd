@@ -791,7 +791,7 @@ public sealed class ServicioGeneracionDocumentos(
 
     private static string SiNo(bool valor) => valor ? "SÍ" : "NO";
 
-    private static void ConfigurarPagina(PageDescriptor pagina, PageSize tamano, float fuente)
+    internal static void ConfigurarPagina(PageDescriptor pagina, PageSize tamano, float fuente)
     {
         pagina.Size(tamano);
         pagina.Margin(1, Unit.Centimetre);
@@ -800,7 +800,7 @@ public sealed class ServicioGeneracionDocumentos(
 
     /// <summary>Cabecera institucional común (FR-730: logo, nombre, código sanitario, dirección,
     /// teléfono). El logo se incluye si la ruta configurada existe.</summary>
-    private static void Cabecera(IContainer contenedor, Farmacia farmacia, string titulo)
+    internal static void Cabecera(IContainer contenedor, Farmacia farmacia, string titulo)
         => contenedor.Column(col =>
         {
             col.Item().Row(fila =>
@@ -820,7 +820,7 @@ public sealed class ServicioGeneracionDocumentos(
 
     private static void Titulo(ColumnDescriptor col, string texto) => col.Item().PaddingTop(4).Text(texto).Bold();
 
-    private static void Celda(TableDescriptor tabla, string texto, bool negrita = false)
+    internal static void Celda(TableDescriptor tabla, string texto, bool negrita = false)
     {
         var t = tabla.Cell().Border(0.5f).Padding(2).Text(texto ?? "");
         if (negrita) t.Bold();
